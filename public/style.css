@@ -20,7 +20,7 @@ body {
     padding: 20px 0;
 }
 
-/* Kontejneri za ekrane */
+/* Kontejneri za ekrane - Apsolutno osiguraj da su svi skriveni dok JS ne preuzme */
 .container {
     width: 95%;
     max-width: 450px;
@@ -30,10 +30,10 @@ body {
     border: 1px solid #2a2a2a;
     box-shadow: 0 4px 25px rgba(255, 71, 87, 0.15);
     margin: 15px;
-    display: none; /* Defaultno skriveni, JS ih kontrolira */
+    display: none !important; /* KLJUČNO: Apsolutno skrivanje dok JS ne preuzme */
 }
 #intro {
-    display: block; /* Intro ekran je defaultno vidljiv */
+    display: block !important; /* Intro ekran je jedini vidljiv po defaultu */
 }
 
 /* Naslovi */
@@ -187,11 +187,6 @@ img.preview-slika {
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* Uklonjen overflow-y odavde ako je na #pijankePregled */
-    /* No, zadrzi ga ovdje ako zelis da se cijeli kontejner skrola: */
-    /* max-height: 100vh; */ /* Primjer visine, prilagoditi */
-    /* overflow-y: auto; */
-    /* Bitno je da jedan od njih (ili oboje) ima definiranu max-height i overflow-y: auto */
 }
 
 
@@ -433,14 +428,14 @@ img.preview-slika {
 
 
 /* --- STILOVI ZA PRIVATNI CHAT EKRAN (HEADER) --- */
+/* Centriranje statusa partnera u privatnom chatu */
 #privatniChat div[style*="text-align:center"] {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centriraj vertikalno */
-    justify-content: center; /* Centriraj horizontalno ako treba */
+    align-items: center; /* Centriraj sve elemente unutar ovog diva (naslov i status) */
 }
 #chatPartnerStatus {
-    text-align: center; /* Centriraj status "viđen prije..." */
+    text-align: center; /* Osiguraj centriranje statusa "viđen prije..." */
     font-size: 14px;
     color: #b0b0b0;
     margin-top: 5px; /* Mali razmak od imena */
