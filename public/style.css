@@ -44,14 +44,16 @@ img.preview-slika { display: none; }
 .pravila-checkbox label { font-size: 15px; color: #f0f0f0; }
 /* public/style.css */
 
-/* --- POBOLJŠANE STILIZACIJE ZA VIZUALNI PRIKAZ OBJAVA (verzija 3) --- */
+/* --- POBOLJŠANE STILIZACIJE ZA VIZUALNI PRIKAZ OBJAVA (finalna verzija) --- */
 
 /* Prilagođavamo postojeći .pijanka stil */
 .pijanka {
     display: flex;
     flex-direction: column; /* Sadržaj unutar pijanke ide okomito */
-    padding: 20px; /* Povećaj padding malo */
-    border-left: 4px solid #333; /* Vrati lijevu crtu ako je bila obrisana */
+    padding: 20px;
+    border-left: 4px solid #333;
+    /* Centriranje u kontejneru je već riješeno na .container ili body stilovima */
+    /* Nema više flex-a na .pijanka ako zelimo da ostane lijevo poravnato unutar kontejnera */
 }
 
 /* Header pijanke (slika, ime, status, udaljenost, dugme za brisanje) */
@@ -60,9 +62,9 @@ img.preview-slika { display: none; }
     align-items: center; /* Vertikalno poravnanje po sredini */
     gap: 15px; /* Razmak između elemenata */
     cursor: pointer;
-    padding-bottom: 10px; /* Razmak ispod headera */
-    border-bottom: 1px solid #333; /* Mala linija ispod headera */
-    margin-bottom: 10px; /* Razmak između headera i opisa */
+    padding-bottom: 10px;
+    border-bottom: 1px solid #333;
+    margin-bottom: 10px;
 }
 
 .pijanka-profilna-slika {
@@ -71,28 +73,26 @@ img.preview-slika { display: none; }
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #ff4757;
-    flex-shrink: 0; /* Spriječi smanjivanje */
+    flex-shrink: 0;
 }
 
 .pijanka-info {
     flex-grow: 1; /* Omogući da zauzme sav dostupan prostor */
     display: flex;
     flex-direction: column; /* Ime i status/udaljenost idu okomito */
-    /* Uklonjeno justify-content: center; */
+    align-items: flex-start; /* Poravnaj sav sadržaj lijevo */
 }
 
 .pijanka-info > div { /* Kontejner za status-dot i ime */
     display: flex;
-    align-items: center; /* Centriraj status dot i ime */
-    margin-bottom: 2px; /* Smanji razmak između imena i udaljenosti */
-    justify-content: flex-start; /* Poravnaj lijevo */
+    align-items: center;
+    margin-bottom: 2px;
 }
 
 .pijanka-info strong {
     font-size: 18px;
-    margin-right: 5px; /* Mali razmak između imena i status-text */
-    /* flex-grow: 1; - uklonjeno, ne treba da se ime širi */
-    text-align: left;
+    margin-right: 5px;
+    text-align: left; /* Osiguraj lijevo poravnanje */
 }
 
 .pijanka-info p.status-text { /* Stil za "pije X km" */
@@ -100,7 +100,7 @@ img.preview-slika { display: none; }
     color: #a0a0a0;
     margin: 0;
     padding: 0;
-    text-align: left;
+    text-align: left; /* Osiguraj lijevo poravnanje */
     white-space: nowrap; /* Spriječi prelamanje teksta */
 }
 
@@ -108,31 +108,35 @@ img.preview-slika { display: none; }
 .delete-btn {
     background: none;
     border: none;
-    font-size: 18px; /* SMANJEN FONT VELIČINE IKONICE */
-    padding: 5px;
+    font-size: 16px; /* JOŠ SMANJENI FONT VELIČINE IKONICE */
+    padding: 3px; /* JOŠ SMANJENI padding za hover efekt */
     margin-left: auto; /* Pomakni ga skroz desno */
     cursor: pointer;
     color: #777;
     flex-shrink: 0;
+    line-height: 1; /* Osiguraj da ikonica bude centrirana vertikalno */
 }
 .delete-btn:hover {
     color: #ff4757;
-    background: #333;
+    background: #333; /* Pozadina na hoveru */
     border-radius: 5px;
+    transform: scale(1.1); /* Mali zoom efekt na hoveru */
+    transition: transform 0.2s ease; /* Glatki prijelaz */
 }
 
 .status-dot {
-    margin-right: 8px; /* Razmak između točke i imena */
+    margin-right: 8px;
 }
 
 .pijanka-opis {
-    padding-top: 5px; /* Mali razmak iznad opisa */
+    padding-top: 5px;
 }
 
 .pijanka-opis p {
     margin-bottom: 0;
     color: #e0e0e0;
     font-size: 15px;
+    text-align: left; /* Osiguraj lijevo poravnanje */
 }
 
 /* Stil za separator (linija između pijanki) */
@@ -144,7 +148,32 @@ img.preview-slika { display: none; }
     height: 1px;
 }
 
-/* Centriraj tekst u kontejneru objava ako je prazan */
-#pijankePregled p {
+/* Osiguraj da p oznake u .container-u ne budu centrirane ako nisu direktno u .container */
+.container p:not(.status-text):not(.pijanka-opis p) {
+    text-align: left; /* Zadrži defaultno lijevo poravnanje za ostale p tagove */
+}
+/* No, originalno si imao p { text-align: center; } na početku CSS-a.
+Ako i dalje želiš lijevo poravnanje za sve p u containeru osim naslova, koristi: */
+.container p {
+    text-align: left;
+}
+.container h1, .container h2, .container p.welcome-message { /* Prilagodi selektor ako imas welcome message */
     text-align: center;
+}
+/* Ili ako zelis da svi p unutar .container budu lijevo, osim onih centriranih */
+.container p {
+    text-align: left;
+}
+#intro p, #odabir p {
+    text-align: center; /* Vrati centriranje za uvodne ekrane ako je bilo namjerno */
+}
+
+/* Osiguraj da #pijankePregled p bude lijevo */
+#pijankePregled p {
+    text-align: left;
+}
+
+/* Posebno za poruku "Trenutno nitko ne pije." */
+#pijankePregled p:last-child {
+    text-align: center; /* Vrati centriranje za ovu specifičnu poruku */
 }

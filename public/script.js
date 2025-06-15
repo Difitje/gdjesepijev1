@@ -31,15 +31,26 @@ async function authenticatedFetch(url, options = {}) {
 // ... (ostatak koda) ...
 
 // --- POČETNO UČITAVANJE APLIKACIJE ---
-window.onload = async function() {
-    localStorage.removeItem("loggedInUserId"); // Čišćenje starog, lokalnog ID-a
+// public/script.js
 
-    const token = localStorage.getItem("token"); // Pokušaj dohvatiti token
-    console.log("window.onload: Pokušavam dohvatiti token:", token ? "Token pronađen" : "Nema tokena");
+// ... (ostatak koda) ...
+
+// --- POČETNO UČITAVANJE APLIKACIJE ---
+window.onload = async function() {
+    // Čišćenje starog, lokalnog ID-a
+    localStorage.removeItem("loggedInUserId");
+
+    let token = null;
+    try {
+        token = localStorage.getItem("token"); // Pokušaj dohvatiti token
+        console.log("window.onload: Pokušavam dohvatiti token iz localStorage-a:", token ? "Token pronađen" : "Nema tokena");
+    } catch (e) {
+        console.error("window.onload: Greška pri pristupu localStorage-u:", e);
+        token = null; // Ako je greška, postavi token na null
+    }
 
     if (token) {
         try {
-            // Provjeri token na serveru
             const response = await authenticatedFetch('/api/auth/me');
             console.log("window.onload: Odgovor od /api/auth/me (status):", response.status);
 
@@ -48,7 +59,6 @@ window.onload = async function() {
                 trenutniKorisnik = data.user;
                 console.log("window.onload: Korisnik uspješno autentificiran:", trenutniKorisnik.ime);
 
-                // Provjeri da su svi podaci dohvaćeni prije pokretanja aplikacije
                 await Promise.all([
                     dohvatiSveKorisnike(),
                     dohvatiSvePijanke(),
@@ -67,10 +77,12 @@ window.onload = async function() {
             swap("", "intro");
         }
     } else {
-        console.log("window.onload: Nema tokena, prikazujem intro ekran.");
+        console.log("window.onload: Nema tokena u localStorage-u, prikazujem intro ekran.");
         swap("", "intro");
     }
 };
+
+// ... (ostatak koda ostaje isti) ...
 
 // --- FUNKCIJE ZA PREBACIVANJE EKRANA (UI LOGIKA) ---
 function swap(hideId, showId) {
@@ -512,6 +524,26 @@ async function obrisiPijanku(pijankaId, event) {
 
 function prikaziPijankePregled() {
     const div = document.getElementById("pijankePregled");
+    function prikaziPijankePregled() {
+    const div = document.getElementById("pijankePregled");
+    if (!div) return;
+    div.innerHTML = ""; // Očisti prethodni sadržaj
+
+    // NOVI KOD: Dodaj brojač aktivnih pijanki
+    const naslovPijanke = document.querySelector('#lokacijePrikaz h2');
+    if (naslovPijanke) {
+        const brojAktivnihPijanki = svePijanke.length;
+        naslovPijanke.innerHTML = `🍺 Trenutno pije: (${brojAktivnihPijanki} ${brojAktivnihPijanki === 1 ? 'osoba' : 'osoba'})`;
+    }
+    // KRAJ NOVOG KODA
+
+    if (svePijanke.length === 0) {
+        div.innerHTML = '<p style="text-align:center;">Trenutno nitko ne pije. Budi prvi!</p>';
+        return;
+    }
+
+    // ... (ostatak funkcije prikaziPijankePregled ostaje isti) ...
+}
     if (!div) return;
     div.innerHTML = "";
     if (svePijanke.length === 0) {
