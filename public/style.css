@@ -450,3 +450,23 @@ img.preview-slika {
 /* .button-container {
     padding-top: 20px;
 } */
+
+/* public/style.css */
+
+/* ... (ostatak koda) ... */
+
+/* --- STILOVI ZA GLAVNI NASLOV "DRINKER" --- */
+.main-title {
+    text-align: center;
+    margin-bottom: 20px; /* Razmak ispod naslova */
+    padding-top: 10px; /* Razmak iznad naslova */
+}
+
+.main-title h1 {
+    font-size: 3em; /* Veliki font za naslov */
+    color: #ff4757; /* Crvena boja */
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); /* Mala sjena za isticanje */
+    letter-spacing: 2px; /* Razmak između slova */
+    text-transform: uppercase; /* Sve velika slova */
+    margin-bottom: 0; /* Ukloni donju marginu */
+}
