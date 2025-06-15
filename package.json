@@ -1,0 +1,15 @@
+{
+  "name": "gdjesepije-app",
+  "version": "1.0.0",
+  "description": "Aplikacija za povezivanje ljubitelja pića s Vercel serverless funkcijama.",
+  "main": "index.js",
+  "scripts": {
+    "start": "echo 'Vercel will run serverless functions automatically.'"
+  },
+  "dependencies": {
+    "mongodb": "^6.8.0",           
+    "bcryptjs": "^2.4.3",          
+    "jsonwebtoken": "^9.0.2",      
+    "cors": "^2.8.5"               
+  }
+}
