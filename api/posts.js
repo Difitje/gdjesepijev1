@@ -4,17 +4,13 @@ const withAuth = require('./auth');
 const { ObjectId } = require('mongodb');
 const cors = require('cors');
 
-// Inicijaliziraj CORS middleware za ovu funkciju
-// Dozvoljavamo GET, POST i DELETE metode za objave
 const allowCors = cors({ methods: ['GET', 'POST', 'DELETE'], origin: '*' });
 
 module.exports = withAuth(async (req, res) => {
-  // Prvo, obradi CORS preflight zahtjeve (OPTIONS metoda)
   if (req.method === 'OPTIONS') {
     return allowCors(req, res, () => res.status(200).end());
   }
 
-  // Zatim, primijeni CORS na stvarni zahtjev i pokreni logiku
   return allowCors(req, res, async () => {
     const { db } = await connectToDatabase();
     const postsCollection = db.collection('posts');
@@ -22,8 +18,17 @@ module.exports = withAuth(async (req, res) => {
     if (req.method === 'GET') {
       try {
         const posts = await postsCollection.find({}).sort({ createdAt: -1 }).toArray();
+
+        // Mapiraj _id u id za frontend
+        const postsToSend = posts.map(post => ({
+            ...post, // Prekopiraj sva svojstva
+            id: post._id.toString(), // Dodaj 'id' property kao string od _id
+            korisnikId: post.korisnikId.toString() // Osiguraj da je korisnikId string ako je ObjectId
+        }));
+
+
         if (!res.status) { console.error("res.status is missing before GET posts!"); return res.end(JSON.stringify({ message: 'res.status missing: Greška servera pri dohvaćanju objava.' })); }
-        res.status(200).json(posts);
+        res.status(200).json(postsToSend); // Vraća mapirane objave
       } catch (error) {
         console.error('Greška pri dohvaćanju objava:', error);
         if (!res.status) { console.error("res.status is missing before GET posts error!"); return res.end(JSON.stringify({ message: 'res.status missing: Greška servera pri dohvaćanju objava.', error: error.message })); }
@@ -32,15 +37,15 @@ module.exports = withAuth(async (req, res) => {
     } else if (req.method === 'POST') {
       try {
         const { opis, lat, lon } = req.body;
-        const korisnikId = req.user.userId;
+        const korisnikId = req.user.userId; // Dobiveno iz JWT tokena
 
         if (!opis || lat === undefined || lon === undefined) {
           if (!res.status) { console.error("res.status is missing before POST posts 400!"); return res.end(JSON.stringify({ message: 'res.status missing: Opis, latituda i longituda su obavezni.' })); }
           return res.status(400).json({ message: 'Opis, latituda i longituda su obavezni.' });
         }
 
-        // --- PROBLEM JE VJEROJATNO negdje OVDJE ---
-        await postsCollection.deleteMany({ korisnikId: korisnikId }); // Prema tvojoj logici
+        // Brišemo stare objave korisnika prije dodavanja nove (prema tvojoj logici)
+        await postsCollection.deleteMany({ korisnikId: korisnikId });
 
         const newPost = {
           korisnikId: korisnikId,
