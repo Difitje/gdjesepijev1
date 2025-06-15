@@ -1,18 +1,22 @@
 // public/script.js
 
-// Globalne varijable (sada se podaci pune sa servera, a ne iz localStorage)
+// Globalne varijable
 let trenutniKorisnik = null;
 let sviKorisnici = [];
 let svePijanke = [];
-let privatnePoruke = {}; // Strukturirano kao {chatKey: [messages]}
+let privatnePoruke = {}; 
 
 let trenutniChatPartnerId = null;
-let mojPoz = null; // Geolokacija ostaje lokalno na frontendu
+let mojPoz = null; 
 let activityInterval = null;
 let chatStatusInterval = null;
 let globalDataRefreshInterval = null;
-let odabranaSlika = null; // Za upload profilne slike pri registraciji (Base64)
-let odabranaEditSlika = null; // Za upload profilne slike pri uređivanju (Base64)
+let odabranaSlika = null; 
+let odabranaEditSlika = null; 
+
+// NOVA GLOBALNA VARIJABLA (za države/gradove)
+let loadedCountries = []; 
+
 
 // --- POMOĆNA FUNKCIJA ZA FETCH POZIVE SA AUTORIZACIJOM ---
 async function authenticatedFetch(url, options = {}) {
@@ -26,20 +30,21 @@ async function authenticatedFetch(url, options = {}) {
     return fetch(url, options);
 }
 
-// public/script.js
-
-// ... (ostatak koda) ...
-
 // --- POČETNO UČITAVANJE APLIKACIJE ---
 window.onload = async function() {
     localStorage.removeItem("loggedInUserId"); // Čišćenje starog, lokalnog ID-a
 
-    const token = localStorage.getItem("token"); // Pokušaj dohvatiti token
-    console.log("window.onload: Pokušavam dohvatiti token:", token ? "Token pronađen" : "Nema tokena");
+    let token = null;
+    try {
+        token = localStorage.getItem("token"); 
+        console.log("window.onload: Pokušavam dohvatiti token iz localStorage-a:", token ? "Token pronađen" : "Nema tokena");
+    } catch (e) {
+        console.error("window.onload: Greška pri pristupu localStorage-u:", e);
+        token = null; 
+    }
 
     if (token) {
         try {
-            // Provjeri token na serveru
             const response = await authenticatedFetch('/api/auth/me');
             console.log("window.onload: Odgovor od /api/auth/me (status):", response.status);
 
@@ -48,7 +53,6 @@ window.onload = async function() {
                 trenutniKorisnik = data.user;
                 console.log("window.onload: Korisnik uspješno autentificiran:", trenutniKorisnik.ime);
 
-                // Provjeri da su svi podaci dohvaćeni prije pokretanja aplikacije
                 await Promise.all([
                     dohvatiSveKorisnike(),
                     dohvatiSvePijanke(),
@@ -60,15 +64,24 @@ window.onload = async function() {
                 console.warn("window.onload: Token nevalidan ili istekao, odjavljujem korisnika (status:", response.status, ").");
                 localStorage.removeItem("token");
                 swap("", "intro");
+                // DODANO: Popuni državu/grad na početnom ekranu ako nema prijave
+                populateCountries('drzava'); 
+                populateCities('drzava', 'grad');
             }
         } catch (error) {
             console.error("window.onload: Greška pri provjeri tokena ili mreži (catch blok):", error);
             localStorage.removeItem("token");
             swap("", "intro");
+            // DODANO: Popuni državu/grad na početnom ekranu
+            populateCountries('drzava');
+            populateCities('drzava', 'grad');
         }
     } else {
-        console.log("window.onload: Nema tokena, prikazujem intro ekran.");
+        console.log("window.onload: Nema tokena u localStorage-u, prikazujem intro ekran.");
         swap("", "intro");
+        // DODANO: Popuni državu/grad na početnom ekranu
+        populateCountries('drzava');
+        populateCities('drzava', 'grad');
     }
 };
 
@@ -91,15 +104,13 @@ function nazadNaListu() {
 }
 
 async function globalRefreshUI() {
-    if (!trenutniKorisnik) return; // Nemoj osvježavati ako korisnik nije prijavljen
+    if (!trenutniKorisnik) return; 
     await dohvatiSveKorisnike();
     await dohvatiSvePijanke();
     await dohvatiSvePoruke();
 
-    // Ažuriraj samo ako je relevantan ekran prikazan
     if (document.getElementById("lokacijePrikaz")?.style.display === "block") prikaziPijankePregled();
     if (document.getElementById("inboxPrikaz")?.style.display === "block") prikaziInbox();
-    // Ažuriraj log privatnog chata samo ako je otvoren
     if (document.getElementById("privatniChat")?.style.display === "block" && trenutniChatPartnerId) prikaziPrivatniLog();
     azurirajNotifikacije();
 }
@@ -145,19 +156,23 @@ async function registruj() {
     const instagramInput = document.getElementById("instagram");
     const tiktokInput = document.getElementById("tiktok");
     const opisInput = document.getElementById("opis");
+    const drzavaInput = document.getElementById("drzava"); // NOVO
+    const gradInput = document.getElementById("grad");     // NOVO
 
     const ime = imeInput ? imeInput.value.trim() : '';
     const sifra = sifraInput ? sifraInput.value.trim() : '';
     const instagram = instagramInput ? instagramInput.value.trim() : '';
     const tiktok = tiktokInput ? tiktokInput.value.trim() : '';
     const opis = opisInput ? opisInput.value.trim() : '';
+    const drzava = drzavaInput ? drzavaInput.value : ''; // NOVO
+    const grad = gradInput ? gradInput.value : '';         // NOVO
 
 
-    if (!ime || !sifra || !odabranaSlika) {
-        return alert("Molimo popunite korisničko ime, lozinku i odaberite sliku!");
+    if (!ime || !sifra || !odabranaSlika || !drzava || !grad) {
+        return alert("Molimo popunite korisničko ime, lozinku, odaberite sliku, državu i grad!");
     }
 
-    console.log("Pokušavam registrirati korisnika:", ime); // LOG 1
+    console.log("Pokušavam registrirati korisnika:", ime); 
 
     try {
         const response = await fetch('/api/register', {
@@ -169,23 +184,25 @@ async function registruj() {
                 slika: odabranaSlika,
                 instagram,
                 tiktok,
-                opis
+                opis,
+                drzava, // NOVO
+                grad    // NOVO
             })
         });
 
         const data = await response.json();
 
-        if (response.ok) { // Ako je registracija uspješna
+        if (response.ok) { 
             alert(data.message);
-            console.log("Registracija uspješna, pokušavam automatsku prijavu..."); // LOG 2
-            await ulogujSe(ime, sifra); // Pokušaj automatske prijave
-            console.log("Automatska prijava pokušana."); // LOG 3
+            console.log("Registracija uspješna, pokušavam automatsku prijavu..."); 
+            await ulogujSe(ime, sifra); 
+            console.log("Automatska prijava pokušana."); 
         } else {
             alert("Greška pri registraciji: " + data.message);
-            console.error("Greška s registracijskim API-jem:", data); // LOG 4
+            console.error("Greška s registracijskim API-jem:", data); 
         }
     } catch (error) {
-        console.error("Greška kod registracije (catch blok):", error); // LOG 5
+        console.error("Greška kod registracije (catch blok):", error); 
         alert("Došlo je do greške pri registraciji.");
     }
 }
@@ -211,12 +228,12 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
         const data = await response.json();
 
         if (response.ok) {
-            localStorage.setItem("token", data.token); // Spremi JWT token!
-            trenutniKorisnik = data.user; // Server vraća objekt korisnika
-            await dohvatiSveKorisnike(); // Osvježi lokalne liste sa servera
+            localStorage.setItem("token", data.token); 
+            trenutniKorisnik = data.user; 
+            await dohvatiSveKorisnike(); 
             await dohvatiSvePijanke();
             await dohvatiSvePoruke();
-            pokreniAplikaciju(); // Pokreni glavni dio aplikacije (prebaci ekrane)
+            pokreniAplikaciju(); 
         } else {
             alert("Greška pri prijavi: " + data.message);
         }
@@ -235,8 +252,8 @@ async function odjaviSe() {
         await azurirajMojuAktivnost(true);
     }
 
-    localStorage.removeItem("token"); // Ukloni JWT token iz localStorage
-    trenutniKorisnik = null; // Resetiraj trenutnog korisnika
+    localStorage.removeItem("token"); 
+    trenutniKorisnik = null; 
     odabranaSlika = null;
     odabranaEditSlika = null;
 
@@ -255,38 +272,44 @@ async function odjaviSe() {
 }
 
 // --- LOGIKA POKRETANJA APLIKACIJE NAKON PRIJAVE/REGISTRACIJE ---
-// --- LOGIKA POKRETANJA APLIKACIJE NAKON PRIJAVE/REGISTRACIJE ---
 function pokreniAplikaciju() {
-    console.log("pokreniAplikaciju: Pokrećem glavni dio aplikacije."); // LOG
+    console.log("pokreniAplikaciju: Pokrećem glavni dio aplikacije."); 
 
-    // Sakrij sve ekrane za prijavu/registraciju
-    ["login", "registracija", "odabir", "intro", "pravilaEkran"].forEach(id => {
+    // --- NOVI KOD ZA SAKRIVANJE SVIH EKRANA NA POČETKU ---
+    // Lista svih ID-jeva kontejnera koje kontrolira swap funkcija
+    const sviKontejneri = [
+        "intro", "pravilaEkran", "odabir", "login", "registracija",
+        "lokacijePrikaz", "inboxPrikaz", "glavniDio", "privatniChat", "editProfil"
+    ];
+    sviKontejneri.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = "none";
     });
+    // --- KRAJ NOVOG KODA ---
 
-    // Prikaži glavni ekran s objavama
+    // Sada prikaži pravi ekran, ovisno o stanju prijave
     const lokacijePrikazEl = document.getElementById("lokacijePrikaz");
     if (lokacijePrikazEl) lokacijePrikazEl.style.display = "block";
 
-    // Poništi prethodne intervale i postavi nove za osvježavanje
-    [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
-    activityInterval = setInterval(azurirajMojuAktivnost, 15e3); // Ažuriraj status aktivnosti svakih 15 sekundi
-    globalDataRefreshInterval = setInterval(globalRefreshUI, 15e3); // Osvježavaj UI svakih 10 sekundi (dohvati podatke)
 
-    azurirajMojuAktivnost(); // Odmah pošalji status aktivnosti
+    // Poništi prethodne intervale i postavi nove za osvježavanje
+    [activityInterval, chatStatusInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
+    activityInterval = setInterval(azurirajMojuAktivnost, 15e3); 
+    globalDataRefreshInterval = setInterval(globalRefreshUI, 10e3); // Osvježavaj UI svakih 10 sekundi (dohvati podatke)
+
+    azurirajMojuAktivnost(); 
     // Dohvati geolokaciju i prikaži objave/notifikacije
     dohvatiLokaciju(() => {
         prikaziPijankePregled();
         azurirajNotifikacije();
     });
-    console.log("pokreniAplikaciju: Aplikacija pokrenuta, intervali postavljeni."); // LOG
+    console.log("pokreniAplikaciju: Aplikacija pokrenuta, intervali postavljeni.");
 }
 
 // --- LOGIKA PROFILA I UREĐIVANJA PROFILA ---
 async function prikaziEditProfila() {
     // Dohvati najnovije podatke o profilu sa servera
-    if (!trenutniKorisnik || !trenutniKorisnik.id) return; // Osiguraj da je korisnik prijavljen
+    if (!trenutniKorisnik || !trenutniKorisnik.id) return; 
     try {
         const response = await authenticatedFetch(`/api/users/${trenutniKorisnik.id}`);
         if (response.ok) {
@@ -302,7 +325,18 @@ async function prikaziEditProfila() {
             if (editInstagramEl) editInstagramEl.value = user.instagram || '';
             if (editTiktokEl) editTiktokEl.value = user.tiktok || '';
             if (previewEditSlikeEl) previewEditSlikeEl.src = user.slika || '';
-            odabranaEditSlika = null; // Resetiraj odabranu sliku za uređivanje
+            
+            // DODANO: Popuni državu i grad za edit
+            populateCountries('editDrzava'); 
+            if (user.drzava) { 
+                document.getElementById("editDrzava").value = user.drzava; 
+                populateCities('editDrzava', 'editGrad', user.grad); 
+            } else {
+                populateCities('editDrzava', 'editGrad'); 
+            }
+            // KRAJ DODANOG
+
+            odabranaEditSlika = null; 
             swap("lokacijePrikaz", "editProfil");
         } else {
             const errorData = await response.json();
@@ -319,21 +353,27 @@ async function sacuvajProfil() {
     const noviOpisEl = document.getElementById("editOpis");
     const noviInstagramEl = document.getElementById("editInstagram");
     const noviTiktokEl = document.getElementById("editTiktok");
+    const editDrzavaInput = document.getElementById("editDrzava"); // NOVO
+    const editGradInput = document.getElementById("editGrad");     // NOVO
 
     const novoIme = novoImeEl ? novoImeEl.value.trim() : '';
     const noviOpis = noviOpisEl ? noviOpisEl.value.trim() : '';
     const noviInstagram = noviInstagramEl ? noviInstagramEl.value.trim() : '';
     const noviTiktok = noviTiktokEl ? noviTiktokEl.value.trim() : '';
+    const novaDrzava = editDrzavaInput ? editDrzavaInput.value : ''; // NOVO
+    const noviGrad = editGradInput ? editGradInput.value : '';         // NOVO
 
     if (!novoIme) return alert("Ime ne može biti prazno!");
-    if (!trenutniKorisnik || !trenutniKorisnik.id) return alert("Korisnik nije prijavljen."); // Dodatna provjera
-
+    if (!trenutniKorisnik || !trenutniKorisnik.id) return alert("Korisnik nije prijavljen."); 
+    if (!novaDrzava || !noviGrad) return alert("Država i grad ne mogu biti prazni!"); // DODATNA PROVJERA
 
     const updateData = {
         username: novoIme,
         opis: noviOpis,
         instagram: noviInstagram,
-        tiktok: noviTiktok
+        tiktok: noviTiktok,
+        drzava: novaDrzava, // NOVO
+        grad: noviGrad      // NOVO
     };
     if (odabranaEditSlika) {
         updateData.slika = odabranaEditSlika;
@@ -355,22 +395,24 @@ async function sacuvajProfil() {
             trenutniKorisnik.opis = noviOpis;
             trenutniKorisnik.instagram = noviInstagram;
             trenutniKorisnik.tiktok = noviTiktok;
+            trenutniKorisnik.drzava = novaDrzava; // NOVO
+            trenutniKorisnik.grad = noviGrad;     // NOVO
             if (odabranaEditSlika) {
                 trenutniKorisnik.slika = odabranaEditSlika;
             }
-            await globalRefreshUI(); // Osvježi sve podatke
+            await globalRefreshUI(); 
             swap("editProfil", "lokacijePrikaz");
         } else {
             alert("Greška pri spremanju profila: " + data.message);
         }
     } catch (error) {
         console.error("Greška kod spremanja profila:", error);
-        alert("Došlo je do greške pri spremanju profila.");
+        alert("Došlo je do greške pri spremanja profila.");
     }
 }
 
 async function azurirajMojuAktivnost(loggingOut = false) {
-    if (!trenutniKorisnik || !trenutniKorisnik.id) return; // Provjeri da korisnik postoji i ima ID
+    if (!trenutniKorisnik || !trenutniKorisnik.id) return; 
     try {
         await authenticatedFetch(`/api/users/${trenutniKorisnik.id}/activity`, {
             method: 'PUT',
@@ -400,25 +442,25 @@ function formatirajStatus(isoTimestamp) {
 function dohvatiLokaciju(callback) {
     if (!navigator.geolocation) {
         console.warn("Geolokacija nije podržana u ovom pregledniku.");
-        return callback && callback(); // Nastavi bez lokacije ako nije podržana
+        return callback && callback(); 
     }
     navigator.geolocation.getCurrentPosition(pos => {
         mojPoz = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-        console.log("Geolokacija uspješno dobivena:", mojPoz); // LOG: Potvrda lokacije
+        console.log("Geolokacija uspješno dobivena:", mojPoz); 
         callback && callback();
     }, (error) => {
-        console.error("Greška pri dohvaćanju geolokacije:", error); // LOG: Greška geolokacije
+        console.error("Greška pri dohvaćanju geolokacije:", error); 
         if (error.code === error.PERMISSION_DENIED) {
              alert("Pristup lokaciji je odbijen. Molimo odobrite pristup lokaciji u postavkama preglednika za ovu stranicu.");
         } else {
              alert("Nismo dobili geolokaciju. Molimo odobrite pristup lokaciji. Bez lokacije nećete moći objavljivati pijanke.");
         }
-        callback && callback(); // Nastavi i ako je greška
+        callback && callback(); 
     });
 }
 
 function distKM(p1, p2) {
-    if (!p1 || !p2 || p1.lat === undefined || p1.lon === undefined || p2.lat === undefined || p2.lon === undefined) return "?"; // Provjera null/undefined
+    if (!p1 || !p2 || p1.lat === undefined || p1.lon === undefined || p2.lat === undefined || p2.lon === undefined) return "?"; 
     const R = 6371,
         dLat = (p2.lat - p1.lat) * Math.PI / 180,
         dLon = (p2.lon - p1.lon) * Math.PI / 180,
@@ -447,12 +489,11 @@ async function objaviPijanku() {
     if (!opis) return alert("Molimo popunite opis pijanke!");
 
     if (!mojPoz || mojPoz.lat === null || mojPoz.lon === null) {
-        console.log("Lokacija nije dostupna, pokušavam ponovno dohvatiti."); // LOG
-        // Pozivamo dohvatiLokaciju s callbackom koji ponovno poziva objaviPijanku
+        console.log("Lokacija nije dostupna, pokušavam ponovno dohvatiti."); 
         return dohvatiLokaciju(() => objaviPijanku());
     }
 
-    console.log("Objavljujem pijanku s lokacijom:", mojPoz); // LOG
+    console.log("Objavljujem pijanku s lokacijom:", mojPoz); 
 
     try {
         const response = await authenticatedFetch('/api/posts', {
@@ -469,7 +510,7 @@ async function objaviPijanku() {
 
         if (response.ok) {
             alert(data.message);
-            await dohvatiSvePijanke(); // Osvježi listu pijanki nakon objave
+            await dohvatiSvePijanke(); 
             swap("glavniDio", "lokacijePrikaz");
             prikaziPijankePregled();
         } else {
@@ -482,7 +523,7 @@ async function objaviPijanku() {
 }
 
 async function obrisiPijanku(pijankaId, event) {
-    if (event) event.stopPropagation(); // Spriječi otvaranje profila ako je kliknuto na delete dugme
+    if (event) event.stopPropagation(); 
     if (!pijankaId) {
         console.error("Pokušaj brisanja pijanke bez ID-a.");
         return;
@@ -498,7 +539,7 @@ async function obrisiPijanku(pijankaId, event) {
 
             if (response.ok) {
                 alert(data.message);
-                await dohvatiSvePijanke(); // Osvježi listu pijanki
+                await dohvatiSvePijanke(); 
                 prikaziPijankePregled();
             } else {
                 alert("Greška pri brisanju objave: " + data.message);
@@ -514,34 +555,39 @@ function prikaziPijankePregled() {
     const div = document.getElementById("pijankePregled");
     if (!div) return;
     div.innerHTML = "";
+
+    // Dodaj brojač aktivnih pijanki
+    const brojAktivnihPijankiEl = document.getElementById("brojAktivnihPijanki"); 
+    if (brojAktivnihPijankiEl) {
+        const broj = svePijanke.length;
+        brojAktivnihPijankiEl.innerText = `(${broj} ${broj === 1 ? 'osoba' : 'osoba'})`; 
+    }
+
     if (svePijanke.length === 0) {
-        div.innerHTML = '<p style="text-align:center;">Trenutno nitko ne pije. Budi prvi!</p>';
+        div.innerHTML = '<p class="center-text">Trenutno nitko ne pije. Budi prvi!</p>'; // Dodaj klasu center-text
         return;
     }
     svePijanke.forEach(pijanka => {
-        // Provjeravamo da li pijanka ima id property (koji je _id.toString() sa backenda)
         if (!pijanka.id) {
             console.error("Pijanka nema ID (ili je '_id' nedostupan):", pijanka);
-            return; // Preskoči ako nema ID
+            return; 
         }
 
-        // Pronađi autora iz globalno dohvaćenih sviKorisnici
         const autor = sviKorisnici.find(u => u.id === pijanka.korisnikId);
         if (!autor) {
             console.error("Autor pijanke nije pronađen za ID:", pijanka.korisnikId, "Pijanka:", pijanka);
-            // Možeš dodati fallback prikaz ili preskočiti ovu objavu
-            return;
+            return; 
         }
 
         const status = formatirajStatus(autor.lastActive);
         div.innerHTML += `
             <div class="pijanka">
-                <div class="pijanka-header" onclick="otvoriProfil('${autor.id}')">
-                    <img src="${autor.slika}" alt="Profilna slika" class="pijanka-profilna-slika">
+                <div class="pijanka-header" onclick="otvoriProfil('<span class="math-inline">\{autor\.id\}'\)"\>
+<img src\="</span>{autor.slika}" alt="Profilna slika" class="pijanka-profilna-slika">
                     <div class="pijanka-info">
                         <div>
-                            <span class="status-dot ${status.online?"online":"offline"}"></span>
-                            <strong>${autor.ime}</strong>
+                            <span class="status-dot <span class="math-inline">\{status\.online?"online"\:"offline"\}"\></span\>
+<strong\></span>{autor.ime}</strong>
                         </div>
                         <p class="status-text">pije ${distKM(mojPoz, pijanka)} km</p>
                     </div>
@@ -557,7 +603,7 @@ function prikaziPijankePregled() {
 }
 
 async function otvoriProfil(korisnikId) {
-    if (!korisnikId) return; // Provjeri da korisnikId postoji
+    if (!korisnikId) return; 
 
     try {
         const response = await authenticatedFetch(`/api/users/${korisnikId}`);
@@ -577,10 +623,10 @@ async function otvoriProfil(korisnikId) {
         if (divProfil) {
             divProfil.style.display = "block";
             divProfil.innerHTML = `<div style="text-align:center; cursor:default; display:block;">
-                <img src="${korisnik.slika}" class="profilna-slika" style="margin-bottom:15px;">
-                <h2 style="display:block; vertical-align:middle;">${korisnik.ime}</h2>
-                <p style="font-size:15px; font-style:italic; color:#ccc;">${korisnik.opis || "Nema opisa."}</p>
-                <div style="margin:20px 0;">${prikaziMreze(korisnik)}</div>
+                <img src="<span class="math-inline">\{korisnik\.slika\}" class\="profilna\-slika" style\="margin\-bottom\:15px;"\>
+<h2 style\="display\:block; vertical\-align\:middle;"\></span>{korisnik.ime}</h2>
+                <p style="font-size:15px; font-style:italic; color:#ccc;"><span class="math-inline">\{korisnik\.opis \|\| "Nema opisa\."\}</p\>
+<div style\="margin\:20px 0;"\></span>{prikaziMreze(korisnik)}</div>
                 ${korisnik.id !== trenutniKorisnik.id ? `<button onclick="pokreniPrivatniChat('${korisnik.id}', 'glavniDio')">💬 Pošalji poruku</button>` : '<em style="color:#888;">Ovo je tvoj profil.</em>'}
             </div>`;
         }
@@ -622,14 +668,14 @@ async function prikaziInbox() {
     const chatKeys = Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id));
 
     if (chatKeys.length === 0) {
-        div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
+        div.innerHTML = '<p class="center-text">Nemaš još nijednu poruku.</p>'; // Dodaj klasu center-text
         return;
     }
 
     chatKeys.sort((a, b) => {
         const lastMsgA = privatnePoruke[a][privatnePoruke[a].length - 1];
         const lastMsgB = privatnePoruke[b][privatnePoruke[b].length - 1];
-        if (!lastMsgA || !lastMsgB) return 0; // Handle empty chat arrays gracefully
+        if (!lastMsgA || !lastMsgB) return 0; 
         return new Date(lastMsgB.time) - new Date(lastMsgA.time);
     }).forEach(chatKey => {
         const ids = chatKey.split("-");
@@ -644,10 +690,10 @@ async function prikaziInbox() {
         const status = formatirajStatus(partner.lastActive);
         div.innerHTML += `<div class="chat-item">
             <img src="${partner.slika}" alt="profilna">
-            <div class="chat-item-info" onclick="pokreniPrivatniChat('${partner.id}', 'inboxPrikaz')">
+            <div class="chat-item-info">
                 <div>
-                    <span class="status-dot ${status.online?"online":"offline"}"></span>
-                    <strong>${partner.ime}</strong>
+                    <span class="status-dot <span class="math-inline">\{status\.online?"online"\:"offline"\}"\></span\>
+<strong\></span>{partner.ime}</strong>
                 </div>
                 <p class="status-text">${status.online?"Online":status.text}</p>
             </div>
@@ -677,7 +723,7 @@ async function pokreniPrivatniChat(partnerId, saEkrana) {
             body: JSON.stringify({ chatKey: chatKey })
         });
         if (markReadResponse.ok) {
-            await dohvatiSvePoruke(); // Osvježi lokalne poruke nakon markiranja kao pročitanih
+            await dohvatiSvePoruke(); 
             azurirajNotifikacije();
         } else {
             console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
@@ -721,9 +767,9 @@ async function posaljiPrivatno() {
 
         if (response.ok) {
             if (privatniInputEl) privatniInputEl.value = "";
-            await dohvatiSvePoruke(); // Osvježi sve poruke
+            await dohvatiSvePoruke(); 
             prikaziPrivatniLog();
-            globalRefreshUI(); // Za ažuriranje notifikacija i ostalih UI elemenata
+            globalRefreshUI(); 
         } else {
             alert("Greška pri slanju poruke: " + data.message);
         }
@@ -739,7 +785,7 @@ function prikaziPrivatniLog() {
     const div = document.getElementById("privatniChatLog");
     if (!div) return;
 
-    div.innerHTML = log.map(msg => `<p class="${msg.autorId === trenutniKorisnik.id ? "moja-poruka" : "tudja-poruka"}"><span>${msg.tekst}</span></p>`).join("");
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
     div.scrollTop = div.scrollHeight;
 }
 
@@ -758,7 +804,7 @@ async function dohvatiSveKorisnike() {
         const response = await authenticatedFetch('/api/users');
         if (response.ok) {
             sviKorisnici = await response.json();
-            console.log("Dohvaćeni svi korisnici:", sviKorisnici); // LOG
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
         } else {
             console.error("Greška pri dohvaćanju korisnika:", await response.text());
             sviKorisnici = [];
@@ -774,7 +820,7 @@ async function dohvatiSvePijanke() {
         const response = await authenticatedFetch('/api/posts');
         if (response.ok) {
             svePijanke = await response.json();
-            console.log("Dohvaćene pijanke:", svePijanke); // LOG
+            console.log("Dohvaćene pijanke:", svePijanke); 
         } else {
             console.error("Greška pri dohvaćanju pijanki:", await response.text());
             svePijanke = [];
@@ -793,16 +839,5524 @@ async function dohvatiSvePoruke() {
              return;
         }
 
-        const response = await authenticatedFetch('/api/messages');
-        if (response.ok) {
-            privatnePoruke = await response.json();
-            console.log("Dohvaćene poruke:", privatnePoruke); // LOG
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
         } else {
-            console.error("Greška pri dohvaćanju poruka:", await response.text());
-            privatnePoruke = {};
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
         }
     } catch (error) {
-        console.error("Greška mreže pri dohvaćanju poruka:", error);
-        privatnePoruke = {};
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
     }
 }
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPrivatno() {
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl ? privatniInputEl.value.trim() : '';
+
+    if (!tekst) return;
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: trenutniChatPartnerId,
+                content: tekst
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (privatniInputEl) privatniInputEl.value = "";
+            await dohvatiSvePoruke(); 
+            prikaziPrivatniLog();
+            globalRefreshUI(); 
+        } else {
+            alert("Greška pri slanju poruke: " + data.message);
+        }
+    } catch (error) {
+        console.error("Greška kod slanja poruke:", error);
+        alert("Došlo je do greške pri slanju poruke.");
+    }
+}
+
+function prikaziPrivatniLog() {
+    const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
+    const log = privatnePoruke[chatKey] || [];
+    const div = document.getElementById("privatniChatLog");
+    if (!div) return;
+
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
+    div.scrollTop = div.scrollHeight;
+}
+
+function zatvoriPrivatni() {
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    trenutniChatPartnerId = null;
+    const privatniInputEl = document.getElementById("privatniInput");
+    if (privatniInputEl) privatniInputEl.value = "";
+    swap("privatniChat", prethodniEkran);
+    if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+}
+
+// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
+async function dohvatiSveKorisnike() {
+    try {
+        const response = await authenticatedFetch('/api/users');
+        if (response.ok) {
+            sviKorisnici = await response.json();
+            console.log("Dohvaćeni svi korisnici:", sviKorisnici); 
+        } else {
+            console.error("Greška pri dohvaćanju korisnika:", await response.text());
+            sviKorisnici = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju korisnika:", error);
+        sviKorisnici = [];
+    }
+}
+
+async function dohvatiSvePijanke() {
+    try {
+        const response = await authenticatedFetch('/api/posts');
+        if (response.ok) {
+            svePijanke = await response.json();
+            console.log("Dohvaćene pijanke:", svePijanke); 
+        } else {
+            console.error("Greška pri dohvaćanju pijanki:", await response.text());
+            svePijanke = [];
+        }
+    } catch (error) {
+        console.error("Greška mreže pri dohvaćanju pijanki:", error);
+        svePijanke = [];
+    }
+}
+
+async function dohvatiSvePoruke() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+             privatnePoruke = {};
+             return;
+        }
+
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatKey: chatKey })
+        });
+        if (markReadResponse.ok) {
+            await dohvatiSvePoruke(); 
+            azurirajNotifikacije();
+        } else {
+            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
+        }
+    } catch (error) {
+        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
+    }
+
+    const azurirajStatusSagovornika = () => {
+        const svezPartner = sviKorisnici.find(u => u.id === partnerId);
+        if (svezPartner) {
+            const status = formatirajStatus(svezPartner.lastActive);
+            const chatPartnerStatusEl = document.getElementById("chatPartnerStatus");
+            if (chatPartnerStatusEl) chatPartnerStatusEl.innerText = status.text;
+        }
+    };
+    if (chatStatusInterval) clearInterval(chatStatusInterval);
+    chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
+    azurirajStatusSagovornika();
+    swap(prethodniEkran, "privatniChat");
+    prikaziPrivatniLog();
+}
+
+async function posaljiPriv
