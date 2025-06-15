@@ -45,7 +45,7 @@ module.exports = async (req, res) => {
         const token = jwt.sign(
           { userId: user._id.toString(), username: user.username },
           JWT_SECRET,
-          { expiresIn: '1h' }
+          { expiresIn: '7d' } // Token ističe za 7 dana
         );
 
         const userToSend = {
