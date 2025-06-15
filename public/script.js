@@ -543,7 +543,7 @@ function prikaziPijankePregled() {
                             <span class="status-dot ${status.online?"online":"offline"}"></span>
                             <strong>${autor.ime}</strong>
                         </div>
-                        <p class="status-text">pije ${distKM(mojPoz, pijanka)} km</p>
+                        <p class="status-text">pije ${distKM(mojPoz, pijanka)}km od tebe</p>
                     </div>
                     ${autor.id === trenutniKorisnik.id ? `<button class="delete-btn" onclick="obrisiPijanku('${pijanka.id}', event)">🗑️</button>` : ""}
                 </div>
