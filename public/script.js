@@ -272,7 +272,7 @@ function pokreniAplikaciju() {
     // Poništi prethodne intervale i postavi nove za osvježavanje
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3); // Ažuriraj status aktivnosti svakih 15 sekundi
-    globalDataRefreshInterval = setInterval(globalRefreshUI, 3e3); // Osvježavaj UI svakih 3 sekunde (dohvati podatke)
+    globalDataRefreshInterval = setInterval(globalRefreshUI, 15e3); // Osvježavaj UI svakih 10 sekundi (dohvati podatke)
 
     azurirajMojuAktivnost(); // Odmah pošalji status aktivnosti
     // Dohvati geolokaciju i prikaži objave/notifikacije
