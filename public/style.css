@@ -176,7 +176,24 @@ img.preview-slika {
     flex-direction: column;
     align-items: center; /* Centriraj djecu (pijanke) unutar ovog diva */
     width: 100%;
+    /* Dodaj marginu na dnu da ne prelazi preko dugmadi */
+    margin-bottom: 70px; /* Razmak iznad dugmadi na dnu ekrana */
+    overflow-y: auto; /* Omogući skrolanje ako bude više sadržaja */
+    max-height: calc(100vh - 250px); /* Ograniči visinu da stane unutar ekrana iznad dugmadi */
+    padding-bottom: 20px; /* Mali padding na dnu za bolji izgled skrolanja */
 }
+/* Prilagodba za .container#lokacijePrikaz da ima overflow ako sadržaj prelazi visinu */
+.container#lokacijePrikaz {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Uklonjen overflow-y odavde ako je na #pijankePregled */
+    /* No, zadrzi ga ovdje ako zelis da se cijeli kontejner skrola: */
+    /* max-height: 100vh; */ /* Primjer visine, prilagoditi */
+    /* overflow-y: auto; */
+    /* Bitno je da jedan od njih (ili oboje) ima definiranu max-height i overflow-y: auto */
+}
+
 
 /* Pojedinačna pijanka */
 .pijanka {
@@ -190,7 +207,7 @@ img.preview-slika {
     transition: all 0.2s ease-in-out;
 
     width: 100%; /* Objava zauzima cijelu širinu #pijankePregled */
-    max-width: 400px; /* Ograniči maksimalnu širinu svake pijanke */
+    max-width: 380px; /* SMANJENA MAKSIMALNA ŠIRINA PIJANKE */
     box-sizing: border-box; /* Uključi padding i border u širinu */
 }
 .pijanka:hover {
@@ -308,7 +325,7 @@ img.preview-slika {
 }
 
 
-/* --- STILOVI ZA INBOX LISTU PORUKA (KONAČNA REVIZIJA) --- */
+/* --- STILOVI ZA INBOX LISTU PORUKA --- */
 
 /* Kontejner liste chatova, osigurava centriranje chat itema */
 #listaChatova {
@@ -391,14 +408,16 @@ img.preview-slika {
     overflow-y:auto;
 }
 #privatniChatLog p {
-    text-align: left !important; /* Poruka lijevo */
     margin-bottom: 8px;
+    text-align: left !important; /* Poruka lijevo */
+    width: 100%; /* Poruka zauzima punu širinu */
 }
 #privatniChatLog p > span {
     display: inline-block;
     padding: 10px 15px;
     border-radius: 18px;
-    max-width: 80%;
+    max-width: 80%; /* Poruka zauzima maksimalno 80% širine, ostavljajući prostor za marginu */
+    word-wrap: break-word; /* Omogući prelamanje dugih riječi */
 }
 #privatniChatLog p.moja-poruka {
     text-align: right !important; /* Moja poruka desno */
@@ -410,4 +429,19 @@ img.preview-slika {
 #privatniChatLog p.tudja-poruka > span {
     background: #3a3a3a;
     color: #f0f0f0;
+}
+
+
+/* --- STILOVI ZA PRIVATNI CHAT EKRAN (HEADER) --- */
+#privatniChat div[style*="text-align:center"] {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centriraj vertikalno */
+    justify-content: center; /* Centriraj horizontalno ako treba */
+}
+#chatPartnerStatus {
+    text-align: center; /* Centriraj status "viđen prije..." */
+    font-size: 14px;
+    color: #b0b0b0;
+    margin-top: 5px; /* Mali razmak od imena */
 }
