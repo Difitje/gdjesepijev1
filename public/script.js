@@ -76,8 +76,20 @@ window.onload = async function() {
 function swap(hideId, showId) {
     const hideElement = document.getElementById(hideId);
     const showElement = document.getElementById(showId);
-    if (hideElement) hideElement.style.display = "none";
-    if (showElement) showElement.style.display = "block";
+
+    if (hideElement) {
+        hideElement.style.display = "none";
+        hideElement.style.animation = ''; // Resetiraj animaciju pri skrivanju
+        hideElement.style.opacity = '0'; // Osiguraj da nestane
+        hideElement.style.visibility = 'hidden'; // Osiguraj da nestane
+    }
+    if (showElement) {
+        showElement.style.display = "block";
+        // Dodajemo animaciju tek kada je element prikazan
+        showElement.style.animation = 'fadeIn 0.5s ease-out forwards';
+        showElement.style.opacity = '1'; // Postavi finalni opacity
+        showElement.style.visibility = 'visible'; // Postavi finalnu vidljivost
+    }
 }
 
 function proveriPrihvatanje() {

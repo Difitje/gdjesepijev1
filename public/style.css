@@ -31,9 +31,13 @@ body {
     box-shadow: 0 3px 20px rgba(255, 71, 87, 0.12); /* Smanjena sjena */
     margin: 12px; /* Smanjena margina */
     display: none; /* Defaultno skriveni, JS ih kontrolira */
+    display: none !important;
+    animation: fadeIn 0.5s ease-out forwards; /* DODANO: Animacija za sve kontejnere */
 }
 #intro {
     display: block; /* Intro ekran je defaultno vidljiv */
+    display: none !important;
+    animation: fadeIn 0.5s ease-out forwards; /* DODANO: Animacija za sve kontejnere */
 }
 
 /* Naslovi */
@@ -149,16 +153,17 @@ img.preview-slika {
 }
 
 /* Notifikacijska značka */
+
 .notification-badge {
-    position: relative;
-    top: -1px;
-    right: -4px; /* Malo smanjen pomak */
-    display: inline-block;
-    background: #e74c3c;
-    color: white;
-    border-radius: 50%;
-    height: 9px; /* Smanjena visina značke */
-    width: 9px; /* Smanjena širina značke */
+    /* ... postojeći stilovi ... */
+    animation: pulse 1.5s infinite; /* DODANO: Animacija pulsa */
+}
+
+/* Dodaj @keyframes pravilo za pulsiranje na kraj style.css */
+@keyframes pulse {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.7; }
 }
 
 /* Ikone društvenih mreža */
@@ -196,7 +201,9 @@ img.preview-slika {
 }
 .pijanka:hover {
     background: #303030;
-    border-left-color: #e03f4d; /* Tamnija crvena na hoveru */
+    border-left-color: #e03f4d;
+    transform: translateY(-2px); /* Blagi pomak prema gore */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); /* Malo izraženija sjena na hoveru */
 }
 
 
@@ -450,3 +457,17 @@ img.preview-slika {
 /* .button-container {
     padding-top: 20px;
 } */
+ 
+/* public/style.css */
+
+/* ... (ostatak koda) ... */
+
+/* --- ANIMACIJE --- */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes slideInUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
