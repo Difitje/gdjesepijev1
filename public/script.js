@@ -119,6 +119,8 @@ async function registruj() {
         return alert("Molimo popunite korisničko ime, lozinku i odaberite sliku!");
     }
 
+    console.log("Pokušavam registrirati korisnika:", ime); // LOG 1
+
     try {
         const response = await fetch('/api/register', {
             method: 'POST',
@@ -135,15 +137,17 @@ async function registruj() {
 
         const data = await response.json();
 
-        if (response.ok) {
+        if (response.ok) { // Ako je registracija uspješna
             alert(data.message);
-            // Automatski prijavi korisnika nakon uspješne registracije
-            await ulogujSe(ime, sifra);
+            console.log("Registracija uspješna, pokušavam automatsku prijavu..."); // LOG 2
+            await ulogujSe(ime, sifra); // Pokušaj automatske prijave
+            console.log("Automatska prijava pokušana."); // LOG 3
         } else {
             alert("Greška pri registraciji: " + data.message);
+            console.error("Greška s registracijskim API-jem:", data); // LOG 4
         }
     } catch (error) {
-        console.error("Greška kod registracije:", error);
+        console.error("Greška kod registracije (catch blok):", error); // LOG 5
         alert("Došlo je do greške pri registraciji.");
     }
 }
