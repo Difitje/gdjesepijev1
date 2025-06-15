@@ -19,16 +19,15 @@ module.exports = withAuth(async (req, res) => {
       try {
         const posts = await postsCollection.find({}).sort({ createdAt: -1 }).toArray();
 
-        // Mapiraj _id u id za frontend
+        // VAŽNO: Mapiraj _id u id za frontend
         const postsToSend = posts.map(post => ({
-            ...post, // Prekopiraj sva svojstva
+            ...post,
             id: post._id.toString(), // Dodaj 'id' property kao string od _id
             korisnikId: post.korisnikId.toString() // Osiguraj da je korisnikId string ako je ObjectId
         }));
 
-
         if (!res.status) { console.error("res.status is missing before GET posts!"); return res.end(JSON.stringify({ message: 'res.status missing: Greška servera pri dohvaćanju objava.' })); }
-        res.status(200).json(postsToSend); // Vraća mapirane objave
+        res.status(200).json(postsToSend);
       } catch (error) {
         console.error('Greška pri dohvaćanju objava:', error);
         if (!res.status) { console.error("res.status is missing before GET posts error!"); return res.end(JSON.stringify({ message: 'res.status missing: Greška servera pri dohvaćanju objava.', error: error.message })); }
@@ -37,14 +36,13 @@ module.exports = withAuth(async (req, res) => {
     } else if (req.method === 'POST') {
       try {
         const { opis, lat, lon } = req.body;
-        const korisnikId = req.user.userId; // Dobiveno iz JWT tokena
+        const korisnikId = req.user.userId;
 
         if (!opis || lat === undefined || lon === undefined) {
           if (!res.status) { console.error("res.status is missing before POST posts 400!"); return res.end(JSON.stringify({ message: 'res.status missing: Opis, latituda i longituda su obavezni.' })); }
           return res.status(400).json({ message: 'Opis, latituda i longituda su obavezni.' });
         }
 
-        // Brišemo stare objave korisnika prije dodavanja nove (prema tvojoj logici)
         await postsCollection.deleteMany({ korisnikId: korisnikId });
 
         const newPost = {
@@ -65,7 +63,7 @@ module.exports = withAuth(async (req, res) => {
       }
     } else if (req.method === 'DELETE') {
       try {
-        const { postId } = req.query; // Dohvati ID iz query parametra
+        const { postId } = req.query;
         const korisnikId = req.user.userId;
 
         if (!postId) {
