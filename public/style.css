@@ -81,9 +81,9 @@ input:focus, textarea:focus {
     box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); /* Smanjena sjena */
 }
 button {
-    /* Promjene za dugmad */
+    /* **ISPRAVKE OVDJE: Boja teksta i konzistentna veličina** */
     width: 100%;
-    padding: 10px; /* **Smanjen padding** */
+    padding: 10px; /* Smanjen padding */
     margin-bottom: 10px; /* Standardni razmak između gumbi */
     background: linear-gradient(45deg, #ff4757, #e03f4d);
     cursor: pointer;
@@ -93,7 +93,8 @@ button {
     text-transform: uppercase;
     letter-spacing: 0.8px;
     border-radius: 8px; /* Malo manji border-radius za dugmad */
-    font-size: 14px; /* **Smanjena veličina fonta dugmadi** */
+    font-size: 14px; /* Smanjena veličina fonta dugmadi */
+    color: white; /* **POSTAVLJENO: Boja teksta gumba na bijelu** */
     transition: all 0.2s ease-in-out;
 }
 button:hover {
@@ -109,6 +110,7 @@ button:disabled {
 }
 .btn-secondary {
     background: #3a3a3a;
+    color: white; /* **POSTAVLJENO: Boja teksta sekundarnog gumba na bijelu** */
 }
 .btn-secondary:hover {
     background: #4a4a4a;
@@ -439,10 +441,7 @@ img.preview-slika {
 }
 
 /* Prilagodbe za razmak dugmadi i objava */
-/* Glavna promjena: Povećanje donjeg paddinga #pijankePregled */
-/* Ovo gura sve što dolazi poslije liste pijanki (uključujući gumbe) prema dolje */
 #pijankePregled {
-    /* ... postojeći stilovi ... */
     padding-bottom: 25px; /* Povećan donji padding unutar samog kontejnera za objave */
 }
 
