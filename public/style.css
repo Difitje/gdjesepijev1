@@ -11,25 +11,25 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background: linear-gradient(170deg, #111111 0%, #0d0d0d 100%);
     color: #f0f0f0;
-    line-height: 1.6;
-    font-size: 16px;
+    line-height: 1.5; /* Smanjeno malo */
+    font-size: 15px; /* Smanjena osnovna veličina fonta */
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 20px 0;
+    padding: 15px 0; /* Smanjen padding */
 }
 
 /* Kontejneri za ekrane */
 .container {
     width: 95%;
-    max-width: 450px;
+    max-width: 400px; /* Smanjena maksimalna širina kontejnera */
     background: #1e1e1e;
-    padding: 30px;
-    border-radius: 20px;
+    padding: 25px; /* Smanjen padding */
+    border-radius: 18px; /* Malo manji border-radius */
     border: 1px solid #2a2a2a;
-    box-shadow: 0 4px 25px rgba(255, 71, 87, 0.15);
-    margin: 15px;
+    box-shadow: 0 3px 20px rgba(255, 71, 87, 0.12); /* Smanjena sjena */
+    margin: 12px; /* Smanjena margina */
     display: none; /* Defaultno skriveni, JS ih kontrolira */
 }
 #intro {
@@ -40,19 +40,20 @@ body {
 h1, h2 {
     text-align: center;
     color: #ff4757;
-    margin-bottom: 25px;
-    font-size: 24px;
+    margin-bottom: 20px; /* Smanjen margin-bottom */
+    font-size: 22px; /* Smanjena veličina naslova */
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px; /* Malo smanjen razmak između slova */
 }
 h2 {
-    font-size: 22px;
+    font-size: 20px; /* Smanjena veličina h2 */
 }
 
 /* Paragrafi - Defaultno lijevo, osim ako nije drugačije definirano */
 p {
-    margin-bottom: 15px;
+    margin-bottom: 12px; /* Smanjen margin-bottom */
     color: #b0b0b0;
+    font-size: 14px; /* Smanjena veličina fonta za paragraf */
     text-align: left; /* Defaultno lijevo */
 }
 /* Centriranje teksta za specifične početne ekrane i poruku o praznoj listi */
@@ -64,20 +65,20 @@ p {
 /* Inputi, textarea, dugmad */
 input, textarea, button {
     width: 100%;
-    padding: 15px;
-    margin-bottom: 16px;
+    padding: 12px; /* Smanjen padding */
+    margin-bottom: 14px; /* Malo smanjen margin-bottom */
     border: 1px solid #333;
     background: #252525;
     color: #f0f0f0;
-    border-radius: 10px;
-    font-size: 16px;
+    border-radius: 8px; /* Malo manji border-radius */
+    font-size: 15px; /* Smanjena veličina fonta */
     font-family: inherit;
     transition: all 0.2s ease-in-out;
 }
 input:focus, textarea:focus {
     outline: none;
     border-color: #ff4757;
-    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.3);
+    box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); /* Smanjena sjena */
 }
 button {
     background: linear-gradient(45deg, #ff4757, #e03f4d);
@@ -86,11 +87,11 @@ button {
     font-weight: bold;
     position: relative;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px; /* Malo smanjen razmak između slova */
 }
 button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+    transform: translateY(-1px); /* Smanjen pomak na hoveru */
+    box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); /* Smanjena sjena na hoveru */
 }
 button:disabled {
     background: #555;
@@ -111,11 +112,11 @@ button:disabled {
 /* Zajednički stilovi za slike profila */
 img.preview-slika,
 img.profilna-slika {
-    margin-top: 10px;
-    width: 80px;
-    height: 80px;
+    margin-top: 8px; /* Malo smanjen margin-top */
+    width: 70px; /* Smanjena širina */
+    height: 70px; /* Smanjena visina */
     border-radius: 50%;
-    border: 3px solid #333;
+    border: 2px solid #333; /* Malo tanji border */
     object-fit: cover;
 }
 img.preview-slika {
@@ -123,17 +124,17 @@ img.preview-slika {
 }
 #previewEditSlike {
     display: block;
-    margin: 10px auto;
+    margin: 8px auto; /* Malo smanjena margina */
 }
 
 
 /* Status točke (online/offline) */
 .status-dot {
-    height: 9px;
-    width: 9px;
+    height: 8px; /* Smanjena veličina točke */
+    width: 8px; /* Smanjena veličina točke */
     border-radius: 50%;
     display: inline-block;
-    margin-right: 8px;
+    margin-right: 6px; /* Smanjen razmak */
 }
 .status-dot.online {
     background-color: #2ecc71;
@@ -142,7 +143,7 @@ img.preview-slika {
     background-color: #7f8c8d;
 }
 .status-text {
-    font-size: 13px;
+    font-size: 12px; /* Malo smanjena veličina teksta */
     color: #999;
     margin: 0;
 }
@@ -151,19 +152,19 @@ img.preview-slika {
 .notification-badge {
     position: relative;
     top: -1px;
-    right: -5px;
+    right: -4px; /* Malo smanjen pomak */
     display: inline-block;
     background: #e74c3c;
     color: white;
     border-radius: 50%;
-    height: 10px;
-    width: 10px;
+    height: 9px; /* Smanjena visina značke */
+    width: 9px; /* Smanjena širina značke */
 }
 
 /* Ikone društvenih mreža */
 .mreza-ikonica {
-    width: 28px;
-    margin: 0 10px;
+    width: 24px; /* Smanjena širina ikone */
+    margin: 0 8px; /* Smanjena margina */
     vertical-align: middle;
 }
 
@@ -181,16 +182,16 @@ img.preview-slika {
 /* Pojedinačna pijanka */
 .pijanka {
     background: #282828;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px; /* Razmak između pijanki */
+    padding: 15px; /* Smanjen padding unutar pijanke */
+    border-radius: 10px; /* Malo manji border-radius */
+    margin-bottom: 10px; /* **Smanjen razmak između pijanki (Bliže jedna drugoj)** */
     display: flex;
     flex-direction: column; /* Sadržaj unutar pijanke ide okomito */
-    border-left: 4px solid #ff4757; /* Naglašena lijeva linija */
+    border-left: 3px solid #ff4757; /* Malo tanja naglašena linija */
     transition: all 0.2s ease-in-out;
 
     width: 100%; /* Objava zauzima cijelu širinu #pijankePregled */
-    max-width: 400px; /* Ograniči maksimalnu širinu svake pijanke */
+    max-width: 350px; /* **Smanjena maksimalna širina svake pijanke (Manje)** */
     box-sizing: border-box; /* Uključi padding i border u širinu */
 }
 .pijanka:hover {
@@ -203,17 +204,17 @@ img.preview-slika {
 .pijanka-header {
     display: flex;
     align-items: center; /* Vertikalno poravnanje po sredini */
-    gap: 15px; /* Razmak između elemenata */
+    gap: 12px; /* Malo smanjen razmak između elemenata */
     cursor: pointer;
-    padding-bottom: 10px;
+    padding-bottom: 8px; /* Smanjen padding-bottom */
     border-bottom: 1px solid #333;
-    margin-bottom: 10px;
+    margin-bottom: 8px; /* Malo smanjen margin-bottom */
     width: 100%; /* Zauzmi punu širinu unutar pijanke */
 }
 
 .pijanka-profilna-slika {
-    width: 50px;
-    height: 50px;
+    width: 50px; /* **Zadržana veličina profilne slike** */
+    height: 50px; /* **Zadržana veličina profilne slike** */
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #ff4757;
@@ -231,18 +232,18 @@ img.preview-slika {
 .pijanka-info > div { /* Kontejner za status-dot i ime */
     display: flex;
     align-items: center;
-    margin-bottom: 2px;
+    margin-bottom: 1px; /* Smanjen razmak */
     justify-content: flex-start; /* Poravnaj lijevo */
 }
 
 .pijanka-info strong {
-    font-size: 18px;
-    margin-right: 5px;
+    font-size: 18px; /* **Zadržana veličina fonta za ime** */
+    margin-right: 4px; /* Malo smanjen margin-right */
     text-align: left;
 }
 
 .pijanka-info p.status-text { /* Stil za "pije X km" */
-    font-size: 13px;
+    font-size: 13px; /* **Zadržana veličina fonta za status** */
     color: #a0a0a0;
     margin: 0;
     padding: 0;
@@ -254,8 +255,8 @@ img.preview-slika {
 .delete-btn {
     background: none;
     border: none;
-    font-size: 16px; /* Veličina ikonice */
-    padding: 3px;
+    font-size: 14px; /* Malo smanjena veličina ikonice */
+    padding: 2px; /* Smanjen padding */
     margin-left: auto; /* Pomakni ga skroz desno */
     cursor: pointer;
     color: #777;
@@ -264,27 +265,27 @@ img.preview-slika {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 28px; /* Fiksna širina dugmeta */
-    height: 28px; /* Fiksna visina dugmeta */
+    width: 24px; /* Smanjena širina dugmeta */
+    height: 24px; /* Smanjena visina dugmeta */
     border-radius: 50%; /* Da bude okruglo na hoveru */
 }
 .delete-btn:hover {
     color: #ff4757;
     background: rgba(51, 51, 51, 0.5); /* Smanji prozirnost pozadine na hoveru */
     box-shadow: none; /* Ukloni sjenu */
-    transform: scale(1.1);
+    transform: scale(1.05); /* Malo smanjen scale na hoveru */
     transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
 .pijanka-opis {
-    padding-top: 5px;
+    padding-top: 4px; /* Malo smanjen padding-top */
     width: 100%; /* Opis zauzima punu širinu */
 }
 
 .pijanka-opis p {
     margin-bottom: 0;
     color: #e0e0e0;
-    font-size: 15px;
+    font-size: 14px; /* Smanjena veličina fonta opisa */
     text-align: left;
 }
 
@@ -292,8 +293,8 @@ img.preview-slika {
 .pijanka-separator {
     border: none;
     border-top: 1px dashed #444;
-    margin: 25px auto; /* Centriraj separator */
-    width: 80%; /* Smanji širinu separatora */
+    margin: 15px auto; /* **Smanjen razmak separatora između pijanki** */
+    width: 70%; /* Malo smanjena širina separatora */
     background-color: transparent;
     height: 1px;
 }
@@ -321,17 +322,17 @@ img.preview-slika {
 /* Stilizacija pojedinog chat itema */
 .chat-item {
     background: #282828;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 12px; /* Razmak između chat itema */
+    padding: 12px; /* Smanjen padding */
+    border-radius: 10px; /* Malo manji border-radius */
+    margin-bottom: 10px; /* Smanjen razmak između chat itema */
     display: flex;
     align-items: center; /* Centriraj sadržaj vertikalno */
-    gap: 15px; /* Razmak između profilne i info dijela */
-    border-left: 4px solid #333;
+    gap: 12px; /* Smanjen razmak između profilne i info dijela */
+    border-left: 3px solid #333; /* Malo tanji border */
     transition: all 0.2s ease-in-out;
 
     width: 100%; /* Zauzmi punu širinu #listaChatova */
-    max-width: 400px; /* Ograniči maksimalnu širinu, kao kod pijanki */
+    max-width: 350px; /* Smanjena maksimalna širina, kao kod pijanki */
     box-sizing: border-box; /* Uključi padding i border u širinu */
 }
 .chat-item:hover {
@@ -341,8 +342,8 @@ img.preview-slika {
 
 /* Profilna slika u chat itemu */
 .chat-item img {
-    width: 50px;
-    height: 50px;
+    width: 45px; /* Malo smanjena širina slike u chatu */
+    height: 45px; /* Malo smanjena visina slike u chatu */
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0; /* Spriječi smanjivanje */
@@ -359,15 +360,15 @@ img.preview-slika {
 }
 
 .chat-item-info strong {
-    font-size: 17px;
+    font-size: 16px; /* Malo smanjena veličina fonta za ime u chatu */
     font-weight: 500;
     text-align: left; /* Osiguraj lijevo poravnanje imena */
-    margin-bottom: 2px; /* Mali razmak između imena i statusa */
+    margin-bottom: 1px; /* Mali razmak između imena i statusa */
 }
 
 /* Stil za status (online/offline) u chat itemu */
 .chat-item-info p.status-text {
-    font-size: 13px;
+    font-size: 12px; /* Malo smanjena veličina fonta za status u chatu */
     color: #999;
     margin: 0;
     padding: 0;
@@ -383,24 +384,20 @@ img.preview-slika {
     right: auto;
 }
 
-/* public/style.css */
-
-/* ... (ostatak koda) ... */
-
 /* --- Stilovi za privatni chat log (KONAČNA REVIZIJA) --- */
 #privatniChatLog {
-    min-height: 200px;
-    max-height: 300px;
+    min-height: 180px; /* Smanjena minimalna visina */
+    max-height: 250px; /* Smanjena maksimalna visina */
     background: none; /* Ukloni pozadinu */
     padding: 0;
     overflow-y: auto; /* Omogući skrolanje */
-    margin-bottom: 10px; /* Mali razmak od input polja */
+    margin-bottom: 8px; /* Malo smanjen razmak od input polja */
     display: flex; /* Koristi flexbox za poravnanje poruka */
     flex-direction: column; /* Poruke idu okomito jedna ispod druge */
 }
 
 #privatniChatLog p {
-    margin-bottom: 8px; /* Razmak između poruka */
+    margin-bottom: 6px; /* Smanjen razmak između poruka */
     padding: 0;
     text-align: left; /* Defaultno poravnanje lijevo */
     width: 100%; /* Poruka zauzima punu širinu */
@@ -408,10 +405,11 @@ img.preview-slika {
 
 #privatniChatLog p > span {
     display: inline-block;
-    padding: 10px 15px;
-    border-radius: 18px; /* Zaobljeni rubovi poruka */
-    max-width: 80%; /* Poruka zauzima maksimalno 80% širine, ostavljajući prostor za marginu */
+    padding: 8px 12px; /* Smanjen padding poruka */
+    border-radius: 15px; /* Malo manji border-radius */
+    max-width: 75%; /* Malo smanjena maksimalna širina poruke */
     word-wrap: break-word; /* Omogući prelamanje dugih riječi */
+    font-size: 14px; /* Smanjena veličina fonta poruke */
 }
 
 /* Stilovi za "Moje poruke" (desna strana, crvena pozadina) */
