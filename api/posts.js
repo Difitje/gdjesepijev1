@@ -17,7 +17,9 @@ module.exports = withAuth(async (req, res) => {
 
     if (req.method === 'GET') {
       try {
-        const posts = await postsCollection.find({}).sort({ createdAt: -1 }).toArray();
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString(); // Izračunaj vrijeme prije sat vremena
+        // Dohvati samo objave koje su stvorene unutar zadnjih sat vremena
+        const posts = await postsCollection.find({ createdAt: { $gte: oneHourAgo } }).sort({ createdAt: -1 }).toArray();
 
         // VAŽNO: Mapiraj _id u id za frontend
         const postsToSend = posts.map(post => ({
@@ -43,7 +45,7 @@ module.exports = withAuth(async (req, res) => {
           return res.status(400).json({ message: 'Opis, latituda i longituda su obavezni.' });
         }
 
-        await postsCollection.deleteMany({ korisnikId: korisnikId });
+        await postsCollection.deleteMany({ korisnikId: korisnikId }); // Osigurava samo jednu objavu po korisniku
 
         const newPost = {
           korisnikId: korisnikId,
@@ -78,7 +80,7 @@ module.exports = withAuth(async (req, res) => {
             return res.status(404).json({ message: 'Objava nije pronađena ili niste vlasnik.' });
         }
 
-        if (!res.status) { console.error("res.status is missing before DELETE posts 200!"); return res.end(JSON.stringify({ message: 'res.status missing: Objava uspješno obrisana.' })); }
+        if (!res.status) { console.error("res.status is missing before DELETE posts 200!"); return res.end(JSON.stringify({ message: 'Objava uspješno obrisana.' })); }
         res.status(200).json({ message: 'Objava uspješno obrisana.' });
 
       } catch (error) {
@@ -87,7 +89,7 @@ module.exports = withAuth(async (req, res) => {
         res.status(500).json({ message: 'Greška servera pri brisanju objave.', error: error.message });
       }
     } else {
-      if (!res.status) { console.error("res.status is missing before posts 405!"); return res.end(JSON.stringify({ message: 'res.status missing: Metoda nije dozvoljena.' })); }
+      if (!res.status) { console.error("res.status is missing before posts 405!"); return res.end(JSON.stringify({ message: 'Metoda nije dozvoljena.' })); }
       res.status(405).json({ message: 'Metoda nije dozvoljena.' });
     }
   });
