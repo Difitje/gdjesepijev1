@@ -26,43 +26,49 @@ async function authenticatedFetch(url, options = {}) {
     return fetch(url, options);
 }
 
+// public/script.js
+
+// ... (ostatak koda) ...
+
 // --- POČETNO UČITAVANJE APLIKACIJE ---
 window.onload = async function() {
-    // Čišćenje starog, lokalnog ID-a ako je ostao u localStorage
-    localStorage.removeItem("loggedInUserId"); // Ovo je OK, ali se može ukloniti ako je sigurno da ga više ne koristis nigdje
+    localStorage.removeItem("loggedInUserId"); // Čišćenje starog, lokalnog ID-a
 
     const token = localStorage.getItem("token"); // Pokušaj dohvatiti token
-    console.log("window.onload: Pokušavam dohvatiti token:", token ? "Token pronađen" : "Nema tokena"); // LOG
+    console.log("window.onload: Pokušavam dohvatiti token:", token ? "Token pronađen" : "Nema tokena");
 
     if (token) {
         try {
-            // Ako token postoji, pokušaj provjeriti je li validan i dohvati korisnika
+            // Provjeri token na serveru
             const response = await authenticatedFetch('/api/auth/me');
-            console.log("window.onload: Odgovor od /api/auth/me:", response.status); // LOG
+            console.log("window.onload: Odgovor od /api/auth/me (status):", response.status);
 
             if (response.ok) {
                 const data = await response.json();
-                trenutniKorisnik = data.user; // Postavi trenutnog korisnika iz odgovora servera
-                console.log("window.onload: Korisnik uspješno autentificiran:", trenutniKorisnik.ime); // LOG
-                await dohvatiSveKorisnike(); // Dohvati sve korisnike (za prikaz na objavama, chatovima)
-                await dohvatiSvePijanke(); // Dohvati sve objave
-                await dohvatiSvePoruke(); // Dohvati sve poruke
-                pokreniAplikaciju(); // Pokreni glavni dio aplikacije
+                trenutniKorisnik = data.user;
+                console.log("window.onload: Korisnik uspješno autentificiran:", trenutniKorisnik.ime);
+
+                // Provjeri da su svi podaci dohvaćeni prije pokretanja aplikacije
+                await Promise.all([
+                    dohvatiSveKorisnike(),
+                    dohvatiSvePijanke(),
+                    dohvatiSvePoruke()
+                ]);
+                console.log("window.onload: Svi početni podaci dohvaćeni.");
+                pokreniAplikaciju();
             } else {
-                // Ako token nije validan, istekne ili server vrati grešku
-                console.warn("window.onload: Token nevalidan ili istekao, odjavljujem korisnika."); // LOG
-                localStorage.removeItem("token"); // Ukloni nevalidan token
-                swap("", "intro"); // Vrati na intro ekran
+                console.warn("window.onload: Token nevalidan ili istekao, odjavljujem korisnika (status:", response.status, ").");
+                localStorage.removeItem("token");
+                swap("", "intro");
             }
         } catch (error) {
-            // Greška pri fetch pozivu (npr. mreža nije dostupna)
-            console.error("window.onload: Greška pri provjeri tokena ili mreži:", error); // LOG
-            localStorage.removeItem("token"); // Ukloni token u slučaju greške mreže
-            swap("", "intro"); // Prikaži intro ekran
+            console.error("window.onload: Greška pri provjeri tokena ili mreži (catch blok):", error);
+            localStorage.removeItem("token");
+            swap("", "intro");
         }
     } else {
-        console.log("window.onload: Nema tokena, prikazujem intro ekran."); // LOG
-        swap("", "intro"); // Ako nema tokena, prikaži intro
+        console.log("window.onload: Nema tokena, prikazujem intro ekran.");
+        swap("", "intro");
     }
 };
 
@@ -249,7 +255,10 @@ async function odjaviSe() {
 }
 
 // --- LOGIKA POKRETANJA APLIKACIJE NAKON PRIJAVE/REGISTRACIJE ---
+// --- LOGIKA POKRETANJA APLIKACIJE NAKON PRIJAVE/REGISTRACIJE ---
 function pokreniAplikaciju() {
+    console.log("pokreniAplikaciju: Pokrećem glavni dio aplikacije."); // LOG
+
     // Sakrij sve ekrane za prijavu/registraciju
     ["login", "registracija", "odabir", "intro", "pravilaEkran"].forEach(id => {
         const el = document.getElementById(id);
@@ -271,6 +280,7 @@ function pokreniAplikaciju() {
         prikaziPijankePregled();
         azurirajNotifikacije();
     });
+    console.log("pokreniAplikaciju: Aplikacija pokrenuta, intervali postavljeni."); // LOG
 }
 
 // --- LOGIKA PROFILA I UREĐIVANJA PROFILA ---
