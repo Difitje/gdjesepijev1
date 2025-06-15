@@ -62,8 +62,8 @@ p {
 }
 
 
-/* Inputi, textarea */
-input, textarea {
+/* Inputi, textarea, dugmad */
+input, textarea, button {
     width: 100%;
     padding: 12px; /* Smanjen padding */
     margin-bottom: 14px; /* Malo smanjen margin-bottom */
@@ -80,29 +80,14 @@ input:focus, textarea:focus {
     border-color: #ff4757;
     box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); /* Smanjena sjena */
 }
-
-/* **OPĆI STIL ZA DUGMAD (Sada je ovo baza za sve gumbe)** */
 button {
-    padding: 10px; /* Smanjen padding */
-    /* Uklonjen margin-bottom odavde jer ga kontroliramo na višim elementima ili u button-gridu */
     background: linear-gradient(45deg, #ff4757, #e03f4d);
     cursor: pointer;
     border: none;
     font-weight: bold;
     position: relative;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    border-radius: 8px; /* Malo manji border-radius za dugmad */
-    font-size: 14px; /* Smanjena veličina fonta dugmadi */
-    color: white; /* Boja teksta gumba na bijelu */
-    transition: all 0.2s ease-in-out;
-    /* Uklonjen width: 100% odavde jer ćemo ga kontrolirati Flexboxom za 2x2 raspored */
-    /* Dodano za centriranje teksta unutar gumba */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center; /* Osigurava centriranje teksta */
-    min-height: 40px; /* **Fiksna minimalna visina za sve gumbe** */
+    letter-spacing: 0.8px; /* Malo smanjen razmak između slova */
 }
 button:hover {
     transform: translateY(-1px); /* Smanjen pomak na hoveru */
@@ -117,12 +102,12 @@ button:disabled {
 }
 .btn-secondary {
     background: #3a3a3a;
-    color: white; /* Boja teksta sekundarnog gumba na bijelu */
 }
 .btn-secondary:hover {
     background: #4a4a4a;
     box-shadow: none;
 }
+
 
 /* Zajednički stilovi za slike profila */
 img.preview-slika,
@@ -192,7 +177,6 @@ img.preview-slika {
     flex-direction: column;
     align-items: center; /* Centriraj djecu (pijanke) unutar ovog diva */
     width: 100%;
-    padding-bottom: 25px; /* Povećan donji padding za razmak od gumba */
 }
 
 /* Pojedinačna pijanka */
@@ -200,14 +184,14 @@ img.preview-slika {
     background: #282828;
     padding: 15px; /* Smanjen padding unutar pijanke */
     border-radius: 10px; /* Malo manji border-radius */
-    margin-bottom: 8px; /* Dodatno smanjen razmak između pijanki */
+    margin-bottom: 8px; /* **Dodatno smanjen razmak između pijanki** */
     display: flex;
     flex-direction: column; /* Sadržaj unutar pijanke ide okomito */
     border-left: 3px solid #ff4757; /* Malo tanja naglašena linija */
     transition: all 0.2s ease-in-out;
 
     width: 100%; /* Objava zauzima cijelu širinu #pijankePregled */
-    max-width: 350px; /* Smanjena maksimalna širina svake pijanke (Manje) */
+    max-width: 350px; /* **Smanjena maksimalna širina svake pijanke (Manje)** */
     box-sizing: border-box; /* Uključi padding i border u širinu */
 }
 .pijanka:hover {
@@ -229,8 +213,8 @@ img.preview-slika {
 }
 
 .pijanka-profilna-slika {
-    width: 50px; /* Zadržana veličina profilne slike */
-    height: 50px; /* Zadržana veličina profilne slike */
+    width: 50px; /* **Zadržana veličina profilne slike** */
+    height: 50px; /* **Zadržana veličina profilne slike** */
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #ff4757;
@@ -253,13 +237,13 @@ img.preview-slika {
 }
 
 .pijanka-info strong {
-    font-size: 18px; /* Zadržana veličina fonta za ime */
+    font-size: 18px; /* **Zadržana veličina fonta za ime** */
     margin-right: 4px; /* Malo smanjen margin-right */
     text-align: left;
 }
 
 .pijanka-info p.status-text { /* Stil za "pije X km" */
-    font-size: 13px; /* Zadržana veličina fonta za status */
+    font-size: 13px; /* **Zadržana veličina fonta za status** */
     color: #a0a0a0;
     margin: 0;
     padding: 0;
@@ -309,7 +293,7 @@ img.preview-slika {
 .pijanka-separator {
     border: none;
     border-top: 1px dashed #444;
-    margin: 12px auto; /* Dodatno smanjen razmak separatora između pijanki */
+    margin: 12px auto; /* **Dodatno smanjen razmak separatora između pijanki** */
     width: 70%; /* Malo smanjena širina separatora */
     background-color: transparent;
     height: 1px;
@@ -446,29 +430,23 @@ img.preview-slika {
     color: #f0f0f0; /* Svjetliji tekst */
 }
 
-/* Prilagodbe za razmak dugmadi i objava */
-#pijankePregled {
-    padding-bottom: 25px; /* Povećan donji padding unutar samog kontejnera za objave */
+/* Dodani stilovi za razmak između dugmadi i pijanki */
+#pijankePregled + button { /* Ciljamo prvi button odmah iza #pijankePregled */
+    margin-top: 25px; /* Povećaj razmak iznad prvog gumba nakon pijanki */
 }
 
-/* **PRILAGOĐENE KLASA ZA 2X2 RASPORED GUMBA** */
-/* Umjesto da dodajemo novi div, prilagođavamo postojeće flex kontejnere */
-.container > div[style="display:flex; gap:10px;"] {
-    display: flex;
-    flex-wrap: wrap; /* Omogućuje prelamanje elemenata u novi red */
-    justify-content: space-between; /* Razmak između elemenata */
-    margin-bottom: 10px; /* Razmak između dva reda gumba */
+/* Ako ima više gumba na dnu ekrana, dodajte im razmak */
+.container button:not(:last-child) {
+    margin-bottom: 12px; /* Smanjite razmak između gumbi ako je potrebno, ili ga povećajte */
 }
 
-.container > div[style="display:flex; gap:10px;"] button {
-    flex: 1 1 calc(50% - 5px); /* Svaki gumb zauzima gotovo pola širine s razmakom od 5px */
-    max-width: calc(50% - 5px); /* Osigurava da se ne rastegnu previše */
-    margin-bottom: 0; /* Ukloni pojedinačne margine */
-    box-sizing: border-box; /* Uključi padding i border u širinu */
+/* Ako postoje gumbi prije pijanka, npr. na početnom ekranu */
+#odabir button {
+    margin-bottom: 14px; /* Standardni razmak */
 }
 
-/* Posebna pravila za posljednji red gumba (Moj profil, Odjavi se) */
-/* Ako želite da i oni imaju razmak na dnu, dodajte margin-bottom na zadnjem .container > div[style] */
-.container > div[style="display:flex; gap:10px;"]:last-of-type {
-    margin-bottom: 0; /* Uklanja donju marginu ako je to zadnji flex div u containeru */
-}
+/* Ako imate specifičan div za gumbe na kraju pijanka liste, možete mu dati padding-top */
+/* Primjer: <div class="button-container"> <button>Objavi pijanku</button> </div> */
+/* .button-container {
+    padding-top: 20px;
+} */
