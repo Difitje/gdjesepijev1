@@ -62,7 +62,7 @@ p {
 }
 
 
-/* Inputi, textarea, dugmad */
+/* Inputi, textarea */
 input, textarea {
     width: 100%;
     padding: 12px; /* Smanjen padding */
@@ -80,11 +80,11 @@ input:focus, textarea:focus {
     border-color: #ff4757;
     box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); /* Smanjena sjena */
 }
+
+/* **OPĆI STIL ZA DUGMAD (Sada je ovo baza za sve gumbe)** */
 button {
-    /* **ISPRAVKE OVDJE: Boja teksta i konzistentna veličina** */
-    width: 100%;
     padding: 10px; /* Smanjen padding */
-    margin-bottom: 10px; /* Standardni razmak između gumbi */
+    /* Uklonjen margin-bottom odavde jer ga kontroliramo na višim elementima ili u button-gridu */
     background: linear-gradient(45deg, #ff4757, #e03f4d);
     cursor: pointer;
     border: none;
@@ -94,8 +94,15 @@ button {
     letter-spacing: 0.8px;
     border-radius: 8px; /* Malo manji border-radius za dugmad */
     font-size: 14px; /* Smanjena veličina fonta dugmadi */
-    color: white; /* **POSTAVLJENO: Boja teksta gumba na bijelu** */
+    color: white; /* Boja teksta gumba na bijelu */
     transition: all 0.2s ease-in-out;
+    /* Uklonjen width: 100% odavde jer ćemo ga kontrolirati Flexboxom za 2x2 raspored */
+    /* Dodano za centriranje teksta unutar gumba */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center; /* Osigurava centriranje teksta */
+    min-height: 40px; /* **Fiksna minimalna visina za sve gumbe** */
 }
 button:hover {
     transform: translateY(-1px); /* Smanjen pomak na hoveru */
@@ -110,13 +117,12 @@ button:disabled {
 }
 .btn-secondary {
     background: #3a3a3a;
-    color: white; /* **POSTAVLJENO: Boja teksta sekundarnog gumba na bijelu** */
+    color: white; /* Boja teksta sekundarnog gumba na bijelu */
 }
 .btn-secondary:hover {
     background: #4a4a4a;
     box-shadow: none;
 }
-
 
 /* Zajednički stilovi za slike profila */
 img.preview-slika,
@@ -445,11 +451,24 @@ img.preview-slika {
     padding-bottom: 25px; /* Povećan donji padding unutar samog kontejnera za objave */
 }
 
-/* Osigurajmo da gumbi unutar .container-a imaju dosljedan razmak */
-.container button {
-    margin-bottom: 10px; /* Standardni razmak između gumbi */
+/* **PRILAGOĐENE KLASA ZA 2X2 RASPORED GUMBA** */
+/* Umjesto da dodajemo novi div, prilagođavamo postojeće flex kontejnere */
+.container > div[style="display:flex; gap:10px;"] {
+    display: flex;
+    flex-wrap: wrap; /* Omogućuje prelamanje elemenata u novi red */
+    justify-content: space-between; /* Razmak između elemenata */
+    margin-bottom: 10px; /* Razmak između dva reda gumba */
 }
 
-.container button:last-child {
-    margin-bottom: 0; /* Ukloni marginu s dna zadnjeg gumba ako je unutar kontejnera */
+.container > div[style="display:flex; gap:10px;"] button {
+    flex: 1 1 calc(50% - 5px); /* Svaki gumb zauzima gotovo pola širine s razmakom od 5px */
+    max-width: calc(50% - 5px); /* Osigurava da se ne rastegnu previše */
+    margin-bottom: 0; /* Ukloni pojedinačne margine */
+    box-sizing: border-box; /* Uključi padding i border u širinu */
+}
+
+/* Posebna pravila za posljednji red gumba (Moj profil, Odjavi se) */
+/* Ako želite da i oni imaju razmak na dnu, dodajte margin-bottom na zadnjem .container > div[style] */
+.container > div[style="display:flex; gap:10px;"]:last-of-type {
+    margin-bottom: 0; /* Uklanja donju marginu ako je to zadnji flex div u containeru */
 }
