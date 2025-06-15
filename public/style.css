@@ -44,16 +44,29 @@ img.preview-slika { display: none; }
 .pravila-checkbox label { font-size: 15px; color: #f0f0f0; }
 /* public/style.css */
 
-/* --- POBOLJŠANE STILIZACIJE ZA VIZUALNI PRIKAZ OBJAVA (finalna verzija) --- */
+/* --- POBOLJŠANE STILIZACIJE ZA VIZUALNI PRIKAZ OBJAVA (verzija 4 - s centriranjem) --- */
 
-/* Prilagođavamo postojeći .pijanka stil */
+/* Opći kontejner za pijanke - osiguraj centriranje unutar glavnog kontejnera */
+.container#lokacijePrikaz {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centriraj djecu (pijanke) horizontalno */
+}
+
+/* Pojedinačna pijanka */
 .pijanka {
     display: flex;
-    flex-direction: column; /* Sadržaj unutar pijanke ide okomito */
+    flex-direction: column;
+    width: 100%; /* Objava zauzima cijelu širinu kontejnera */
+    max-width: 400px; /* Ograniči maksimalnu širinu ako je kontejner preširok */
+    background: #282828; /* Pozadina pijanke, malo tamnija od kontejnera */
     padding: 20px;
-    border-left: 4px solid #333;
-    /* Centriranje u kontejneru je već riješeno na .container ili body stilovima */
-    /* Nema više flex-a na .pijanka ako zelimo da ostane lijevo poravnato unutar kontejnera */
+    border-radius: 12px;
+    border: 1px solid #2a2a2a;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px; /* Razmak između pijanki */
+    border-left: 4px solid #ff4757; /* Naglašena lijeva linija */
+    box-sizing: border-box; /* Uključi padding i border u širinu */
 }
 
 /* Header pijanke (slika, ime, status, udaljenost, dugme za brisanje) */
@@ -65,6 +78,7 @@ img.preview-slika { display: none; }
     padding-bottom: 10px;
     border-bottom: 1px solid #333;
     margin-bottom: 10px;
+    width: 100%; /* Zauzmi punu širinu unutar pijanke */
 }
 
 .pijanka-profilna-slika {
@@ -87,12 +101,13 @@ img.preview-slika { display: none; }
     display: flex;
     align-items: center;
     margin-bottom: 2px;
+    justify-content: flex-start; /* Poravnaj lijevo */
 }
 
 .pijanka-info strong {
     font-size: 18px;
     margin-right: 5px;
-    text-align: left; /* Osiguraj lijevo poravnanje */
+    text-align: left;
 }
 
 .pijanka-info p.status-text { /* Stil za "pije X km" */
@@ -100,29 +115,46 @@ img.preview-slika { display: none; }
     color: #a0a0a0;
     margin: 0;
     padding: 0;
-    text-align: left; /* Osiguraj lijevo poravnanje */
+    text-align: left;
     white-space: nowrap; /* Spriječi prelamanje teksta */
 }
 
-/* Smanjenje i pozicioniranje ikonice za brisanje */
+/* Ikona za brisanje */
+/* public/style.css */
+
+/* ... (ostatak koda) ... */
+
+/* Ikona za brisanje - finalno dotjerivanje */
 .delete-btn {
     background: none;
     border: none;
-    font-size: 16px; /* JOŠ SMANJENI FONT VELIČINE IKONICE */
-    padding: 3px; /* JOŠ SMANJENI padding za hover efekt */
+    font-size: 14px; /* JOŠ MANJI FONT VELIČINE IKONICE */
+    padding: 2px; /* EKSTREMNO SMANJENI padding za hover efekt */
     margin-left: auto; /* Pomakni ga skroz desno */
     cursor: pointer;
     color: #777;
     flex-shrink: 0;
     line-height: 1; /* Osiguraj da ikonica bude centrirana vertikalno */
+    /* Dodajemo ove linije za osiguranje da se efekt ne širi izvan predviđenog */
+    display: flex; /* Koristimo flexbox za centriranje sadržaja unutar dugmeta */
+    justify-content: center;
+    align-items: center;
+    width: 24px; /* Fiksna širina dugmeta */
+    height: 24px; /* Fiksna visina dugmeta */
+    border-radius: 50%; /* Da bude okruglo ako želimo */
+    /* overflow: hidden; */ /* Možeš isprobati ovo ako se sjena i dalje probija, ali obično nije potrebno */
 }
+
 .delete-btn:hover {
     color: #ff4757;
     background: #333; /* Pozadina na hoveru */
-    border-radius: 5px;
-    transform: scale(1.1); /* Mali zoom efekt na hoveru */
-    transition: transform 0.2s ease; /* Glatki prijelaz */
+    border-radius: 50%; /* Neka bude okrugla pozadina na hoveru */
+    transform: scale(1.1); /* Mali zoom efekt */
+    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease; /* Glatki prijelaz */
+    /* box-shadow: none; */ /* Ostavljam ga komentiranim ako je već riješen */
 }
+
+/* ... (ostatak koda) ... */
 
 .status-dot {
     margin-right: 8px;
@@ -130,50 +162,55 @@ img.preview-slika { display: none; }
 
 .pijanka-opis {
     padding-top: 5px;
+    width: 100%; /* Opis zauzima punu širinu */
 }
 
 .pijanka-opis p {
     margin-bottom: 0;
     color: #e0e0e0;
     font-size: 15px;
-    text-align: left; /* Osiguraj lijevo poravnanje */
+    text-align: left;
 }
 
 /* Stil za separator (linija između pijanki) */
 .pijanka-separator {
     border: none;
     border-top: 1px dashed #444;
-    margin: 25px 0;
+    margin: 25px auto; /* Centriraj separator */
+    width: 80%; /* Smanji širinu separatora */
     background-color: transparent;
     height: 1px;
 }
 
-/* Osiguraj da p oznake u .container-u ne budu centrirane ako nisu direktno u .container */
-.container p:not(.status-text):not(.pijanka-opis p) {
-    text-align: left; /* Zadrži defaultno lijevo poravnanje za ostale p tagove */
-}
-/* No, originalno si imao p { text-align: center; } na početku CSS-a.
-Ako i dalje želiš lijevo poravnanje za sve p u containeru osim naslova, koristi: */
-.container p {
-    text-align: left;
-}
-.container h1, .container h2, .container p.welcome-message { /* Prilagodi selektor ako imas welcome message */
+/* Centriranje teksta u praznom pregledu pijanki */
+#pijankePregled p {
     text-align: center;
 }
-/* Ili ako zelis da svi p unutar .container budu lijevo, osim onih centriranih */
+
+/* Prilagodbe za glavne naslove i paragraf na uvodnim ekranima */
+h1, h2 {
+    text-align: center;
+}
 .container p {
-    text-align: left;
+    text-align: left; /* Defaultno lijevo za sve p tagove u containeru */
 }
 #intro p, #odabir p {
-    text-align: center; /* Vrati centriranje za uvodne ekrane ako je bilo namjerno */
+    text-align: center; /* Osim za intro i odabir, ako je tako bilo originalno */
 }
 
-/* Osiguraj da #pijankePregled p bude lijevo */
-#pijankePregled p {
-    text-align: left;
+/* Ukloni marginu s dna zadnje pijanke ako je unutar pijankePregled */
+#pijankePregled .pijanka:last-of-type {
+    margin-bottom: 0;
+}
+/* Ukloni separator iza zadnje pijanke */
+#pijankePregled .pijanka-separator:last-of-type {
+    display: none;
 }
 
-/* Posebno za poruku "Trenutno nitko ne pije." */
-#pijankePregled p:last-child {
-    text-align: center; /* Vrati centriranje za ovu specifičnu poruku */
+/* Osiguraj da div pijankePregled ima display flex za ispravno centriranje pijanki */
+#pijankePregled {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centriraj pojedinačne pijanke unutar ovog diva */
+    width: 100%;
 }
