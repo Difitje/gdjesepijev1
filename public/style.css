@@ -383,3 +383,51 @@ img.preview-slika {
     right: auto;
 }
 
+/* public/style.css */
+
+/* ... (ostatak koda) ... */
+
+/* --- Stilovi za privatni chat log (KONAČNA REVIZIJA) --- */
+#privatniChatLog {
+    min-height: 200px;
+    max-height: 300px;
+    background: none; /* Ukloni pozadinu */
+    padding: 0;
+    overflow-y: auto; /* Omogući skrolanje */
+    margin-bottom: 10px; /* Mali razmak od input polja */
+    display: flex; /* Koristi flexbox za poravnanje poruka */
+    flex-direction: column; /* Poruke idu okomito jedna ispod druge */
+}
+
+#privatniChatLog p {
+    margin-bottom: 8px; /* Razmak između poruka */
+    padding: 0;
+    text-align: left; /* Defaultno poravnanje lijevo */
+    width: 100%; /* Poruka zauzima punu širinu */
+}
+
+#privatniChatLog p > span {
+    display: inline-block;
+    padding: 10px 15px;
+    border-radius: 18px; /* Zaobljeni rubovi poruka */
+    max-width: 80%; /* Poruka zauzima maksimalno 80% širine, ostavljajući prostor za marginu */
+    word-wrap: break-word; /* Omogući prelamanje dugih riječi */
+}
+
+/* Stilovi za "Moje poruke" (desna strana, crvena pozadina) */
+#privatniChatLog p.moja-poruka {
+    text-align: right; /* Poravnaj cijeli paragraf desno */
+}
+#privatniChatLog p.moja-poruka > span {
+    background: #ff4757; /* Crvena pozadina */
+    color: white; /* Bijeli tekst */
+}
+
+/* Stilovi za "Tuđe poruke" (lijeva strana, tamnija pozadina) */
+#privatniChatLog p.tudja-poruka {
+    text-align: left; /* Poravnaj cijeli paragraf lijevo */
+}
+#privatniChatLog p.tudja-poruka > span {
+    background: #3a3a3a; /* Tamnija pozadina */
+    color: #f0f0f0; /* Svjetliji tekst */
+}
