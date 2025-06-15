@@ -104,3 +104,40 @@ img.preview-slika { display: none; }
     right: 0;
     margin-left: auto; /* Pomakni ga desno */
 }
+/* public/style.css */
+
+/* --- Dodatne stilizacije za vizualni prikaz informacija --- */
+
+.pijanka-info > div { /* Kontejner za status-dot i ime */
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px; /* Razmak između imena i udaljenosti */
+}
+
+.pijanka-info strong {
+    flex-grow: 1; /* Ime zauzima preostali prostor */
+    text-align: left; /* Osiguraj da ime bude lijevo poravnato */
+}
+
+.pijanka-info p.status-text { /* Stil za "pije X km" */
+    text-align: left; /* Udaljenost lijevo poravnata */
+    padding-left: 0; /* Ukloni sav padding ako ga ima */
+    font-size: 14px; /* Malo manji font za udaljenost */
+    color: #a0a0a0; /* Malo tamnija boja */
+}
+
+/* Prilagodbe za .pijanka-header delete-btn */
+.pijanka-header .delete-btn {
+    margin-left: auto; /* Osiguraj da delete button ide skroz desno */
+    flex-shrink: 0; /* Spriječi smanjivanje */
+}
+
+/* Osiguraj da status-dot ostane uz ime */
+.status-dot {
+    margin-right: 8px; /* Razmak između točke i imena */
+}
+
+/* Centriraj tekst u kontejneru objava ako je prazan */
+#pijankePregled p {
+    text-align: center;
+}
