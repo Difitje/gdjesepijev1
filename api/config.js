@@ -21,8 +21,8 @@ async function connectToDatabase() {
 
     try {
         const client = await MongoClient.connect(MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
+            // Uklonjeno: useNewUrlParser: true, // Zastarjelo u novijim verzijama drivera
+            // Uklonjeno: useUnifiedTopology: true, // Zastarjelo u novijim verzijama drivera
         });
         const db = client.db(DB_NAME);
 
