@@ -1,4 +1,4 @@
-/* public/style.css - KONAČNA, ISPRAVNA VERZIJA */
+/* public/style.css - KONAČNA, ISPRAVNA I KOMPLETNA VERZIJA */
 
 /* Globalni reset i osnovni stilovi */
 * {
@@ -55,8 +55,8 @@ p {
     color: #b0b0b0;
     text-align: left; /* Defaultno lijevo */
 }
-/* Centriranje teksta za specifične početne ekrane */
-#intro p, #odabir p, #pijankePregled p.center-text { /* Dodali smo klasu center-text za poruku "Trenutno nitko ne pije." */
+/* Centriranje teksta za specifične početne ekrane i poruku o praznoj listi */
+#intro p, #odabir p, #pijankePregled p.center-text, #listaChatova p.center-text {
     text-align: center;
 }
 
@@ -107,22 +107,6 @@ button:disabled {
     box-shadow: none;
 }
 
-/* Stilizacija za chat iteme */
-.chat-item {
-    background: #282828;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-left: 4px solid #333;
-    transition: all 0.2s ease-in-out;
-}
-.chat-item:hover {
-    background: #303030;
-    border-left-color: #ff4757;
-}
 
 /* Zajednički stilovi za slike profila */
 img.preview-slika,
@@ -141,13 +125,7 @@ img.preview-slika {
     display: block;
     margin: 10px auto;
 }
-.chat-item img {
-    width: 50px;
-    height: 50px;
-    margin-right: 15px;
-    border-radius: 50%;
-    object-fit: cover;
-}
+
 
 /* Status točke (online/offline) */
 .status-dot {
@@ -189,65 +167,6 @@ img.preview-slika {
     vertical-align: middle;
 }
 
-/* Stilovi za chat log */
-#privatniChatLog {
-    min-height: 200px;
-    max-height: 300px;
-    background: none;
-    padding: 0;
-    overflow-y: auto;
-}
-#privatniChatLog p {
-    text-align: left !important;
-    margin-bottom: 8px;
-}
-#privatniChatLog p > span {
-    display: inline-block;
-    padding: 10px 15px;
-    border-radius: 18px;
-    max-width: 80%;
-}
-#privatniChatLog p.moja-poruka {
-    text-align: right !important;
-}
-#privatniChatLog p.moja-poruka > span {
-    background: #ff4757;
-    color: white;
-}
-#privatniChatLog p.tudja-poruka > span {
-    background: #3a3a3a;
-}
-
-/* Pravila korištenja ekran */
-.pravila-text {
-    background: #252525;
-    border: 1px solid #333;
-    border-radius: 10px;
-    padding: 15px;
-    max-height: 250px;
-    overflow-y: auto;
-    margin-bottom: 20px;
-    color: #ccc;
-    font-size: 14px;
-}
-.pravila-text p {
-    margin-bottom: 10px;
-}
-.pravila-checkbox {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-}
-.pravila-checkbox input {
-    width: auto;
-    margin-right: 12px;
-    transform: scale(1.2);
-}
-.pravila-checkbox label {
-    font-size: 15px;
-    color: #f0f0f0;
-}
-
 
 /* --- POSEBNI STILOVI ZA OBJAVU (PIJANKU) LISTU --- */
 
@@ -270,7 +189,6 @@ img.preview-slika {
     border-left: 4px solid #ff4757; /* Naglašena lijeva linija */
     transition: all 0.2s ease-in-out;
 
-    /* Centriranje i širina */
     width: 100%; /* Objava zauzima cijelu širinu #pijankePregled */
     max-width: 400px; /* Ograniči maksimalnu širinu svake pijanke */
     box-sizing: border-box; /* Uključi padding i border u širinu */
@@ -382,3 +300,112 @@ img.preview-slika {
 
 /* Ukloni marginu s dna zadnje pijanke ako je unutar pijankePregled */
 #pijankePregled .pijanka:last-of-type {
+    margin-bottom: 0;
+}
+/* Ukloni separator iza zadnje pijanke */
+#pijankePregled .pijanka-separator:last-of-type {
+    display: none;
+}
+
+
+/* --- STILOVI ZA INBOX LISTU PORUKA --- */
+
+/* Kontejner liste chatova, osigurava centriranje chat itema */
+#listaChatova {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centriraj pojedinačne chat iteme horizontalno */
+    width: 100%; /* Zauzmi punu širinu roditeljskog diva */
+}
+
+/* Stilizacija pojedinog chat itema */
+.chat-item {
+    background: #282828;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 12px; /* Razmak između chat itema */
+    display: flex;
+    align-items: center; /* Centriraj sadržaj vertikalno */
+    border-left: 4px solid #333;
+    transition: all 0.2s ease-in-out;
+
+    width: 100%; /* Zauzmi punu širinu #listaChatova */
+    max-width: 400px; /* Ograniči maksimalnu širinu, kao kod pijanki */
+    box-sizing: border-box; /* Uključi padding i border u širinu */
+}
+.chat-item:hover {
+    background: #303030;
+    border-left-color: #ff4757;
+}
+
+/* Profilna slika u chat itemu */
+.chat-item img {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px; /* Razmak između slike i teksta */
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0; /* Spriječi smanjivanje */
+}
+
+/* Informacije o chat itemu (ime i status) */
+.chat-item-info {
+    flex-grow: 1; /* Omogući da zauzme sav dostupan prostor */
+    display: flex;
+    flex-direction: column; /* Ime i status idu okomito */
+    align-items: flex-start; /* Poravnaj sav sadržaj lijevo */
+    cursor: pointer;
+}
+
+.chat-item-info strong {
+    font-size: 17px;
+    font-weight: 500;
+    text-align: left; /* Osiguraj lijevo poravnanje imena */
+}
+
+/* Stil za status (online/offline) u chat itemu */
+.chat-item-info p.status-text {
+    font-size: 13px;
+    color: #999;
+    margin: 0;
+    padding: 0;
+    text-align: left; /* Osiguraj lijevo poravnanje statusa */
+}
+
+/* Notifikacijska značka u chat itemu */
+.chat-item .notification-badge {
+    margin-left: auto; /* Pomakni značku skroz desno */
+    flex-shrink: 0;
+    position: static; /* Ukloni relativno pozicioniranje ako smeta */
+    top: auto;
+    right: auto;
+}
+
+/* Stilovi za privatni chat log */
+#privatniChatLog {
+    min-height: 200px;
+    max-height: 300px;
+    background:none;
+    padding:0;
+    overflow-y:auto;
+}
+#privatniChatLog p {
+    text-align: left !important; /* Poruka lijevo */
+    margin-bottom: 8px;
+}
+#privatniChatLog p > span {
+    display: inline-block;
+    padding: 10px 15px;
+    border-radius: 18px;
+    max-width: 80%;
+}
+#privatniChatLog p.moja-poruka {
+    text-align: right !important; /* Moja poruka desno */
+}
+#privatniChatLog p.moja-poruka > span {
+    background: #ff4757;
+    color: white;
+}
+#privatniChatLog p.tudja-poruka > span {
+    background: #3a3a3a;
+}
