@@ -42,3 +42,65 @@ img.preview-slika { display: none; }
 .pravila-checkbox { display: flex; align-items: center; margin-bottom: 20px; }
 .pravila-checkbox input { width: auto; margin-right: 12px; transform: scale(1.2); }
 .pravila-checkbox label { font-size: 15px; color: #f0f0f0; }
+/* public/style.css */
+
+/* Stilizacija za header pijanke (profilna slika i ime) */
+.pijanka-header {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Razmak između slike i teksta */
+    cursor: pointer;
+    padding-bottom: 10px; /* Razmak između headera i opisa */
+    border-bottom: 1px solid #333; /* Mala linija ispod headera unutar pijanke */
+    margin-bottom: 10px; /* Razmak između headera i opisa */
+}
+
+.pijanka-profilna-slika {
+    width: 50px; /* Veličina profilne slike */
+    height: 50px;
+    border-radius: 50%; /* Okrugla slika */
+    object-fit: cover;
+    border: 2px solid #ff4757; /* Okvir u boji aplikacije */
+    flex-shrink: 0; /* Spriječi smanjivanje */
+}
+
+.pijanka-info {
+    flex-grow: 1; /* Omogući da zauzme sav dostupan prostor */
+}
+
+.pijanka-info strong {
+    font-size: 18px; /* Malo veći font za ime */
+}
+
+.pijanka-opis p {
+    margin-bottom: 0; /* Ukloni donju marginu za opis */
+    color: #e0e0e0; /* Svjetlija boja za tekst opisa */
+    font-size: 15px;
+}
+
+/* Stil za separator (linija između pijanki) */
+.pijanka-separator {
+    border: none;
+    border-top: 1px dashed #444; /* Isprepletena linija */
+    margin: 25px 0; /* Razmak iznad i ispod linije */
+    background-color: transparent; /* Osiguraj prozirnost */
+    height: 1px;
+}
+
+/* Prilagodi postojeći .pijanka stil */
+.pijanka {
+    display: block; /* Promijeni u blok umjesto flex-a na top-levelu pijanke */
+    border-left: none; /* Ukloni lijevu crtu ako više ne treba na cijeloj pijanki */
+    padding: 20px; /* Povećaj padding malo */
+}
+/* Podesi padding za pijanka-info, jer smo ga premjestili */
+.pijanka-info p {
+    padding-left: 0 !important; /* Ukloni stari padding */
+}
+/* Podesi delete dugme poziciju */
+.delete-btn {
+    position: relative; /* Omogući pozicioniranje */
+    top: 0;
+    right: 0;
+    margin-left: auto; /* Pomakni ga desno */
+}

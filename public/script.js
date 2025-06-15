@@ -449,19 +449,19 @@ async function obrisiPijanku(pijankaId, event) {
 function prikaziPijankePregled() {
     const div = document.getElementById("pijankePregled");
     if (!div) return;
-    div.innerHTML = "";
+    div.innerHTML = ""; // Očisti prethodni sadržaj
+
     if (svePijanke.length === 0) {
         div.innerHTML = '<p style="text-align:center;">Trenutno nitko ne pije. Budi prvi!</p>';
         return;
     }
+
     svePijanke.forEach(pijanka => {
-        // Provjeravamo da li pijanka ima id property (koji je _id.toString() sa backenda)
         if (!pijanka.id) {
             console.error("Pijanka nema ID (ili je '_id' nedostupan):", pijanka);
             return; // Preskoči ako nema ID
         }
 
-        // Pronađi autora iz globalno dohvaćenih svihKorisnici
         const autor = sviKorisnici.find(u => u.id === pijanka.korisnikId);
         if (!autor) {
             console.error("Autor pijanke nije pronađen za ID:", pijanka.korisnikId, "Pijanka:", pijanka);
@@ -469,16 +469,26 @@ function prikaziPijankePregled() {
         }
 
         const status = formatirajStatus(autor.lastActive);
-        div.innerHTML += `<div class="pijanka">
-            <div class="pijanka-info" onclick="otvoriProfil('${autor.id}')">
-                <div>
-                    <span class="status-dot ${status.online?"online":"offline"}"></span>
-                    <strong>${autor.ime}</strong>
+
+        // Kreiranje HTML-a za svaku pijanku s profilnom slikom i linijom
+        div.innerHTML += `
+            <div class="pijanka">
+                <div class="pijanka-header" onclick="otvoriProfil('${autor.id}')">
+                    <img src="${autor.slika}" alt="Profilna slika" class="pijanka-profilna-slika">
+                    <div class="pijanka-info">
+                        <div>
+                            <span class="status-dot ${status.online ? "online" : "offline"}"></span>
+                            <strong>${autor.ime}</strong>
+                        </div>
+                        <p class="status-text">pije ${distKM(mojPoz, pijanka)} km</p>
+                    </div>
+                    ${autor.id === trenutniKorisnik.id ? `<button class="delete-btn" onclick="obrisiPijanku('${pijanka.id}', event)">🗑️</button>` : ""}
                 </div>
-                <p class="status-text" style="padding-left:17px;">pije ${distKM(mojPoz, pijanka)} km</p>
+                <div class="pijanka-opis">
+                    <p>${pijanka.opis}</p>
+                </div>
             </div>
-            ${autor.id === trenutniKorisnik.id ? `<button class="delete-btn" onclick="obrisiPijanku('${pijanka.id}', event)">🗑️</button>` : ""}
-        </div>`;
+            <hr class="pijanka-separator"> `;
     });
 }
 
@@ -682,10 +692,10 @@ async function dohvatiSveKorisnike() {
 
 async function dohvatiSvePijanke() {
     try {
-        const response = await authenticatedFetch('/api/posts');
+        const response = await authenticatedFetch('/api/posts'); // Ovo dohvaća objave
         if (response.ok) {
-            svePijanke = await response.json();
-            console.log("Dohvaćene pijanke:", svePijanke); // LOG
+            svePijanke = await response.json(); // Ovo bi trebalo biti array s objavama
+            console.log("Dohvaćene pijanke:", svePijanke); // DODAN LOG!
         } else {
             console.error("Greška pri dohvaćanju pijanki:", await response.text());
             svePijanke = [];
