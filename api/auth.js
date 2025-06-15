@@ -4,16 +4,20 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
 
 module.exports = (handler) => async (req, res) => {
-    // Rute koje ne zahtijevaju autentifikaciju:
-    //  - /api/register (za registraciju)
-    //  - /api/login (za prijavu)
-    //  - /api/users (za dohvaćanje liste svih korisnika - ako želite da je javno dostupno)
-    //  - /api/posts (za dohvaćanje svih objava - ako želite da je javno dostupno)
-    //  - /api/users/[id] (za dohvaćanje pojedinog profila - ako želite da je javno dostupno)
-    if (req.url === '/api/register' || req.url === '/api/login' || req.url === '/api/users' || req.url.startsWith('/api/users/') || req.url === '/api/posts' || req.url.startsWith('/api/posts/')) {
+    // --- Rute koje NE ZAHTIJEVAJU AUTENTIFIKACIJU (public rute) ---
+    // Provjeravamo i URL i METODU
+    const isPublicGetUsers = req.url === '/api/users' && req.method === 'GET';
+    const isPublicGetSingleUser = req.url.match(/^\/api\/users\/[^/]+$/) && req.method === 'GET'; // Npr. /api/users/nekioid
+    const isRegisterOrLogin = req.url === '/api/register' || req.url === '/api/login';
+    const isPublicGetPosts = req.url === '/api/posts' && req.method === 'GET';
+
+
+    if (isRegisterOrLogin || isPublicGetUsers || isPublicGetSingleUser || isPublicGetPosts) {
+        // Ove rute zaobilaze autentifikaciju i idu direktno na handler
         return handler(req, res);
     }
 
+    // --- Rute koje ZAHTIJEVAJU AUTENTIFIKACIJU (sve ostale) ---
     const authHeader = req.headers.authorization;
     if (!authHeader) {
         return res.status(401).json({ message: 'Autorizacijski token nedostaje.' });
@@ -27,7 +31,7 @@ module.exports = (handler) => async (req, res) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         req.user = decoded; // Dodajemo korisnika u request objekt
-        return handler(req, res);
+        return handler(req, res); // Nastavi na sljedeći middleware/funkciju
     } catch (error) {
         console.error("Greška pri verifikaciji tokena:", error);
         return res.status(401).json({ message: 'Token je nevažeći ili istekao.' });
