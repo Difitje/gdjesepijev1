@@ -44,100 +44,100 @@ img.preview-slika { display: none; }
 .pravila-checkbox label { font-size: 15px; color: #f0f0f0; }
 /* public/style.css */
 
-/* Stilizacija za header pijanke (profilna slika i ime) */
+/* --- POBOLJŠANE STILIZACIJE ZA VIZUALNI PRIKAZ OBJAVA --- */
+
+/* Prilagođavamo postojeći .pijanka stil */
+.pijanka {
+    display: flex; /* Opet koristimo flex za cijelu pijanku */
+    flex-direction: column; /* Sadržaj unutar pijanke ide okomito */
+    padding: 20px; /* Povećaj padding malo */
+    border-left: 4px solid #333; /* Vrati lijevu crtu ako je bila obrisana */
+}
+
+/* Header pijanke (slika, ime, status, udaljenost, dugme za brisanje) */
 .pijanka-header {
     display: flex;
     align-items: center;
-    gap: 15px; /* Razmak između slike i teksta */
+    gap: 15px; /* Razmak između elemenata */
     cursor: pointer;
-    padding-bottom: 10px; /* Razmak između headera i opisa */
-    border-bottom: 1px solid #333; /* Mala linija ispod headera unutar pijanke */
+    padding-bottom: 10px; /* Razmak ispod headera */
+    border-bottom: 1px solid #333; /* Mala linija ispod headera */
     margin-bottom: 10px; /* Razmak između headera i opisa */
 }
 
 .pijanka-profilna-slika {
-    width: 50px; /* Veličina profilne slike */
+    width: 50px;
     height: 50px;
-    border-radius: 50%; /* Okrugla slika */
+    border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #ff4757; /* Okvir u boji aplikacije */
-    flex-shrink: 0; /* Spriječi smanjivanje */
+    border: 2px solid #ff4757;
+    flex-shrink: 0;
 }
 
 .pijanka-info {
     flex-grow: 1; /* Omogući da zauzme sav dostupan prostor */
+    display: flex;
+    flex-direction: column; /* Sadržaj unutar pijanka-info ide okomito */
+    justify-content: center; /* Centriraj vertikalno ako ima mjesta */
+}
+
+.pijanka-info > div { /* Kontejner za status-dot i ime */
+    display: flex;
+    align-items: center;
+    margin-bottom: 2px; /* Smanji razmak između imena i udaljenosti */
 }
 
 .pijanka-info strong {
-    font-size: 18px; /* Malo veći font za ime */
+    font-size: 18px;
+    margin-right: 5px; /* Mali razmak između imena i status-text */
+    flex-grow: 1; /* Ime zauzima preostali prostor */
+    text-align: left;
+}
+
+.pijanka-info p.status-text { /* Stil za "pije X km" */
+    font-size: 13px; /* Malo manji font */
+    color: #a0a0a0;
+    margin: 0; /* Ukloni sve margine */
+    padding: 0; /* Ukloni sav padding */
+    text-align: left;
+}
+
+/* Smanjenje i pozicioniranje ikonice za brisanje */
+.delete-btn {
+    background: none;
+    border: none;
+    font-size: 18px; /* SMANJEN FONT VELIČINE IKONICE */
+    padding: 5px; /* Smanji padding */
+    margin-left: auto; /* Pomakni ga skroz desno */
+    cursor: pointer;
+    color: #777;
+    flex-shrink: 0; /* Spriječi smanjivanje dugmeta */
+}
+.delete-btn:hover {
+    color: #ff4757;
+    background: #333;
+    border-radius: 5px; /* Mali zaobljeni rub na hover */
+}
+
+.status-dot {
+    margin-right: 8px; /* Razmak između točke i imena */
+}
+
+.pijanka-opis {
+    padding-top: 5px; /* Mali razmak iznad opisa */
 }
 
 .pijanka-opis p {
-    margin-bottom: 0; /* Ukloni donju marginu za opis */
-    color: #e0e0e0; /* Svjetlija boja za tekst opisa */
+    margin-bottom: 0;
+    color: #e0e0e0;
     font-size: 15px;
 }
 
 /* Stil za separator (linija između pijanki) */
 .pijanka-separator {
     border: none;
-    border-top: 1px dashed #444; /* Isprepletena linija */
-    margin: 25px 0; /* Razmak iznad i ispod linije */
-    background-color: transparent; /* Osiguraj prozirnost */
+    border-top: 1px dashed #444;
+    margin: 25px 0;
+    background-color: transparent;
     height: 1px;
-}
-
-/* Prilagodi postojeći .pijanka stil */
-.pijanka {
-    display: block; /* Promijeni u blok umjesto flex-a na top-levelu pijanke */
-    border-left: none; /* Ukloni lijevu crtu ako više ne treba na cijeloj pijanki */
-    padding: 20px; /* Povećaj padding malo */
-}
-/* Podesi padding za pijanka-info, jer smo ga premjestili */
-.pijanka-info p {
-    padding-left: 0 !important; /* Ukloni stari padding */
-}
-/* Podesi delete dugme poziciju */
-.delete-btn {
-    position: relative; /* Omogući pozicioniranje */
-    top: 0;
-    right: 0;
-    margin-left: auto; /* Pomakni ga desno */
-}
-/* public/style.css */
-
-/* --- Dodatne stilizacije za vizualni prikaz informacija --- */
-
-.pijanka-info > div { /* Kontejner za status-dot i ime */
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px; /* Razmak između imena i udaljenosti */
-}
-
-.pijanka-info strong {
-    flex-grow: 1; /* Ime zauzima preostali prostor */
-    text-align: left; /* Osiguraj da ime bude lijevo poravnato */
-}
-
-.pijanka-info p.status-text { /* Stil za "pije X km" */
-    text-align: left; /* Udaljenost lijevo poravnata */
-    padding-left: 0; /* Ukloni sav padding ako ga ima */
-    font-size: 14px; /* Malo manji font za udaljenost */
-    color: #a0a0a0; /* Malo tamnija boja */
-}
-
-/* Prilagodbe za .pijanka-header delete-btn */
-.pijanka-header .delete-btn {
-    margin-left: auto; /* Osiguraj da delete button ide skroz desno */
-    flex-shrink: 0; /* Spriječi smanjivanje */
-}
-
-/* Osiguraj da status-dot ostane uz ime */
-.status-dot {
-    margin-right: 8px; /* Razmak između točke i imena */
-}
-
-/* Centriraj tekst u kontejneru objava ako je prazan */
-#pijankePregled p {
-    text-align: center;
 }
