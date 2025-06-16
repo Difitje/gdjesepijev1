@@ -13,13 +13,13 @@ body {
     color: #f0f0f0;
     line-height: 1.5;
     font-size: 15px;
-    display: flex; /* Zadržite flex za body */
-    justify-content: center; /* Centrirajte sadržaj horizontalno */
-    align-items: center; /* Centrirajte sadržaj vertikalno */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     min-height: 100vh;
     padding: 15px 0;
-    overflow: hidden; /* Dodano da spriječite scrollbarove tijekom tranzicija */
-    position: relative; /* Dodajte ovo na body da bi .container absolute pozicije radile ispravno unutar njega */
+    overflow: hidden;
+    position: relative;
 }
 
 /* Kontejneri za ekrane - Baza za animacije */
@@ -33,21 +33,19 @@ body {
     box-shadow: 0 3px 20px rgba(255, 71, 87, 0.12);
     margin: 12px;
 
-    /* Postavljanje za animacije - Zadržavamo absolute poziciju */
-    position: absolute; /* Svi kontejneri su apsolutni da se preklapaju */
+    position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Centriraj na sredinu ekrana */
-    opacity: 0; /* Početno nevidljivo */
-    visibility: hidden; /* Sakrij iz tree-ja za pristupačnost */
-    pointer-events: none; /* Ne reagiraj na miša kad je skriven */
-    transition: opacity 0.3s ease-out, visibility 0.3s ease-out; /* Glatka tranzicija */
-    z-index: 0; /* Defaultni z-index za neaktivne */
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+    z-index: 0;
 
-    /* **Ključno za raspored unutar kontejnera**: Postavi ga kao flex kontejner */
     display: flex;
-    flex-direction: column; /* Sadržaj unutar kontejnera ide okomito */
-    justify-content: space-between; /* Rasporedi sadržaj po visini: header na vrhu, kontrole na dnu, sadržaj između */
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 /* Klase koje JavaScript dodaje/uklanja za aktivne ekrane */
@@ -55,12 +53,12 @@ body {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    z-index: 1; /* Aktivni ekran je iznad ostalih */
+    z-index: 1;
 }
 
-/* Dodatna klasa za animaciju izlaska (ako je potrebno duže od .container tranzicije) */
+/* Dodatna klasa za animaciju izlaska */
 .container.fade-out-screen {
-    animation: fadeOut 0.3s ease-out forwards; /* Koristi opći fadeOut */
+    animation: fadeOut 0.3s ease-out forwards;
 }
 
 /* Naslovi */
@@ -193,44 +191,44 @@ img.preview-slika {
 
 /* Stil za omotač checkboxa i labela u pravilima */
 .pravila-checkbox-wrapper {
-    display: flex; /* Koristi flexbox */
-    align-items: center; /* Vertikalno poravnaj po sredini */
-    gap: 8px; /* Mali razmak između checkboxa i teksta */
-    margin-bottom: 15px; /* Razmak ispod checkboxa */
-    justify-content: center; /* Centriraj cijeli wrapper */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    justify-content: center;
 }
 
 .pravila-checkbox-wrapper input[type="checkbox"] {
-    width: auto; /* Checkbox neka zadrži svoju širinu */
-    margin-bottom: 0; /* Ukloni marginu s dna (naslijeđena od općeg input stila) */
-    flex-shrink: 0; /* Spriječi smanjivanje checkboxa */
+    width: auto;
+    margin-bottom: 0;
+    flex-shrink: 0;
 }
 
 .pravila-checkbox-wrapper label {
-    margin-bottom: 0; /* Ukloni marginu s dna */
+    margin-bottom: 0;
     font-size: 14px;
     color: #f0f0f0;
-    text-align: left; /* Osiguraj lijevo poravnavanje teksta */
+    text-align: left;
 }
 
 /* Stilovi za zajedničke ikone */
 .action-icon {
-    width: 40px; /* Veličina ikone (npr. zupčanik) */
+    width: 40px;
     height: 40px;
-    border-radius: 50%; /* Okrugli oblik */
-    background: #333; /* Tamnija pozadina */
-    color: #f0f0f0; /* Svjetla boja ikone */
-    font-size: 20px; /* Veličina emojija/ikone */
+    border-radius: 50%;
+    background: #333; /* Default tamna pozadina */
+    color: #f0f0f0;
+    font-size: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
     border: none;
     cursor: pointer;
-    transition: background 0.2s ease, transform 0.2s ease;
-    padding: 0; /* Ukloni padding koji utječe na veličinu */
-    margin: 0; /* Ukloni marginu od općih button stilova */
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; /* Dodan box-shadow u transition */
+    padding: 0;
+    margin: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    flex-shrink: 0; /* Spriječi da se ikone smanjuju */
+    flex-shrink: 0;
 }
 
 .action-icon:hover {
@@ -238,42 +236,40 @@ img.preview-slika {
     transform: scale(1.05);
 }
 
-/* NOVI STILOVI ZA LARGE ACTION ICON (Pivska krigla) */
+/* STILOVI ZA LARGE ACTION ICON (Pivska krigla) */
 .large-action-icon {
-    width: 60px; /* Veća veličina */
+    width: 60px;
     height: 60px;
-    font-size: 28px; /* Veći emoji/ikona */
-    background: linear-gradient(45deg, #ff4757, #e03f4d); /* Crveni gradient */
-    box-shadow: 0 3px 12px rgba(255, 71, 87, 0.3); /* Jača sjena */
+    font-size: 28px;
+    background: linear-gradient(45deg, #e03f4d, #ff4757); /* **Ispravka ovdje**: Počinje s tamnijom nijansom */
+    box-shadow: 0 3px 12px rgba(255, 71, 87, 0.3);
 }
 
 .large-action-icon:hover {
-    background: linear-gradient(45deg, #e03f4d, #ff4757); /* Obrnuti gradient na hoveru */
-    transform: scale(1.1); /* Malo veći transform */
+    background: linear-gradient(45deg, #ff4757, #e03f4d); /* **Ispravka ovdje**: Obrnuti gradient na hoveru */
+    transform: scale(1.1);
 }
-
 
 /* Stilovi za padajući izbornik */
 .dropdown-container {
-    position: relative; /* Bitno za pozicioniranje dropdown-content unutar njega */
-    /* display: inline-block; nije potrebno ovdje jer je dio controls-bottom flexboxa */
+    position: relative;
 }
 
 .dropdown-content {
-    display: none; /* Sakrij po defaultu */
+    display: none;
     position: absolute;
     background-color: #282828;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
-    z-index: 10; /* Iznad ostalog sadržaja */
-    right: 0; /* Poravnaj desno s ikonom zupčanika */
-    bottom: 50px; /* **KLJUČNO**: Postavi dropdown iznad action-icon gumba */
+    z-index: 10;
+    right: 0;
+    bottom: 50px; /* Postavi dropdown iznad action-icon gumba */
     border-radius: 8px;
-    overflow: hidden; /* Zaobli rubove linkova unutra */
+    overflow: hidden;
     border: 1px solid #3a3a3a;
-    opacity: 0; /* Za animaciju */
-    visibility: hidden; /* Za animaciju */
-    transform: translateY(10px); /* Početna pozicija za animaciju (izlazi s dna) */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
     transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0.2s;
 }
 
@@ -284,7 +280,7 @@ img.preview-slika {
     display: block;
     font-size: 14px;
     transition: background-color 0.2s ease;
-    position: relative; /* Za badge */
+    position: relative;
 }
 
 .dropdown-content a:hover {
@@ -293,10 +289,10 @@ img.preview-slika {
 
 /* Prikaz dropdowna */
 .dropdown-container.show .dropdown-content {
-    display: block; /* Prikaži ga */
-    opacity: 1; /* Animacija */
-    visibility: visible; /* Animacija */
-    transform: translateY(0); /* Animacija */
+    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }
 
 /* Stil za notifikacijski badge u dropdownu */
@@ -307,22 +303,22 @@ img.preview-slika {
     background-color: #e74c3c;
     color: white;
     border-radius: 50%;
-    height: 10px; /* Malo veći badge da bude vidljiviji */
+    height: 10px;
     width: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 8px; /* Ako želite broj unutar njega, prilagodite */
+    font-size: 8px;
 }
 
-/* NOVI STILOVI ZA CONTROLS-BOTTOM (DNO EKRANA) */
+/* STILOVI ZA CONTROLS-BOTTOM (DNO EKRANA) */
 .controls-bottom {
     display: flex;
-    justify-content: space-around; /* Razmakni ikone ravnomjerno */
+    justify-content: space-around; /* Ravnomjerno razmakni ikone */
     align-items: center;
-    margin-top: auto; /* KLJUČNO: Gurni ovaj div na dno flexbox kontejnera */
+    margin-top: auto; /* Gurni ovaj div na dno flexbox kontejnera */
     padding-top: 20px; /* Razmak od sadržaja iznad */
-    width: 100%; /* Zauzmi punu širinu roditelja */
+    width: 100%;
     position: relative; /* Bitno za z-index i da se dropdown dobro pozicionira */
 }
 
@@ -581,18 +577,13 @@ img.preview-slika {
     color: #f0f0f0;
 }
 
-/* Razmak između dugmadi i pijanki - sada upravlja .controls-bottom */
-/* Ovi stilovi sada nisu potrebni jer controls-bottom preuzima kontrolu */
-/* #pijankePregled + button {
-    margin-top: 25px;
-}
 .container button:not(:last-child) {
     margin-bottom: 12px;
 }
+
 #odabir button {
     margin-bottom: 14px;
-} */
-
+}
 
 /* --- STILOVI ZA SPLASH SCREEN --- */
 #splashScreen {
