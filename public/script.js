@@ -66,7 +66,7 @@ function compressImage(base64Image, maxWidth = 400, quality = 0.8) {
 window.addEventListener('DOMContentLoaded', async function() {
     localStorage.removeItem("loggedInUserId"); // Čišćenje starog, lokalnog ID-a
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     console.log("DOMContentLoaded: Pokušavam dohvatiti token:", token ? "Token pronađen" : "Nema tokena");
 
     const splashScreen = document.getElementById('splashScreen');
@@ -374,9 +374,19 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
             body: JSON.stringify({ username: ime, password: sifra })
         });
 
-        const data = await response.json();
+        // Važno: Uvijek pokušaj parsirati JSON, čak i ako response.ok nije true.
+        // To nam daje pristup serverovoj poruci o grešci.
+        let data = {};
+        try {
+            data = await response.json();
+        } catch (jsonError) {
+            console.error("Greška pri parsiranju JSON odgovora:", jsonError);
+            // Postavi defaultnu poruku ako JSON nije validan
+            data.message = "Nepoznata greška servera ili nevalidan JSON odgovor.";
+        }
 
         if (response.ok) {
+            // Ako je prijava uspješna (status 2xx)
             localStorage.setItem("token", data.token);
             trenutniKorisnik = data.user;
             await Promise.all([
@@ -384,15 +394,18 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
                 dohvatiSvePijanke(),
                 dohvatiSvePoruke()
             ]);
-            pokreniAplikaciju();
+            pokreniAplikaciju(); // Ovo će te odvesti na lokacijePrikaz
         } else {
-            alert("Greška pri prijavi: " + data.message);
+            // Ako prijava nije uspješna (npr. status 400, 401, 500)
+            alert("Greška pri prijavi: " + (data.message || "Provjerite korisničko ime i lozinku."));
+            // Ne preusmjeravaj, ostani na login ekranu
         }
     } catch (error) {
-        console.error("Greška kod prijave:", error);
-        alert("Došlo je do greške pri prijavi.");
+        console.error("Greška kod prijave (mreža/iznimka):", error);
+        alert("Došlo je do greške pri prijavi. Provjerite internetsku vezu.");
+        // Ovdje također ostani na login ekranu
     } finally {
-        // Vrati originalno stanje gumba
+        // Vrati originalno stanje gumba bez obzira na uspjeh/neuspjeh
         if (loginBtn) {
             loginBtn.disabled = false;
             loginBtn.textContent = 'Prijavi se';
