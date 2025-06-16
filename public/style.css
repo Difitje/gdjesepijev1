@@ -18,9 +18,10 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: 15px 0; /* Smanjen padding */
+    /* UKLONJENO: opacity i visibility ovdje jer ih JS kontrolira */
 }
 
-/* Kontejneri za ekrane */
+/* Kontejneri za ekrane - Apsolutno osiguraj da su svi skriveni dok JS ne preuzme */
 .container {
     width: 95%;
     max-width: 400px; /* Smanjena maksimalna širina kontejnera */
@@ -31,6 +32,7 @@ body {
     box-shadow: 0 3px 20px rgba(255, 71, 87, 0.12); /* Smanjena sjena */
     margin: 12px; /* Smanjena margina */
     display: none; /* Defaultno skriveni, JS ih kontrolira */
+    /* Uklonjeno: !important, umjesto toga ćemo koristiti JavaScript za pouzdanu kontrolu */
 }
 #intro {
     display: block; /* Intro ekran je defaultno vidljiv */
@@ -63,7 +65,7 @@ p {
 
 
 /* Inputi, textarea, dugmad */
-input, textarea, button {
+input, textarea { /* Tipkama button NE mijenjamo padding i font-size */
     width: 100%;
     padding: 12px; /* Smanjen padding */
     margin-bottom: 14px; /* Malo smanjen margin-bottom */
@@ -81,6 +83,7 @@ input:focus, textarea:focus {
     box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); /* Smanjena sjena */
 }
 button {
+    /* Veličinu gumba NE DIRAJTE, prema zahtjevu korisnika */
     background: linear-gradient(45deg, #ff4757, #e03f4d);
     cursor: pointer;
     border: none;
@@ -88,6 +91,9 @@ button {
     position: relative;
     text-transform: uppercase;
     letter-spacing: 0.8px; /* Malo smanjen razmak između slova */
+    padding: 15px; /* Vraćeno na originalni padding */
+    font-size: 16px; /* Vraćeno na originalni font-size */
+    margin-bottom: 16px; /* Vraćeno na originalni margin-bottom */
 }
 button:hover {
     transform: translateY(-1px); /* Smanjen pomak na hoveru */
@@ -150,15 +156,19 @@ img.preview-slika {
 
 /* Notifikacijska značka */
 .notification-badge {
-    position: relative;
-    top: -1px;
-    right: -4px; /* Malo smanjen pomak */
-    display: inline-block;
+    position: absolute; /* Promijenjeno u absolute */
+    top: 0; /* Poravnano s vrhom roditeljskog gumba */
+    right: 0; /* Poravnano s desnim rubom */
     background: #e74c3c;
-    color: white;
     border-radius: 50%;
     height: 9px; /* Smanjena visina značke */
-    width: 9px; /* Smanjena širina značke */
+    width: 9px; /* Smanjena visina značke */
+    font-size: 8px; /* Tekst unutar značke ako je broj */
+    display: flex; /* Koristi flex za centriranje sadržaja */
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transform: translate(30%, -30%); /* Malo pomakni izvan gumba */
 }
 
 /* Ikone društvenih mreža */
@@ -166,6 +176,29 @@ img.preview-slika {
     width: 24px; /* Smanjena širina ikone */
     margin: 0 8px; /* Smanjena margina */
     vertical-align: middle;
+}
+
+
+/* --- GLAVNI NASLOV "DRINKER" (na vrhu ekrana) --- */
+.main-title-container {
+    text-align: center;
+    width: 100%; /* Zauzmi punu širinu */
+    padding: 15px 0; /* Padding unutar naslova */
+    background: #111111; /* Pozadina naslova, malo tamnija od tijela */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Lagana sjena */
+    z-index: 100; /* Osiguraj da je iznad svega */
+    position: fixed; /* Fiksiraj ga na vrhu */
+    top: 0;
+    left: 0;
+}
+
+.main-title-container h1 {
+    font-size: 2.5em; /* Veliki font za naslov */
+    color: #ff4757;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0; /* Ukloni sve margine */
 }
 
 
@@ -177,44 +210,85 @@ img.preview-slika {
     flex-direction: column;
     align-items: center; /* Centriraj djecu (pijanke) unutar ovog diva */
     width: 100%;
+    padding-bottom: 5px; /* Mali padding na dnu za bolji izgled skrolanja */
+    margin-top: 5px; /* Mali razmak od naslova */
 }
+
+/* KONTEJNER #lokacijePrikaz - KLJUČAN ZA SKROLANJE I SPREČAVANJE PREKLAPANJA */
+.container#lokacijePrikaz {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Ovdje postavljamo visinu za skrolanje. Računamo punu visinu kontejnera (minus padding) */
+    /* Visina gornjeg naslova "Trenutno pije:" je ~60px, donji gumbi su ~100px */
+    max-height: calc(100vh - 80px); /* Podesena visina da kontejner stane u viewport, prilagoditi */
+    height: auto; /* Podesava se automatski */
+    padding-bottom: 0;
+    overflow-y: auto; /* OMOGUĆI SKROLANJE UNUTAR OVOG KONTEJNERA */
+    padding-top: 10px; /* Razmak iznad naslova u lokacijePrikaz */
+    box-sizing: border-box; /* Uključi padding u visinu */
+    position: relative; /* Bitno za sticky footer */
+    /* Dodana margina na vrhu da se spusti ispod fiksnog main-title-container */
+    margin-top: 70px; /* Razmak za fiksni glavni naslov + razmak od container.margin */
+}
+
+/* Stilovi za donje gumba (Objavi pijanku, Poruke, Moj profil, Odjavi se) */
+/* CILJAMO DIVE KOJI SADRŽE TE GUMBE unutar #lokacijePrikaz */
+/* SADA SU OVI GUMBI PREMJEŠTENI U HEADER-BAR I DROPDOWN, PA OVAJ STIL NEĆE VRIJEDITI ZA NJIH */
+/* Ali ga ostavljam ako planiraš imati druge fiksne gumbe na dnu */
+.container#lokacijePrikaz > div[style*="display:flex; gap:10px"] {
+    margin-top: 20px;
+    padding-top: 15px;
+    background: #1e1e1e;
+    box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.3);
+    width: calc(100% + 50px);
+    position: sticky;
+    bottom: -25px;
+    left: -25px;
+    box-sizing: border-box;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-bottom: 25px;
+    z-index: 10;
+}
+
 
 /* Pojedinačna pijanka */
 .pijanka {
     background: #282828;
     padding: 15px; /* Smanjen padding unutar pijanke */
     border-radius: 10px; /* Malo manji border-radius */
-    margin-bottom: 8px; /* **Dodatno smanjen razmak između pijanki** */
+    margin-bottom: 12px; /* Razmak između pijanki */
     display: flex;
-    flex-direction: column; /* Sadržaj unutar pijanke ide okomito */
-    border-left: 3px solid #ff4757; /* Malo tanja naglašena linija */
+    flex-direction: column;
+    border-left: 3px solid #ff4757;
     transition: all 0.2s ease-in-out;
 
-    width: 100%; /* Objava zauzima cijelu širinu #pijankePregled */
-    max-width: 350px; /* **Smanjena maksimalna širina svake pijanke (Manje)** */
-    box-sizing: border-box; /* Uključi padding i border u širinu */
+    width: 100%;
+    max-width: 350px;
+    box-sizing: border-box;
 }
 .pijanka:hover {
     background: #303030;
-    border-left-color: #e03f4d; /* Tamnija crvena na hoveru */
+    border-left-color: #e03f4d;
 }
 
 
 /* Header pijanke (profilna slika, ime, status, udaljenost, dugme za brisanje) */
 .pijanka-header {
     display: flex;
-    align-items: center; /* Vertikalno poravnanje po sredini */
-    gap: 12px; /* Malo smanjen razmak između elemenata */
+    align-items: center;
+    gap: 12px;
     cursor: pointer;
-    padding-bottom: 8px; /* Smanjen padding-bottom */
+    padding-bottom: 8px;
     border-bottom: 1px solid #333;
-    margin-bottom: 8px; /* Malo smanjen margin-bottom */
-    width: 100%; /* Zauzmi punu širinu unutar pijanke */
+    margin-bottom: 8px;
+    width: 100%;
 }
 
 .pijanka-profilna-slika {
-    width: 50px; /* **Zadržana veličina profilne slike** */
-    height: 50px; /* **Zadržana veličina profilne slike** */
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #ff4757;
@@ -222,42 +296,42 @@ img.preview-slika {
 }
 
 .pijanka-info {
-    flex-grow: 1; /* Omogući da zauzme sav dostupan prostor */
+    flex-grow: 1;
     display: flex;
-    flex-direction: column; /* Ime i status/udaljenost idu okomito */
-    align-items: flex-start; /* Poravnaj sav sadržaj lijevo */
-    justify-content: center; /* Centriraj vertikalno ako ima mjesta */
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
 }
 
-.pijanka-info > div { /* Kontejner za status-dot i ime */
+.pijanka-info > div {
     display: flex;
     align-items: center;
-    margin-bottom: 1px; /* Smanjen razmak */
-    justify-content: flex-start; /* Poravnaj lijevo */
+    margin-bottom: 1px;
+    justify-content: flex-start;
 }
 
 .pijanka-info strong {
-    font-size: 18px; /* **Zadržana veličina fonta za ime** */
-    margin-right: 4px; /* Malo smanjen margin-right */
+    font-size: 18px;
+    margin-right: 4px;
     text-align: left;
 }
 
-.pijanka-info p.status-text { /* Stil za "pije X km" */
-    font-size: 13px; /* **Zadržana veličina fonta za status** */
+.pijanka-info p.status-text {
+    font-size: 13px;
     color: #a0a0a0;
     margin: 0;
     padding: 0;
     text-align: left;
-    white-space: nowrap; /* Spriječi prelamanje teksta */
+    white-space: nowrap;
 }
 
 /* Ikona za brisanje */
 .delete-btn {
     background: none;
     border: none;
-    font-size: 14px; /* Malo smanjena veličina ikonice */
-    padding: 2px; /* Smanjen padding */
-    margin-left: auto; /* Pomakni ga skroz desno */
+    font-size: 16px;
+    padding: 3px;
+    margin-left: auto;
     cursor: pointer;
     color: #777;
     flex-shrink: 0;
@@ -265,27 +339,27 @@ img.preview-slika {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 24px; /* Smanjena širina dugmeta */
-    height: 24px; /* Smanjena visina dugmeta */
-    border-radius: 50%; /* Da bude okruglo na hoveru */
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
 }
 .delete-btn:hover {
     color: #ff4757;
-    background: rgba(51, 51, 51, 0.5); /* Smanji prozirnost pozadine na hoveru */
-    box-shadow: none; /* Ukloni sjenu */
-    transform: scale(1.05); /* Malo smanjen scale na hoveru */
+    background: rgba(51, 51, 51, 0.5);
+    box-shadow: none;
+    transform: scale(1.1);
     transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
 .pijanka-opis {
-    padding-top: 4px; /* Malo smanjen padding-top */
-    width: 100%; /* Opis zauzima punu širinu */
+    padding-top: 4px;
+    width: 100%;
 }
 
 .pijanka-opis p {
     margin-bottom: 0;
     color: #e0e0e0;
-    font-size: 14px; /* Smanjena veličina fonta opisa */
+    font-size: 15px;
     text-align: left;
 }
 
@@ -293,8 +367,8 @@ img.preview-slika {
 .pijanka-separator {
     border: none;
     border-top: 1px dashed #444;
-    margin: 12px auto; /* **Dodatno smanjen razmak separatora između pijanki** */
-    width: 70%; /* Malo smanjena širina separatora */
+    margin: 12px auto;
+    width: 80%;
     background-color: transparent;
     height: 1px;
 }
@@ -309,31 +383,31 @@ img.preview-slika {
 }
 
 
-/* --- STILOVI ZA INBOX LISTU PORUKA (KONAČNA REVIZIJA) --- */
+/* --- STILOVI ZA INBOX LISTU PORUKA --- */
 
 /* Kontejner liste chatova, osigurava centriranje chat itema */
 #listaChatova {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centriraj pojedinačne chat iteme horizontalno */
-    width: 100%; /* Zauzmi punu širinu roditeljskog diva */
+    align-items: center;
+    width: 100%;
 }
 
 /* Stilizacija pojedinog chat itema */
 .chat-item {
     background: #282828;
-    padding: 12px; /* Smanjen padding */
-    border-radius: 10px; /* Malo manji border-radius */
-    margin-bottom: 10px; /* Smanjen razmak između chat itema */
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
     display: flex;
-    align-items: center; /* Centriraj sadržaj vertikalno */
-    gap: 12px; /* Smanjen razmak između profilne i info dijela */
-    border-left: 3px solid #333; /* Malo tanji border */
+    align-items: center;
+    gap: 12px;
+    border-left: 3px solid #333;
     transition: all 0.2s ease-in-out;
 
-    width: 100%; /* Zauzmi punu širinu #listaChatova */
-    max-width: 350px; /* Smanjena maksimalna širina, kao kod pijanki */
-    box-sizing: border-box; /* Uključi padding i border u širinu */
+    width: 100%;
+    max-width: 350px;
+    box-sizing: border-box;
 }
 .chat-item:hover {
     background: #303030;
@@ -342,153 +416,182 @@ img.preview-slika {
 
 /* Profilna slika u chat itemu */
 .chat-item img {
-    width: 45px; /* Malo smanjena širina slike u chatu */
-    height: 45px; /* Malo smanjena visina slike u chatu */
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     object-fit: cover;
-    flex-shrink: 0; /* Spriječi smanjivanje */
-    /* Uklonjen margin-right jer koristimo gap u .chat-item */
+    flex-shrink: 0;
 }
 
 /* Informacije o chat itemu (ime i status) */
 .chat-item-info {
-    flex-grow: 1; /* Omogući da zauzme sav dostupan prostor */
+    flex-grow: 1;
     display: flex;
-    flex-direction: column; /* Ime i status idu okomito */
-    align-items: flex-start; /* Poravnaj sav sadržaj lijevo */
+    flex-direction: column;
+    align-items: flex-start;
     cursor: pointer;
 }
 
 .chat-item-info strong {
-    font-size: 16px; /* Malo smanjena veličina fonta za ime u chatu */
+    font-size: 16px;
     font-weight: 500;
-    text-align: left; /* Osiguraj lijevo poravnanje imena */
-    margin-bottom: 1px; /* Mali razmak između imena i statusa */
+    text-align: left;
+    margin-bottom: 1px;
 }
 
 /* Stil za status (online/offline) u chat itemu */
 .chat-item-info p.status-text {
-    font-size: 12px; /* Malo smanjena veličina fonta za status u chatu */
+    font-size: 12px;
     color: #999;
     margin: 0;
     padding: 0;
-    text-align: left; /* Osiguraj lijevo poravnanje statusa */
+    text-align: left;
 }
 
 /* Notifikacijska značka u chat itemu */
 .chat-item .notification-badge {
-    margin-left: auto; /* Pomakni značku skroz desno */
+    margin-left: auto;
     flex-shrink: 0;
-    position: static; /* Ukloni relativno pozicioniranje ako smeta */
+    position: static;
     top: auto;
     right: auto;
 }
 
-/* --- Stilovi za privatni chat log (KONAČNA REVIZIJA) --- */
+/* Stilovi za privatni chat log */
 #privatniChatLog {
-    min-height: 180px; /* Smanjena minimalna visina */
-    max-height: 250px; /* Smanjena maksimalna visina */
-    background: none; /* Ukloni pozadinu */
-    padding: 0;
-    overflow-y: auto; /* Omogući skrolanje */
-    margin-bottom: 8px; /* Malo smanjen razmak od input polja */
-    display: flex; /* Koristi flexbox za poravnanje poruka */
-    flex-direction: column; /* Poruke idu okomito jedna ispod druge */
+    min-height: 180px;
+    max-height: 250px;
+    background:none;
+    padding:0;
+    overflow-y:auto;
 }
-
 #privatniChatLog p {
-    margin-bottom: 6px; /* Smanjen razmak između poruka */
-    padding: 0;
-    text-align: left; /* Defaultno poravnanje lijevo */
-    width: 100%; /* Poruka zauzima punu širinu */
+    margin-bottom: 8px;
+    text-align: left !important;
+    width: 100%;
 }
-
 #privatniChatLog p > span {
     display: inline-block;
-    padding: 8px 12px; /* Smanjen padding poruka */
-    border-radius: 15px; /* Malo manji border-radius */
-    max-width: 75%; /* Malo smanjena maksimalna širina poruke */
-    word-wrap: break-word; /* Omogući prelamanje dugih riječi */
-    font-size: 14px; /* Smanjena veličina fonta poruke */
+    padding: 8px 12px;
+    border-radius: 15px;
+    max-width: 75%;
+    word-wrap: break-word;
+    font-size: 14px;
 }
-
-/* Stilovi za "Moje poruke" (desna strana, crvena pozadina) */
 #privatniChatLog p.moja-poruka {
-    text-align: right; /* Poravnaj cijeli paragraf desno */
+    text-align: right !important;
 }
 #privatniChatLog p.moja-poruka > span {
-    background: #ff4757; /* Crvena pozadina */
-    color: white; /* Bijeli tekst */
-}
-
-/* Stilovi za "Tuđe poruke" (lijeva strana, tamnija pozadina) */
-#privatniChatLog p.tudja-poruka {
-    text-align: left; /* Poravnaj cijeli paragraf lijevo */
+    background: #ff4757;
+    color: white;
 }
 #privatniChatLog p.tudja-poruka > span {
-    background: #3a3a3a; /* Tamnija pozadina */
-    color: #f0f0f0; /* Svjetliji tekst */
+    background: #3a3a3a;
+    color: #f0f0f0;
 }
 
-/* Dodani stilovi za razmak između dugmadi i pijanki */
-#pijankePregled + button { /* Ciljamo prvi button odmah iza #pijankePregled */
-    margin-top: 25px; /* Povećaj razmak iznad prvog gumba nakon pijanki */
-}
 
-/* Ako ima više gumba na dnu ekrana, dodajte im razmak */
-.container button:not(:last-child) {
-    margin-bottom: 12px; /* Smanjite razmak između gumbi ako je potrebno, ili ga povećajte */
-}
-
-/* Ako postoje gumbi prije pijanka, npr. na početnom ekranu */
-#odabir button {
-    margin-bottom: 14px; /* Standardni razmak */
-}
-
-/* Ako imate specifičan div za gumbe na kraju pijanka liste, možete mu dati padding-top */
-/* Primjer: <div class="button-container"> <button>Objavi pijanku</button> </div> */
-/* .button-container {
-    padding-top: 20px;
-} */
-
-/* public/style.css */
-
-/* ... (ostatak koda) ... */
-
-/* --- STILOVI ZA SPLASH SCREEN --- */
-#splashScreen {
-    position: fixed; /* Fiksiran na ekranu */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #111111; /* Pozadina splash screena */
+/* --- STILOVI ZA PRIVATNI CHAT EKRAN (HEADER) --- */
+/* Centriranje statusa partnera u privatnom chatu */
+#privatniChat div[style*="justify-content:center"] {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    z-index: 9999; /* Osiguraj da je iznad svega ostalog */
-    opacity: 1;
-    visibility: visible;
+    justify-content: center;
+    width: 100%;
+}
+/* Ciljamo samo naslov h2 unutar tog diva (ime korisnika) */
+#chatSaKorisnikom {
+    font-size: 20px;
+    text-align: center;
+    margin-bottom: 0;
+}
+/* Ciljamo status partnera "viđen prije..." */
+#chatPartnerStatus {
+    text-align: center;
+    font-size: 13px;
+    color: #b0b0b0;
+    margin-top: 3px;
 }
 
-#splashScreen h1 {
-    font-size: 4em; /* Još veći font za splash screen */
+/* Dodani stil za profilnu sliku u chat headeru */
+#chatPartnerImage {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ff4757;
+    margin-bottom: 10px; /* Razmak ispod slike, iznad imena */
+}
+
+/* Stilovi za header ikone i dropdown meni */
+.header-bar {
+    position: absolute; /* Apsolutno pozicioniran unutar kontejnera */
+    top: 0;
+    right: 0;
+    display: flex;
+    gap: 10px;
+    padding: 10px; /* Padding unutar header bara */
+    z-index: 20; /* Iznad ostalog sadržaja */
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    font-size: 24px; /* Veličina ikone */
+    cursor: pointer;
+    color: #f0f0f0;
+    position: relative; /* Za pozicioniranje badge-a */
+    padding: 5px; /* Dodatni padding za lakši klik */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.icon-button:hover {
     color: #ff4757;
-    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6); /* Izraženija sjena */
-    letter-spacing: 4px; /* Veći razmak slova */
-    text-transform: uppercase;
-    animation: bounceIn 1.5s ease-out forwards; /* Animacija pojavljivanja */
+    transform: scale(1.1);
+    transition: transform 0.2s ease, color 0.2s ease;
 }
 
-/* Animacija za nestajanje splash screena */
-@keyframes fadeOut {
-    from { opacity: 1; visibility: visible; }
-    to { opacity: 0; visibility: hidden; }
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 5px); /* Ispod ikone */
+    right: 0;
+    background: #282828; /* Pozadina dropdowna */
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    display: none; /* Inicijalno skriven */
+    flex-direction: column;
+    z-index: 100; /* Iznad ostalih elemenata */
+    min-width: 150px;
+    overflow: hidden; /* Skrij višak sadržaja */
 }
 
-/* Animacija za pojavljivanje loga na splash screenu */
-@keyframes bounceIn {
-    0% { transform: scale(0.1); opacity: 0; }
-    60% { transform: scale(1.1); opacity: 1; }
-    100% { transform: scale(1); }
+.dropdown-menu button {
+    background: none;
+    border: none;
+    color: #f0f0f0;
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border-radius: 0; /* Ukloni border radius s gumba unutar dropdowna */
+    margin-bottom: 0; /* Ukloni marginu s gumba unutar dropdowna */
+}
+.dropdown-menu button:hover {
+    background: #ff4757;
+    color: white;
+    transform: none; /* Ukloni translateY efekt na hoveru unutar dropdowna */
+    box-shadow: none; /* Ukloni sjenu na hoveru unutar dropdowna */
+}
+
+/* Skrivanje originalnih dugmadi koje su premještene u dropdown */
+.container#lokacijePrikaz > div[style*="display:flex; gap:10px"] {
+    display: none !important; /* Sakrij stari div s dugmadima na dnu */
+}
+
+/* Fix za margin-bottom na zadnjoj pijanci kad je u #pijankePregled */
+#pijankePregled .pijanka:last-child {
+    margin-bottom: 0;
 }
