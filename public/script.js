@@ -470,27 +470,28 @@ async function prikaziEditProfila() {
     
     // Prikaz loading stanja dok se profil učitava
     const editProfilScreen = document.getElementById("editProfil");
+    // Dohvaćanje elemenata koji će se ponovno dodati nakon loadanja
+    const closeBtnContainerEdit = editProfilScreen.querySelector('.close-btn-container');
     const glavniNaslovEdit = editProfilScreen.querySelector('h2');
-    const closeBtnContainerEdit = editProfilScreen.querySelector('.close-btn-container'); // Dohvaćanje spremnika X-gumba
+
 
     if (editProfilScreen) {
-        // Ažuriraj sadržaj za prikaz loading poruke
-        editProfilScreen.innerHTML = ''; // Prvo isprazni
-        if(closeBtnContainerEdit) editProfilScreen.appendChild(closeBtnContainerEdit); // Prvo dodaj X-gumb
-        if(glavniNaslovEdit) editProfilScreen.appendChild(glavniNaslovEdit); // Zatim naslov
-        
-        const loadingP = document.createElement('p');
-        loadingP.style.textAlign = 'center';
-        loadingP.innerText = 'Učitavam profil...';
-        editProfilScreen.appendChild(loadingP);
+        editProfilScreen.innerHTML = ''; // Prvo isprazni sadržaj
 
-        const loadingIcon = document.createElement('div');
-        loadingIcon.style.textAlign = 'center';
-        loadingIcon.style.marginTop = '20px';
-        loadingIcon.style.fontSize = '3em';
-        loadingIcon.innerText = '⚙️';
-        editProfilScreen.appendChild(loadingIcon);
+        // Ponovno dodaj close button i naslov (ako postoje u originalnom HTML-u)
+        if(closeBtnContainerEdit) editProfilScreen.appendChild(closeBtnContainerEdit);
+        if(glavniNaslovEdit) editProfilScreen.appendChild(glavniNaslovEdit);
         
+        // Dodaj loading poruku i ikonu
+        const loadingContentWrapper = document.createElement('div'); // Unutarnji wrapper za loading sadržaj
+        loadingContentWrapper.classList.add('content-wrapper'); // Dodajemo novu klasu za centriranje
+        loadingContentWrapper.innerHTML = `
+            <p style="text-align:center;">Učitavam profil...</p>
+            <div style="text-align:center; margin-top:20px; font-size: 3em;">⚙️</div>
+        `;
+        editProfilScreen.appendChild(loadingContentWrapper); // Dodaj wrapper u ekran
+
+
         swap(document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz', "editProfil");
     }
 
@@ -506,16 +507,17 @@ async function prikaziEditProfila() {
                         <button class="close-btn" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">✖</button>
                     </div>
                     <h2>Uredi profil</h2>
-                    <div style="text-align:center;">
-                        <img id="previewEditSlike" class="profilna-slika" />
+                    <div class="content-wrapper"> <div style="text-align:center;">
+                            <img id="previewEditSlike" class="profilna-slika" />
+                        </div>
+                        <input id="editIme" placeholder="Korisničko ime" />
+                        <textarea id="editOpis" placeholder="O meni..." rows="3"></textarea>
+                        <input id="editInstagram" placeholder="Instagram korisničko ime" />
+                        <input id="editTiktok" placeholder="TikTok korisničko ime" />
+                        <label style="font-size:14px; display:block; margin-bottom:5px;">Promijeni profilnu sliku:</label>
+                        <input type="file" id="editSlikaUpload" accept="image/*" />
+                        <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
                     </div>
-                    <input id="editIme" placeholder="Korisničko ime" />
-                    <textarea id="editOpis" placeholder="O meni..." rows="3"></textarea>
-                    <input id="editInstagram" placeholder="Instagram korisničko ime" />
-                    <input id="editTiktok" placeholder="TikTok korisničko ime" />
-                    <label style="font-size:14px; display:block; margin-bottom:5px;">Promijeni profilnu sliku:</label>
-                    <input type="file" id="editSlikaUpload" accept="image/*" />
-                    <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
                 `;
                 // Sada popuni inpute
                 document.getElementById("editIme").value = user.ime || '';
