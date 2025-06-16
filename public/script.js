@@ -12,7 +12,7 @@ let activityInterval = null;
 let chatStatusInterval = null;
 let globalDataRefreshInterval = null;
 let odabranaSlika = null; // Za upload profilne slike pri registraciji (Base64)
-let odabranaEditSlika = null; // Za upload profilne slike pri uređivanju (Base64)
+let odabranaEditSlika = null; // Za upload profilne slike pri uređivanje (Base64)
 let prethodniEkran = "lokacijePrikaz"; // Dodana globalna varijabla za prethodni ekran
 
 // --- POMOĆNA FUNKCIJA ZA FETCH POZIVE SA AUTORIZACIJOM ---
@@ -36,10 +36,16 @@ window.addEventListener('DOMContentLoaded', async function() {
 
     const splashScreen = document.getElementById('splashScreen');
 
-    // Sakrij sve kontejnere osim splash screena na početku
-    document.querySelectorAll('.container:not(#splashScreen)').forEach(el => {
-        el.style.display = 'none'; // Sakrij odmah
+    // Inicijalno sakrij sve kontejnere osim splash screena.
+    document.querySelectorAll('.container').forEach(el => {
+        if (el.id !== 'splashScreen') {
+            el.style.display = 'none'; // Osiguraj da su sakriveni
+            // Također, ukloni eventualne active-screen klase koje bi mogle ostati iz prethodnih sesija
+            el.classList.remove('active-screen', 'fade-out-screen');
+        }
     });
+
+    let appReadyToStart = false; // Flag za praćenje je li aplikacija spremna za pokretanje
 
     if (token) {
         try {
@@ -57,26 +63,17 @@ window.addEventListener('DOMContentLoaded', async function() {
                     dohvatiSvePoruke()
                 ]);
                 console.log("DOMContentLoaded: Svi početni podaci dohvaćeni.");
-                // Ovdje NE pozivamo pokreniAplikaciju odmah, čekat ćemo da se splash screen skloni
+                appReadyToStart = true; // Aplikacija je spremna za pokretanje
             } else {
                 console.warn("DOMContentLoaded: Token nevalidan ili istekao, odjavljujem korisnika (status:", response.status, ").");
                 localStorage.removeItem("token");
-                // Ako token nije dobar, postavi intro ekran kao inicijalni
-                document.getElementById('intro').classList.add('active-screen'); // Postavi intro kao aktivni ekran
-                document.getElementById('intro').style.display = 'block'; // Osiguraj da je vidljiv
             }
         } catch (error) {
             console.error("DOMContentLoaded: Greška pri provjeri tokena ili mreži (catch blok):", error);
             localStorage.removeItem("token");
-            // Ako je greška mreže, postavi intro ekran kao inicijalni
-            document.getElementById('intro').classList.add('active-screen'); // Postavi intro kao aktivni ekran
-            document.getElementById('intro').style.display = 'block'; // Osiguraj da je vidljiv
         }
     } else {
         console.log("DOMContentLoaded: Nema tokena, prikazujem intro ekran.");
-        // Ako nema tokena, postavi intro ekran kao inicijalni
-        document.getElementById('intro').classList.add('active-screen'); // Postavi intro kao aktivni ekran
-        document.getElementById('intro').style.display = 'block'; // Osiguraj da je vidljiv
     }
 
     // Skrivanje splash screena nakon 2 sekunde
@@ -86,46 +83,74 @@ window.addEventListener('DOMContentLoaded', async function() {
             setTimeout(() => {
                 splashScreen.style.display = 'none';
                 splashScreen.remove(); // Ukloni element nakon animacije ako više nije potreban
-                // Ako je korisnik uspješno prijavljen, sada pokreni aplikaciju
-                if (trenutniKorisnik) {
+
+                // Nakon što se splash screen skloni, pokreni aplikaciju ili prikaži intro
+                if (appReadyToStart) {
                     pokreniAplikaciju();
+                } else {
+                    // Ako nije spreman za pokretanje (nema tokena/greška), prikaži intro
+                    const introEl = document.getElementById('intro');
+                    if (introEl) {
+                        introEl.style.display = 'block';
+                        // Dodaj klasu s malim timeoutom da se CSS tranzicija aktivira
+                        setTimeout(() => introEl.classList.add('active-screen'), 10);
+                    }
                 }
             }, 500); // 500ms je trajanje fadeOutSplash animacije
         }, 2000); // Čekaj 2 sekunde prije nego što počne nestajati
     } else {
         // Ako nema splash screena (npr. dev okruženje), odmah pokreni aplikaciju ili prikaži intro
-        if (trenutniKorisnik) {
+        if (appReadyToStart) {
             pokreniAplikaciju();
+        } else {
+            const introEl = document.getElementById('intro');
+            if (introEl) {
+                introEl.style.display = 'block';
+                // Dodaj klasu s malim timeoutom da se CSS tranzicija aktivira
+                setTimeout(() => introEl.classList.add('active-screen'), 10);
+            }
         }
     }
 });
-
 
 // --- FUNKCIJE ZA PREBACIVANJE EKRANA (UI LOGIKA) ---
 function swap(hideId, showId) {
     const hideElement = document.getElementById(hideId);
     const showElement = document.getElementById(showId);
 
-    if (hideElement && hideElement.classList.contains('active-screen')) {
-        hideElement.classList.remove('active-screen');
-        hideElement.classList.add('fade-out-screen'); // Dodaj klasu za nestajanje
-
-        // Slušaj kraj animacije izlaska
-        hideElement.addEventListener('animationend', function handler() {
-            hideElement.classList.remove('fade-out-screen'); // Ukloni klasu za nestajanje
-            hideElement.style.display = 'none'; // Potpuno sakrij element
-            hideElement.removeEventListener('animationend', handler); // Ukloni listener
-        }, { once: true }); // Samo jednom se aktivira
-    } else if (hideElement) {
-        // Ako element nije bio active-screen, samo ga sakrij (za inicijalno postavljanje)
-        hideElement.style.display = 'none';
+    // Provjeri da showElement postoji prije nego što nastavimo
+    if (!showElement) {
+        console.error("Target element for swap (showId) not found:", showId);
+        return;
     }
 
+    // Ako postoji element za sakriti I on je trenutno aktivan
+    if (hideElement && hideElement.classList.contains('active-screen')) {
+        hideElement.classList.remove('active-screen'); // Ukloni aktivno stanje
+        hideElement.classList.add('fade-out-screen'); // Dodaj klasu za fade-out animaciju
 
-    if (showElement) {
-        // Ukloni display:none i dodaj active-screen klasu
-        showElement.style.display = 'block'; // Prikazi ga prije dodavanja klase za animaciju
-        showElement.classList.add('active-screen');
+        // Slušaj 'animationend' event kako bismo znali kada se animacija završi
+        hideElement.addEventListener('animationend', function handler() {
+            hideElement.classList.remove('fade-out-screen'); // Ukloni fade-out klasu
+            hideElement.style.display = 'none'; // Sakrij element nakon animacije
+            // Važno: Ukloni listener da se ne bi više puta okidao
+            hideElement.removeEventListener('animationend', handler);
+
+            // Kada je stari ekran potpuno skriven, prikaži novi
+            showElement.style.display = 'block'; // Prikazi ga
+            // Mali timeout da preglednik registrira display:block prije tranzicije
+            setTimeout(() => showElement.classList.add('active-screen'), 10);
+
+        }, { once: true }); // '{ once: true }' osigurava da se listener automatski ukloni nakon prvog okidanja
+    } else {
+        // Ako nema elementa za sakriti, ili element nije bio "active-screen" (npr. inicijalni prikazi),
+        // samo prikaži novi element odmah.
+        if (hideElement) { // Ako postoji element za sakriti, ali nije active-screen, samo ga sakrij
+             hideElement.style.display = 'none';
+        }
+        showElement.style.display = 'block'; // Prikazi ga
+        // Mali timeout da preglednik registrira display:block prije tranzicije
+        setTimeout(() => showElement.classList.add('active-screen'), 10);
     }
 }
 
@@ -310,7 +335,7 @@ async function odjaviSe() {
         if (el) el.value = "";
     });
 
-    // Sakrij sve ekrane (ako su aktivni) i prikaži početni intro ekran
+    // Sakrij sve trenutno aktivne ekrane s animacijom
     document.querySelectorAll('.container.active-screen').forEach(el => {
         el.classList.remove('active-screen');
         el.classList.add('fade-out-screen');
@@ -321,10 +346,10 @@ async function odjaviSe() {
         }, { once: true });
     });
 
-    // Osiguraj da se intro ekran aktivira na kraju
+    // Prikazi intro ekran nakon što se svi ostali sakriju
     const introScreen = document.getElementById('intro');
     if (introScreen) {
-        // Dajte kratku pauzu da se fade-out završi prije fade-ina intro ekrana
+        // Dajte malo vremena da se animacije nestajanja završe prije pojavljivanja intro ekrana
         setTimeout(() => {
             introScreen.style.display = 'block';
             introScreen.classList.add('active-screen');
@@ -336,36 +361,29 @@ async function odjaviSe() {
 function pokreniAplikaciju() {
     console.log("pokreniAplikaciju: Pokrećem glavni dio aplikacije.");
 
-    // Sakrij sve ekrane za prijavu/registraciju koristeći fade-out animaciju
-    document.querySelectorAll('.container.active-screen').forEach(el => {
-        if (el.id !== "lokacijePrikaz") { // Ne sakrivaj lokacijePrikaz ako je već aktivan
-            el.classList.remove('active-screen');
-            el.classList.add('fade-out-screen');
-            el.addEventListener('animationend', function handler() {
-                el.style.display = 'none';
-                el.classList.remove('fade-out-screen');
-                el.removeEventListener('animationend', handler);
-            }, { once: true });
+    // Sakrij sve ekrane koji nisu lokacijePrikaz, i ukloni im active-screen ako je prisutan
+    // i postavi ih na display:none
+    document.querySelectorAll('.container').forEach(el => {
+        if (el.id !== "lokacijePrikaz") {
+            el.classList.remove('active-screen', 'fade-out-screen'); // Ukloni sve klase animacije
+            el.style.display = 'none'; // Odmah sakrij
         }
     });
 
-    // Prikazi glavni ekran s objavama odmah nakon što se sve sakrije
-    // Možda treba minimalno kašnjenje ako je animacija dulja od 0
-    setTimeout(() => {
-        const lokacijePrikazEl = document.getElementById("lokacijePrikaz");
-        if (lokacijePrikazEl) {
-            lokacijePrikazEl.style.display = "block"; // Prikazi ga prije dodavanja klase
-            lokacijePrikazEl.classList.add('active-screen'); // Dodaj klasu za fade-in
-        }
-    }, 0); // Trenutno 0ms, prilagodi ako je potrebno
+    // Prikazi lokacijePrikaz s animacijom
+    const lokacijePrikazEl = document.getElementById("lokacijePrikaz");
+    if (lokacijePrikazEl) {
+        lokacijePrikazEl.style.display = "block"; // Prikazi ga
+        // Mali timeout da preglednik registrira display:block prije tranzicije
+        setTimeout(() => lokacijePrikazEl.classList.add('active-screen'), 10);
+    }
 
     // Poništi prethodne intervale i postavi nove za osvježavanje
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
-    activityInterval = setInterval(azurirajMojuAktivnost, 15e3); // Ažuriraj status aktivnosti svakih 15 sekundi
-    globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3); // Osvježavaj UI svakih 30 sekundi
+    activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
+    globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
 
-    azurirajMojuAktivnost(); // Odmah pošalji status aktivnosti
-    // Dohvati geolokaciju i prikaži objave/notifikacije
+    azurirajMojuAktivnost();
     dohvatiLokaciju(() => {
         prikaziPijankePregled();
         azurirajNotifikacije();
@@ -441,7 +459,7 @@ async function sacuvajProfil() {
         }
     } catch (error) {
         console.error("Greška kod spremanja profila:", error);
-        alert("Došlo je do greške pri spremanju profila.");
+        alert("Došlo je do greške pri spremanja profila.");
     }
 }
 
