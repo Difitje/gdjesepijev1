@@ -126,7 +126,7 @@ window.addEventListener('DOMContentLoaded', async function() {
                     // Ako nije spremno (nema tokena/greška), prikaži intro
                     const introEl = document.getElementById('intro');
                     if (introEl) {
-                        introEl.style.display = 'block';
+                        introEl.style.display = 'flex'; // Promijenjeno u flex
                         setTimeout(() => introEl.classList.add('active-screen'), 10);
                     }
                 }
@@ -139,7 +139,7 @@ window.addEventListener('DOMContentLoaded', async function() {
         } else {
             const introEl = document.getElementById('intro');
             if (introEl) {
-                introEl.style.display = 'block';
+                introEl.style.display = 'flex'; // Promijenjeno u flex
                 setTimeout(() => introEl.classList.add('active-screen'), 10);
             }
         }
@@ -420,7 +420,7 @@ async function odjaviSe() {
     const introScreen = document.getElementById('intro');
     if (introScreen) {
         setTimeout(() => {
-            introScreen.style.display = 'block';
+            introScreen.style.display = 'flex'; // Promijenjeno u flex
             setTimeout(() => introScreen.classList.add('active-screen'), 10);
         }, 300);
     }
@@ -819,27 +819,26 @@ function prikaziPijankePregled() {
 async function otvoriProfil(korisnikId) {
     if (!korisnikId) return;
 
-    // PRETHODNI EKRAN ZA VRACANJE: Postavi ga na trenutni aktivni ekran
     prethodniEkran = document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz';
     
     // Prikaz loading stanja za profil dok se podaci učitavaju
     const glavniDioScreen = document.getElementById("glavniDio");
-    // Ovi elementi su sada statični u HTML-u pa ih ne brišemo, samo resetiramo prikaz
     const glavniNaslov = document.getElementById("glavniNaslov");
     const objavaForma = document.getElementById("objavaForma");
     const profilKorisnika = document.getElementById("profilKorisnika");
 
     if (glavniDioScreen) {
-        // Postavi naslov
         if (glavniNaslov) glavniNaslov.innerText = "Profil korisnika";
 
-        // Sakrij sve što nije loading poruka
+        // Sakrij formu za objavu i prikaži loading unutar profilKorisnika
         if (objavaForma) objavaForma.style.display = 'none';
-        if (profilKorisnika) profilKorisnika.style.display = 'block'; // Privremeno prikaži loading unutar profilKorisnika
-        if (profilKorisnika) profilKorisnika.innerHTML = `
-            <p style="text-align:center;">Učitavam profil korisnika...</p>
-            <div style="text-align:center; margin-top:20px; font-size: 3em;">👤</div>
-        `;
+        if (profilKorisnika) {
+            profilKorisnika.style.display = 'block'; // Osiguraj da je kontejner za profil vidljiv
+            profilKorisnika.innerHTML = `
+                <p style="text-align:center;">Učitavam profil korisnika...</p>
+                <div style="text-align:center; margin-top:20px; font-size: 3em;">👤</div>
+            `;
+        }
         
         swap(prethodniEkran, "glavniDio");
     }
@@ -1007,7 +1006,6 @@ async function posaljiPrivatno() {
     const privatniInputEl = document.getElementById("privatniInput");
     const tekst = privatniInputEl.value.trim();
     // Odabir gumba za slanje poruke - pretpostavljamo da je to zadnji gumb u #privatniChat divu
-    // ili možeš dodati specifičan ID za njega ako ima više gumba.
     const posaljiBtn = document.querySelector('#privatniChat button:last-of-type');
 
 
