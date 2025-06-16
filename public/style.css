@@ -5,6 +5,8 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    transition: all 0.2s ease-out; /* DODANO: Globalna tranzicija za glatke promjene */
+
 }
 
 body {
@@ -18,6 +20,8 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: 15px 0; /* Smanjen padding */
+    display: none !important;
+    animation: fadeIn 0.5s ease-out forwards; /* Dodana animacija za fade-in kontejnera */
 }
 
 /* Kontejneri za ekrane */
@@ -88,10 +92,11 @@ button {
     position: relative;
     text-transform: uppercase;
     letter-spacing: 0.8px; /* Malo smanjen razmak između slova */
+    transition: all 0.3s ease; /* Blago duža tranzicija za gumbe */
 }
 button:hover {
-    transform: translateY(-1px); /* Smanjen pomak na hoveru */
-    box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); /* Smanjena sjena na hoveru */
+    transform: translateY(-2px); /* Blagi pomak prema gore */
+    box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4); /* Lagana sjena */
 }
 button:disabled {
     background: #555;
@@ -193,10 +198,13 @@ img.preview-slika {
     width: 100%; /* Objava zauzima cijelu širinu #pijankePregled */
     max-width: 350px; /* **Smanjena maksimalna širina svake pijanke (Manje)** */
     box-sizing: border-box; /* Uključi padding i border u širinu */
+    transition: all 0.3s ease; /* Blago duža tranzicija za pijanke */
 }
 .pijanka:hover {
     background: #303030;
-    border-left-color: #e03f4d; /* Tamnija crvena na hoveru */
+    border-left-color: #e03f4d;
+    transform: translateY(-2px); /* DODANO: Blagi pomak prema gore na hoveru */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); /* DODANO: Lagana sjena na hoveru */
 }
 
 
@@ -334,10 +342,13 @@ img.preview-slika {
     width: 100%; /* Zauzmi punu širinu #listaChatova */
     max-width: 350px; /* Smanjena maksimalna širina, kao kod pijanki */
     box-sizing: border-box; /* Uključi padding i border u širinu */
+    transition: all 0.3s ease; /* Blago duža tranzicija za chat iteme */
 }
 .chat-item:hover {
     background: #303030;
     border-left-color: #ff4757;
+    transform: translateX(5px); /* Blagi pomak udesno na hoveru */
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); /* Lagana sjena */
 }
 
 /* Profilna slika u chat itemu */
