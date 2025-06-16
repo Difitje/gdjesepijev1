@@ -455,7 +455,7 @@ function pokreniAplikaciju() {
 
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
-    globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
+    globalDataRefreshInterval = setInterval(globalDataRefreshUI, 30e3);
 
     azurirajMojuAktivnost();
     dohvatiLokaciju(() => {
@@ -711,8 +711,11 @@ function pokaziObjavu() {
     const backButton = document.querySelector('#glavniDio .back-button');
     const closeButton = document.querySelector('#glavniDio .close-btn');
 
-    // Postavi naslov
-    if (glavniNaslov) glavniNaslov.innerText = "Objavi pijanku"; // KLJUČNO: Postavi tekst naslova
+    // Postavi naslov - KLJUČNO!
+    if (glavniNaslov) {
+        glavniNaslov.innerText = "Objavi pijanku";
+        glavniNaslov.style.display = 'block'; // Osiguraj da je naslov vidljiv
+    }
 
     // Pobrini se da je forma za objavu vidljiva, a profil skriven
     if (objavaForma) objavaForma.style.display = "block";
@@ -863,7 +866,10 @@ async function otvoriProfil(korisnikId) {
 
 
     if (glavniDioScreen) {
-        if (glavniNaslov) glavniNaslov.innerText = "Profil korisnika"; // KLJUČNO: Postavi tekst naslova
+        if (glavniNaslov) {
+            glavniNaslov.innerText = "Profil korisnika"; // KLJUČNO: Postavi tekst naslova
+            glavniNaslov.style.display = 'block'; // Osiguraj da je naslov vidljiv
+        }
 
         // Kontrola gornjih gumba: Prikaži Nazad, Sakrij X
         if (backButton) backButton.style.display = 'flex'; // Prikaži Nazad
