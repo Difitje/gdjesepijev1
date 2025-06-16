@@ -212,14 +212,14 @@ img.preview-slika {
 }
 
 /* Stilovi za zajedničke ikone (pivska krigla i zupčanik) */
-/* Svi action-icon gumbi će imati ove osnovne stilove */
+/* Sve action-icon gumbe će imati ove osnovne stilove */
 .action-icon {
-    width: 50px; /* **NOVO**: Postavite ovdje željenu veličinu za obje ikone */
-    height: 50px; /* **NOVO**: Ista visina */
+    width: 50px; /* Ujednačena veličina za obje ikone */
+    height: 50px;
     border-radius: 50%;
-    background: #333; /* Default tamna pozadina za zupčanik */
+    background: #3a3a3a; /* **NOVO**: Default tamna pozadina za sve action ikone */
     color: #f0f0f0;
-    font-size: 24px; /* **NOVO**: Ujednačena veličina emojija */
+    font-size: 24px; /* Ujednačena veličina emojija */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -238,14 +238,15 @@ img.preview-slika {
 }
 
 /* STILOVI ZA LARGE ACTION ICON (Pivska krigla) */
-/* Sada samo prilagođava boju i sjenu, NE veličinu */
+/* Sada samo prilagođava sjenu, NE pozadinsku boju jer je defaultna siva od .action-icon */
 .large-action-icon {
-    background: linear-gradient(45deg, #ff4757, #e03f4d); /* Crveni gradient za kriglu */
-    box-shadow: 0 3px 12px rgba(255, 71, 87, 0.3);
+    /* Uklonjen background ovdje da se koristi default od .action-icon */
+    box-shadow: 0 3px 12px rgba(255, 71, 87, 0.3); /* Jača sjena */
 }
 
+/* Hover stanje za pivsku kriglu, može imati malo drugačiji background ako želite */
 .large-action-icon:hover {
-    background: linear-gradient(45deg, #e03f4d, #ff4757); /* Obrnuti gradient na hoveru krigle */
+    background: linear-gradient(45deg, #e03f4d, #ff4757); /* Crveni gradient na hoveru krigle */
     transform: scale(1.1); /* Malo veći transform na hoveru krigle */
 }
 
