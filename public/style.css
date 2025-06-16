@@ -492,3 +492,12 @@ img.preview-slika {
     60% { transform: scale(1.1); opacity: 1; }
     100% { transform: scale(1); }
 }
+
+.container {
+    /* ... postojeći stilovi ... */
+    display: none !important; /* Apsolutno skrivanje dok JS ne preuzme */
+    animation: fadeIn 0.5s ease-out forwards; /* DODANO: Animacija za sve kontejnere */
+}
+#intro {
+    display: block !important; /* Intro ekran je jedini vidljiv po defaultu */
+}

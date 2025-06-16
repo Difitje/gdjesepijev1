@@ -70,7 +70,7 @@ window.onload = async function() {
         console.log("window.onload: Nema tokena, prikazujem intro ekran.");
         swap("", "intro");
     }
-        const splashScreen = document.getElementById('splashScreen');
+    const splashScreen = document.getElementById('splashScreen');
     if (splashScreen) {
         // Skrij splash screen nakon 2 sekunde
         setTimeout(() => {
@@ -78,8 +78,13 @@ window.onload = async function() {
             // Nakon animacije, potpuno ga ukloni
             setTimeout(() => {
                 splashScreen.style.display = 'none';
+                document.body.style.opacity = '1'; // SADA PRIKAŽI BODY
+                document.body.style.visibility = 'visible'; // SADA PRIKAŽI BODY
             }, 500); // 500ms je trajanje fadeOut animacije
         }, 2000); // Čekaj 2 sekunde prije nego što počne nestajati
+    } else { // Ako nema splash screena (npr. za lokalni dev), osiguraj da se body prikaže
+        document.body.style.opacity = '1';
+        document.body.style.visibility = 'visible';
     }
 };
 
@@ -89,17 +94,25 @@ function swap(hideId, showId) {
     const showElement = document.getElementById(showId);
 
     if (hideElement) {
-        hideElement.style.display = "none";
-        hideElement.style.animation = ''; // Resetiraj animaciju pri skrivanju
-        hideElement.style.opacity = '0'; // Osiguraj da nestane
-        hideElement.style.visibility = 'hidden'; // Osiguraj da nestane
+        hideElement.style.animation = 'fadeOut 0.3s ease-out forwards'; // Pokreni fade-out
+        setTimeout(() => {
+            hideElement.style.display = 'none';
+            hideElement.style.animation = ''; // Resetiraj animaciju
+            // hideElement.style.opacity = '1'; // Ukloni ovo, defaultno je 1
+            // hideElement.style.visibility = 'visible'; // Ukloni ovo, defaultno je visible
+        }, 300); // Čekaj dok animacija ne završi
     }
     if (showElement) {
-        showElement.style.display = "block";
-        // Dodajemo animaciju tek kada je element prikazan
-        showElement.style.animation = 'fadeIn 0.5s ease-out forwards';
-        showElement.style.opacity = '1'; // Postavi finalni opacity
-        showElement.style.visibility = 'visible'; // Postavi finalnu vidljivost
+        // Osiguraj da element počne skriven prije fade-ina
+        showElement.style.opacity = '0';
+        showElement.style.visibility = 'hidden';
+        showElement.style.display = 'block'; // Prikaži ga, ali nevidljivog
+
+        setTimeout(() => {
+            showElement.style.animation = 'fadeIn 0.3s ease-out forwards'; // Pokreni fade-in
+            showElement.style.opacity = '1'; // Postavi finalni opacity
+            showElement.style.visibility = 'visible'; // Postavi finalnu vidljivost
+        }, 50); // Mali delay da CSS ima vremena za initial state
     }
 }
 
