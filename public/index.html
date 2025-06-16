@@ -65,22 +65,21 @@
     </div>
 
     <div class="container" id="lokacijePrikaz">
-        <div class="header-with-actions">
-            <h2>🍺 Trenutno pije:</h2>
-            <div class="header-icons">
-                <button id="objaviPijankuBtn" class="action-icon" onclick="pokaziObjavu()">🍺</button>
-                
-                <div class="dropdown-container">
-                    <button id="settingsBtn" class="action-icon">⚙️</button>
-                    <div id="settingsDropdown" class="dropdown-content">
-                        <a href="#" onclick="prikaziInbox(); return false;">Poruke <span id="notifikacijaPoruka" class="dropdown-badge"></span></a>
-                        <a href="#" onclick="prikaziEditProfila(); return false;">Moj profil</a>
-                        <a href="#" onclick="odjaviSe(); return false;">Odjavi se</a>
-                    </div>
+        <h2 style="text-align: center; margin-bottom: 20px;">🍺 Trenutno pije:</h2>
+        <div id="pijankePregled"></div>
+
+        <div class="controls-bottom">
+            <button id="objaviPijankuBtn" class="action-icon large-action-icon" onclick="pokaziObjavu()">🍺</button>
+            
+            <div class="dropdown-container">
+                <button id="settingsBtn" class="action-icon" onclick="toggleSettingsDropdown()">⚙️</button>
+                <div id="settingsDropdown" class="dropdown-content">
+                    <a href="#" onclick="prikaziInbox(); return false;">Poruke <span id="notifikacijaPoruka" class="dropdown-badge"></span></a>
+                    <a href="#" onclick="prikaziEditProfila(); return false;">Moj profil</a>
+                    <a href="#" onclick="odjaviSe(); return false;">Odjavi se</a>
                 </div>
             </div>
         </div>
-        <div id="pijankePregled"></div>
     </div>
 
     <div class="container" id="inboxPrikaz">
