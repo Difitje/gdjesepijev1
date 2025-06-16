@@ -212,12 +212,12 @@ img.preview-slika {
 }
 
 /* Stilovi za zajedničke ikone (pivska krigla i zupčanik) */
-/* Svi action-icon gumbi će imati ove osnovne stilove */
+/* Sve action-icon gumbe će imati ove osnovne stilove */
 .action-icon {
     width: 50px; /* Ujednačena veličina za obje ikone */
     height: 50px;
     border-radius: 50%;
-    background: #3a3a3a; /* Default tamna pozadina za sve action ikone */
+    background: #3a3a3a; /* **NOVO**: Default tamna pozadina za sve action ikone */
     color: #f0f0f0;
     font-size: 24px; /* Ujednačena veličina emojija */
     display: flex;
@@ -228,30 +228,26 @@ img.preview-slika {
     transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     padding: 0;
     margin: 0;
-    /* Premješten box-shadow ovdje da bude na obje ikonice defaultno */
-    box-shadow: 0 0px 8px rgba(255, 71, 87, 0.1); /* Manja crvena sjena defaultno */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     flex-shrink: 0;
 }
 
 .action-icon:hover {
     background: #ff4757; /* Crvena na hoveru za sve ikone */
     transform: scale(1.05);
-    /* Jača sjena na hoveru */
-    box-shadow: 0 0px 12px rgba(255, 71, 87, 0.4);
 }
 
 /* STILOVI ZA LARGE ACTION ICON (Pivska krigla) */
-/* Sada samo prilagođava boju pozadine na defaultnom stanju i hoveru */
+/* Sada samo prilagođava sjenu, NE pozadinsku boju jer je defaultna siva od .action-icon */
 .large-action-icon {
-    background: linear-gradient(45deg, #e03f4d, #ff4757); /* Crveni gradient za kriglu u normalnom stanju */
-    box-shadow: 0 0px 10px rgba(255, 71, 87, 0.3); /* Specifična jača sjena za kriglu u normalnom stanju */
+    /* Uklonjen background ovdje da se koristi default od .action-icon */
+    box-shadow: 0 3px 12px rgba(255, 71, 87, 0.3); /* Jača sjena */
 }
 
 /* Hover stanje za pivsku kriglu, može imati malo drugačiji background ako želite */
 .large-action-icon:hover {
-    background: linear-gradient(45deg, #ff4757, #e03f4d); /* Obrnuti gradient na hoveru krigle */
+    background: linear-gradient(45deg, #e03f4d, #ff4757); /* Crveni gradient na hoveru krigle */
     transform: scale(1.1); /* Malo veći transform na hoveru krigle */
-    box-shadow: 0 0px 15px rgba(255, 71, 87, 0.6); /* Još jača sjena na hoveru krigle */
 }
 
 
