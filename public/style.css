@@ -213,12 +213,12 @@ img.preview-slika {
 
 /* Stilovi za zajedničke ikone (pivska krigla i zupčanik) */
 .action-icon {
-    width: 50px; /* Ujednačena veličina za obje ikone */
+    width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: #3a3a3a; /* Default tamna pozadina za sve action ikone */
+    background: #3a3a3a;
     color: #f0f0f0;
-    font-size: 24px; /* Ujednačena veličina emojija */
+    font-size: 24px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -227,38 +227,37 @@ img.preview-slika {
     transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     padding: 0;
     margin: 0;
-    box-shadow: 0 0px 8px rgba(255, 71, 87, 0.1); /* Manja crvena sjena defaultno */
+    box-shadow: 0 0px 8px rgba(255, 71, 87, 0.1);
     flex-shrink: 0;
 }
 
 .action-icon:hover {
-    background: #ff4757; /* Crvena na hoveru za sve ikone */
+    background: #ff4757;
     transform: scale(1.05);
-    box-shadow: 0 0px 12px rgba(255, 71, 87, 0.4); /* Jača sjena na hoveru */
+    box-shadow: 0 0px 12px rgba(255, 71, 87, 0.4);
 }
 
 /* STILOVI ZA LARGE ACTION ICON (Pivska krigla) */
 .large-action-icon {
-    background: linear-gradient(45deg, #e03f4d, #ff4757); /* Crveni gradient za kriglu u normalnom stanju */
-    box-shadow: 0 0px 10px rgba(255, 71, 87, 0.3); /* Specifična jača sjena za kriglu u normalnom stanju */
+    background: linear-gradient(45deg, #e03f4d, #ff4757);
+    box-shadow: 0 0px 10px rgba(255, 71, 87, 0.3);
 }
 
-/* Hover stanje za pivsku kriglu, može imati malo drugačiji background ako želite */
 .large-action-icon:hover {
-    background: linear-gradient(45deg, #ff4757, #e03f4d); /* Obrnuti gradient na hoveru krigle */
-    transform: scale(1.1); /* Malo veći transform na hoveru krigle */
-    box-shadow: 0 0px 15px rgba(255, 71, 87, 0.6); /* Još jača sjena na hoveru krigle */
+    background: linear-gradient(45deg, #ff4757, #e03f4d);
+    transform: scale(1.1);
+    box-shadow: 0 0px 15px rgba(255, 71, 87, 0.6);
 }
 
 
 /* Stilovi za padajući izbornik */
 .dropdown-container {
-    position: relative;
+    position: relative; /* Bitno za pozicioniranje dropdown-content unutar njega */
 }
 
 .dropdown-content {
     /* **KLJUČNO**: Izmijenjeni defaultni stilovi za dropdown-content */
-    /* Nema više display: none; umjesto toga kontroliramo samo opacity i visibility */
+    /* Uklonjen display: none; - kontrola vidljivosti isključivo putem opacity/visibility */
     opacity: 0; /* Početno skriven */
     visibility: hidden; /* Sakrij iz tree-ja za pristupačnost */
     pointer-events: none; /* Ne reagira na klikove kad je skriven */
@@ -269,12 +268,13 @@ img.preview-slika {
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
     z-index: 10;
     right: 0;
-    bottom: 50px; /* Postavi dropdown iznad action-icon gumba */
+    bottom: 50px; /* Postavi dropdown iznad action-icon gumba (40px button + 10px razmaka) */
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid #3a3a3a;
     transform: translateY(10px); /* Početna pozicija za animaciju (izlazi s dna) */
-    transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0.2s; /* Glatka tranzicija */
+    /* **Važno**: Trajanje tranzicije mora biti isto ili duže od setTimeouta u JS-u */
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0.2s;
 }
 
 .dropdown-content a {
