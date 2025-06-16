@@ -37,11 +37,11 @@ window.addEventListener('DOMContentLoaded', async function() {
     const splashScreen = document.getElementById('splashScreen');
 
     // Inicijalno sakrij sve kontejnere osim splash screena.
+    // Ukloni active-screen klase koje bi mogle ostati iz prethodnih sesija
     document.querySelectorAll('.container').forEach(el => {
         if (el.id !== 'splashScreen') {
-            el.style.display = 'none'; // Osiguraj da su sakriveni
-            // Također, ukloni eventualne active-screen klase koje bi mogle ostati iz prethodnih sesija
-            el.classList.remove('active-screen', 'fade-out-screen');
+            el.style.display = 'none'; // Sakrij odmah
+            el.classList.remove('active-screen', 'fade-out-screen'); // Osiguraj čisto stanje
         }
     });
 
@@ -124,7 +124,16 @@ function swap(hideId, showId) {
         return;
     }
 
-    // Ako postoji element za sakriti I on je trenutno aktivan
+    // Funkcija koja će prikazati novi element s animacijom
+    const showNewElement = () => {
+        showElement.style.display = 'block'; // Prvo ga učini vidljivim (display)
+        // ODGODA: Mali timeout da preglednik registrira display:block prije nego što se aktivira tranzicija
+        setTimeout(() => {
+            showElement.classList.add('active-screen'); // Dodaj klasu za fade-in
+        }, 10); // Minimalno kašnjenje od 10ms
+    };
+
+    // Ako postoji element za sakriti I on je trenutno aktivan (tj. već ima animaciju)
     if (hideElement && hideElement.classList.contains('active-screen')) {
         hideElement.classList.remove('active-screen'); // Ukloni aktivno stanje
         hideElement.classList.add('fade-out-screen'); // Dodaj klasu za fade-out animaciju
@@ -137,20 +146,17 @@ function swap(hideId, showId) {
             hideElement.removeEventListener('animationend', handler);
 
             // Kada je stari ekran potpuno skriven, prikaži novi
-            showElement.style.display = 'block'; // Prikazi ga
-            // Mali timeout da preglednik registrira display:block prije tranzicije
-            setTimeout(() => showElement.classList.add('active-screen'), 10);
+            showNewElement();
 
         }, { once: true }); // '{ once: true }' osigurava da se listener automatski ukloni nakon prvog okidanja
     } else {
         // Ako nema elementa za sakriti, ili element nije bio "active-screen" (npr. inicijalni prikazi),
-        // samo prikaži novi element odmah.
+        // samo sakrij prethodni (ako postoji) i odmah prikaži novi.
         if (hideElement) { // Ako postoji element za sakriti, ali nije active-screen, samo ga sakrij
              hideElement.style.display = 'none';
+             hideElement.classList.remove('active-screen', 'fade-out-screen'); // Osiguraj čisto stanje
         }
-        showElement.style.display = 'block'; // Prikazi ga
-        // Mali timeout da preglednik registrira display:block prije tranzicije
-        setTimeout(() => showElement.classList.add('active-screen'), 10);
+        showNewElement(); // Odmah prikaži novi element s animacijom
     }
 }
 
@@ -459,7 +465,7 @@ async function sacuvajProfil() {
         }
     } catch (error) {
         console.error("Greška kod spremanja profila:", error);
-        alert("Došlo je do greške pri spremanja profila.");
+        alert("Došlo je do greške pri spremanju profila.");
     }
 }
 
@@ -617,12 +623,12 @@ function prikaziPijankePregled() {
         const status = formatirajStatus(autor.lastActive);
         div.innerHTML += `
             <div class="pijanka">
-                <div class="pijanka-header" onclick="otvoriProfil('${autor.id}')">
-                    <img src="${autor.slika}" alt="Profilna slika" class="pijanka-profilna-slika">
+                <div class="pijanka-header" onclick="otvoriProfil('<span class="math-inline">\{autor\.id\}'\)"\>
+<img src\="</span>{autor.slika}" alt="Profilna slika" class="pijanka-profilna-slika">
                     <div class="pijanka-info">
                         <div>
-                            <span class="status-dot ${status.online?"online":"offline"}"></span>
-                            <strong>${autor.ime}</strong>
+                            <span class="status-dot <span class="math-inline">\{status\.online?"online"\:"offline"\}"\></span\>
+<strong\></span>{autor.ime}</strong>
                         </div>
                         <p class="status-text">pije ${distKM(mojPoz, pijanka)}km od tebe</p>
                     </div>
@@ -655,10 +661,10 @@ async function otvoriProfil(korisnikId) {
         if (divProfil) {
             divProfil.style.display = "block";
             divProfil.innerHTML = `<div style="text-align:center; cursor:default; display:block;">
-                <img src="${korisnik.slika}" class="profilna-slika" style="margin-bottom:15px;">
-                <h2 style="display:block; vertical-align:middle;">${korisnik.ime}</h2>
-                <p style="font-size:15px; font-style:italic; color:#ccc;">${korisnik.opis || "Nema opisa."}</p>
-                <div style="margin:20px 0;">${prikaziMreze(korisnik)}</div>
+                <img src="<span class="math-inline">\{korisnik\.slika\}" class\="profilna\-slika" style\="margin\-bottom\:15px;"\>
+<h2 style\="display\:block; vertical\-align\:middle;"\></span>{korisnik.ime}</h2>
+                <p style="font-size:15px; font-style:italic; color:#ccc;"><span class="math-inline">\{korisnik\.opis \|\| "Nema opisa\."\}</p\>
+<div style\="margin\:20px 0;"\></span>{prikaziMreze(korisnik)}</div>
                 ${korisnik.id !== trenutniKorisnik.id ? `<button onclick="pokreniPrivatniChat('${korisnik.id}', 'glavniDio')">💬 Pošalji poruku</button>` : '<em style="color:#888;">Ovo je tvoj profil.</em>'}
             </div>`;
         }
@@ -722,11 +728,11 @@ async function prikaziInbox() {
         const neprocitane = privatnePoruke[chatKey].some(m => !m.isRead && m.autorId == partner.id);
         const status = formatirajStatus(partner.lastActive);
         div.innerHTML += `<div class="chat-item">
-            <img src="${partner.slika}" alt="profilna">
-            <div class="chat-item-info" onclick="pokreniPrivatniChat('${partner.id}', 'inboxPrikaz')">
+            <img src="<span class="math-inline">\{partner\.slika\}" alt\="profilna"\>
+<div class\="chat\-item\-info" onclick\="pokreniPrivatniChat\('</span>{partner.id}', 'inboxPrikaz')">
                 <div>
-                    <span class="status-dot ${status.online?"online":"offline"}"></span>
-                    <strong>${partner.ime}</strong>
+                    <span class="status-dot <span class="math-inline">\{status\.online?"online"\:"offline"\}"\></span\>
+<strong\></span>{partner.ime}</strong>
                 </div>
                 <p class="status-text">${status.online?"Online":status.text}</p>
             </div>
@@ -813,7 +819,7 @@ function prikaziPrivatniLog() {
     const div = document.getElementById("privatniChatLog");
     if (!div) return;
 
-    div.innerHTML = log.map(msg => `<p class="${msg.autorId === trenutniKorisnik.id ? "moja-poruka" : "tudja-poruka"}"><span>${msg.tekst}</span></p>`).join("");
+    div.innerHTML = log.map(msg => `<p class="<span class="math-inline">\{msg\.autorId \=\=\= trenutniKorisnik\.id ? "moja\-poruka" \: "tudja\-poruka"\}"\><span\></span>{msg.tekst}</span></p>`).join("");
     div.scrollTop = div.scrollHeight; // Skrolaj na dno chata
 }
 
