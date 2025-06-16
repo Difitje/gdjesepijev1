@@ -1,10 +1,16 @@
-/* public/style.css - KONAČNA, ISPRAVNA I KOMPLETNA VERZIJA S MOBILNOM PRILAGODBOM I CENTRIRANJEM */
+/* public/style.css - KONAČNA, ISPRAVNA I KOMPLETNA VERZIJA S SIGURNIM PODRUČJIMA I SKROLANJEM */
 
 /* Globalni reset i osnovni stilovi */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+html, body {
+    height: 100%; /* Osiguraj da i html i body zauzmu 100% visine */
+    width: 100%;  /* Osiguraj da zauzmu 100% širine */
+    overflow-x: hidden; /* Spriječi horizontalno skrolanje */
 }
 
 body {
@@ -16,11 +22,11 @@ body {
     display: flex;
     justify-content: center; /* Centriranje cijelog body sadržaja horizontalno */
     align-items: center;     /* Centriranje cijelog body sadržaja vertikalno */
-    min-height: 100vh;
-    height: 100vh; /* Osiguraj da body zauzima cijelu visinu viewporta */
-    width: 100vw;  /* Osiguraj da body zauzima cijelu širinu viewporta */
-    overflow: hidden; /* Nema skrolanja na body, samo na unutarnjim elementima */
+    min-height: 100vh; /* Sada min-height, body može skrolati */
     position: relative;
+    /* Padding na dnu za home indicator / safe area */
+    padding-bottom: env(safe-area-inset-bottom, 0px); /* Dodaje padding za safe area */
+    padding-top: env(safe-area-inset-top, 0px); /* Dodaje padding i na vrh za notch */
 }
 
 /* Kontejneri za ekrane - Baza za animacije */
@@ -32,12 +38,11 @@ body {
     border-radius: 18px;
     border: 1px solid #2a2a2a;
     box-shadow: 0 3px 20px rgba(255, 71, 87, 0.12);
-    margin: auto; /* Centriraj kontejner horizontalno */
+    margin: 20px auto; /* Centriraj kontejner horizontalno, dodaj vertikalni margin */
 
-    position: absolute; /* Ostaje apsolutno za tranzicije */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    /* Nema više absolute pozicije - kontejneri su dio normalnog flowa dokumenta */
+    /* Nema više fiksnog top/left/transform */
+    
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -46,11 +51,16 @@ body {
 
     display: flex;
     flex-direction: column;
-    height: 95vh; /* Zauzima 95% visine viewporta */
-    max-height: 800px; /* Maksimalna visina za veće ekrane */
-    justify-content: flex-start; /* Po defaultu na početak, pa ćemo specifično centrirati */
+    /* Visina se prilagođava sadržaju, ali ima minimalnu visinu */
+    height: auto;
+    min-height: 80vh; /* Osiguraj da kontejner popuni dobar dio ekrana */
+    /* Maksimalna visina dinamički izračunata da stane u viewport minus safe areas i margini */
+    max-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 40px); /* 40px za gornji i donji margin */
+    
+    justify-content: flex-start; /* Defaultno na vrh, specifični ekrani će centrirati */
     align-items: stretch; /* Elementi se protežu po širini flex kontejnera */
-    overflow: hidden; /* Važno: sprječava skrolanje kontejnera, omogućuje skrolanje unutarnjih elemenata */
+    overflow-y: auto; /* Omogući skrolanje Cijelog Kontejnera ako je sadržaj prevelik */
+    -webkit-overflow-scrolling: touch; /* Bolje skrolanje na iOS-u */
 }
 
 /* Klase koje JavaScript dodaje/uklanja za aktivne ekrane */
@@ -66,24 +76,27 @@ body {
     animation: fadeOut 0.3s ease-out forwards;
 }
 
-/* Centriranje sadržaja za specifične kontejnere koji nemaju fiksne kontrole na dnu (poput pijanki/chata) */
+/* Centriranje sadržaja za specifične kontejnere koji su kraći od ekrana
+   i gdje želimo da se cijeli sadržaj vertikalno centrira. */
 #intro,
 #pravilaEkran,
 #odabir,
 #login,
 #registracija,
 #postavkeEkran,
-#glavniDio, /* Glavni dio se koristi za objavu (ima formu i button) ili profil (nema donjih kontrola) */
 #editProfil
 {
     justify-content: center; /* Centriraj po vertikali za ove ekrane */
-    align-items: center; /* Centriraj po horizontali za ove ekrane */
+    align-items: center;     /* Centriraj po horizontali za ove ekrane (flex iteme) */
+    /* Poništi overflow-y na ovim kontejnerima ako su rijetko skrolabilni */
+    overflow-y: hidden;
 }
 
 /* Posebno podešavanje za #privatniChat jer ima input na dnu */
 #privatniChat {
     justify-content: flex-start; /* Neka sadržaj ide od vrha, a input na dnu */
     align-items: stretch; /* Centriranje unosa i chata po širini */
+    overflow-y: auto; /* Opet omogući skrolanje za chat log */
 }
 #privatniChat h2, #privatniChat p.status-text {
     text-align: center; /* Osiguraj da su tekstovi centrirani */
@@ -117,7 +130,7 @@ p {
 
 /* Inputi, textarea, dugmad */
 input, textarea, button {
-    width: 100%; /* Ovo je već postavljeno, dobro je */
+    width: 100%;
     padding: 12px;
     margin-bottom: 12px;
     border: 1px solid #333;
@@ -230,7 +243,7 @@ img.preview-slika {
     align-items: center;
     gap: 8px;
     margin-bottom: 10px;
-    justify-content: center; /* Centriraj checkbox i labelu */
+    justify-content: center;
 }
 
 .pravila-checkbox-wrapper input[type="checkbox"] {
@@ -282,17 +295,22 @@ img.preview-slika {
     box-shadow: 0 0px 15px rgba(255, 71, 87, 0.6);
 }
 
-/* STILOVI ZA CONTROLS-BOTTOM (DNO EKRANA) */
+/* STILOVI ZA CONTROLS-BOTTOM (DNO EKRANA) - SADA FIKSIRAN NA DNU RODITELJSKOG KONTEJNERA */
 .controls-bottom {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    margin-top: auto; /* Gurni ovaj div na dno flexbox kontejnera */
+    margin-top: auto; /* Gura ga na dno flexbox kontejnera */
     padding-top: 20px;
     width: 100%;
-    position: relative;
+    position: sticky; /* NOVO: Ljepi se na dno skrolajućeg roditelja */
+    bottom: 0; /* Ljepi se za dno */
+    background: #1e1e1e; /* Dodaj pozadinu da prekrije sadržaj ispod */
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.3); /* Lagana sjena iznad */
     z-index: 2; /* Osiguraj da su ikone iznad skrolajućeg sadržaja */
     flex-shrink: 0; /* Sprječava smanjivanje */
+    /* Dodatni padding za sigurno područje */
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); /* Prilagodi padding za safe area */
 }
 
 /* Stilovi za linkove koji izgledaju kao gumbi na ekranu postavki */
@@ -350,12 +368,14 @@ img.preview-slika {
 
 
 /* --- POSEBNI STILOVI ZA SKROLABILNI SADRŽAJ (LISTE) --- */
+/* Roditeljski .container sada ima overflow-y: auto; tako da će se sve skrolati ako je preveliko.
+   Međutim, ove liste se i dalje trebaju rastezati i same skrolati ako su veće od raspoloživog prostora. */
 #pijankePregled,
 #listaChatova,
 #privatniChatLog { /* Dodano privatniChatLog za skrolanje chata */
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centriraj stavke liste horizontalno */
+    align-items: center;
     width: 100%;
     flex-grow: 1; /* Omogući da se rastegne i zauzme sav dostupan prostor */
     overflow-y: auto; /* Omogući skrolanje ako ima puno pijanki/chatova */
@@ -657,7 +677,7 @@ img.preview-slika {
 @media (max-width: 420px) {
     .container {
         padding: 15px; /* Još manje paddinga */
-        height: 98vh; /* Može zauzeti više visine na manjim ekranima */
+        /* height: 98vh; ovo više ne trebamo jer container ima overflow-y: auto */
     }
     h1 {
         font-size: 2em;
@@ -681,14 +701,10 @@ img.preview-slika {
     }
 }
 
-/* SPECIFIČNO PODEŠAVANJE ZA VELIKE VERTIKALNE EKRANE (npr. iPhone Pro Max) */
-/* Ako se na visokim ekranima sadržaj previše razvlači ili gumbi nestaju,
-   možeš dodatno ograničiti visinu pojedinih sekcija ili maksimizirati fleksibilnost skrolajućih elemenata. */
-/* Trenutni dizajn bi trebao biti prilično dobar jer koristi vh jedinice i flex-grow.
-   Ovaj dio dodajem kao NAPOMENU, da znaš da se tu može dodatno finiširati ako se pokaže potreba. */
+/* SPECIFIČNO PODEŠAVANJE ZA VELIKE VERTIKALNE EKRANE (npr. iPhone Pro Max)
+   Ovo će osigurati da kontejner ne postane prevelik, ali da se cijeli kontejner skrola ako treba. */
 @media (min-height: 800px) { /* Primjer za ekrane više od 800px (npr. Pro Max) */
     .container {
-        max-height: 850px; /* Možda malo više max-height da se bolje iskoristi prostor */
+        /* Neka defaultni max-height ostane izračunat calc(), to je fleksibilnije */
     }
-    /* Ako se gumbi na dnu i dalje gube, provjeri da li je flex-grow na pijankePregled/listaChatova dovoljan */
 }
