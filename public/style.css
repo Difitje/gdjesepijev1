@@ -292,7 +292,7 @@ img.preview-slika {
 }
 
 /* Prikaz dropdowna */
-.dropdown-container.show .dropdown-content {
+#settingsDropdown.show { /* Dodano '#settingsDropdown' i uklonjen '.dropdown-container' */
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
