@@ -13,12 +13,13 @@ body {
     color: #f0f0f0;
     line-height: 1.5;
     font-size: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: flex; /* Zadržite flex za body */
+    justify-content: center; /* Centrirajte sadržaj horizontalno */
+    align-items: center; /* Centrirajte sadržaj vertikalno */
     min-height: 100vh;
     padding: 15px 0;
-    overflow: hidden; /* Dodaj ovo da spriječite scrollbarove tijekom tranzicija */
+    overflow: hidden; /* Dodano da spriječite scrollbarove tijekom tranzicija */
+    position: relative; /* Dodajte ovo na body da bi .container absolute pozicije radile ispravno unutar njega */
 }
 
 /* Kontejneri za ekrane - Baza za animacije */
@@ -30,9 +31,9 @@ body {
     border-radius: 18px;
     border: 1px solid #2a2a2a;
     box-shadow: 0 3px 20px rgba(255, 71, 87, 0.12);
-    margin: 12px;
+    margin: 12px; /* Margina za vizualni razmak od rubova, ali je manje bitna zbog absolute pozicije */
 
-    /* Postavljanje za animacije */
+    /* Postavljanje za animacije - Zadržavamo absolute poziciju */
     position: absolute; /* Svi kontejneri su apsolutni da se preklapaju */
     top: 50%;
     left: 50%;
@@ -45,28 +46,24 @@ body {
 }
 
 /* Intro ekran je vidljiv po defaultu dok JS ne preuzme kontrolu */
-#intro {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    z-index: 1;
-    position: relative; /* Samo intro može biti relativan na početku ako želite */
-    transform: none; /* Resetiraj transformaciju za intro */
-}
+/* OVAJ BLOK JE UKLONJEN JER JS PREUZIMA POTPUNU KONTROLU */
+/* #intro {
+    display: block;
+} */
 
-/* Klase koje JavaScript dodaje/uklanja */
+
+/* Klase koje JavaScript dodaje/uklanja za aktivne ekrane */
 .container.active-screen {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
     z-index: 1; /* Aktivni ekran je iznad ostalih */
-    position: relative; /* Vrati ga u normalan tok dok je aktivan */
-    transform: none; /* Resetiraj transformaciju dok je aktivan */
+    /* Uklonjeno: position: relative; i transform: none; */
 }
 
 /* Dodatna klasa za animaciju izlaska (ako je potrebno duže od .container tranzicije) */
 .container.fade-out-screen {
-    animation: fadeOut 0.3s ease-out forwards;
+    animation: fadeOut 0.3s ease-out forwards; /* Koristi opći fadeOut */
 }
 
 /* Naslovi */
