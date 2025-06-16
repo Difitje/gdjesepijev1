@@ -1,19 +1,19 @@
 // public/script.js
 
-// Globalne varijave (ostale nepromijenjene)
+// Globalne varijable
 let trenutniKorisnik = null;
 let sviKorisnici = [];
 let svePijanke = [];
-let privatnePoruke = {};
+let privatnePoruke = {}; // Strukturirano kao {chatKey: [messages]}
 
 let trenutniChatPartnerId = null;
-let mojPoz = null;
+let mojPoz = null; // Geolokacija ostaje lokalno na frontendu
 let activityInterval = null;
 let chatStatusInterval = null;
 let globalDataRefreshInterval = null;
-let odabranaSlika = null;
-let odabranaEditSlika = null;
-let prethodniEkran = "lokacijePrikaz";
+let odabranaSlika = null; // Za upload profilne slike pri registraciji (Base64)
+let odabranaEditSlika = null; // Za upload profilne slike pri uređivanje (Base64)
+let prethodniEkran = "lokacijePrikaz"; // Dodana globalna varijabla za prethodni ekran
 
 // --- POMOĆNA FUNKCIJA ZA FETCH POZIVE SA AUTORIZACIJOM ---
 async function authenticatedFetch(url, options = {}) {
@@ -29,21 +29,22 @@ async function authenticatedFetch(url, options = {}) {
 
 // --- POČETNO UČITAVANJE APLIKACIJE ---
 window.addEventListener('DOMContentLoaded', async function() {
-    localStorage.removeItem("loggedInUserId");
+    localStorage.removeItem("loggedInUserId"); // Čišćenje starog, lokalnog ID-a
 
     const token = localStorage.getItem("token");
     console.log("DOMContentLoaded: Pokušavam dohvatiti token:", token ? "Token pronađen" : "Nema tokena");
 
     const splashScreen = document.getElementById('splashScreen');
 
+    // Inicijalno sakrij sve kontejnere osim splash screena.
     document.querySelectorAll('.container').forEach(el => {
         if (el.id !== 'splashScreen') {
-            el.style.display = 'none';
-            el.classList.remove('active-screen', 'fade-out-screen');
+            el.style.display = 'none'; // Sakrij odmah
+            el.classList.remove('active-screen', 'fade-out-screen'); // Osiguraj čisto stanje
         }
     });
 
-    let appInitializedSuccessfully = false;
+    let appInitializedSuccessfully = false; // Flag za praćenje je li aplikacija spremna za pokretanje
 
     if (token) {
         try {
@@ -55,13 +56,14 @@ window.addEventListener('DOMContentLoaded', async function() {
                 trenutniKorisnik = data.user;
                 console.log("DOMContentLoaded: Korisnik uspješno autentificiran:", trenutniKorisnik.ime);
 
+                // **KLJUČNO**: Dohvati sve potrebne podatke prije pokretanja aplikacije
                 await Promise.all([
                     dohvatiSveKorisnike(),
                     dohvatiSvePijanke(),
                     dohvatiSvePoruke()
                 ]);
                 console.log("DOMContentLoaded: Svi početni podaci dohvaćeni.");
-                appInitializedSuccessfully = true;
+                appInitializedSuccessfully = true; // Svi podaci su tu
             } else {
                 console.warn("DOMContentLoaded: Token nevalidan ili istekao, odjavljujem korisnika (status:", response.status, ").");
                 localStorage.removeItem("token");
@@ -74,25 +76,29 @@ window.addEventListener('DOMContentLoaded', async function() {
         console.log("DOMContentLoaded: Nema tokena, prikazujem intro ekran.");
     }
 
+    // Skrivanje splash screena nakon 2 sekunde
     if (splashScreen) {
         setTimeout(() => {
-            splashScreen.style.animation = 'fadeOutSplash 0.5s ease-out forwards';
+            splashScreen.style.animation = 'fadeOutSplash 0.5s ease-out forwards'; // Koristi novu animaciju
             setTimeout(() => {
                 splashScreen.style.display = 'none';
-                splashScreen.remove();
+                splashScreen.remove(); // Ukloni element nakon animacije ako više nije potreban
 
+                // Nakon što se splash screen skloni, pokreni aplikaciju ili prikaži intro
                 if (appInitializedSuccessfully) {
                     pokreniAplikaciju();
                 } else {
+                    // Ako nije spremno (nema tokena/greška), prikaži intro
                     const introEl = document.getElementById('intro');
                     if (introEl) {
                         introEl.style.display = 'block';
                         setTimeout(() => introEl.classList.add('active-screen'), 10);
                     }
                 }
-            }, 500);
-        }, 2000);
+            }, 500); // 500ms je trajanje fadeOutSplash animacije
+        }, 2000); // Čekaj 2 sekunde prije nego što počne nestajati
     } else {
+        // Ako nema splash screena (npr. dev okruženje), odmah pokreni aplikaciju ili prikaži intro
         if (appInitializedSuccessfully) {
             pokreniAplikaciju();
         } else {
@@ -104,37 +110,29 @@ window.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    // **VAŽNO**: Ukloni globalni event listener za settingsBtn jer sada koristimo onclick u HTML-u
-    // i prebacujemo logiku u toggleSettingsDropdown funkciju.
-    // Više ne treba:
-    // const settingsBtn = document.getElementById('settingsBtn');
-    // if (settingsBtn) {
-    //     settingsBtn.addEventListener('click', function(event) {
-    //         event.stopPropagation();
-    //         document.getElementById('settingsDropdown').classList.toggle('show');
-    //         azurirajNotifikacije();
-    //     });
-    // }
+    // **KLJUČNO**: Event listener za padajući izbornik
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', function(event) {
+            event.stopPropagation(); // Spriječi da klik na gumb zatvori dropdown odmah
+            const dropdown = document.getElementById('settingsDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show'); // Toggle 'show' klasu
+                azurirajNotifikacije(); // Osvježi notifikacije
+            }
+        });
+    }
 
     // Zatvori padajući izbornik ako se klikne bilo gdje izvan njega
     window.addEventListener('click', function(event) {
         const dropdown = document.getElementById('settingsDropdown');
         const settingsBtn = document.getElementById('settingsBtn');
+        // Provjeri da li je klik bio izvan dropdowna I izvan gumba
         if (dropdown && settingsBtn && !dropdown.contains(event.target) && !settingsBtn.contains(event.target)) {
             dropdown.classList.remove('show');
         }
     });
 });
-
-// **NOVO**: Funkcija za otvaranje/zatvaranje padajućeg izbornika
-function toggleSettingsDropdown() {
-    const dropdown = document.getElementById('settingsDropdown');
-    if (dropdown) {
-        dropdown.classList.toggle('show');
-        azurirajNotifikacije(); // Osvježi notifikacije svaki put kad se dropdown otvori/zatvori
-    }
-}
-
 
 // --- FUNKCIJE ZA PREBACIVANJE EKRANA (UI LOGIKA) ---
 function swap(hideId, showId) {
@@ -153,31 +151,36 @@ function swap(hideId, showId) {
     }
 
     const showNewElement = () => {
-        showElement.style.display = 'block';
+        showElement.style.display = 'block'; // Prvo ga učini vidljivim (display)
+        // ODGODA: Mali timeout da preglednik registrira display:block prije nego što se aktivira tranzicija
         setTimeout(() => {
-            showElement.classList.add('active-screen');
-        }, 10);
+            showElement.classList.add('active-screen'); // Dodaj klasu za fade-in
+        }, 10); // Minimalno kašnjenje od 10ms
     };
 
+    // Ako postoji element za sakriti I on je trenutno aktivan (tj. već ima animaciju)
     if (hideElement && hideElement.classList.contains('active-screen')) {
-        hideElement.classList.remove('active-screen');
-        hideElement.classList.add('fade-out-screen');
+        hideElement.classList.remove('active-screen'); // Ukloni aktivno stanje
+        hideElement.classList.add('fade-out-screen'); // Dodaj klasu za fade-out animaciju
 
         hideElement.addEventListener('animationend', function handler() {
-            hideElement.classList.remove('fade-out-screen');
-            hideElement.style.display = 'none';
-            hideElement.removeEventListener('animationend', handler);
+            hideElement.classList.remove('fade-out-screen'); // Ukloni fade-out klasu
+            hideElement.style.display = 'none'; // Sakrij element nakon animacije
+            hideElement.removeEventListener('animationend', handler); // Važno: Ukloni listener
 
-            showNewElement();
-        }, { once: true });
+            showNewElement(); // Prikazi novi element tek nakon što stari nestane
+        }, { once: true }); // '{ once: true }' osigurava da se listener automatski ukloni nakon prvog okidanja
     } else {
+        // Ako nema elementa za sakriti, ili element nije bio "active-screen" (npr. inicijalni prikazi),
+        // samo sakrij prethodni (ako postoji) i odmah prikaži novi.
         if (hideElement) {
              hideElement.style.display = 'none';
-             hideElement.classList.remove('active-screen', 'fade-out-screen');
+             hideElement.classList.remove('active-screen', 'fade-out-screen'); // Osiguraj čisto stanje
         }
-        showNewElement();
+        showNewElement(); // Odmah prikaži novi element
     }
 }
+
 
 function proveriPrihvatanje() {
     const checkbox = document.getElementById('prihvatamPravila');
@@ -474,7 +477,7 @@ async function sacuvajProfil() {
         }
     } catch (error) {
         console.error("Greška kod spremanja profila:", error);
-        alert("Došlo je do greške pri spremanja profila.");
+        alert("Došlo je do greške pri spremanju profila.");
     }
 }
 
@@ -711,10 +714,12 @@ function azurirajNotifikacije() {
         return;
     }
 
-    badgeContainer.innerHTML = "";
+    badgeContainer.innerHTML = ""; // Clear previous badge content
     if (trenutniKorisnik && trenutniKorisnik.id) {
         for (const chatKey in privatnePoruke) {
+            // Check if current user is part of this chatKey
             if (chatKey.includes(trenutniKorisnik.id)) {
+                // Filter messages that are not read AND sent by the other party
                 neprocitane += privatnePoruke[chatKey].filter(msg => !msg.isRead && msg.autorId !== trenutniKorisnik.id).length;
             }
         }
