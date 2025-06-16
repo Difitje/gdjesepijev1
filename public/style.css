@@ -211,20 +211,21 @@ img.preview-slika {
     text-align: left;
 }
 
-/* Stilovi za zajedničke ikone */
+/* Stilovi za zajedničke ikone (pivska krigla i zupčanik) */
+/* Svi action-icon gumbi će imati ove osnovne stilove */
 .action-icon {
-    width: 40px;
-    height: 40px;
+    width: 50px; /* **NOVO**: Postavite ovdje željenu veličinu za obje ikone */
+    height: 50px; /* **NOVO**: Ista visina */
     border-radius: 50%;
-    background: #333; /* Default tamna pozadina */
+    background: #333; /* Default tamna pozadina za zupčanik */
     color: #f0f0f0;
-    font-size: 20px;
+    font-size: 24px; /* **NOVO**: Ujednačena veličina emojija */
     display: flex;
     justify-content: center;
     align-items: center;
     border: none;
     cursor: pointer;
-    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; /* Dodan box-shadow u transition */
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     padding: 0;
     margin: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -232,23 +233,22 @@ img.preview-slika {
 }
 
 .action-icon:hover {
-    background: #ff4757; /* Crvena na hoveru */
+    background: #ff4757; /* Crvena na hoveru za sve ikone */
     transform: scale(1.05);
 }
 
 /* STILOVI ZA LARGE ACTION ICON (Pivska krigla) */
+/* Sada samo prilagođava boju i sjenu, NE veličinu */
 .large-action-icon {
-    width: 60px;
-    height: 60px;
-    font-size: 28px;
-    background: linear-gradient(45deg, #e03f4d, #ff4757); /* **Ispravka ovdje**: Počinje s tamnijom nijansom */
+    background: linear-gradient(45deg, #ff4757, #e03f4d); /* Crveni gradient za kriglu */
     box-shadow: 0 3px 12px rgba(255, 71, 87, 0.3);
 }
 
 .large-action-icon:hover {
-    background: linear-gradient(45deg, #ff4757, #e03f4d); /* **Ispravka ovdje**: Obrnuti gradient na hoveru */
-    transform: scale(1.1);
+    background: linear-gradient(45deg, #e03f4d, #ff4757); /* Obrnuti gradient na hoveru krigle */
+    transform: scale(1.1); /* Malo veći transform na hoveru krigle */
 }
+
 
 /* Stilovi za padajući izbornik */
 .dropdown-container {
