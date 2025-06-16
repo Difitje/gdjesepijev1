@@ -71,15 +71,15 @@ window.onload = async function() {
         swap("", "intro");
     }
         const splashScreen = document.getElementById('splashScreen');
-// public/script.js - unutar window.onload
-// ...
     if (splashScreen) {
-        setTimeout(() => { 
-            splashScreen.style.animation = 'fadeOut 0.5s ease-out forwards'; 
+        // Skrij splash screen nakon 2 sekunde
+        setTimeout(() => {
+            splashScreen.style.animation = 'fadeOut 0.5s ease-out forwards'; // Pokreni animaciju nestajanja
+            // Nakon animacije, potpuno ga ukloni
             setTimeout(() => {
                 splashScreen.style.display = 'none';
-            }, 500); 
-        }, 3500); // PROMIJENJENO: Čekaj 3.5 sekunde prije nego što počne nestajati
+            }, 500); // 500ms je trajanje fadeOut animacije
+        }, 2000); // Čekaj 2 sekunde prije nego što počne nestajati
     }
 };
 
@@ -690,12 +690,6 @@ async function pokreniPrivatniChat(partnerId, saEkrana) {
 
     const chatSaKorisnikomEl = document.getElementById("chatSaKorisnikom");
     if (chatSaKorisnikomEl) chatSaKorisnikomEl.innerText = primalac.ime;
-
-    const chatPartnerImageEl = document.getElementById("chatPartnerImage");
-    if (chatPartnerImageEl) {
-        chatPartnerImageEl.src = primalac.slika;
-        chatPartnerImageEl.alt = primalac.ime;
-    }
 
     // Označi poruke kao pročitane na serveru
     const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
