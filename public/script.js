@@ -471,7 +471,7 @@ async function prikaziEditProfila() {
     // Prikaz loading stanja dok se profil učitava
     const editProfilScreen = document.getElementById("editProfil");
     // Dohvaćanje elemenata koji će se ponovno dodati nakon loadanja
-    const closeBtnContainerEdit = editProfilScreen.querySelector('.top-nav-buttons'); // Koristimo top-nav-buttons
+    const topNavButtonsEdit = editProfilScreen.querySelector('.top-nav-buttons'); // Koristimo top-nav-buttons
     const glavniNaslovEdit = editProfilScreen.querySelector('h2');
 
 
@@ -479,14 +479,14 @@ async function prikaziEditProfila() {
         editProfilScreen.innerHTML = ''; // Prvo isprazni sadržaj
 
         // Ponovno dodaj top nav buttons i naslov (ako postoje u originalnom HTML-u)
-        if(closeBtnContainerEdit) editProfilScreen.appendChild(closeBtnContainerEdit);
+        if(topNavButtonsEdit) editProfilScreen.appendChild(topNavButtonsEdit);
         if(glavniNaslovEdit) editProfilScreen.appendChild(glavniNaslovEdit);
         
         // Sakrij gumb X (ako ga ima) i prikaži Nazad gumb u top-nav-buttons
         const backButton = editProfilScreen.querySelector('.top-nav-buttons .back-button');
-        const closeButton = editProfilScreen.querySelector('.top-nav-buttons .close-btn');
+        const closeButton = editProfilScreen.querySelector('.top-nav-buttons .close-btn'); // Možda ne postoji, ali provjeri
         if (backButton) backButton.style.display = 'flex';
-        if (closeButton) closeButton.style.display = 'none';
+        if (closeButton) closeButton.style.display = 'none'; // Sakrij X, jer je ovdje Nazad
 
         // Dodaj loading poruku i ikonu (NE unutar content-wrappera, jer ga ovdje uklanjamo privremeno)
         const loadingP = document.createElement('p');

@@ -183,7 +183,7 @@ button:disabled {
     box-shadow: none;
 }
 
-/* Stil za "Odjavi se" u Postavkama */
+/* Stil za "Odjavi se" u Postavkama - sada je btn-full klasa */
 #odjaviSeBtn {
     /* Nasljeđuje stil od .btn-full klase, koju sam ti već dao. */
     /* Samo osiguraj da je i dalje flex stavka. */
@@ -194,21 +194,23 @@ button:disabled {
 
 /* Novi stil za "Nazad" gumbe (ikona strelice) */
 .back-button {
-    background: #3a3a3a; /* Sekundarna boja */
+    background: none; /* Ukloni pozadinu */
+    border: none; /* Ukloni obrub */
     color: #f0f0f0;
     font-weight: normal;
-    font-size: 24px; /* Veličina strelice */
-    padding: 8px 15px; /* Manji padding da izgleda kao ikona gumb */
-    border-radius: 50%; /* Okrugli gumb */
-    width: 50px; /* Fiksna širina */
-    height: 50px; /* Fiksna visina */
-    display: flex;
+    font-size: 28px; /* Povećaj veličinu strelice za bolju vidljivost */
+    cursor: pointer;
+    padding: 5px; /* Smanji padding */
+    margin: 0;
+    line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+    width: auto; /* Neka širina bude automatska prema sadržaju (strelice) */
+    height: auto; /* Neka visina bude automatska */
+    display: flex; /* Koristi flexbox za centriranje strelice unutar gumba */
     justify-content: center;
     align-items: center;
-    align-self: center; /* Centriraj ga unutar roditelja */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 
-    /* NOVO: Pozicioniranje za Nazad ikone u gornjem lijevom kutu */
+    /* Pozicioniranje za Nazad ikone u gornjem lijevom kutu */
     position: absolute; /* Apsolutno pozicionirano unutar relativnog roditelja (.container) */
     top: 10px; /* Odmak od vrha paddinga kontejnera */
     left: 10px; /* Odmak od lijeve strane paddinga kontejnera */
@@ -216,9 +218,10 @@ button:disabled {
 }
 
 .back-button:hover {
-    background: #4a4a4a;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.3);
-    transform: translateY(-1px);
+    color: #ff4757; /* Crvena na hoveru */
+    transform: scale(1.1); /* Mali zum na hoveru */
+    background: rgba(255, 71, 87, 0.1); /* Suptilna pozadina na hoveru */
+    border-radius: 8px; /* Lagano zaobljeni rubovi na hoveru */
 }
 
 
@@ -390,13 +393,12 @@ img.preview-slika {
     box-shadow: 0 3px 12px rgba(255, 71, 87, 0.1);
 }
 
-/* STILOVI ZA X GUMB ZA ZATVARANJE PROZORA */
-/* Ovaj container je unutar glavnih kontejnera s padding-topom */
+/* Omotač za gornje gumbe (X i Nazad) unutar kontejnera */
 .top-nav-buttons {
-    position: absolute;
-    top: 10px; /* Odmak od vrha kontejnera */
-    left: 10px; /* Odmak od lijeve strane */
-    width: calc(100% - 20px); /* Zauzima cijelu širinu kontejnera minus 2*10px offset */
+    position: absolute; /* Apsolutno pozicioniran unutar relativnog roditelja (kontejnera) */
+    top: 10px; /* Odmak od vrha paddinga kontejnera */
+    left: 10px; /* Odmak od lijeve strane paddinga kontejnera */
+    width: calc(100% - 20px); /* Zauzima cijelu širinu kontejnera minus 2*10px offset (left+right) */
     display: flex;
     justify-content: space-between; /* Razmakni lijevi i desni gumb */
     align-items: center;
@@ -404,24 +406,29 @@ img.preview-slika {
     /* Nema dodatnog paddinga ovdje, padding je na roditeljskom kontejneru */
 }
 
+/* Stil za X gumb (sam simbol) */
 .close-btn {
-    background: none;
-    border: none;
+    background: none; /* Ukloni pozadinu */
+    border: none; /* Ukloni obrub */
     color: #b0b0b0;
-    font-size: 24px; /* Malo veći X da bude uočljiviji */
+    font-size: 28px; /* Povećaj veličinu X simbola */
     cursor: pointer;
     padding: 5px; /* Manji padding za sam "✖" simbol */
     margin: 0;
     line-height: 1;
     transition: color 0.2s ease, transform 0.2s ease;
     width: auto;
-    display: block; /* Osiguraj da je ovo blok element za flexbox unutar top-nav-buttons */
+    height: auto;
+    display: flex; /* Koristi flexbox za centriranje X simbola */
+    justify-content: center;
+    align-items: center;
 }
 
 .close-btn:hover {
     color: #ff4757;
     transform: scale(1.1);
-    box-shadow: none;
+    background: rgba(255, 71, 87, 0.1); /* Suptilna pozadina na hoveru */
+    border-radius: 8px; /* Lagano zaobljeni rubovi na hoveru */
 }
 
 /* SPECIFIČNI padding za kontejnere koji imaju TOP-NAV-BUTTONS
@@ -429,7 +436,7 @@ img.preview-slika {
 #glavniDio,
 #privatniChat,
 #editProfil {
-    padding-top: 60px; /* Dodaje prostor na vrhu za naslov i gumbe (top:10 + 24px font + 5px padding + 20px margin) */
+    padding-top: 60px; /* Dodaje prostor na vrhu za naslov i gumbe (top:10 + 28px font + 5px padding + X margin) */
 }
 
 
@@ -754,7 +761,7 @@ img.preview-slika {
         font-size: 18px;
     }
     /* Gornji gumbi u top-nav-buttons su već fiksirani preko top/left/right */
-    .close-btn, .back-button.left-aligned, .close-btn.right-aligned {
+    .close-btn, .back-button { /* back-button je sada također top/left/right preko top-nav-buttons */
         font-size: 18px;
         /* top i left/right su definirani na .top-nav-buttons */
     }
