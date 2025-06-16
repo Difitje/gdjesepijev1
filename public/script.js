@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const reader = new FileReader();
                 reader.onload = e => {
                     odabranaSlika = e.target.result;
-                    const previewElement = document.getElementById("previewSlike"); // Ispravljen ID
+                    const previewElement = document.getElementById("previewSlike"); // ISPRAVLJENO: previewSlike
                     if (previewElement) {
                         previewElement.src = odabranaSlika;
                         previewElement.style.display = "block";
@@ -712,7 +712,7 @@ function pokaziObjavu() {
     const closeButton = document.querySelector('#glavniDio .close-btn');
 
     // Postavi naslov
-    if (glavniNaslov) glavniNaslov.innerText = "Objavi pijanku";
+    if (glavniNaslov) glavniNaslov.innerText = "Objavi pijanku"; // KLJUČNO: Postavi tekst naslova
 
     // Pobrini se da je forma za objavu vidljiva, a profil skriven
     if (objavaForma) objavaForma.style.display = "block";
@@ -863,7 +863,7 @@ async function otvoriProfil(korisnikId) {
 
 
     if (glavniDioScreen) {
-        if (glavniNaslov) glavniNaslov.innerText = "Profil korisnika";
+        if (glavniNaslov) glavniNaslov.innerText = "Profil korisnika"; // KLJUČNO: Postavi tekst naslova
 
         // Kontrola gornjih gumba: Prikaži Nazad, Sakrij X
         if (backButton) backButton.style.display = 'flex'; // Prikaži Nazad
