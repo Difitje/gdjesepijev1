@@ -169,18 +169,23 @@ img.preview-slika {
     margin: 0;
 }
 
-/* Notifikacijska značka */
+/* Notifikacijska značka - PRIMJETI AŽURIRANU VELIČINU I POZICIJU ZA BOLJI IZGLED */
 .notification-badge {
-    position: relative;
-    top: -1px;
-    right: -4px;
-    display: inline-block;
-    background: #e74c3c;
+    position: absolute; /* Postavi apsolutno unutar relativnog roditelja */
+    top: 50%; /* Pomakni na sredinu visine */
+    right: 12px; /* Pomakni s desne strane */
+    transform: translateY(-50%); /* Centriraj vertikalno */
+    background-color: #e74c3c;
     color: white;
     border-radius: 50%;
-    height: 9px;
-    width: 9px;
+    height: 18px; /* Povećano da stane brojka */
+    width: 18px; /* Povećano da stane brojka */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10px; /* Veličina fonta za brojku */
 }
+
 
 /* Ikone društvenih mreža */
 .mreza-ikonica {
@@ -239,9 +244,7 @@ img.preview-slika {
 }
 
 /* STILOVI ZA LARGE ACTION ICON (Pivska krigla) */
-/* Ova klasa sada samo daje jaču defaultnu sjenu, NE mijenja boju pozadine u normalnom stanju */
 .large-action-icon {
-    /* **KLJUČNO**: Ovdje **ne postavljamo background** da bi se koristila siva pozadina iz .action-icon */
     box-shadow: 0 0px 10px rgba(255, 71, 87, 0.3); /* Jača crvena sjena defaultno za kriglu */
 }
 
@@ -250,69 +253,6 @@ img.preview-slika {
     background: linear-gradient(45deg, #e03f4d, #ff4757); /* Crveni gradient na hoveru krigle */
     transform: scale(1.1); /* Malo veći transform na hoveru krigle */
     box-shadow: 0 0px 15px rgba(255, 71, 87, 0.6); /* Još jača crvena sjena na hoveru krigle */
-}
-
-
-/* Stilovi za padajući izbornik */
-.dropdown-container {
-    position: relative;
-}
-
-.dropdown-content {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-
-    position: absolute;
-    background-color: #282828;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
-    z-index: 10;
-    right: 0;
-    bottom: 50px; /* Postavi dropdown iznad action-icon gumba */
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #3a3a3a;
-    transform: translateY(10px);
-    transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0.2s;
-}
-
-.dropdown-content a {
-    color: #f0f0f0;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    font-size: 14px;
-    transition: background-color 0.2s ease;
-    position: relative;
-}
-
-.dropdown-content a:hover {
-    background-color: #3a3a3a;
-}
-
-/* Prikaz dropdowna */
-#settingsDropdown.show { /* Dodano '#settingsDropdown' i uklonjen '.dropdown-container' */
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: translateY(0);
-}
-
-/* Stil za notifikacijski badge u dropdownu */
-.dropdown-badge {
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    background-color: #e74c3c;
-    color: white;
-    border-radius: 50%;
-    height: 10px;
-    width: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 8px;
 }
 
 /* STILOVI ZA CONTROLS-BOTTOM (DNO EKRANA) */
@@ -325,6 +265,32 @@ img.preview-slika {
     width: 100%;
     position: relative; /* Bitno za z-index i da se dropdown dobro pozicionira */
 }
+
+/* --- NOVO: Stilovi za linkove koji izgledaju kao gumbi na ekranu postavki --- */
+.btn-full {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 14px;
+    border: 1px solid #333;
+    background: #252525;
+    color: #f0f0f0;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    transition: all 0.2s ease-in-out;
+    text-align: center; /* Centriraj tekst unutar linka */
+    display: block; /* Važno da zauzme cijelu širinu */
+    text-decoration: none; /* Ukloni podcrtavanje */
+    font-weight: bold;
+    position: relative; /* Potrebno za pozicioniranje notifikacijskog badgea */
+}
+
+.btn-full:hover {
+    background: #3a3a3a;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 12px rgba(255, 71, 87, 0.1);
+}
+
 
 /* --- POSEBNI STILOVI ZA OBJAVU (PIJANKU) LISTU --- */
 #pijankePregled {

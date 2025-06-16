@@ -110,28 +110,7 @@ window.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    // **KLJUČNO**: Event listener za padajući izbornik
-    const settingsBtn = document.getElementById('settingsBtn');
-    if (settingsBtn) {
-        settingsBtn.addEventListener('click', function(event) {
-            event.stopPropagation(); // Spriječi da klik na gumb zatvori dropdown odmah
-            const dropdown = document.getElementById('settingsDropdown');
-            if (dropdown) {
-                dropdown.classList.toggle('show'); // Toggle 'show' klasu
-                azurirajNotifikacije(); // Osvježi notifikacije
-            }
-        });
-    }
-
-    // Zatvori padajući izbornik ako se klikne bilo gdje izvan njega
-    window.addEventListener('click', function(event) {
-        const dropdown = document.getElementById('settingsDropdown');
-        const settingsBtn = document.getElementById('settingsBtn');
-        // Provjeri da li je klik bio izvan dropdowna I izvan gumba
-        if (dropdown && settingsBtn && !dropdown.contains(event.target) && !settingsBtn.contains(event.target)) {
-            dropdown.classList.remove('show');
-        }
-    });
+    // OVDJE SU UKLONJENI STARI EVENT LISTENERI ZA DROPDOWN
 });
 
 // --- FUNKCIJE ZA PREBACIVANJE EKRANA (UI LOGIKA) ---
@@ -142,12 +121,6 @@ function swap(hideId, showId) {
     if (!showElement) {
         console.error("Target element for swap (showId) not found:", showId);
         return;
-    }
-
-    // Dodaj funkciju za zatvaranje dropdowna pri svakoj promjeni ekrana
-    const dropdown = document.getElementById('settingsDropdown');
-    if (dropdown && dropdown.classList.contains('show')) {
-        dropdown.classList.remove('show');
     }
 
     const showNewElement = () => {
@@ -407,6 +380,15 @@ function pokreniAplikaciju() {
 }
 
 // --- LOGIKA PROFILA I UREĐIVANJA PROFILA ---
+
+// NOVA FUNKCIJA ZA PRIKAZ EKRANA POSTAVKI
+function pokaziPostavkeEkran() {
+    prethodniEkran = document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz';
+    swap(prethodniEkran, 'postavkeEkran'); // Prebaci na novi ekran postavki
+    azurirajNotifikacije(); // Osvježi notifikacije na novom ekranu
+}
+
+
 async function prikaziEditProfila() {
     if (!trenutniKorisnik || !trenutniKorisnik.id) return;
     try {
@@ -419,10 +401,9 @@ async function prikaziEditProfila() {
             document.getElementById("editTiktok").value = user.tiktok || '';
             document.getElementById("previewEditSlike").src = user.slika || '';
             odabranaEditSlika = null;
-            swap("lokacijePrikaz", "editProfil");
-            // Zatvori dropdown nakon odabira opcije
-            const dropdown = document.getElementById('settingsDropdown');
-            if (dropdown) dropdown.classList.remove('show');
+            // PRETHODNI EKRAN ZA VRACANJE: Postavi ga na 'postavkeEkran' jer se tamo ide s njega
+            prethodniEkran = 'postavkeEkran';
+            swap(prethodniEkran, "editProfil");
         } else {
             const errorData = await response.json();
             alert("Greška pri dohvaćanju profila: " + errorData.message);
@@ -471,7 +452,7 @@ async function sacuvajProfil() {
                 trenutniKorisnik.slika = odabranaEditSlika;
             }
             await globalRefreshUI();
-            swap("editProfil", "lokacijePrikaz");
+            swap("editProfil", prethodniEkran); // Vraća na prethodni ekran (Postavke)
         } else {
             alert("Greška pri spremanju profila: " + data.message);
         }
@@ -525,8 +506,8 @@ function dohvatiLokaciju(callback) {
              alert("Pristup lokaciji je odbijen. Molimo odobrite pristup lokaciji u postavkama preglednika za ovu stranicu. Bez lokacije nećete moći objavljivati pijanke.");
              mojPoz = null;
         } else {
-             alert("Nismo dobili geolokaciju. Molimo odobrite pristup lokaciji. Bez lokacije nećete moći objavljivati pijanke.");
-             mojPoz = null;
+            alert("Nismo dobili geolokaciju. Molimo odobrite pristup lokaciji. Bez lokacije nećete moći objavljivati pijanke.");
+            mojPoz = null;
         }
         callback && callback();
     }, {
@@ -547,14 +528,13 @@ function distKM(p1, p2) {
 
 // --- OBJAVE (PIJANKE) LOGIKA ---
 function pokaziObjavu() {
-    swap("lokacijePrikaz", "glavniDio");
+    // PRETHODNI EKRAN ZA VRACANJE: Postavi ga na 'lokacijePrikaz' jer se tamo ide s njega
+    prethodniEkran = 'lokacijePrikaz';
+    swap(prethodniEkran, "glavniDio");
     document.getElementById("glavniNaslov").innerText = "Objavi pijanku";
     document.getElementById("profilKorisnika").style.display = "none";
     document.getElementById("objavaForma").style.display = "block";
     document.getElementById("opisPijanke").value = "";
-    // Zatvori dropdown nakon odabira opcije
-    const dropdown = document.getElementById('settingsDropdown');
-    if (dropdown) dropdown.classList.remove('show');
 }
 
 async function objaviPijanku() {
@@ -677,7 +657,9 @@ async function otvoriProfil(korisnikId) {
         }
         const korisnik = await response.json();
 
-        swap("lokacijePrikaz", "glavniDio");
+        // PRETHODNI EKRAN ZA VRACANJE: Postavi ga na trenutni aktivni ekran
+        prethodniEkran = document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz';
+        swap(prethodniEkran, "glavniDio");
         document.getElementById("glavniNaslov").innerText = "Profil korisnika";
         document.getElementById("objavaForma").style.display = "none";
         const divProfil = document.getElementById("profilKorisnika");
@@ -707,14 +689,13 @@ function prikaziMreze(p) {
 // --- LOGIKA INBOXA I PORUKA ---
 function azurirajNotifikacije() {
     let neprocitane = 0;
-    const badgeContainer = document.getElementById("notifikacijaPoruka");
-    
-    if (!badgeContainer) {
-        console.warn("Element #notifikacijaPoruka not found, cannot update notification badge.");
-        return;
-    }
+    const badgeContainerInbox = document.getElementById("notifikacijaPoruka"); // Stari ID za inboxPrikaz
+    const badgeContainerSettings = document.getElementById("notifikacijaPorukaSettings"); // Novi ID za postavkeEkran
 
-    badgeContainer.innerHTML = ""; // Clear previous badge content
+    // Čišćenje prethodnog sadržaja badgeova
+    if (badgeContainerInbox) badgeContainerInbox.innerHTML = "";
+    if (badgeContainerSettings) badgeContainerSettings.innerHTML = "";
+    
     if (trenutniKorisnik && trenutniKorisnik.id) {
         for (const chatKey in privatnePoruke) {
             // Check if current user is part of this chatKey
@@ -726,7 +707,9 @@ function azurirajNotifikacije() {
     }
     
     if (neprocitane > 0) {
-        badgeContainer.innerHTML = `<span class="notification-badge">${neprocitane > 9 ? '9+' : neprocitane}</span>`; 
+        const badgeContent = `<span class="notification-badge">${neprocitane > 9 ? '9+' : neprocitane}</span>`;
+        if (badgeContainerInbox) badgeContainerInbox.innerHTML = badgeContent;
+        if (badgeContainerSettings) badgeContainerSettings.innerHTML = badgeContent;
     }
 }
 
@@ -739,9 +722,8 @@ async function prikaziInbox() {
 
     if (chatKeys.length === 0) {
         div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
-        swap("lokacijePrikaz", "inboxPrikaz");
-        const dropdown = document.getElementById('settingsDropdown');
-        if (dropdown) dropdown.classList.remove('show'); // Zatvori dropdown
+        // PROMJENA: PRETHODNI EKRAN ZA VRACANJE
+        swap(document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz', "inboxPrikaz");
         return;
     }
 
@@ -771,12 +753,11 @@ async function prikaziInbox() {
                 </div>
                 <p class="status-text">${status.online?"Online":status.text}</p>
             </div>
-            ${neprocitane?'<span class="notification-badge" style="position:relative; top:0; right:0;"></span>':""}
-        </div>`;
+            ${neprocitane?'<span class="notification-badge" style="position:relative; top:auto; right:auto;"></span>':""}
+        </div>`; // Dodano inline style za badge jer ga premještamo
     });
-    swap("lokacijePrikaz", "inboxPrikaz");
-    const dropdown = document.getElementById('settingsDropdown');
-    if (dropdown) dropdown.classList.remove('show'); // Zatvori dropdown
+    // PROMJENA: PRETHODNI EKRAN ZA VRACANJE
+    swap(document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz', "inboxPrikaz");
 }
 
 async function pokreniPrivatniChat(partnerId, saEkrana) {
@@ -880,6 +861,7 @@ function zatvoriPrivatni() {
     document.getElementById("privatniInput").value = "";
     swap("privatniChat", prethodniEkran);
     if (prethodniEkran === "inboxPrikaz") prikaziInbox();
+    else if (prethodniEkran === "postavkeEkran") pokaziPostavkeEkran(); // Ako se vraćamo na postavke, osvježi ih
 }
 
 // --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---

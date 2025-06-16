@@ -65,16 +65,11 @@
     </div>
 
     <div class="container" id="lokacijePrikaz">
-        <h2>🍺 Trenutno pije:</h2> <div id="pijankePregled"></div> <div class="controls-bottom">
+        <h2>🍺 Trenutno pije:</h2>
+        <div id="pijankePregled"></div>
+        <div class="controls-bottom">
             <button id="objaviPijankuBtn" class="action-icon large-action-icon" onclick="pokaziObjavu()">🍺</button>
-            <div class="dropdown-container">
-                <button id="settingsBtn" class="action-icon">⚙️</button>
-                <div id="settingsDropdown" class="dropdown-content">
-                    <a href="#" onclick="prikaziInbox(); return false;">Poruke <span id="notifikacijaPoruka" class="dropdown-badge"></span></a>
-                    <a href="#" onclick="prikaziEditProfila(); return false;">Moj profil</a>
-                    <a href="#" onclick="odjaviSe(); return false;">Odjavi se</a>
-                </div>
-            </div>
+            <button id="settingsBtn" class="action-icon" onclick="pokaziPostavkeEkran()">⚙️</button>
         </div>
     </div>
 
@@ -82,6 +77,14 @@
         <h2>Poruke</h2>
         <div id="listaChatova"></div>
         <button onclick="swap('inboxPrikaz', 'lokacijePrikaz')" class="btn-secondary">Nazad na listu</button>
+    </div>
+
+    <div class="container" id="postavkeEkran">
+        <h2>Postavke</h2>
+        <a href="#" class="btn-full" onclick="prikaziInbox(); return false;">Poruke <span id="notifikacijaPorukaSettings" class="notification-badge"></span></a>
+        <a href="#" class="btn-full" onclick="prikaziEditProfila(); return false;">Moj profil</a>
+        <a href="#" class="btn-full" onclick="odjaviSe(); return false;">Odjavi se</a>
+        <button onclick="swap('postavkeEkran', 'lokacijePrikaz')" class="btn-secondary">Nazad na listu</button>
     </div>
 
     <div class="container" id="glavniDio">
