@@ -70,21 +70,16 @@ window.onload = async function() {
         console.log("window.onload: Nema tokena, prikazujem intro ekran.");
         swap("", "intro");
     }
-    const splashScreen = document.getElementById('splashScreen');
+        const splashScreen = document.getElementById('splashScreen');
+// public/script.js - unutar window.onload
+// ...
     if (splashScreen) {
-        // Skrij splash screen nakon 2 sekunde
-        setTimeout(() => {
-            splashScreen.style.animation = 'fadeOut 0.5s ease-out forwards'; // Pokreni animaciju nestajanja
-            // Nakon animacije, potpuno ga ukloni
+        setTimeout(() => { 
+            splashScreen.style.animation = 'fadeOut 0.5s ease-out forwards'; 
             setTimeout(() => {
                 splashScreen.style.display = 'none';
-                document.body.style.opacity = '1'; // SADA PRIKAŽI BODY
-                document.body.style.visibility = 'visible'; // SADA PRIKAŽI BODY
-            }, 500); // 500ms je trajanje fadeOut animacije
-        }, 2000); // Čekaj 2 sekunde prije nego što počne nestajati
-    } else { // Ako nema splash screena (npr. za lokalni dev), osiguraj da se body prikaže
-        document.body.style.opacity = '1';
-        document.body.style.visibility = 'visible';
+            }, 500); 
+        }, 3500); // PROMIJENJENO: Čekaj 3.5 sekunde prije nego što počne nestajati
     }
 };
 
@@ -94,28 +89,17 @@ function swap(hideId, showId) {
     const showElement = document.getElementById(showId);
 
     if (hideElement) {
-        hideElement.style.animation = 'fadeOut 0.3s ease-out forwards'; // Pokreni fade-out
-        setTimeout(() => {
-            hideElement.style.display = 'none';
-            // Resetiraj stilove animacije da ne utječu na buduće prikaze
-            hideElement.style.animation = '';
-            hideElement.style.opacity = '1';
-            hideElement.style.visibility = 'visible';
-        }, 300); // Čekaj 300ms da fadeOut završi
+        hideElement.style.display = "none";
+        hideElement.style.animation = ''; // Resetiraj animaciju pri skrivanju
+        hideElement.style.opacity = '0'; // Osiguraj da nestane
+        hideElement.style.visibility = 'hidden'; // Osiguraj da nestane
     }
-
     if (showElement) {
-        // Osiguraj da je element inicijalno skriven prije nego što pokrenemo fade-in
-        showElement.style.opacity = '0';
-        showElement.style.visibility = 'hidden';
-        showElement.style.display = 'block'; // Prikazi ga, ali nevidljivog
-
-        // Mala odgoda prije pokretanja fadeIn animacije, da CSS ima vremena za initial state
-        setTimeout(() => {
-            showElement.style.animation = 'fadeIn 0.3s ease-out forwards'; // Pokreni fade-in
-            showElement.style.opacity = '1'; // Postavi finalni opacity
-            showElement.style.visibility = 'visible'; // Postavi finalnu vidljivost
-        }, hideElement ? 300 : 0); // Ako postoji hideElement, pričekaj da on nestane; inače, odmah animiraj.
+        showElement.style.display = "block";
+        // Dodajemo animaciju tek kada je element prikazan
+        showElement.style.animation = 'fadeIn 0.5s ease-out forwards';
+        showElement.style.opacity = '1'; // Postavi finalni opacity
+        showElement.style.visibility = 'visible'; // Postavi finalnu vidljivost
     }
 }
 
@@ -845,37 +829,3 @@ async function dohvatiSvePoruke() {
         privatnePoruke = {};
     }
 }
-// public/script.js - Na KRAJ datoteke
-
-// --- EVENT LISTENERI ZA SVE GUMBE KOJI KORISTE SWAP ---
-document.addEventListener('DOMContentLoaded', function() {
-    // Gumb "Pridruži se" na intro ekranu
-    document.getElementById('joinButton')?.addEventListener('click', () => swap('intro', 'odabir'));
-
-    // Gumb "Nastavi" na Pravila Ekran
-    document.getElementById('nastaviBtn')?.addEventListener('click', () => swap('pravilaEkran', 'registracija'));
-
-    // Gumb "Nazad" na Pravila Ekran
-    document.getElementById('pravilaNazadBtn')?.addEventListener('click', () => swap('pravilaEkran', 'odabir'));
-
-    // Gumb "Prijava" na Odabir Ekran
-    document.getElementById('prijavaBtn')?.addEventListener('click', () => swap('odabir', 'login'));
-
-    // Gumb "Registracija" na Odabir Ekran
-    document.getElementById('registracijaBtn')?.addEventListener('click', () => swap('odabir', 'pravilaEkran'));
-
-    // Gumb "Nazad" na Login Ekran
-    document.getElementById('loginNazadBtn')?.addEventListener('click', () => swap('login', 'odabir'));
-
-    // Gumb "Nazad" na Registracija Ekran
-    document.getElementById('registracijaNazadBtn')?.addEventListener('click', () => swap('registracija', 'pravilaEkran'));
-
-    // Gumb "Nazad na listu" na Inbox Ekran
-    document.getElementById('inboxNazadBtn')?.addEventListener('click', () => swap('inboxPrikaz', 'lokacijePrikaz'));
-
-    // Gumb "Nazad na listu" na Glavni Dio Ekran (Objavi pijanku/Profil)
-    document.getElementById('glavniNazadBtn')?.addEventListener('click', () => swap('glavniDio', 'lokacijePrikaz'));
-
-    // Gumb "Nazad" na Edit Profil Ekran
-    document.getElementById('editNazadBtn')?.addEventListener('click', () => swap('editProfil', 'lokacijePrikaz'));
-});

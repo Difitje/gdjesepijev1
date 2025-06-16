@@ -472,32 +472,40 @@ img.preview-slika {
 }
 
 #splashScreen h1 {
-    font-size: 4em; /* Još veći font za splash screen */
+    font-size: 4em;
     color: #ff4757;
-    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6); /* Izraženija sjena */
-    letter-spacing: 4px; /* Veći razmak slova */
+    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6);
+    letter-spacing: 4px;
     text-transform: uppercase;
-    animation: bounceIn 1.5s ease-out forwards; /* Animacija pojavljivanja */
+    animation: drunkSwing 3.5s ease-in-out infinite; /* PROMIJENJENO: Nova animacija, 2 sekunde, ponavlja se beskonačno */
 }
 
 /* Animacija za nestajanje splash screena */
+/* public/style.css */
+
+/* ... (ostatak koda) ... */
+
+/* --- ANIMACIJE (ažurirano) --- */
+
+/* Postojeći fadeOut */
 @keyframes fadeOut {
     from { opacity: 1; visibility: visible; }
     to { opacity: 0; visibility: hidden; }
 }
 
-/* Animacija za pojavljivanje loga na splash screenu */
-@keyframes bounceIn {
-    0% { transform: scale(0.1); opacity: 0; }
-    60% { transform: scale(1.1); opacity: 1; }
-    100% { transform: scale(1); }
-}
-
-.container {
-    /* ... postojeći stilovi ... */
-    display: none !important; /* Apsolutno skrivanje dok JS ne preuzme */
-    animation: fadeIn 0.5s ease-out forwards; /* DODANO: Animacija za sve kontejnere */
-}
-#intro {
-    display: block !important; /* Intro ekran je jedini vidljiv po defaultu */
+/* NOVA ANIMACIJA: Pijani zamah */
+@keyframes drunkSwing {
+    0%, 100% {
+        transform: translateX(0) rotate(0deg);
+        opacity: 1;
+    }
+    25% {
+        transform: translateX(-10px) rotate(-3deg);
+    }
+    50% {
+        transform: translateX(10px) rotate(3deg);
+    }
+    75% {
+        transform: translateX(-5px) rotate(-1deg);
+    }
 }

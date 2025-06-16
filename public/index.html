@@ -9,7 +9,7 @@
     <div id="splashScreen">
     <h1>DRINKER</h1>
     </div>
-    <div class="container" id="intro"><h1>🍻 Dosadno vam je?</h1><p style="text-align:center;">Pridruži se ekipi koja zna kako se loče!</p><button id="joinButton">Pridruži se</button></div>
+    <div class="container" id="intro"><h1>🍻 Dosadno vam je?</h1><p style="text-align:center;">Pridruži se ekipi koja zna kako se loče!</p><button onclick="swap('intro', 'odabir')">Pridruži se</button></div>
     <div class="container" id="pravilaEkran">
         <h2>Pravila korištenja</h2>
         <div class="pravila-text">
@@ -24,18 +24,11 @@
             <input type="checkbox" id="prihvatamPravila" onchange="proveriPrihvatanje()">
             <label for="prihvatamPravila">Pročitao/la sam i prihvaćam pravila.</label>
         </div>
-        <div class="container" id="odabir">
-        <h2>Dobrodošli!</h2>
-        <p style="text-align:center;">Imaš račun? Prijavi se. Nemaš? Registriraj se.</p>
-        <button id="prijavaBtn">Prijava</button>
-        <button id="registracijaBtn">Registracija</button>
-        </div>
-        <button id="nastaviBtn" disabled>Prihvati i nastavi</button>
-        <button id="pravilaNazadBtn" class="btn-secondary">Nazad</button>
+        <button id="nastaviBtn" onclick="swap('pravilaEkran', 'registracija')" disabled>Prihvati i nastavi</button>
+        <button onclick="swap('pravilaEkran', 'odabir')" class="btn-secondary">Nazad</button>
     </div>
-    <div class="container" id="odabir"><h2>Dobrodošli!</h2><p style="text-align:center;">Imaš račun? Prijavi se. Nemaš? Registriraj se.</p><button id="prijavaBtn">Prijava</button>
-    <button id="registracijaBtn">Registracija</button></div>
-    <div class="container" id="login"><h2>Prijava</h2><input id="loginIme" placeholder="Korisničko ime" /><input id="loginSifra" type="password" placeholder="Lozinka" /><button onclick="ulogujSe()">Prijavi se</button><button id="loginNazadBtn" class="btn-secondary">Nazad</button></div>
+    <div class="container" id="odabir"><h2>Dobrodošli!</h2><p style="text-align:center;">Imaš račun? Prijavi se. Nemaš? Registriraj se.</p><button onclick="swap('odabir', 'login')">Prijava</button><button onclick="swap('odabir', 'pravilaEkran')">Registracija</button></div>
+    <div class="container" id="login"><h2>Prijava</h2><input id="loginIme" placeholder="Korisničko ime" /><input id="loginSifra" type="password" placeholder="Lozinka" /><button onclick="ulogujSe()">Prijavi se</button><button onclick="swap('login', 'odabir')" class="btn-secondary">Nazad</button></div>
     <div class="container" id="registracija"><h2>Registracija</h2><input id="ime" placeholder="Korisničko ime" /><input id="sifra" type="password" placeholder="Lozinka" /><label style="font-size:14px; display:block; margin-bottom:5px;">Profilna slika:</label><input type="file" id="slikaUpload" accept="image/*" /><img id="previewSlike" class="preview-slika" /><input id="instagram" placeholder="Instagram korisničko ime (bez @)" /><input id="tiktok" placeholder="TikTok korisničko ime (bez @)" /><textarea id="opis" placeholder="O meni..." rows="3"></textarea><button onclick="registruj()">Spremi</button><button onclick="swap('registracija', 'pravilaEkran')" class="btn-secondary">Nazad</button></div>
     <div class="container" id="lokacijePrikaz"><h2>🍺 Trenutno pije:</h2><div id="pijankePregled"></div><div style="display:flex; gap:10px;"><button onclick="pokaziObjavu()" style="flex:2;">Objavi pijanku</button><button onclick="prikaziInbox()" style="flex:1;">Poruke<span id="notifikacijaPoruka"></span></button></div><div style="display:flex; gap:10px;"><button onclick="prikaziEditProfila()" class="btn-secondary" style="flex:1;">Moj profil</button><button onclick="odjaviSe()" class="btn-secondary" style="flex:1;">Odjavi se</button></div></div>
     <div class="container" id="inboxPrikaz"><h2>Poruke</h2><div id="listaChatova"></div><button onclick="swap('inboxPrikaz', 'lokacijePrikaz')" class="btn-secondary">Nazad na listu</button></div>
