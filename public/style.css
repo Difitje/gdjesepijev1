@@ -1,4 +1,4 @@
-/* public/style.css - KONAČNA, ISPRAVNA I KOMPLETNA VERZIJA S MOBILNOM PRILAGODBOM */
+/* public/style.css - KONAČNA, ISPRAVNA I KOMPLETNA VERZIJA S MOBILNOM PRILAGODBOM I CENTRIRANJEM */
 
 /* Globalni reset i osnovni stilovi */
 * {
@@ -14,12 +14,10 @@ body {
     line-height: 1.5;
     font-size: 15px;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: center; /* Centriranje cijelog body sadržaja horizontalno */
+    align-items: center;     /* Centriranje cijelog body sadržaja vertikalno */
     min-height: 100vh;
-    /* Uklonjen padding za bolje iskorištavanje cijelog ekrana na mobitelu */
-    /* padding: 15px 0; */
-    overflow: hidden; /* Nema skrolanja na body, samo na unutarnjim elementima */
+    overflow: hidden;
     position: relative;
 }
 
@@ -46,10 +44,9 @@ body {
 
     display: flex;
     flex-direction: column;
-    /* NOVO: Fiksirana visina kontejnera za mobilni prikaz */
     height: 95vh; /* Zauzima 95% visine viewporta */
     max-height: 800px; /* Maksimalna visina za veće ekrane */
-    justify-content: flex-start; /* Sadržaj počinje od vrha */
+    justify-content: flex-start; /* Po defaultu na početak, pa ćemo specifično centrirati */
     overflow: hidden; /* Važno: sprječava skrolanje kontejnera, omogućuje skrolanje unutarnjih elemenata */
 }
 
@@ -64,6 +61,20 @@ body {
 /* Dodatna klasa za animaciju izlaska */
 .container.fade-out-screen {
     animation: fadeOut 0.3s ease-out forwards;
+}
+
+/* Centriranje sadržaja za specifične kontejnere koji nemaju fiksne kontrole na dnu (poput pijanki/chata) */
+#intro,
+#pravilaEkran,
+#odabir,
+#login,
+#registracija,
+#postavkeEkran,
+#privatniChat, /* Chat ima input na dnu, ali log se skrola, pa je justify-content: flex-start OK */
+#editProfil,
+#glavniDio /* Glavni dio se koristi za objavu (ima formu i button) ili profil (nema donjih kontrola) */
+{
+    justify-content: center; /* Centriraj po vertikali za ove ekrane */
 }
 
 /* Naslovi */
@@ -325,6 +336,8 @@ img.preview-slika {
 
 
 /* --- POSEBNI STILOVI ZA OBJAVU (PIJANKU) LISTU I CHATOVE (SKROLABILNI SADRŽAJ) --- */
+/* NAPOMENA: Ove sekcije trebaju justify-content: flex-start na roditeljskom .container-u, što je sad default za .container */
+/* a fleksibilnost listi unutar njih osigurava da zauzimaju sav preostali prostor prije controls-bottom */
 #pijankePregled,
 #listaChatova {
     display: flex;
