@@ -450,3 +450,45 @@ img.preview-slika {
 /* .button-container {
     padding-top: 20px;
 } */
+
+/* public/style.css */
+
+/* ... (ostatak koda) ... */
+
+/* --- STILOVI ZA SPLASH SCREEN --- */
+#splashScreen {
+    position: fixed; /* Fiksiran na ekranu */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #111111; /* Pozadina splash screena */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Osiguraj da je iznad svega ostalog */
+    opacity: 1;
+    visibility: visible;
+}
+
+#splashScreen h1 {
+    font-size: 4em; /* Još veći font za splash screen */
+    color: #ff4757;
+    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6); /* Izraženija sjena */
+    letter-spacing: 4px; /* Veći razmak slova */
+    text-transform: uppercase;
+    animation: bounceIn 1.5s ease-out forwards; /* Animacija pojavljivanja */
+}
+
+/* Animacija za nestajanje splash screena */
+@keyframes fadeOut {
+    from { opacity: 1; visibility: visible; }
+    to { opacity: 0; visibility: hidden; }
+}
+
+/* Animacija za pojavljivanje loga na splash screenu */
+@keyframes bounceIn {
+    0% { transform: scale(0.1); opacity: 0; }
+    60% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}

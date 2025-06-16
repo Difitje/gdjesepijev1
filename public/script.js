@@ -70,6 +70,17 @@ window.onload = async function() {
         console.log("window.onload: Nema tokena, prikazujem intro ekran.");
         swap("", "intro");
     }
+        const splashScreen = document.getElementById('splashScreen');
+    if (splashScreen) {
+        // Skrij splash screen nakon 2 sekunde
+        setTimeout(() => {
+            splashScreen.style.animation = 'fadeOut 0.5s ease-out forwards'; // Pokreni animaciju nestajanja
+            // Nakon animacije, potpuno ga ukloni
+            setTimeout(() => {
+                splashScreen.style.display = 'none';
+            }, 500); // 500ms je trajanje fadeOut animacije
+        }, 2000); // Čekaj 2 sekunde prije nego što počne nestajati
+    }
 };
 
 // --- FUNKCIJE ZA PREBACIVANJE EKRANA (UI LOGIKA) ---
