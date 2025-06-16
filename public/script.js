@@ -11,8 +11,6 @@ let mojPoz = null; // Geolokacija ostaje lokalno na frontendu
 let activityInterval = null;
 let chatStatusInterval = null;
 let globalDataRefreshInterval = null;
-let odabranaSlika = null; // Za upload profilne slike pri registraciji (Base64)
-let odabranaEditSlika = null; // Za upload profilne slike pri uređivanje (Base64)
 let prethodniEkran = "lokacijePrikaz"; // Dodana globalna varijabla za prethodni ekran
 
 // --- POMOĆNA FUNKCIJA ZA FETCH POZIVE SA AUTORIZACIJOM ---
@@ -229,6 +227,9 @@ async function globalRefreshUI() {
 }
 
 // --- FUNKCIJE ZA UPLOAD SLIKA (Lokalna obrada Base64) ---
+let odabranaSlika = null; // Za upload profilne slike pri registraciji (Base64)
+let odabranaEditSlika = null; // Za upload profilne slike pri uređivanje (Base64)
+
 document.addEventListener('DOMContentLoaded', () => {
     const slikaUploadEl = document.getElementById("slikaUpload");
     if (slikaUploadEl) {
@@ -238,8 +239,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const reader = new FileReader();
                 reader.onload = e => {
                     odabranaSlika = e.target.result;
-                    const previewElement = document.getElementById("previewSlikes");
-                    if (previewElement) { // Provjeri postojanje elementa
+                    const previewElement = document.getElementById("previewSlikes"); // Provjeri da li je ID 'previewSlike' ili 'previewSlikes'
+                    if (previewElement) {
                         previewElement.src = odabranaSlika;
                         previewElement.style.display = "block";
                     }
@@ -249,7 +250,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Event listener za edit profila, pripojen pri DOMContentLoaded i u prikaziEditProfila
     const editSlikaUploadEl = document.getElementById("editSlikaUpload");
     if (editSlikaUploadEl) {
         editSlikaUploadEl.addEventListener("change", handleEditSlikaUploadChange);
@@ -839,7 +839,8 @@ function prikaziPijankePregled() {
 async function otvoriProfil(korisnikId) {
     if (!korisnikId) return;
 
-    prethodniEkran = document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz';
+    // Ažurirano: 'prethodniEkran' se postavlja prije swapa
+    prethodniEkran = document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz'; 
     
     // Prikaz loading stanja za profil dok se podaci učitavaju
     const glavniDioScreen = document.getElementById("glavniDio");
@@ -886,7 +887,7 @@ async function otvoriProfil(korisnikId) {
                     <h2 style="display:block; vertical-align:middle;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
                     <p style="font-size:15px; font-style:italic; color:#ccc;">${korisnik.opis || "Nema opisa."}</p>
                     <div style="margin:20px 0;">${prikaziMreze(korisnik)}</div>
-                    ${trenutniKorisnik && korisnik.id !== trenutniKorisnik.id ? `<button onclick="pokreniPrivatniChat('${korisnik.id}', 'glavniDio')">💬 Pošalji poruku</button>` : '<em style="color:#888;">Ovo je tvoj profil.</em>'}
+                    ${trenutniKorisnik && korisnik.id !== trenutniKorisnik.id ? `<button onclick="pokreniPrivatniChat('${korisnik.id}', prethodniEkran)">💬 Pošalji poruku</button>` : '<em style="color:#888;">Ovo je tvoj profil.</em>'}
                 </div>
             `;
             profilKorisnika.style.display = 'block';
