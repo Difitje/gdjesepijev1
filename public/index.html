@@ -54,8 +54,7 @@
         <input id="sifra" type="password" placeholder="Lozinka" />
         <label style="font-size:14px; display:block; margin-bottom:5px;">Profilna slika:</label>
         <input type="file" id="slikaUpload" accept="image/*" />
-        <img id="previewSlike" class="preview-slika" />
-        <input id="instagram" placeholder="Instagram korisničko ime (bez @)" />
+        <img id="previewSlikes" class="preview-slika" /> <input id="instagram" placeholder="Instagram korisničko ime (bez @)" />
         <input id="tiktok" placeholder="TikTok korisničko ime (bez @)" />
         <textarea id="opis" placeholder="O meni..." rows="3"></textarea>
         <button id="registracijaSubmitBtn" onclick="registruj()">Spremi</button>
@@ -92,13 +91,13 @@
 
     <div class="container" id="privatniChat">
         <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('privatniChat', prethodniEkran)">←</button> </div>
-        <h2></h2> <div style="text-align:center; margin-bottom:10px;">
-            <h2 id="chatSaKorisnikom" style="margin-bottom:0;"></h2>
-            <p id="chatPartnerStatus" class="status-text"></p>
+        <div class="chat-header-info"> <h2 id="chatSaKorisnikom"></h2> <p id="chatPartnerStatus" class="status-text"></p>
         </div>
         <div id="privatniChatLog" class="chat"></div>
-        <textarea id="privatniInput" placeholder="Upiši poruku..." rows="2" style="margin-bottom:5px;"></textarea>
-        <button id="posaljiPrivatnoBtn" onclick="posaljiPrivatno()">Pošalji</button> </div>
+        <div class="chat-input-area"> <textarea id="privatniInput" placeholder="Upiši poruku..." rows="2"></textarea>
+            <button id="posaljiPrivatnoBtn" onclick="posaljiPrivatno()">Pošalji</button>
+        </div>
+    </div>
 
     <div class="container" id="editProfil">
         <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">←</button> </div>

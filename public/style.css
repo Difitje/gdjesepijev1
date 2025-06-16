@@ -105,9 +105,34 @@ body {
     align-items: stretch; /* Centriranje unosa i chata po širini */
     overflow-y: auto; /* Omogući skrolanje za cijeli privatni chat kontejner */
 }
-#privatniChat h2, #privatniChat p.status-text {
-    text-align: center; /* Osiguraj da su tekstovi centrirani */
-    width: 100%; /* Da zauzmu punu širinu i centriraju tekst */
+/* Ažurirano zaglavlje chata - sada je to .chat-header-info */
+.chat-header-info {
+    text-align: center;
+    margin-bottom: 10px; /* Razmak ispod zaglavlja chata */
+    flex-shrink: 0; /* Spriječi smanjivanje */
+    padding-top: 10px; /* Mali padding nakon gornjih gumba */
+}
+.chat-header-info h2 {
+    margin-bottom: 0; /* Ukloni defaultnu marginu h2 */
+    font-size: 20px; /* Prilagodi veličinu fonta */
+}
+
+/* Ažurirano područje inputa chata - .chat-input-area */
+.chat-input-area {
+    width: 100%;
+    display: flex;
+    flex-direction: column; /* Input i button jedan ispod drugog */
+    align-items: stretch; /* Protežu se po širini */
+    padding-top: 10px; /* Razmak iznad input područja */
+    margin-top: auto; /* Gura ga na dno flex kontejnera */
+    flex-shrink: 0; /* Spriječi smanjivanje */
+    padding-bottom: env(safe-area-inset-bottom, 0px); /* Safe area padding */
+}
+.chat-input-area textarea {
+    margin-bottom: 5px; /* Manja margina između textarea i gumba */
+}
+.chat-input-area button {
+    margin-bottom: 0; /* Posljednji element, ne treba mu donja margina */
 }
 
 
@@ -185,8 +210,6 @@ button:disabled {
 
 /* Stil za "Odjavi se" u Postavkama - sada je btn-full klasa */
 #odjaviSeBtn {
-    /* Nasljeđuje stil od .btn-full klase, koju sam ti već dao. */
-    /* Samo osiguraj da je i dalje flex stavka. */
     display: block; /* Osiguraj da se ponaša kao blok element */
     text-decoration: none; /* Ukloni podcrtavanje linka */
 }
