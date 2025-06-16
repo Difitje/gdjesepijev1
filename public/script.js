@@ -66,7 +66,7 @@ function compressImage(base64Image, maxWidth = 400, quality = 0.8) {
 window.addEventListener('DOMContentLoaded', async function() {
     localStorage.removeItem("loggedInUserId"); // Čišćenje starog, lokalnog ID-a
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     console.log("DOMContentLoaded: Pokušavam dohvatiti token:", token ? "Token pronađen" : "Nema tokena");
 
     const splashScreen = document.getElementById('splashScreen');
@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const reader = new FileReader();
                 reader.onload = e => {
                     odabranaSlika = e.target.result;
-                    const previewElement = document.getElementById("previewSlike"); // ISPRAVLJENO: previewSlike
+                    const previewElement = document.getElementById("previewSlike"); // Ispravljen ID
                     if (previewElement) {
                         previewElement.src = odabranaSlika;
                         previewElement.style.display = "block";
@@ -374,39 +374,25 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
             body: JSON.stringify({ username: ime, password: sifra })
         });
 
-        // Važno: Uvijek pokušaj parsirati JSON, čak i ako response.ok nije true.
-        // To nam daje pristup serverovoj poruci o grešci.
-        let data = {};
-        try {
-            data = await response.json();
-        } catch (jsonError) {
-            console.error("Greška pri parsiranju JSON odgovora:", jsonError);
-            // Postavi defaultnu poruku ako JSON nije validan
-            data.message = "Nepoznata greška servera ili nevalidan JSON odgovor.";
-        }
+        const data = await response.json();
 
         if (response.ok) {
-            // Ako je prijava uspješna (status 2xx)
             localStorage.setItem("token", data.token);
             trenutniKorisnik = data.user;
-            // Ažurirano: Dohvati podatke i pozovi pokreniAplikaciju TEK KAD JE SVE SPREMNO.
             await Promise.all([
                 dohvatiSveKorisnike(),
                 dohvatiSvePijanke(),
                 dohvatiSvePoruke()
             ]);
-            pokreniAplikaciju(); // Ovo će te odvesti na lokacijePrikaz
+            pokreniAplikaciju();
         } else {
-            // Ako prijava nije uspješna (npr. status 400, 401, 500)
-            alert("Greška pri prijavi: " + (data.message || "Provjerite korisničko ime i lozinku."));
-            // Ne preusmjeravaj, ostani na login ekranu
+            alert("Greška pri prijavi: " + data.message);
         }
     } catch (error) {
-        console.error("Greška kod prijave (mreža/iznimka):", error);
-        alert("Došlo je do greške pri prijavi. Provjerite internetsku vezu.");
-        // Ovdje također ostani na login ekranu
+        console.error("Greška kod prijave:", error);
+        alert("Došlo je do greške pri prijavi.");
     } finally {
-        // Vrati originalno stanje gumba bez obzira na uspjeh/neuspjeh
+        // Vrati originalno stanje gumba
         if (loginBtn) {
             loginBtn.disabled = false;
             loginBtn.textContent = 'Prijavi se';
@@ -469,13 +455,11 @@ function pokreniAplikaciju() {
 
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
-    globalDataRefreshInterval = setInterval(globalDataRefreshUI, 30e3);
+    globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
 
     azurirajMojuAktivnost();
-    // Ažurirano: dohvatiLokaciju() treba biti awaitable ili da poziva prikaziPijankePregled() unutar callbacka.
-    // Trenutno već poziva callback pa je OK.
     dohvatiLokaciju(() => {
-        prikaziPijankePregled(); // KLJUČNO: Provjeri da se ovo izvrši NAKON što su podaci pijanki dohvaćeni
+        prikaziPijankePregled();
         azurirajNotifikacije();
     });
     console.log("pokreniAplikaciju: Aplikacija pokrenuta, intervali postavljeni.");
@@ -532,53 +516,56 @@ async function prikaziEditProfila() {
 
     try {
         const response = await authenticatedFetch(`/api/users/${trenutniKorisnik.id}`);
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Korisnik nije pronađen.");
-        }
-        const user = await response.json();
+        if (response.ok) {
+            const user = await response.json();
             
-        // Nakon uspješnog dohvaćanja, popuni originalnu strukturu podacima
-        if (editProfilScreen) {
-            editProfilScreen.innerHTML = `
-                <div class="top-nav-buttons">
-                    <button class="back-button left-aligned" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">←</button>
-                </div>
-                <h2>Uredi profil</h2>
-                <div style="text-align:center;">
-                    <img id="previewEditSlike" class="profilna-slika" />
-                </div>
-                <input id="editIme" placeholder="Korisničko ime" />
-                <textarea id="editOpis" placeholder="O meni..." rows="3"></textarea>
-                <input id="editInstagram" placeholder="Instagram korisničko ime" />
-                <input id="editTiktok" placeholder="TikTok korisničko ime" />
-                <label style="font-size:14px; display:block; margin-bottom:5px;">Promijeni profilnu sliku:</label>
-                <input type="file" id="editSlikaUpload" accept="image/*" />
-                <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
-            `;
-            // Sada popuni inpute
-            document.getElementById("editIme").value = user.ime || '';
-            document.getElementById("editOpis").value = user.opis || '';
-            document.getElementById("editInstagram").value = user.instagram || '';
-            document.getElementById("editTiktok").value = user.tiktok || '';
-            document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
-            document.getElementById("previewEditSlike").style.display = "block"; // Osiguraj da je vidljiva
-            odabranaEditSlika = null;
+            // Nakon uspješnog dohvaćanja, popuni originalnu strukturu podacima
+            if (editProfilScreen) {
+                editProfilScreen.innerHTML = `
+                    <div class="top-nav-buttons">
+                        <button class="back-button left-aligned" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">←</button>
+                    </div>
+                    <h2>Uredi profil</h2>
+                    <div style="text-align:center;">
+                        <img id="previewEditSlike" class="profilna-slika" />
+                    </div>
+                    <input id="editIme" placeholder="Korisničko ime" />
+                    <textarea id="editOpis" placeholder="O meni..." rows="3"></textarea>
+                    <input id="editInstagram" placeholder="Instagram korisničko ime" />
+                    <input id="editTiktok" placeholder="TikTok korisničko ime" />
+                    <label style="font-size:14px; display:block; margin-bottom:5px;">Promijeni profilnu sliku:</label>
+                    <input type="file" id="editSlikaUpload" accept="image/*" />
+                    <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
+                `;
+                // Sada popuni inpute
+                document.getElementById("editIme").value = user.ime || '';
+                document.getElementById("editOpis").value = user.opis || '';
+                document.getElementById("editInstagram").value = user.instagram || '';
+                document.getElementById("editTiktok").value = user.tiktok || '';
+                document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
+                document.getElementById("previewEditSlike").style.display = "block"; // Osiguraj da je vidljiva
+                odabranaEditSlika = null;
+            }
+            prethodniEkran = 'postavkeEkran'; // Postavi prethodni ekran za vraćanje
+
+            // Ponovno pripoji event listener za upload slike nakon što se DOM ponovno generira
+            const editSlikaUploadEl = document.getElementById("editSlikaUpload");
+            if (editSlikaUploadEl) {
+                editSlikaUploadEl.removeEventListener("change", handleEditSlikaUploadChange); // Ukloni prethodni ako postoji
+                editSlikaUploadEl.addEventListener("change", handleEditSlikaUploadChange); // Dodaj novi
+            }
+
+
+        } else {
+            const errorData = await response.json();
+            alert("Greška pri dohvaćanju profila: " + errorData.message);
+            // U slučaju greške, vrati se na prethodni ekran ili prikaži error
+            zatvoriEkran('editProfil', prethodniEkran); 
         }
-        prethodniEkran = 'postavkeEkran'; // Postavi prethodni ekran za vraćanje
-
-        // Ponovno pripoji event listener za upload slike nakon što se DOM ponovno generira
-        const editSlikaUploadEl = document.getElementById("editSlikaUpload");
-        if (editSlikaUploadEl) {
-            editSlikaUploadEl.removeEventListener("change", handleEditSlikaUploadChange); // Ukloni prethodni ako postoji
-            editSlikaUploadEl.addEventListener("change", handleEditSlikaUploadChange); // Dodaj novi
-        }
-
-
     } catch (error) {
         console.error("Greška mreže pri dohvaćanju profila:", error);
         alert("Došlo je do greške pri dohvaćanju profila.");
-        zatvoriEkran('editProfil', prethodniEkran); 
+        zatvoriEkran('editProfil', prethodniEkran);
     }
 }
 
@@ -586,7 +573,7 @@ async function sacuvajProfil() {
     const novoIme = document.getElementById("editIme").value.trim();
     const noviOpis = document.getElementById("editOpis").value.trim();
     const noviInstagram = document.getElementById("editInstagram").value.trim();
-    const noviTiktok = document.getElementById("noviTiktok").value.trim(); // ISPRAVLJENO: noviTiktok
+    const noviTiktok = document.getElementById("editTiktok").value.trim();
     const sacuvajBtn = document.getElementById('sacuvajProfilBtn'); // Dohvati gumb pomoću ID-a
 
     if (!novoIme) return alert("Ime ne može biti prazno!");
@@ -682,29 +669,24 @@ function dohvatiLokaciju(callback) {
         console.warn("Geolokacija nije podržana u ovom pregledniku.");
         return callback && callback();
     }
-    // Ažurirano: dodana Promise wrapper za async dohvaćanje lokacije
-    return new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(pos => {
-            mojPoz = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-            console.log("Geolokacija uspješno dobivena:", mojPoz);
-            if (callback) callback();
-            resolve();
-        }, (error) => {
-            console.error("Greška pri dohvaćanju geolokacije:", error);
-            if (error.code === error.PERMISSION_DENIED) {
-                alert("Pristup lokaciji je odbijen. Molimo odobrite pristup lokaciji u postavkama preglednika za ovu stranicu. Bez lokacije nećete moći objavljivati pijanke.");
-                mojPoz = null;
-            } else {
-                alert("Nismo dobili geolokaciju. Molimo odobrite pristup lokaciji. Bez lokacije nećete moći objavljivati pijanke.");
-                mojPoz = null;
-            }
-            if (callback) callback();
-            reject(error);
-        }, {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 60000
-        });
+    navigator.geolocation.getCurrentPosition(pos => {
+        mojPoz = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+        console.log("Geolokacija uspješno dobivena:", mojPoz);
+        callback && callback();
+    }, (error) => {
+        console.error("Greška pri dohvaćanju geolokacije:", error);
+        if (error.code === error.PERMISSION_DENIED) {
+             alert("Pristup lokaciji je odbijen. Molimo odobrite pristup lokaciji u postavkama preglednika za ovu stranicu. Bez lokacije nećete moći objavljivati pijanke.");
+             mojPoz = null;
+        } else {
+            alert("Nismo dobili geolokaciju. Molimo odobrite pristup lokaciji. Bez lokacije nećete moći objavljivati pijanke.");
+            mojPoz = null;
+        }
+        callback && callback();
+    }, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000
     });
 }
 
@@ -729,11 +711,8 @@ function pokaziObjavu() {
     const backButton = document.querySelector('#glavniDio .back-button');
     const closeButton = document.querySelector('#glavniDio .close-btn');
 
-    // Postavi naslov - KLJUČNO!
-    if (glavniNaslov) {
-        glavniNaslov.innerText = "Objavi pijanku";
-        glavniNaslov.style.display = 'block'; // Osiguraj da je naslov vidljiv
-    }
+    // Postavi naslov
+    if (glavniNaslov) glavniNaslov.innerText = "Objavi pijanku";
 
     // Pobrini se da je forma za objavu vidljiva, a profil skriven
     if (objavaForma) objavaForma.style.display = "block";
@@ -752,18 +731,7 @@ async function objaviPijanku() {
     if (!opis) return alert("Molimo popunite opis pijanke!");
 
     if (!mojPoz || mojPoz.lat === null || mojPoz.lon === null) {
-        // Ažurirano: Čekaj da dohvatiLokaciju završi
-        try {
-            await dohvatiLokaciju();
-            if (!mojPoz || mojPoz.lat === null || mojPoz.lon === null) {
-                alert("Lokacija nije dostupna. Ne možete objaviti pijanku bez lokacije.");
-                return;
-            }
-        } catch (error) {
-            console.error("Greška pri dohvaćanju lokacije za objavu:", error);
-            alert("Greška pri dohvaćanju lokacije. Pokušajte ponovno.");
-            return;
-        }
+        return dohvatiLokaciju(() => objaviPijanku());
     }
 
     // Prikaz loading stanja
@@ -856,9 +824,6 @@ function prikaziPijankePregled() {
         }
 
         const status = formatirajStatus(autor.lastActive);
-        // Ažurirano: Provjeri mojPoz prije izračuna udaljenosti
-        const udaljenost = mojPoz ? `${distKM(mojPoz, pijanka)}km od tebe` : "Udaljenost nepoznata";
-
         div.innerHTML += `
             <div class="pijanka">
                 <div class="pijanka-header" onclick="otvoriProfil('${autor.id}')">
@@ -868,7 +833,7 @@ function prikaziPijankePregled() {
                             <span class="status-dot ${status.online?"online":"offline"}"></span>
                             <strong>${autor.ime}</strong>
                         </div>
-                        <p class="status-text">pije ${udaljenost}</p>
+                        <p class="status-text">pije ${distKM(mojPoz, pijanka)}km od tebe</p>
                     </div>
                     ${trenutniKorisnik && autor.id === trenutniKorisnik.id ? `<button class="delete-btn" onclick="obrisiPijanku('${pijanka.id}', event)">🗑️</button>` : ""}
                 </div>
@@ -898,10 +863,7 @@ async function otvoriProfil(korisnikId) {
 
 
     if (glavniDioScreen) {
-        if (glavniNaslov) {
-            glavniNaslov.innerText = "Profil korisnika"; // KLJUČNO: Postavi tekst naslova
-            glavniNaslov.style.display = 'block'; // Osiguraj da je naslov vidljiv
-        }
+        if (glavniNaslov) glavniNaslov.innerText = "Profil korisnika";
 
         // Kontrola gornjih gumba: Prikaži Nazad, Sakrij X
         if (backButton) backButton.style.display = 'flex'; // Prikaži Nazad
@@ -911,7 +873,6 @@ async function otvoriProfil(korisnikId) {
         if (objavaForma) objavaForma.style.display = 'none';
         if (profilKorisnika) {
             profilKorisnika.style.display = 'block'; // Osiguraj da je kontejner za profil vidljiv
-            // Postavi loading poruku unutar profilKorisnika
             profilKorisnika.innerHTML = `
                 <p style="text-align:center;">Učitavam profil korisnika...</p>
                 <div style="text-align:center; margin-top:20px; font-size: 3em;">👤</div>
