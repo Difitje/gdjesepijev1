@@ -471,27 +471,36 @@ async function prikaziEditProfila() {
     // Prikaz loading stanja dok se profil učitava
     const editProfilScreen = document.getElementById("editProfil");
     // Dohvaćanje elemenata koji će se ponovno dodati nakon loadanja
-    const closeBtnContainerEdit = editProfilScreen.querySelector('.close-btn-container');
+    const closeBtnContainerEdit = editProfilScreen.querySelector('.top-nav-buttons'); // Koristimo top-nav-buttons
     const glavniNaslovEdit = editProfilScreen.querySelector('h2');
 
 
     if (editProfilScreen) {
         editProfilScreen.innerHTML = ''; // Prvo isprazni sadržaj
 
-        // Ponovno dodaj close button i naslov (ako postoje u originalnom HTML-u)
+        // Ponovno dodaj top nav buttons i naslov (ako postoje u originalnom HTML-u)
         if(closeBtnContainerEdit) editProfilScreen.appendChild(closeBtnContainerEdit);
         if(glavniNaslovEdit) editProfilScreen.appendChild(glavniNaslovEdit);
         
-        // Dodaj loading poruku i ikonu
-        const loadingContentWrapper = document.createElement('div'); // Unutarnji wrapper za loading sadržaj
-        loadingContentWrapper.classList.add('content-wrapper'); // Dodajemo novu klasu za centriranje
-        loadingContentWrapper.innerHTML = `
-            <p style="text-align:center;">Učitavam profil...</p>
-            <div style="text-align:center; margin-top:20px; font-size: 3em;">⚙️</div>
-        `;
-        editProfilScreen.appendChild(loadingContentWrapper); // Dodaj wrapper u ekran
+        // Sakrij gumb X (ako ga ima) i prikaži Nazad gumb u top-nav-buttons
+        const backButton = editProfilScreen.querySelector('.top-nav-buttons .back-button');
+        const closeButton = editProfilScreen.querySelector('.top-nav-buttons .close-btn');
+        if (backButton) backButton.style.display = 'flex';
+        if (closeButton) closeButton.style.display = 'none';
 
+        // Dodaj loading poruku i ikonu (NE unutar content-wrappera, jer ga ovdje uklanjamo privremeno)
+        const loadingP = document.createElement('p');
+        loadingP.style.textAlign = 'center';
+        loadingP.innerText = 'Učitavam profil...';
+        editProfilScreen.appendChild(loadingP);
 
+        const loadingIcon = document.createElement('div');
+        loadingIcon.style.textAlign = 'center';
+        loadingIcon.style.marginTop = '20px';
+        loadingIcon.style.fontSize = '3em';
+        loadingIcon.innerText = '⚙️';
+        editProfilScreen.appendChild(loadingIcon);
+        
         swap(document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz', "editProfil");
     }
 
@@ -503,21 +512,20 @@ async function prikaziEditProfila() {
             // Nakon uspješnog dohvaćanja, popuni originalnu strukturu podacima
             if (editProfilScreen) {
                 editProfilScreen.innerHTML = `
-                    <div class="close-btn-container">
-                        <button class="close-btn" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">✖</button>
+                    <div class="top-nav-buttons">
+                        <button class="back-button left-aligned" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">←</button>
                     </div>
                     <h2>Uredi profil</h2>
-                    <div class="content-wrapper"> <div style="text-align:center;">
-                            <img id="previewEditSlike" class="profilna-slika" />
-                        </div>
-                        <input id="editIme" placeholder="Korisničko ime" />
-                        <textarea id="editOpis" placeholder="O meni..." rows="3"></textarea>
-                        <input id="editInstagram" placeholder="Instagram korisničko ime" />
-                        <input id="editTiktok" placeholder="TikTok korisničko ime" />
-                        <label style="font-size:14px; display:block; margin-bottom:5px;">Promijeni profilnu sliku:</label>
-                        <input type="file" id="editSlikaUpload" accept="image/*" />
-                        <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
+                    <div style="text-align:center;">
+                        <img id="previewEditSlike" class="profilna-slika" />
                     </div>
+                    <input id="editIme" placeholder="Korisničko ime" />
+                    <textarea id="editOpis" placeholder="O meni..." rows="3"></textarea>
+                    <input id="editInstagram" placeholder="Instagram korisničko ime" />
+                    <input id="editTiktok" placeholder="TikTok korisničko ime" />
+                    <label style="font-size:14px; display:block; margin-bottom:5px;">Promijeni profilnu sliku:</label>
+                    <input type="file" id="editSlikaUpload" accept="image/*" />
+                    <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
                 `;
                 // Sada popuni inpute
                 document.getElementById("editIme").value = user.ime || '';
@@ -685,12 +693,25 @@ function distKM(p1, p2) {
 function pokaziObjavu() {
     prethodniEkran = 'lokacijePrikaz';
     swap(prethodniEkran, "glavniDio");
-    document.getElementById("glavniNaslov").innerText = "Objavi pijanku";
+    
+    // Dohvati elemente
+    const glavniNaslov = document.getElementById("glavniNaslov");
+    const objavaForma = document.getElementById("objavaForma");
+    const profilKorisnika = document.getElementById("profilKorisnika");
+    const backButton = document.querySelector('#glavniDio .back-button');
+    const closeButton = document.querySelector('#glavniDio .close-btn');
+
+    // Postavi naslov
+    if (glavniNaslov) glavniNaslov.innerText = "Objavi pijanku";
 
     // Pobrini se da je forma za objavu vidljiva, a profil skriven
-    document.getElementById("objavaForma").style.display = "block";
-    document.getElementById("profilKorisnika").style.display = "none";
+    if (objavaForma) objavaForma.style.display = "block";
+    if (profilKorisnika) profilKorisnika.style.display = "none";
     document.getElementById("opisPijanke").value = "";
+
+    // Kontrola gornjih gumba: Prikaži X, Sakrij Nazad
+    if (backButton) backButton.style.display = 'none';
+    if (closeButton) closeButton.style.display = 'flex'; // X gumb
 }
 
 async function objaviPijanku() {
@@ -825,10 +846,16 @@ async function otvoriProfil(korisnikId) {
     const glavniNaslov = document.getElementById("glavniNaslov");
     const objavaForma = document.getElementById("objavaForma");
     const profilKorisnika = document.getElementById("profilKorisnika");
-    const closeBtnContainer = glavniDioScreen.querySelector('.close-btn-container'); // Dohvati X gumb
+    const backButton = document.querySelector('#glavniDio .back-button');
+    const closeButton = document.querySelector('#glavniDio .close-btn');
+
 
     if (glavniDioScreen) {
         if (glavniNaslov) glavniNaslov.innerText = "Profil korisnika";
+
+        // Kontrola gornjih gumba: Prikaži Nazad, Sakrij X
+        if (backButton) backButton.style.display = 'flex'; // Prikaži Nazad
+        if (closeButton) closeButton.style.display = 'none'; // Sakrij X
 
         // Sakrij formu za objavu i prikaži loading unutar profilKorisnika
         if (objavaForma) objavaForma.style.display = 'none';

@@ -84,8 +84,7 @@ body {
 }
 
 /* Centriranje sadržaja za specifične kontejnere koji su kraći od ekrana
-   i gdje želimo da se cijeli sadržaj vertikalno centrira.
-   Ovi ekrani ne bi trebali imati dugačke liste/skrolabilne elemente. */
+   i gdje želimo da se cijeli sadržaj vertikalno centrira. */
 #intro,
 #pravilaEkran,
 #odabir,
@@ -95,7 +94,7 @@ body {
 #editProfil
 {
     justify-content: center; /* Centriraj po vertikali za ove ekrane */
-    align-items: center;     /* Centriraj po horizontali za SVE flex iteme unutar njih */
+    align-items: center;     /* Centriraj po horizontali SVE flex iteme unutar njih */
     overflow-y: hidden; /* Ovi kontejneri bi trebali stati na ekran bez skrolanja */
 }
 
@@ -184,11 +183,19 @@ button:disabled {
     box-shadow: none;
 }
 
-/* Novi stil za "Nazad" gumbe - sada je ikona */
+/* Stil za "Odjavi se" u Postavkama */
+#odjaviSeBtn {
+    /* Nasljeđuje stil od .btn-full klase, koju sam ti već dao. */
+    /* Samo osiguraj da je i dalje flex stavka. */
+    display: block; /* Osiguraj da se ponaša kao blok element */
+    text-decoration: none; /* Ukloni podcrtavanje linka */
+}
+
+
+/* Novi stil za "Nazad" gumbe (ikona strelice) */
 .back-button {
     background: #3a3a3a; /* Sekundarna boja */
     color: #f0f0f0;
-    margin-top: auto; /* Gurni ga na dno flexbox kontejnera (za donje gumbe) */
     font-weight: normal;
     font-size: 24px; /* Veličina strelice */
     padding: 8px 15px; /* Manji padding da izgleda kao ikona gumb */
@@ -200,6 +207,12 @@ button:disabled {
     align-items: center;
     align-self: center; /* Centriraj ga unutar roditelja */
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+
+    /* NOVO: Pozicioniranje za Nazad ikone u gornjem lijevom kutu */
+    position: absolute; /* Apsolutno pozicionirano unutar relativnog roditelja (.container) */
+    top: 10px; /* Odmak od vrha paddinga kontejnera */
+    left: 10px; /* Odmak od lijeve strane paddinga kontejnera */
+    z-index: 10; /* Da bude iznad ostalog sadržaja */
 }
 
 .back-button:hover {
@@ -378,12 +391,17 @@ img.preview-slika {
 }
 
 /* STILOVI ZA X GUMB ZA ZATVARANJE PROZORA */
-.close-btn-container {
-    position: absolute; /* Apsolutno pozicioniran unutar relativnog roditelja (kontejnera) */
-    top: 0px; /* Poravnaj s gornjim rubom paddinga kontejnera */
-    right: 0px; /* Poravnaj s desnim rubom paddinga kontejnera */
-    z-index: 10; /* Da bude iznad ostalog sadržaja */
-    padding: 10px; /* Stvara prostor oko X gumba unutar kontejnera */
+/* Ovaj container je unutar glavnih kontejnera s padding-topom */
+.top-nav-buttons {
+    position: absolute;
+    top: 10px; /* Odmak od vrha kontejnera */
+    left: 10px; /* Odmak od lijeve strane */
+    width: calc(100% - 20px); /* Zauzima cijelu širinu kontejnera minus 2*10px offset */
+    display: flex;
+    justify-content: space-between; /* Razmakni lijevi i desni gumb */
+    align-items: center;
+    z-index: 10;
+    /* Nema dodatnog paddinga ovdje, padding je na roditeljskom kontejneru */
 }
 
 .close-btn {
@@ -397,7 +415,7 @@ img.preview-slika {
     line-height: 1;
     transition: color 0.2s ease, transform 0.2s ease;
     width: auto;
-    display: block;
+    display: block; /* Osiguraj da je ovo blok element za flexbox unutar top-nav-buttons */
 }
 
 .close-btn:hover {
@@ -406,11 +424,12 @@ img.preview-slika {
     box-shadow: none;
 }
 
-/* Dodatni padding na kontejnerima koji imaju X gumb da se naslov ne preklapa */
+/* SPECIFIČNI padding za kontejnere koji imaju TOP-NAV-BUTTONS
+   jer se naslov pomiče dolje da ne preklapa gumbe */
 #glavniDio,
 #privatniChat,
 #editProfil {
-    padding-top: 60px; /* Dodaje prostor na vrhu za naslov i X gumb */
+    padding-top: 60px; /* Dodaje prostor na vrhu za naslov i gumbe (top:10 + 24px font + 5px padding + 20px margin) */
 }
 
 
@@ -734,10 +753,10 @@ img.preview-slika {
         height: 40px;
         font-size: 18px;
     }
-    .close-btn {
+    /* Gornji gumbi u top-nav-buttons su već fiksirani preko top/left/right */
+    .close-btn, .back-button.left-aligned, .close-btn.right-aligned {
         font-size: 18px;
-        top: 10px;
-        right: 10px;
+        /* top i left/right su definirani na .top-nav-buttons */
     }
     input, textarea, button, .btn-full {
         padding: 10px;
