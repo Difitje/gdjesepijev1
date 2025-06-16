@@ -157,8 +157,8 @@ function swap(hideId, showId) {
     }
 
     const showNewElement = () => {
-        showElement.style.display = 'block'; // Prvo ga učini vidljivim (display)
-        // ODGODA: Mali timeout da preglednik registrira display:block prije nego što se aktivira tranzicija
+        showElement.style.display = 'flex'; // Prvo ga učini vidljivim (display: flex jer su kontejneri flex)
+        // ODGODA: Mali timeout da preglednik registrira display:block/flex prije nego što se aktivira tranzicija
         setTimeout(() => {
             showElement.classList.add('active-screen'); // Dodaj klasu za fade-in
         }, 10); // Minimalno kašnjenje od 10ms
@@ -249,27 +249,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Event listener za edit profila, pripojen pri DOMContentLoaded i u prikaziEditProfila
     const editSlikaUploadEl = document.getElementById("editSlikaUpload");
     if (editSlikaUploadEl) {
-        editSlikaUploadEl.addEventListener("change", function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    odabranaEditSlika = e.target.result;
-                    const previewElement = document.getElementById("previewEditSlike");
-                    if (previewElement) {
-                        previewElement.src = odabranaEditSlika;
-                        if (previewElement.style.display === "none") { // Ako je skriven, prikaži ga
-                            previewElement.style.display = "block";
-                        }
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+        editSlikaUploadEl.addEventListener("change", handleEditSlikaUploadChange);
     }
 });
+
+// Funkcija za handle-anje promjene slike za edit profila, da se može ponovno pripojiti
+function handleEditSlikaUploadChange() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            odabranaEditSlika = e.target.result;
+            const previewElement = document.getElementById("previewEditSlike");
+            if (previewElement) {
+                previewElement.src = odabranaEditSlika;
+                if (previewElement.style.display === "none") {
+                    previewElement.style.display = "block";
+                }
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+}
 
 
 // --- FUNKCIJE ZA AUTENTIFIKACIJU (REGISTRACIJA, PRIJAVA, ODJAVA) ---
@@ -280,7 +284,7 @@ async function registruj() {
     const instagramInput = document.getElementById("instagram");
     const tiktokInput = document.getElementById("tiktok");
     const opisInput = document.getElementById("opis");
-    const registrujBtn = document.querySelector('#registracija button'); // Dohvati gumb za feedback
+    const registrujBtn = document.getElementById('registracijaSubmitBtn'); // Dohvati gumb pomoću ID-a
 
     const ime = imeInput ? imeInput.value.trim() : '';
     const sifra = sifraInput ? sifraInput.value.trim() : '';
@@ -338,7 +342,7 @@ async function registruj() {
 async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null) {
     const loginImeInput = document.getElementById("loginIme");
     const loginSifraInput = document.getElementById("loginSifra");
-    const loginBtn = document.querySelector('#login button'); // Dohvati login gumb
+    const loginBtn = document.getElementById('loginSubmitBtn'); // Dohvati login gumb pomoću ID-a
 
     const ime = usernameFromRegister || (loginImeInput ? loginImeInput.value.trim() : '');
     const sifra = passwordFromRegister || (loginSifraInput ? loginSifraInput.value.trim() : '');
@@ -435,7 +439,7 @@ function pokreniAplikaciju() {
 
     const lokacijePrikazEl = document.getElementById("lokacijePrikaz");
     if (lokacijePrikazEl) {
-        lokacijePrikazEl.style.display = 'block';
+        lokacijePrikazEl.style.display = 'flex'; // Promijenjeno u flex
         setTimeout(() => lokacijePrikazEl.classList.add('active-screen'), 10);
     }
 
@@ -466,15 +470,30 @@ async function prikaziEditProfila() {
     
     // Prikaz loading stanja dok se profil učitava
     const editProfilScreen = document.getElementById("editProfil");
+    const glavniNaslovEdit = editProfilScreen.querySelector('h2');
+    const closeBtnEdit = editProfilScreen.querySelector('.close-btn-container');
+
     if (editProfilScreen) {
-        editProfilScreen.innerHTML = `
-            <h2>Uredi profil</h2>
-            <div class="close-btn-container">
-                <button class="close-btn" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">✖</button>
-            </div>
-            <p style="text-align:center;">Učitavam profil...</p>
-            <div style="text-align:center; margin-top:20px;">⚙️</div>
-        `; // Možeš dodati i spinner ovdje umjesto zupčanika
+        // Privremeno spremi postojeći HTML (ako postoji) kako bi se mogao vratiti
+        const originalContent = editProfilScreen.innerHTML;
+
+        // Ažuriraj sadržaj za prikaz loading poruke
+        editProfilScreen.innerHTML = ''; // Prvo isprazni
+        if(glavniNaslovEdit) editProfilScreen.appendChild(glavniNaslovEdit);
+        if(closeBtnEdit) editProfilScreen.appendChild(closeBtnEdit);
+        
+        const loadingP = document.createElement('p');
+        loadingP.style.textAlign = 'center';
+        loadingP.innerText = 'Učitavam profil...';
+        editProfilScreen.appendChild(loadingP);
+
+        const loadingIcon = document.createElement('div');
+        loadingIcon.style.textAlign = 'center';
+        loadingIcon.style.marginTop = '20px';
+        loadingIcon.style.fontSize = '3em';
+        loadingIcon.innerText = '⚙️';
+        editProfilScreen.appendChild(loadingIcon);
+        
         swap(document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz', "editProfil");
     }
 
@@ -482,9 +501,10 @@ async function prikaziEditProfila() {
         const response = await authenticatedFetch(`/api/users/${trenutniKorisnik.id}`);
         if (response.ok) {
             const user = await response.json();
-            // Vrati originalni sadržaj i popuni ga podacima
+            
+            // Nakon uspješnog dohvaćanja, popuni originalnu strukturu podacima
             if (editProfilScreen) {
-                 editProfilScreen.innerHTML = `
+                editProfilScreen.innerHTML = `
                     <h2>Uredi profil</h2>
                     <div class="close-btn-container">
                         <button class="close-btn" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">✖</button>
@@ -498,7 +518,7 @@ async function prikaziEditProfila() {
                     <input id="editTiktok" placeholder="TikTok korisničko ime" />
                     <label style="font-size:14px; display:block; margin-bottom:5px;">Promijeni profilnu sliku:</label>
                     <input type="file" id="editSlikaUpload" accept="image/*" />
-                    <button onclick="sacuvajProfil()">Spremi promjene</button>
+                    <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
                 `;
                 // Sada popuni inpute
                 document.getElementById("editIme").value = user.ime || '';
@@ -511,7 +531,7 @@ async function prikaziEditProfila() {
             }
             prethodniEkran = 'postavkeEkran'; // Postavi prethodni ekran za vraćanje
 
-            // Ponovno pripoji event listenere za upload slike nakon što se DOM ponovno generira
+            // Ponovno pripoji event listener za upload slike nakon što se DOM ponovno generira
             const editSlikaUploadEl = document.getElementById("editSlikaUpload");
             if (editSlikaUploadEl) {
                 editSlikaUploadEl.removeEventListener("change", handleEditSlikaUploadChange); // Ukloni prethodni ako postoji
@@ -532,39 +552,12 @@ async function prikaziEditProfila() {
     }
 }
 
-// Funkcija za handle-anje promjene slike za edit profila, da se može ponovno pripojiti
-function handleEditSlikaUploadChange() {
-    const file = this.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            odabranaEditSlika = e.target.result;
-            const previewElement = document.getElementById("previewEditSlike");
-            if (previewElement) {
-                previewElement.src = odabranaEditSlika;
-                if (previewElement.style.display === "none") {
-                    previewElement.style.display = "block";
-                }
-            }
-        };
-        reader.readAsDataURL(file);
-    }
-}
-// Pripojiti ga pri DOMContentLoaded da radi i prvi put
-document.addEventListener('DOMContentLoaded', () => {
-    const editSlikaUploadEl = document.getElementById("editSlikaUpload");
-    if (editSlikaUploadEl) {
-        editSlikaUploadEl.addEventListener("change", handleEditSlikaUploadChange);
-    }
-});
-
-
 async function sacuvajProfil() {
     const novoIme = document.getElementById("editIme").value.trim();
     const noviOpis = document.getElementById("editOpis").value.trim();
     const noviInstagram = document.getElementById("editInstagram").value.trim();
     const noviTiktok = document.getElementById("editTiktok").value.trim();
-    const sacuvajBtn = document.querySelector('#editProfil button');
+    const sacuvajBtn = document.getElementById('sacuvajProfilBtn'); // Dohvati gumb pomoću ID-a
 
     if (!novoIme) return alert("Ime ne može biti prazno!");
     if (!trenutniKorisnik || !trenutniKorisnik.id) return alert("Korisnik nije prijavljen.");
@@ -691,18 +684,19 @@ function distKM(p1, p2) {
 
 // --- OBJAVE (PIJANKE) LOGIKA ---
 function pokaziObjavu() {
-    // PRETHODNI EKRAN ZA VRACANJE: Postavi ga na 'lokacijePrikaz' jer se tamo ide s njega
     prethodniEkran = 'lokacijePrikaz';
     swap(prethodniEkran, "glavniDio");
     document.getElementById("glavniNaslov").innerText = "Objavi pijanku";
-    document.getElementById("profilKorisnika").style.display = "none";
+
+    // Pobrini se da je forma za objavu vidljiva, a profil skriven
     document.getElementById("objavaForma").style.display = "block";
+    document.getElementById("profilKorisnika").style.display = "none";
     document.getElementById("opisPijanke").value = "";
 }
 
 async function objaviPijanku() {
     const opis = document.getElementById("opisPijanke").value.trim();
-    const objaviBtn = document.querySelector('#objavaForma button');
+    const objaviBtn = document.querySelector('#objavaForma button'); // Dohvati gumb unutar forme
 
     if (!opis) return alert("Molimo popunite opis pijanke!");
 
@@ -825,18 +819,28 @@ function prikaziPijankePregled() {
 async function otvoriProfil(korisnikId) {
     if (!korisnikId) return;
 
-    // Prikaz loading stanja za profil
+    // PRETHODNI EKRAN ZA VRACANJE: Postavi ga na trenutni aktivni ekran
+    prethodniEkran = document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz';
+    
+    // Prikaz loading stanja za profil dok se podaci učitavaju
     const glavniDioScreen = document.getElementById("glavniDio");
+    // Ovi elementi su sada statični u HTML-u pa ih ne brišemo, samo resetiramo prikaz
+    const glavniNaslov = document.getElementById("glavniNaslov");
+    const objavaForma = document.getElementById("objavaForma");
+    const profilKorisnika = document.getElementById("profilKorisnika");
+
     if (glavniDioScreen) {
-        glavniDioScreen.innerHTML = `
-            <h2 id="glavniNaslov">Profil korisnika</h2>
-            <div class="close-btn-container">
-                <button class="close-btn" onclick="zatvoriEkran('glavniDio', prethodniEkran)">✖</button>
-            </div>
+        // Postavi naslov
+        if (glavniNaslov) glavniNaslov.innerText = "Profil korisnika";
+
+        // Sakrij sve što nije loading poruka
+        if (objavaForma) objavaForma.style.display = 'none';
+        if (profilKorisnika) profilKorisnika.style.display = 'block'; // Privremeno prikaži loading unutar profilKorisnika
+        if (profilKorisnika) profilKorisnika.innerHTML = `
             <p style="text-align:center;">Učitavam profil korisnika...</p>
-            <div style="text-align:center; margin-top:20px;">👤</div>
+            <div style="text-align:center; margin-top:20px; font-size: 3em;">👤</div>
         `;
-        prethodniEkran = document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz';
+        
         swap(prethodniEkran, "glavniDio");
     }
 
@@ -848,24 +852,18 @@ async function otvoriProfil(korisnikId) {
         }
         const korisnik = await response.json();
 
-        // Vrati originalni sadržaj i popuni ga podacima
-        if (glavniDioScreen) {
-            glavniDioScreen.innerHTML = `
-                <h2 id="glavniNaslov">Profil korisnika</h2>
-                <div class="close-btn-container">
-                    <button class="close-btn" onclick="zatvoriEkran('glavniDio', prethodniEkran)">✖</button>
-                </div>
-                <div id="objavaForma" style="display: none;"></div>
-                <div id="profilKorisnika" style="display: block;">
-                    <div style="text-align:center; cursor:default; display:block;">
-                        <img src="${korisnik.slika || 'default_profile.png'}" class="profilna-slika" style="margin-bottom:15px;">
-                        <h2 style="display:block; vertical-align:middle;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
-                        <p style="font-size:15px; font-style:italic; color:#ccc;">${korisnik.opis || "Nema opisa."}</p>
-                        <div style="margin:20px 0;">${prikaziMreze(korisnik)}</div>
-                        ${trenutniKorisnik && korisnik.id !== trenutniKorisnik.id ? `<button onclick="pokreniPrivatniChat('${korisnik.id}', 'glavniDio')">💬 Pošalji poruku</button>` : '<em style="color:#888;">Ovo je tvoj profil.</em>'}
-                    </div>
+        // Nakon uspješnog dohvaćanja, popuni `profilKorisnika` podacima
+        if (profilKorisnika) {
+            profilKorisnika.innerHTML = `
+                <div style="text-align:center; cursor:default; display:block;">
+                    <img src="${korisnik.slika || 'default_profile.png'}" class="profilna-slika" style="margin-bottom:15px;">
+                    <h2 style="display:block; vertical-align:middle;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
+                    <p style="font-size:15px; font-style:italic; color:#ccc;">${korisnik.opis || "Nema opisa."}</p>
+                    <div style="margin:20px 0;">${prikaziMreze(korisnik)}</div>
+                    ${trenutniKorisnik && korisnik.id !== trenutniKorisnik.id ? `<button onclick="pokreniPrivatniChat('${korisnik.id}', 'glavniDio')">💬 Pošalji poruku</button>` : '<em style="color:#888;">Ovo je tvoj profil.</em>'}
                 </div>
             `;
+            profilKorisnika.style.display = 'block';
         }
     } catch (error) {
         console.error("Greška pri otvaranju profila:", error);
@@ -902,14 +900,14 @@ function azurirajNotifikacije() {
     }
     
     if (neprocitane > 0) {
-        const badgeContent = `${neprocitane > 9 ? '9+' : neprocitane}`; // Samo broj/tekst, span se dodaje u HTML-u
+        const badgeContent = `${neprocitane > 9 ? '9+' : neprocitane}`; // Samo broj/tekst
         if (badgeContainerInbox) badgeContainerInbox.innerText = badgeContent;
         if (badgeContainerSettings) badgeContainerSettings.innerText = badgeContent;
-        if (badgeContainerInbox) badgeContainerInbox.style.display = 'flex';
-        if (badgeContainerSettings) badgeContainerSettings.style.display = 'flex';
+        if (badgeContainerInbox) badgeContainerInbox.style.display = 'flex'; // Prikazi badge
+        if (badgeContainerSettings) badgeContainerSettings.style.display = 'flex'; // Prikazi badge
     } else {
-        if (badgeContainerInbox) badgeContainerInbox.style.display = 'none';
-        if (badgeContainerSettings) badgeContainerSettings.style.display = 'none';
+        if (badgeContainerInbox) badgeContainerInbox.style.display = 'none'; // Sakrij badge
+        if (badgeContainerSettings) badgeContainerSettings.style.display = 'none'; // Sakrij badge
     }
 }
 
@@ -944,17 +942,19 @@ async function prikaziInbox() {
 
         const neprocitane = privatnePoruke[chatKey].some(m => !m.isRead && m.autorId == partner.id);
         const status = formatirajStatus(partner.lastActive);
-        div.innerHTML += `<div class="chat-item">
-            <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
-            <div class="chat-item-info" onclick="pokreniPrivatniChat('${partner.id}', 'inboxPrikaz')">
-                <div>
-                    <span class="status-dot ${status.online?"online":"offline"}"></span>
-                    <strong>${partner.ime}</strong>
+        div.innerHTML += `
+            <div class="chat-item">
+                <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
+                <div class="chat-item-info" onclick="pokreniPrivatniChat('${partner.id}', 'inboxPrikaz')">
+                    <div>
+                        <span class="status-dot ${status.online?"online":"offline"}"></span>
+                        <strong>${partner.ime}</strong>
+                    </div>
+                    <p class="status-text">${status.online?"Online":status.text}</p>
                 </div>
-                <p class="status-text">${status.online?"Online":status.text}</p>
+                ${neprocitane?'<span class="notification-badge" style="position:static; top:auto; right:auto;"></span>':""}
             </div>
-            ${neprocitane?'<span class="notification-badge" style="position:static; top:auto; right:auto;"></span>':""}
-        </div>`;
+        `;
     });
     // PROMJENA: PRETHODNI EKRAN ZA VRACANJE
     swap(document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz', "inboxPrikaz");
@@ -1006,7 +1006,9 @@ async function pokreniPrivatniChat(partnerId, saEkrana) {
 async function posaljiPrivatno() {
     const privatniInputEl = document.getElementById("privatniInput");
     const tekst = privatniInputEl.value.trim();
-    const posaljiBtn = document.querySelector('#privatniChat button');
+    // Odabir gumba za slanje poruke - pretpostavljamo da je to zadnji gumb u #privatniChat divu
+    // ili možeš dodati specifičan ID za njega ako ima više gumba.
+    const posaljiBtn = document.querySelector('#privatniChat button:last-of-type');
 
 
     if (!tekst) return;

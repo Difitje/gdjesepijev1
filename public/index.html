@@ -51,7 +51,7 @@
         </div>
         <input id="loginIme" placeholder="Korisničko ime" />
         <input id="loginSifra" type="password" placeholder="Lozinka" />
-        <button onclick="ulogujSe()">Prijavi se</button>
+        <button id="loginSubmitBtn" onclick="ulogujSe()">Prijavi se</button>
     </div>
 
     <div class="container" id="registracija">
@@ -67,7 +67,7 @@
         <input id="instagram" placeholder="Instagram korisničko ime (bez @)" />
         <input id="tiktok" placeholder="TikTok korisničko ime (bez @)" />
         <textarea id="opis" placeholder="O meni..." rows="3"></textarea>
-        <button onclick="registruj()">Spremi</button>
+        <button id="registracijaSubmitBtn" onclick="registruj()">Spremi</button>
     </div>
 
     <div class="container" id="lokacijePrikaz">
@@ -136,7 +136,7 @@
         <input id="editTiktok" placeholder="TikTok korisničko ime" />
         <label style="font-size:14px; display:block; margin-bottom:5px;">Promijeni profilnu sliku:</label>
         <input type="file" id="editSlikaUpload" accept="image/*" />
-        <button onclick="sacuvajProfil()">Spremi promjene</button>
+        <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
     </div>
 
     <script src="/script.js"></script>
