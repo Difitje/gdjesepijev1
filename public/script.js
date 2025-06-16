@@ -307,7 +307,7 @@ function pokreniAplikaciju() {
 
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
-    globalDataRefreshInterval = setInterval(globalRefreshUI, 15e3);
+    globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
 
     azurirajMojuAktivnost();
     dohvatiLokaciju(() => {
