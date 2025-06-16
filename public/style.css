@@ -212,12 +212,11 @@ img.preview-slika {
 }
 
 /* Stilovi za zajedničke ikone (pivska krigla i zupčanik) */
-/* Sve action-icon gumbe će imati ove osnovne stilove */
 .action-icon {
     width: 50px; /* Ujednačena veličina za obje ikone */
     height: 50px;
     border-radius: 50%;
-    background: #3a3a3a; /* **NOVO**: Default tamna pozadina za sve action ikone */
+    background: #3a3a3a; /* Default tamna pozadina za sve action ikone */
     color: #f0f0f0;
     font-size: 24px; /* Ujednačena veličina emojija */
     display: flex;
@@ -228,26 +227,27 @@ img.preview-slika {
     transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     padding: 0;
     margin: 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0px 8px rgba(255, 71, 87, 0.1); /* Manja crvena sjena defaultno */
     flex-shrink: 0;
 }
 
 .action-icon:hover {
     background: #ff4757; /* Crvena na hoveru za sve ikone */
     transform: scale(1.05);
+    box-shadow: 0 0px 12px rgba(255, 71, 87, 0.4); /* Jača sjena na hoveru */
 }
 
 /* STILOVI ZA LARGE ACTION ICON (Pivska krigla) */
-/* Sada samo prilagođava sjenu, NE pozadinsku boju jer je defaultna siva od .action-icon */
 .large-action-icon {
-    /* Uklonjen background ovdje da se koristi default od .action-icon */
-    box-shadow: 0 3px 12px rgba(255, 71, 87, 0.3); /* Jača sjena */
+    background: linear-gradient(45deg, #e03f4d, #ff4757); /* Crveni gradient za kriglu u normalnom stanju */
+    box-shadow: 0 0px 10px rgba(255, 71, 87, 0.3); /* Specifična jača sjena za kriglu u normalnom stanju */
 }
 
 /* Hover stanje za pivsku kriglu, može imati malo drugačiji background ako želite */
 .large-action-icon:hover {
-    background: linear-gradient(45deg, #e03f4d, #ff4757); /* Crveni gradient na hoveru krigle */
+    background: linear-gradient(45deg, #ff4757, #e03f4d); /* Obrnuti gradient na hoveru krigle */
     transform: scale(1.1); /* Malo veći transform na hoveru krigle */
+    box-shadow: 0 0px 15px rgba(255, 71, 87, 0.6); /* Još jača sjena na hoveru krigle */
 }
 
 
@@ -257,7 +257,12 @@ img.preview-slika {
 }
 
 .dropdown-content {
-    display: none;
+    /* **KLJUČNO**: Izmijenjeni defaultni stilovi za dropdown-content */
+    /* Nema više display: none; umjesto toga kontroliramo samo opacity i visibility */
+    opacity: 0; /* Početno skriven */
+    visibility: hidden; /* Sakrij iz tree-ja za pristupačnost */
+    pointer-events: none; /* Ne reagira na klikove kad je skriven */
+
     position: absolute;
     background-color: #282828;
     min-width: 160px;
@@ -268,10 +273,8 @@ img.preview-slika {
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid #3a3a3a;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
-    transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0.2s;
+    transform: translateY(10px); /* Početna pozicija za animaciju (izlazi s dna) */
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0.2s; /* Glatka tranzicija */
 }
 
 .dropdown-content a {
@@ -290,10 +293,10 @@ img.preview-slika {
 
 /* Prikaz dropdowna */
 .dropdown-container.show .dropdown-content {
-    display: block;
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
+    opacity: 1; /* Animacija */
+    visibility: visible; /* Animacija */
+    pointer-events: auto; /* Reagira na klikove kada je prikazan */
+    transform: translateY(0); /* Animacija */
 }
 
 /* Stil za notifikacijski badge u dropdownu */

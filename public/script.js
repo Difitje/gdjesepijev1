@@ -477,7 +477,7 @@ async function sacuvajProfil() {
         }
     } catch (error) {
         console.error("Greška kod spremanja profila:", error);
-        alert("Došlo je do greške pri spremanju profila.");
+        alert("Došlo je do greške pri spremanja profila.");
     }
 }
 
