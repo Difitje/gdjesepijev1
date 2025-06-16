@@ -4,12 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gdje se pije? (beta) </title>
-    <link rel="stylesheet" href="/style.css"> </head>
+    <link rel="stylesheet" href="/style.css"> 
+    <style> 
+        body { opacity: 0; visibility: hidden; }
+    </style>
+</head>
 <body>
+
     <div id="splashScreen">
-    <h1>DRINKER</h1>
+        <h1>DRINKER</h1>
     </div>
-    <div class="container" id="intro"><h1>🍻 Dosadno vam je?</h1><p style="text-align:center;">Pridruži se ekipi koja zna kako se loče!</p><button onclick="swap('intro', 'odabir')">Pridruži se</button></div>
+
+    <div class="main-title-container"></div> <div class="container" id="intro"><h1>🍻 Dosadno vam je?</h1><p style="text-align:center;">Pridruži se ekipi koja zna kako se loče!</p><button id="joinButton">Pridruži se</button></div>
     <div class="container" id="pravilaEkran">
         <h2>Pravila korištenja</h2>
         <div class="pravila-text">
@@ -24,17 +30,49 @@
             <input type="checkbox" id="prihvatamPravila" onchange="proveriPrihvatanje()">
             <label for="prihvatamPravila">Pročitao/la sam i prihvaćam pravila.</label>
         </div>
-        <button id="nastaviBtn" onclick="swap('pravilaEkran', 'registracija')" disabled>Prihvati i nastavi</button>
-        <button onclick="swap('pravilaEkran', 'odabir')" class="btn-secondary">Nazad</button>
+        <button id="nastaviBtn" disabled>Prihvati i nastavi</button>
+        <button id="pravilaNazadBtn" class="btn-secondary">Nazad</button>
     </div>
-    <div class="container" id="odabir"><h2>Dobrodošli!</h2><p style="text-align:center;">Imaš račun? Prijavi se. Nemaš? Registriraj se.</p><button onclick="swap('odabir', 'login')">Prijava</button><button onclick="swap('odabir', 'pravilaEkran')">Registracija</button></div>
-    <div class="container" id="login"><h2>Prijava</h2><input id="loginIme" placeholder="Korisničko ime" /><input id="loginSifra" type="password" placeholder="Lozinka" /><button onclick="ulogujSe()">Prijavi se</button><button onclick="swap('login', 'odabir')" class="btn-secondary">Nazad</button></div>
-    <div class="container" id="registracija"><h2>Registracija</h2><input id="ime" placeholder="Korisničko ime" /><input id="sifra" type="password" placeholder="Lozinka" /><label style="font-size:14px; display:block; margin-bottom:5px;">Profilna slika:</label><input type="file" id="slikaUpload" accept="image/*" /><img id="previewSlike" class="preview-slika" /><input id="instagram" placeholder="Instagram korisničko ime (bez @)" /><input id="tiktok" placeholder="TikTok korisničko ime (bez @)" /><textarea id="opis" placeholder="O meni..." rows="3"></textarea><button onclick="registruj()">Spremi</button><button onclick="swap('registracija', 'pravilaEkran')" class="btn-secondary">Nazad</button></div>
-    <div class="container" id="lokacijePrikaz"><h2>🍺 Trenutno pije:</h2><div id="pijankePregled"></div><div style="display:flex; gap:10px;"><button onclick="pokaziObjavu()" style="flex:2;">Objavi pijanku</button><button onclick="prikaziInbox()" style="flex:1;">Poruke<span id="notifikacijaPoruka"></span></button></div><div style="display:flex; gap:10px;"><button onclick="prikaziEditProfila()" class="btn-secondary" style="flex:1;">Moj profil</button><button onclick="odjaviSe()" class="btn-secondary" style="flex:1;">Odjavi se</button></div></div>
-    <div class="container" id="inboxPrikaz"><h2>Poruke</h2><div id="listaChatova"></div><button onclick="swap('inboxPrikaz', 'lokacijePrikaz')" class="btn-secondary">Nazad na listu</button></div>
-    <div class="container" id="glavniDio"><h2 id="glavniNaslov"></h2><div id="objavaForma"><textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea><button onclick="objaviPijanku()">Objavi</button></div><div id="profilKorisnika"></div><button onclick="nazadNaListu()" class="btn-secondary">Nazad na listu</button></div>
-    <div class="container" id="privatniChat"><div style="text-align:center; margin-bottom:10px;"><h2 id="chatSaKorisnikom" style="margin-bottom:0;"></h2><p id="chatPartnerStatus" class="status-text"></p></div><div id="privatniChatLog" class="chat"></div><textarea id="privatniInput" placeholder="Upiši poruku..." rows="2" style="margin-bottom:5px;"></textarea><button onclick="posaljiPrivatno()">Pošalji</button><button onclick="zatvoriPrivatni()" class="btn-secondary">Zatvori chat</button></div>
-    <div class="container" id="editProfil"><h2>Uredi profil</h2><div style="text-align:center;"><img id="previewEditSlike" class="profilna-slika" /></div><input id="editIme" placeholder="Korisničko ime" /><textarea id="editOpis" placeholder="O meni..." rows="3"></textarea><input id="editInstagram" placeholder="Instagram korisničko ime" /><input id="editTiktok" placeholder="TikTok korisničko ime" /><label style="font-size:14px; display:block; margin-bottom:5px;">Promijeni profilnu sliku:</label><input type="file" id="editSlikaUpload" accept="image/*" /><button onclick="sacuvajProfil()">Spremi promjene</button><button onclick="swap('editProfil', 'lokacijePrikaz')" class="btn-secondary">Nazad</button></div>
+    <div class="container" id="odabir">
+        <h2>Dobrodošli!</h2>
+        <p style="text-align:center;">Imaš račun? Prijavi se. Nemaš? Registriraj se.</p>
+        <button id="prijavaBtn">Prijava</button>
+        <button id="registracijaBtn">Registracija</button>
+    </div>
+    <div class="container" id="login"><h2>Prijava</h2><input id="loginIme" placeholder="Korisničko ime" /><input id="loginSifra" type="password" placeholder="Lozinka" /><button onclick="ulogujSe()">Prijavi se</button><button id="loginNazadBtn" class="btn-secondary">Nazad</button></div>
+    <div class="container" id="registracija"><h2>Registracija</h2><input id="ime" placeholder="Korisničko ime" /><input id="sifra" type="password" placeholder="Lozinka" /><label style="font-size:14px; display:block; margin-bottom:5px;">Profilna slika:</label><input type="file" id="slikaUpload" accept="image/*" /><img id="previewSlike" class="preview-slika" /><input id="instagram" placeholder="Instagram korisničko ime (bez @)" /><input id="tiktok" placeholder="TikTok korisničko ime (bez @)" /><textarea id="opis" placeholder="O meni..." rows="3"></textarea>
+        <label style="font-size:14px; display:block; margin-bottom:5px; margin-top:10px;">Država:</label>
+        <select id="drzava" onchange="populateCities('drzava', 'grad')"></select>
+        <label style="font-size:14px; display:block; margin-bottom:5px; margin-top:10px;">Grad:</label>
+        <select id="grad"></select>
+        <button onclick="registruj()">Spremi</button><button id="registracijaNazadBtn" class="btn-secondary">Nazad</button></div>
+    
+    <div class="container" id="lokacijePrikaz">
+        <div class="header-bar"> <button class="icon-button" onclick="prikaziInbox()">
+                ✉️ <span id="notifikacijaPoruka" class="badge"></span>
+            </button>
+            <button class="icon-button" id="menuButton">
+                ⚙️ </button>
+            <div class="dropdown-menu" id="mainDropdown"> <button onclick="pokaziObjavu()">Objavi pijanku</button>
+                <button onclick="prikaziEditProfila()">Moj profil</button>
+                <button onclick="odjaviSe()">Odjavi se</button>
+            </div>
+        </div>
+        <h2>🍺 Trenutno pije: <span id="brojAktivnihPijanki"></span></h2>
+        <div id="pijankePregled"></div>
+    </div>
 
-    <script src="/script.js"></script> </body>
+    <div class="container" id="inboxPrikaz"><h2>Poruke</h2><div id="listaChatova"></div><button id="inboxNazadBtn" class="btn-secondary">Nazad na listu</button></div>
+    <div class="container" id="glavniDio"><h2 id="glavniNaslov"></h2><div id="objavaForma"><textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea><button onclick="objaviPijanku()">Objavi</button></div><div id="profilKorisnika"></div><button id="glavniNazadBtn" class="btn-secondary">Nazad na listu</button></div>
+    <div class="container" id="privatniChat">
+        <div style="display:flex; justify-content:center; align-items:center; margin-bottom:10px;"> <img id="chatPartnerImage" class="profilna-slika" style="width:50px; height:50px; margin-right:10px;"> <div style="display:flex; flex-direction:column; align-items:center;"> <h2 id="chatSaKorisnikom" style="margin-bottom:0;"></h2>
+                <p id="chatPartnerStatus" class="status-text"></p>
+            </div>
+        </div>
+        <div id="privatniChatLog" class="chat"></div><textarea id="privatniInput" placeholder="Upiši poruku..." rows="2" style="margin-bottom:5px;"></textarea><button onclick="posaljiPrivatno()">Pošalji</button><button onclick="zatvoriPrivatni()" class="btn-secondary">Zatvori chat</button></div>
+    <div class="container" id="editProfil"><h2>Uredi profil</h2><div style="text-align:center;"><img id="previewEditSlike" class="profilna-slika" /></div><input id="editIme" placeholder="Korisničko ime" /><textarea id="editOpis" placeholder="O meni..." rows="3"></textarea><input id="editInstagram" placeholder="Instagram korisničko ime" /><input id="editTiktok" placeholder="TikTok korisničko ime" /><label style="font-size:14px; display:block; margin-bottom:5px;">Promijeni profilnu sliku:</label><input type="file" id="editSlikaUpload" accept="image/*" /><button onclick="sacuvajProfil()">Spremi promjene</button><button id="editNazadBtn" class="btn-secondary">Nazad</button></div>
+
+    <script src="/data.js"></script> 
+    <script src="/script.js"></script> 
+</body>
 </html>

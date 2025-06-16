@@ -691,6 +691,12 @@ async function pokreniPrivatniChat(partnerId, saEkrana) {
     const chatSaKorisnikomEl = document.getElementById("chatSaKorisnikom");
     if (chatSaKorisnikomEl) chatSaKorisnikomEl.innerText = primalac.ime;
 
+    const chatPartnerImageEl = document.getElementById("chatPartnerImage");
+    if (chatPartnerImageEl) {
+        chatPartnerImageEl.src = primalac.slika;
+        chatPartnerImageEl.alt = primalac.ime;
+    }
+
     // Označi poruke kao pročitane na serveru
     const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
     try {
