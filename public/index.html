@@ -19,9 +19,6 @@
 
     <div class="container" id="pravilaEkran">
         <h2>Pravila korištenja</h2>
-        <div class="close-btn-container">
-            <button class="close-btn" onclick="zatvoriEkran('pravilaEkran', 'odabir')">✖</button>
-        </div>
         <div class="pravila-text">
             <p>Dobrodošli! Prije nego što nastavite, molimo vas da pažljivo pročitate i prihvatite sljedeća pravila:</p>
             <p><strong>1. Punoljetnost:</strong> Morate imati najmanje 18 godina da biste koristili ovu aplikaciju.</p>
@@ -35,7 +32,7 @@
             <label for="prihvatamPravila">Pročitao/la sam i prihvaćam pravila.</label>
         </div>
         <button id="nastaviBtn" onclick="swap('pravilaEkran', 'registracija')" disabled>Prihvati i nastavi</button>
-    </div>
+        <button class="back-button" onclick="swap('pravilaEkran', 'odabir')">Nazad</button> </div>
 
     <div class="container" id="odabir">
         <h2>Dobrodošli!</h2>
@@ -46,19 +43,13 @@
 
     <div class="container" id="login">
         <h2>Prijava</h2>
-        <div class="close-btn-container">
-            <button class="close-btn" onclick="zatvoriEkran('login', 'odabir')">✖</button>
-        </div>
         <input id="loginIme" placeholder="Korisničko ime" />
         <input id="loginSifra" type="password" placeholder="Lozinka" />
         <button id="loginSubmitBtn" onclick="ulogujSe()">Prijavi se</button>
-    </div>
+        <button class="back-button" onclick="swap('login', 'odabir')">Nazad</button> </div>
 
     <div class="container" id="registracija">
         <h2>Registracija</h2>
-        <div class="close-btn-container">
-            <button class="close-btn" onclick="zatvoriEkran('registracija', 'pravilaEkran')">✖</button>
-        </div>
         <input id="ime" placeholder="Korisničko ime" />
         <input id="sifra" type="password" placeholder="Lozinka" />
         <label style="font-size:14px; display:block; margin-bottom:5px;">Profilna slika:</label>
@@ -68,7 +59,7 @@
         <input id="tiktok" placeholder="TikTok korisničko ime (bez @)" />
         <textarea id="opis" placeholder="O meni..." rows="3"></textarea>
         <button id="registracijaSubmitBtn" onclick="registruj()">Spremi</button>
-    </div>
+        <button class="back-button" onclick="swap('registracija', 'pravilaEkran')">Nazad</button> </div>
 
     <div class="container" id="lokacijePrikaz">
         <h2>🍺 Trenutno pije:</h2>
@@ -81,27 +72,20 @@
 
     <div class="container" id="inboxPrikaz">
         <h2>Poruke</h2>
-        <div class="close-btn-container">
-            <button class="close-btn" onclick="zatvoriEkran('inboxPrikaz', 'lokacijePrikaz')">✖</button>
-        </div>
         <div id="listaChatova"></div>
-    </div>
+        <button class="back-button" onclick="zatvoriEkran('inboxPrikaz', 'lokacijePrikaz')">Nazad na listu</button> </div>
 
     <div class="container" id="postavkeEkran">
         <h2>Postavke</h2>
-        <div class="close-btn-container">
-            <button class="close-btn" onclick="zatvoriEkran('postavkeEkran', 'lokacijePrikaz')">✖</button>
-        </div>
         <a href="#" class="btn-full" onclick="prikaziInbox(); return false;">Poruke <span id="notifikacijaPorukaSettings" class="notification-badge"></span></a>
         <a href="#" class="btn-full" onclick="prikaziEditProfila(); return false;">Moj profil</a>
-        <a href="#" class="btn-full" onclick="odjaviSe(); return false;">Odjavi se</a>
-    </div>
+        <a href="#" onclick="odjaviSe(); return false;">Odjavi se</a>
+        <button class="back-button" onclick="zatvoriEkran('postavkeEkran', 'lokacijePrikaz')">Nazad na listu</button> </div>
 
     <div class="container" id="glavniDio">
-        <h2 id="glavniNaslov"></h2>
-        <div class="close-btn-container">
-            <button class="close-btn" onclick="zatvoriEkran('glavniDio', prethodniEkran)">✖</button>
+        <div class="close-btn-container"> <button class="close-btn" onclick="zatvoriEkran('glavniDio', prethodniEkran)">✖</button>
         </div>
+        <h2 id="glavniNaslov"></h2>
         <div id="objavaForma">
             <textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea>
             <button onclick="objaviPijanku()">Objavi</button>
@@ -110,8 +94,7 @@
     </div>
 
     <div class="container" id="privatniChat">
-        <div class="close-btn-container">
-            <button class="close-btn" onclick="zatvoriEkran('privatniChat', prethodniEkran)">✖</button>
+        <div class="close-btn-container"> <button class="close-btn" onclick="zatvoriEkran('privatniChat', prethodniEkran)">✖</button>
         </div>
         <div style="text-align:center; margin-bottom:10px;">
             <h2 id="chatSaKorisnikom" style="margin-bottom:0;"></h2>
@@ -119,14 +102,12 @@
         </div>
         <div id="privatniChatLog" class="chat"></div>
         <textarea id="privatniInput" placeholder="Upiši poruku..." rows="2" style="margin-bottom:5px;"></textarea>
-        <button onclick="posaljiPrivatno()">Pošalji</button>
-    </div>
+        <button id="posaljiPrivatnoBtn" onclick="posaljiPrivatno()">Pošalji</button> </div>
 
     <div class="container" id="editProfil">
-        <h2>Uredi profil</h2>
-        <div class="close-btn-container">
-            <button class="close-btn" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">✖</button>
+        <div class="close-btn-container"> <button class="close-btn" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">✖</button>
         </div>
+        <h2>Uredi profil</h2>
         <div style="text-align:center;">
             <img id="previewEditSlike" class="profilna-slika" />
         </div>

@@ -238,8 +238,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const reader = new FileReader();
                 reader.onload = e => {
                     odabranaSlika = e.target.result;
-                    const previewElement = document.getElementById("previewSlike");
-                    if (previewElement) {
+                    const previewElement = document.getElementById("previewSlikes");
+                    if (previewElement) { // Provjeri postojanje elementa
                         previewElement.src = odabranaSlika;
                         previewElement.style.display = "block";
                     }
@@ -471,16 +471,13 @@ async function prikaziEditProfila() {
     // Prikaz loading stanja dok se profil učitava
     const editProfilScreen = document.getElementById("editProfil");
     const glavniNaslovEdit = editProfilScreen.querySelector('h2');
-    const closeBtnEdit = editProfilScreen.querySelector('.close-btn-container');
+    const closeBtnContainerEdit = editProfilScreen.querySelector('.close-btn-container'); // Dohvaćanje spremnika X-gumba
 
     if (editProfilScreen) {
-        // Privremeno spremi postojeći HTML (ako postoji) kako bi se mogao vratiti
-        const originalContent = editProfilScreen.innerHTML;
-
         // Ažuriraj sadržaj za prikaz loading poruke
         editProfilScreen.innerHTML = ''; // Prvo isprazni
-        if(glavniNaslovEdit) editProfilScreen.appendChild(glavniNaslovEdit);
-        if(closeBtnEdit) editProfilScreen.appendChild(closeBtnEdit);
+        if(closeBtnContainerEdit) editProfilScreen.appendChild(closeBtnContainerEdit); // Prvo dodaj X-gumb
+        if(glavniNaslovEdit) editProfilScreen.appendChild(glavniNaslovEdit); // Zatim naslov
         
         const loadingP = document.createElement('p');
         loadingP.style.textAlign = 'center';
@@ -505,10 +502,10 @@ async function prikaziEditProfila() {
             // Nakon uspješnog dohvaćanja, popuni originalnu strukturu podacima
             if (editProfilScreen) {
                 editProfilScreen.innerHTML = `
-                    <h2>Uredi profil</h2>
                     <div class="close-btn-container">
                         <button class="close-btn" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">✖</button>
                     </div>
+                    <h2>Uredi profil</h2>
                     <div style="text-align:center;">
                         <img id="previewEditSlike" class="profilna-slika" />
                     </div>
@@ -826,6 +823,7 @@ async function otvoriProfil(korisnikId) {
     const glavniNaslov = document.getElementById("glavniNaslov");
     const objavaForma = document.getElementById("objavaForma");
     const profilKorisnika = document.getElementById("profilKorisnika");
+    const closeBtnContainer = glavniDioScreen.querySelector('.close-btn-container'); // Dohvati X gumb
 
     if (glavniDioScreen) {
         if (glavniNaslov) glavniNaslov.innerText = "Profil korisnika";
@@ -1005,8 +1003,7 @@ async function pokreniPrivatniChat(partnerId, saEkrana) {
 async function posaljiPrivatno() {
     const privatniInputEl = document.getElementById("privatniInput");
     const tekst = privatniInputEl.value.trim();
-    // Odabir gumba za slanje poruke - pretpostavljamo da je to zadnji gumb u #privatniChat divu
-    const posaljiBtn = document.querySelector('#privatniChat button:last-of-type');
+    const posaljiBtn = document.getElementById('posaljiPrivatnoBtn'); // Dohvati gumb pomoću ID-a
 
 
     if (!tekst) return;

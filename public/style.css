@@ -1,4 +1,4 @@
-/* public/style.css - KONAČNA, ISPRAVNA I KOMPLETNA VERZIJA S SIGURNIM PODRUČJIMA I SKROLANJEM */
+/* public/style.css - KONAČNA, ISPRAVNA I KOMPLETNA VERZIJA S SIGURNIM PODRUČJIMA I PRILAGODLJIVIM NAVIGACIJOM */
 
 /* Globalni reset i osnovni stilovi */
 * {
@@ -46,8 +46,6 @@ body {
     border: 1px solid #2a2a2a;
     box-shadow: 0 3px 20px rgba(255, 71, 87, 0.12);
     
-    /* Ključna promjena: Uklonjeno 'position: absolute' i povezani top/left/transform */
-    /* Sada će se kontejneri ponašati kao normalni blok elementi unutar 'body' flex kontejnera */
     margin: 20px auto; /* Centriraj kontejner horizontalno unutar body, dodaj vertikalni margin */
     
     /* Ponašanje za animacije - i dalje potrebne klase koje JS dodaje */
@@ -68,13 +66,11 @@ body {
     justify-content: flex-start; /* Po defaultu sadržaj flex kontejnera ide od vrha */
     align-items: stretch; /* Elementi se protežu po širini flex kontejnera */
     
-    /* SADA SE SAM CIJELI KONTEJNER SKROLA AKO JE PREVELIK */
-    overflow-y: auto; 
+    overflow-y: auto; /* SADA SE SAM CIJELI KONTEJNER SKROLA AKO JE PREVELIK */
     -webkit-overflow-scrolling: touch; /* Bolje skrolanje na iOS-u */
 }
 
 /* Klase koje JavaScript dodaje/uklanja za aktivne ekrane */
-/* Kada je aktivan, kontejner postaje vidljiv */
 .container.active-screen {
     opacity: 1;
     visibility: visible;
@@ -96,7 +92,8 @@ body {
 #login,
 #registracija,
 #postavkeEkran,
-#editProfil {
+#editProfil
+{
     justify-content: center; /* Centriraj po vertikali za ove ekrane */
     align-items: center;     /* Centriraj po horizontali za SVE flex iteme unutar njih */
     overflow-y: hidden; /* Ovi kontejneri bi trebali stati na ekran bez skrolanja */
@@ -186,6 +183,21 @@ button:disabled {
     background: #4a4a4a;
     box-shadow: none;
 }
+
+/* Novi stil za "Nazad" gumbe - koristi isti stil kao .btn-secondary, ali s posebnim margin-top: auto */
+.back-button {
+    background: #3a3a3a; /* Sekundarna boja */
+    color: #f0f0f0;
+    margin-top: auto; /* Gurni ga na dno kontejnera */
+    font-weight: normal; /* Manje bold od primarnih gumba */
+    /* Padding, border-radius, font-size nasljeđuje od općeg 'button' stila */
+}
+
+.back-button:hover {
+    background: #4a4a4a;
+    box-shadow: none;
+}
+
 
 /* Zajednički stilovi za slike profila */
 img.preview-slika,
@@ -319,7 +331,7 @@ img.preview-slika {
     margin-top: auto; /* Gura ga na dno flexbox kontejnera */
     padding-top: 20px;
     width: 100%;
-    position: sticky; /* Ljepi se na dno skrolajućeg roditelja (ako roditelj ima overflow) */
+    position: sticky; /* Ljepi se na dno skrolajućeg roditelja (container) */
     bottom: 0; /* Ljepi se za dno */
     background: #1e1e1e; /* Dodaj pozadinu da prekrije sadržaj ispod */
     box-shadow: 0 -5px 15px rgba(0,0,0,0.3); /* Lagana sjena iznad */
@@ -357,10 +369,11 @@ img.preview-slika {
 
 /* STILOVI ZA X GUMB ZA ZATVARANJE PROZORA */
 .close-btn-container {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    z-index: 10;
+    position: absolute; /* Apsolutno pozicioniran unutar relativnog roditelja (kontejnera) */
+    top: 0px; /* Poravnaj s gornjim rubom paddinga kontejnera */
+    right: 0px; /* Poravnaj s desnim rubom paddinga kontejnera */
+    z-index: 10; /* Da bude iznad ostalog sadržaja */
+    padding: 10px; /* Stvara prostor oko X gumba unutar kontejnera */
 }
 
 .close-btn {
@@ -369,7 +382,7 @@ img.preview-slika {
     color: #b0b0b0;
     font-size: 20px;
     cursor: pointer;
-    padding: 5px;
+    padding: 5px; /* Manji padding za sam "✖" simbol */
     margin: 0;
     line-height: 1;
     transition: color 0.2s ease, transform 0.2s ease;
@@ -383,11 +396,15 @@ img.preview-slika {
     box-shadow: none;
 }
 
+/* Dodatni padding na kontejnerima koji imaju X gumb da se naslov ne preklapa */
+#glavniDio,
+#privatniChat,
+#editProfil {
+    padding-top: 50px; /* Dodaje prostor na vrhu za naslov i X gumb */
+}
+
 
 /* --- POSEBNI STILOVI ZA SKROLABILNI SADRŽAJ (LISTE) --- */
-/* NAPOMENA: Roditeljski .container sada ima overflow-y: auto; što znači da će se cijeli kontejner skrolati ako je sadržaj prevelik.
-   Ove liste unutar kontejnera trebaju se rastezati i same imati skrolbar ako su veće od raspoloživog prostora.
-   Ovo osigurava duplo skrolanje (što je OK za complex app poput chata), ali je glavna svrha da flex-grow radi i da popuni prostor. */
 #pijankePregled,
 #listaChatova,
 #privatniChatLog { 
