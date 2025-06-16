@@ -17,22 +17,24 @@ body {
     justify-content: center; /* Centriranje cijelog body sadržaja horizontalno */
     align-items: center;     /* Centriranje cijelog body sadržaja vertikalno */
     min-height: 100vh;
-    overflow: hidden;
+    height: 100vh; /* Osiguraj da body zauzima cijelu visinu viewporta */
+    width: 100vw;  /* Osiguraj da body zauzima cijelu širinu viewporta */
+    overflow: hidden; /* Nema skrolanja na body, samo na unutarnjim elementima */
     position: relative;
 }
 
 /* Kontejneri za ekrane - Baza za animacije */
 .container {
-    width: 95%;
-    max-width: 400px;
+    width: 95%; /* Širina na mobilnom */
+    max-width: 400px; /* Maksimalna širina */
     background: #1e1e1e;
-    padding: 20px; /* Smanjen padding za mobilni UI */
+    padding: 20px;
     border-radius: 18px;
     border: 1px solid #2a2a2a;
     box-shadow: 0 3px 20px rgba(255, 71, 87, 0.12);
-    margin: 12px;
+    margin: auto; /* Centriraj kontejner horizontalno */
 
-    position: absolute;
+    position: absolute; /* Ostaje apsolutno za tranzicije */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -47,6 +49,7 @@ body {
     height: 95vh; /* Zauzima 95% visine viewporta */
     max-height: 800px; /* Maksimalna visina za veće ekrane */
     justify-content: flex-start; /* Po defaultu na početak, pa ćemo specifično centrirati */
+    align-items: stretch; /* Elementi se protežu po širini flex kontejnera */
     overflow: hidden; /* Važno: sprječava skrolanje kontejnera, omogućuje skrolanje unutarnjih elemenata */
 }
 
@@ -70,12 +73,23 @@ body {
 #login,
 #registracija,
 #postavkeEkran,
-#privatniChat, /* Chat ima input na dnu, ali log se skrola, pa je justify-content: flex-start OK */
-#editProfil,
-#glavniDio /* Glavni dio se koristi za objavu (ima formu i button) ili profil (nema donjih kontrola) */
+#glavniDio, /* Glavni dio se koristi za objavu (ima formu i button) ili profil (nema donjih kontrola) */
+#editProfil
 {
     justify-content: center; /* Centriraj po vertikali za ove ekrane */
+    align-items: center; /* Centriraj po horizontali za ove ekrane */
 }
+
+/* Posebno podešavanje za #privatniChat jer ima input na dnu */
+#privatniChat {
+    justify-content: flex-start; /* Neka sadržaj ide od vrha, a input na dnu */
+    align-items: stretch; /* Centriranje unosa i chata po širini */
+}
+#privatniChat h2, #privatniChat p.status-text {
+    text-align: center; /* Osiguraj da su tekstovi centrirani */
+    width: 100%;
+}
+
 
 /* Naslovi */
 h1, h2 {
@@ -95,7 +109,7 @@ p {
     margin-bottom: 12px;
     color: #b0b0b0;
     font-size: 14px;
-    text-align: left;
+    text-align: left; /* Default lijevo poravnanje */
 }
 #intro p, #odabir p, #pijankePregled p.center-text, #listaChatova p.center-text {
     text-align: center;
@@ -103,9 +117,9 @@ p {
 
 /* Inputi, textarea, dugmad */
 input, textarea, button {
-    width: 100%;
+    width: 100%; /* Ovo je već postavljeno, dobro je */
     padding: 12px;
-    margin-bottom: 12px; /* Smanjen margin-bottom */
+    margin-bottom: 12px;
     border: 1px solid #333;
     background: #252525;
     color: #f0f0f0;
@@ -215,8 +229,8 @@ img.preview-slika {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 10px; /* Smanjen margin-bottom */
-    justify-content: center;
+    margin-bottom: 10px;
+    justify-content: center; /* Centriraj checkbox i labelu */
 }
 
 .pravila-checkbox-wrapper input[type="checkbox"] {
@@ -285,7 +299,7 @@ img.preview-slika {
 .btn-full {
     width: 100%;
     padding: 12px;
-    margin-bottom: 12px; /* Smanjen margin-bottom */
+    margin-bottom: 12px;
     border: 1px solid #333;
     background: #252525;
     color: #f0f0f0;
@@ -335,14 +349,13 @@ img.preview-slika {
 }
 
 
-/* --- POSEBNI STILOVI ZA OBJAVU (PIJANKU) LISTU I CHATOVE (SKROLABILNI SADRŽAJ) --- */
-/* NAPOMENA: Ove sekcije trebaju justify-content: flex-start na roditeljskom .container-u, što je sad default za .container */
-/* a fleksibilnost listi unutar njih osigurava da zauzimaju sav preostali prostor prije controls-bottom */
+/* --- POSEBNI STILOVI ZA SKROLABILNI SADRŽAJ (LISTE) --- */
 #pijankePregled,
-#listaChatova {
+#listaChatova,
+#privatniChatLog { /* Dodano privatniChatLog za skrolanje chata */
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* Centriraj stavke liste horizontalno */
     width: 100%;
     flex-grow: 1; /* Omogući da se rastegne i zauzme sav dostupan prostor */
     overflow-y: auto; /* Omogući skrolanje ako ima puno pijanki/chatova */
@@ -546,18 +559,8 @@ img.preview-slika {
 }
 
 /* --- Stilovi za privatni chat log --- */
-#privatniChatLog {
-    /* min-height: 180px; uklonjeno ili smanjeno ako zelimo da se siri */
-    /* max-height: 250px; uklonjeno ili povećano ako želiš da chat zauzme više prostora */
-    flex-grow: 1; /* Omogući mu da se rastegne i zauzme sav dostupan prostor */
-    background: none;
-    padding: 0;
-    overflow-y: auto; /* Omogući skrolanje */
-    margin-bottom: 8px;
-    display: flex;
-    flex-direction: column;
-    -webkit-overflow-scrolling: touch; /* Bolje skrolanje na iOS-u */
-}
+/* Sada koristi iste flex grow i overflow kao ostale liste */
+
 
 #privatniChatLog p {
     margin-bottom: 6px;
@@ -676,4 +679,16 @@ img.preview-slika {
         padding: 10px;
         margin-bottom: 10px;
     }
+}
+
+/* SPECIFIČNO PODEŠAVANJE ZA VELIKE VERTIKALNE EKRANE (npr. iPhone Pro Max) */
+/* Ako se na visokim ekranima sadržaj previše razvlači ili gumbi nestaju,
+   možeš dodatno ograničiti visinu pojedinih sekcija ili maksimizirati fleksibilnost skrolajućih elemenata. */
+/* Trenutni dizajn bi trebao biti prilično dobar jer koristi vh jedinice i flex-grow.
+   Ovaj dio dodajem kao NAPOMENU, da znaš da se tu može dodatno finiširati ako se pokaže potreba. */
+@media (min-height: 800px) { /* Primjer za ekrane više od 800px (npr. Pro Max) */
+    .container {
+        max-height: 850px; /* Možda malo više max-height da se bolje iskoristi prostor */
+    }
+    /* Ako se gumbi na dnu i dalje gube, provjeri da li je flex-grow na pijankePregled/listaChatova dovoljan */
 }
