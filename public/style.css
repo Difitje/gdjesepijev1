@@ -291,6 +291,34 @@ img.preview-slika {
     box-shadow: 0 3px 12px rgba(255, 71, 87, 0.1);
 }
 
+/* STILOVI ZA X GUMB ZA ZATVARANJE PROZORA */
+.close-btn-container {
+    position: absolute; /* Apsolutno pozicioniran unutar roditeljskog .container */
+    top: 15px; /* Odmak od vrha */
+    right: 15px; /* Odmak od desnog ruba */
+    z-index: 10; /* Da bude iznad ostalog sadržaja */
+}
+
+.close-btn {
+    background: none; /* Bez pozadine */
+    border: none; /* Bez obruba */
+    color: #b0b0b0; /* Siva boja teksta */
+    font-size: 20px; /* Veličina "X" */
+    cursor: pointer;
+    padding: 5px;
+    margin: 0;
+    line-height: 1; /* Poravnaj X */
+    transition: color 0.2s ease, transform 0.2s ease;
+    width: auto; /* Poništi 100% širinu gumba od općih button stilova */
+    display: block; /* Osiguraj da gumb bude blok element */
+}
+
+.close-btn:hover {
+    color: #ff4757; /* Crvena na hoveru */
+    transform: scale(1.1); /* Mali zum na hoveru */
+    box-shadow: none; /* Ukloni sjenu ako je ima od općih button stilova */
+}
+
 
 /* --- POSEBNI STILOVI ZA OBJAVU (PIJANKU) LISTU --- */
 #pijankePregled {
