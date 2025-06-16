@@ -1,6 +1,6 @@
 // public/script.js
 
-// Globalne varijable
+// Globalne varijale
 let trenutniKorisnik = null;
 let sviKorisnici = [];
 let svePijanke = [];
@@ -11,6 +11,8 @@ let mojPoz = null; // Geolokacija ostaje lokalno na frontendu
 let activityInterval = null;
 let chatStatusInterval = null;
 let globalDataRefreshInterval = null;
+let odabranaSlika = null; // Za upload profilne slike pri registraciji (Base64)
+let odabranaEditSlika = null; // Za upload profilne slike pri uređivanje (Base64)
 let prethodniEkran = "lokacijePrikaz"; // Dodana globalna varijabla za prethodni ekran
 
 // --- POMOĆNA FUNKCIJA ZA FETCH POZIVE SA AUTORIZACIJOM ---
@@ -154,6 +156,13 @@ function swap(hideId, showId) {
         return;
     }
 
+    // Postavi z-index za trenutno aktivni ekran da bude ispod
+    if (hideElement) {
+        hideElement.style.zIndex = '0'; // Stari ekran ide nazad
+    }
+    // Postavi z-index za novi ekran da bude na vrhu
+    showElement.style.zIndex = '1'; // Novi ekran ide naprijed
+
     const showNewElement = () => {
         showElement.style.display = 'flex'; // Prvo ga učini vidljivim (display: flex jer su kontejneri flex)
         // ODGODA: Mali timeout da preglednik registrira display:block/flex prije nego što se aktivira tranzicija
@@ -227,8 +236,9 @@ async function globalRefreshUI() {
 }
 
 // --- FUNKCIJE ZA UPLOAD SLIKA (Lokalna obrada Base64) ---
-let odabranaSlika = null; // Za upload profilne slike pri registraciji (Base64)
-let odabranaEditSlika = null; // Za upload profilne slike pri uređivanje (Base64)
+// Globalne varijable već deklarirane na početku skripte
+// let odabranaSlika = null;
+// let odabranaEditSlika = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const slikaUploadEl = document.getElementById("slikaUpload");
@@ -239,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const reader = new FileReader();
                 reader.onload = e => {
                     odabranaSlika = e.target.result;
-                    const previewElement = document.getElementById("previewSlikes"); // Provjeri da li je ID 'previewSlike' ili 'previewSlikes'
+                    const previewElement = document.getElementById("previewSlike"); // Ispravljen ID
                     if (previewElement) {
                         previewElement.src = odabranaSlika;
                         previewElement.style.display = "block";
@@ -839,7 +849,8 @@ function prikaziPijankePregled() {
 async function otvoriProfil(korisnikId) {
     if (!korisnikId) return;
 
-    // Ažurirano: 'prethodniEkran' se postavlja prije swapa
+    // Ažurirano: Spremi TRENUTNI aktivni ekran kao prethodni prije ulaska u glavniDio
+    // Ovo osigurava da se ispravno vratimo na lokacijePrikaz ili inboxPrikaz
     prethodniEkran = document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz'; 
     
     // Prikaz loading stanja za profil dok se podaci učitavaju
@@ -988,7 +999,10 @@ async function prikaziInbox() {
 }
 
 async function pokreniPrivatniChat(partnerId, saEkrana) {
-    prethodniEkran = saEkrana;
+    // 'saEkrana' sada ispravno sadrži originalni ekran s kojeg smo došli (npr. lokacijePrikaz ili inboxPrikaz).
+    // Tu vrijednost prosljeđujemo funkciji 'zatvoriEkran' kada se vraćamo iz chata.
+    prethodniEkran = saEkrana; // Ažurira globalnu varijablu, da bi povratak na profil bio ispravan
+    
     trenutniChatPartnerId = partnerId;
     const primalac = sviKorisnici.find(u => u.id === partnerId);
     if (!primalac) {
@@ -1026,7 +1040,9 @@ async function pokreniPrivatniChat(partnerId, saEkrana) {
     if (chatStatusInterval) clearInterval(chatStatusInterval);
     chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
     azurirajStatusSagovornika();
-    swap(prethodniEkran, "privatniChat");
+
+    const currentlyActiveId = document.querySelector('.container.active-screen')?.id;
+    swap(currentlyActiveId, "privatniChat"); 
     prikaziPrivatniLog();
 }
 
