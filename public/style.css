@@ -184,18 +184,28 @@ button:disabled {
     box-shadow: none;
 }
 
-/* Novi stil za "Nazad" gumbe - koristi isti stil kao .btn-secondary, ali s posebnim margin-top: auto */
+/* Novi stil za "Nazad" gumbe - sada je ikona */
 .back-button {
     background: #3a3a3a; /* Sekundarna boja */
     color: #f0f0f0;
-    margin-top: auto; /* Gurni ga na dno kontejnera */
-    font-weight: normal; /* Manje bold od primarnih gumba */
-    /* Padding, border-radius, font-size nasljeđuje od općeg 'button' stila */
+    margin-top: auto; /* Gurni ga na dno flexbox kontejnera (za donje gumbe) */
+    font-weight: normal;
+    font-size: 24px; /* Veličina strelice */
+    padding: 8px 15px; /* Manji padding da izgleda kao ikona gumb */
+    border-radius: 50%; /* Okrugli gumb */
+    width: 50px; /* Fiksna širina */
+    height: 50px; /* Fiksna visina */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: center; /* Centriraj ga unutar roditelja */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .back-button:hover {
     background: #4a4a4a;
-    box-shadow: none;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+    transform: translateY(-1px);
 }
 
 
@@ -380,7 +390,7 @@ img.preview-slika {
     background: none;
     border: none;
     color: #b0b0b0;
-    font-size: 20px;
+    font-size: 24px; /* Malo veći X da bude uočljiviji */
     cursor: pointer;
     padding: 5px; /* Manji padding za sam "✖" simbol */
     margin: 0;
@@ -400,7 +410,7 @@ img.preview-slika {
 #glavniDio,
 #privatniChat,
 #editProfil {
-    padding-top: 50px; /* Dodaje prostor na vrhu za naslov i X gumb */
+    padding-top: 60px; /* Dodaje prostor na vrhu za naslov i X gumb */
 }
 
 
