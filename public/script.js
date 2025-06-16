@@ -98,7 +98,7 @@ window.addEventListener('DOMContentLoaded', async function() {
             }, 500); // 500ms je trajanje fadeOutSplash animacije
         }, 2000); // Čekaj 2 sekunde prije nego što počne nestajati
     } else {
-        // Ako nema splash screena, odmah pokreni aplikaciju ili prikaži intro
+        // Ako nema splash screena (npr. dev okruženje), odmah pokreni aplikaciju ili prikaži intro
         if (appInitializedSuccessfully) {
             pokreniAplikaciju();
         } else {
@@ -109,6 +109,25 @@ window.addEventListener('DOMContentLoaded', async function() {
             }
         }
     }
+
+    // **NOVO**: Dodaj event listenere za padajući izbornik
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', function(event) {
+            event.stopPropagation(); // Spriječi zatvaranje dropdowna odmah
+            document.getElementById('settingsDropdown').classList.toggle('show');
+            azurirajNotifikacije(); // Ažuriraj notifikaciju kada se klikne na postavke
+        });
+    }
+
+    // Zatvori padajući izbornik ako se klikne bilo gdje izvan njega
+    window.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('settingsDropdown');
+        const settingsBtn = document.getElementById('settingsBtn'); // Dodaš i gumb u provjeru
+        if (dropdown && settingsBtn && !dropdown.contains(event.target) && !settingsBtn.contains(event.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
 });
 
 // --- FUNKCIJE ZA PREBACIVANJE EKRANA (UI LOGIKA) ---
@@ -122,30 +141,36 @@ function swap(hideId, showId) {
     }
 
     const showNewElement = () => {
-        showElement.style.display = 'block';
+        showElement.style.display = 'block'; // Prvo ga učini vidljivim (display)
+        // ODGODA: Mali timeout da preglednik registrira display:block prije nego što se aktivira tranzicija
         setTimeout(() => {
-            showElement.classList.add('active-screen');
-        }, 10);
+            showElement.classList.add('active-screen'); // Dodaj klasu za fade-in
+        }, 10); // Minimalno kašnjenje od 10ms
     };
 
+    // Ako postoji element za sakriti I on je trenutno aktivan (tj. već ima animaciju)
     if (hideElement && hideElement.classList.contains('active-screen')) {
-        hideElement.classList.remove('active-screen');
-        hideElement.classList.add('fade-out-screen');
+        hideElement.classList.remove('active-screen'); // Ukloni aktivno stanje
+        hideElement.classList.add('fade-out-screen'); // Dodaj klasu za fade-out animaciju
 
         hideElement.addEventListener('animationend', function handler() {
-            hideElement.classList.remove('fade-out-screen');
-            hideElement.style.display = 'none';
-            hideElement.removeEventListener('animationend', handler);
+            hideElement.classList.remove('fade-out-screen'); // Ukloni fade-out klasu
+            hideElement.style.display = 'none'; // Sakrij element nakon animacije
+            hideElement.removeEventListener('animationend', handler); // Važno: Ukloni listener
+
             showNewElement(); // Prikazi novi element tek nakon što stari nestane
-        }, { once: true });
+        }, { once: true }); // '{ once: true }' osigurava da se listener automatski ukloni nakon prvog okidanja
     } else {
+        // Ako nema elementa za sakriti, ili element nije bio "active-screen" (npr. inicijalni prikazi),
+        // samo sakrij prethodni (ako postoji) i odmah prikaži novi.
         if (hideElement) {
-            hideElement.style.display = 'none';
-            hideElement.classList.remove('active-screen', 'fade-out-screen'); // Osiguraj čisto stanje
+             hideElement.style.display = 'none';
+             hideElement.classList.remove('active-screen', 'fade-out-screen'); // Osiguraj čisto stanje
         }
         showNewElement(); // Odmah prikaži novi element
     }
 }
+
 
 function proveriPrihvatanje() {
     const checkbox = document.getElementById('prihvatamPravila');
@@ -367,7 +392,7 @@ function pokreniAplikaciju() {
     // Prikazi lokacijePrikaz s animacijom
     const lokacijePrikazEl = document.getElementById("lokacijePrikaz");
     if (lokacijePrikazEl) {
-        lokacijePrikazEl.style.display = "block"; // Prikazi ga
+        lokacijePrikazEl.style.display = 'block'; // Prikazi ga
         setTimeout(() => lokacijePrikazEl.classList.add('active-screen'), 10);
     }
 
@@ -398,6 +423,8 @@ async function prikaziEditProfila() {
             document.getElementById("previewEditSlike").src = user.slika || '';
             odabranaEditSlika = null;
             swap("lokacijePrikaz", "editProfil");
+            // **NOVO**: Zatvori dropdown nakon odabira opcije
+            document.getElementById('settingsDropdown').classList.remove('show');
         } else {
             const errorData = await response.json();
             alert("Greška pri dohvaćanju profila: " + errorData.message);
@@ -497,11 +524,17 @@ function dohvatiLokaciju(callback) {
     }, (error) => {
         console.error("Greška pri dohvaćanju geolokacije:", error);
         if (error.code === error.PERMISSION_DENIED) {
-             alert("Pristup lokaciji je odbijen. Molimo odobrite pristup lokaciji u postavkama preglednika za ovu stranicu.");
+             alert("Pristup lokaciji je odbijen. Molimo odobrite pristup lokaciji u postavkama preglednika za ovu stranicu. Bez lokacije nećete moći objavljivati pijanke.");
+             mojPoz = null; // Postavite mojPoz na null ako je odbijeno
         } else {
              alert("Nismo dobili geolokaciju. Molimo odobrite pristup lokaciji. Bez lokacije nećete moći objavljivati pijanke.");
+             mojPoz = null; // Također postavite na null
         }
-        callback && callback();
+        callback && callback(); // Nastavi i ako je greška
+    }, {
+        enableHighAccuracy: true, // Pokušaj dobiti najprecizniju moguću lokaciju
+        timeout: 10000,           // Čekaj najviše 10 sekundi
+        maximumAge: 60000         // Koristi keširanu lokaciju ako nije starija od 1 minute
     });
 }
 
@@ -521,6 +554,8 @@ function pokaziObjavu() {
     document.getElementById("profilKorisnika").style.display = "none";
     document.getElementById("objavaForma").style.display = "block";
     document.getElementById("opisPijanke").value = "";
+    // **NOVO**: Zatvori dropdown nakon odabira opcije
+    document.getElementById('settingsDropdown').classList.remove('show');
 }
 
 async function objaviPijanku() {
@@ -529,7 +564,9 @@ async function objaviPijanku() {
     if (!opis) return alert("Molimo popunite opis pijanke!");
 
     if (!mojPoz || mojPoz.lat === null || mojPoz.lon === null) {
-        return dohvatiLokaciju(() => objaviPijanku()); // Ponovi ako lokacija nije dostupna
+        // Ponovno pokušaj dohvatiti lokaciju ako nije dostupna,
+        // ali ako korisnik odbije, mojPoz će biti null i alert će se odmah pojaviti.
+        return dohvatiLokaciju(() => objaviPijanku());
     }
 
     try {
@@ -602,11 +639,9 @@ function prikaziPijankePregled() {
             return;
         }
 
-        // **KLJUČNO**: Provjerite postoji li autor prije pristupa njegovim svojstvima
         const autor = sviKorisnici.find(u => u.id === pijanka.korisnikId);
         if (!autor) {
             console.error("Autor pijanke nije pronađen za ID:", pijanka.korisnikId, "Pijanka:", pijanka);
-            // Fallback za prikaz ako autor nije pronađen, ili preskočite ovu pijanku
             div.innerHTML += `<div class="pijanka">Autor nepoznat (ID: ${pijanka.korisnikId}) - Greška pri učitavanju.</div>`;
             return;
         }
@@ -676,19 +711,25 @@ function prikaziMreze(p) {
 function azurirajNotifikacije() {
     let neprocitane = 0;
     const badgeContainer = document.getElementById("notifikacijaPoruka");
-    if (!badgeContainer) return;
+    
+    if (!badgeContainer) {
+        console.warn("Element #notifikacijaPoruka not found, cannot update notification badge.");
+        return;
+    }
 
-    badgeContainer.innerHTML = "";
-    // **KLJUČNO**: Provjerite postoji li trenutniKorisnik prije pristupa njegovom ID-u
+    badgeContainer.innerHTML = ""; // Clear previous badge content
     if (trenutniKorisnik && trenutniKorisnik.id) {
         for (const chatKey in privatnePoruke) {
+            // Check if current user is part of this chatKey
             if (chatKey.includes(trenutniKorisnik.id)) {
+                // Filter messages that are not read AND sent by the other party
                 neprocitane += privatnePoruke[chatKey].filter(msg => !msg.isRead && msg.autorId !== trenutniKorisnik.id).length;
             }
         }
     }
+    
     if (neprocitane > 0) {
-        badgeContainer.innerHTML = `<span class="notification-badge"></span>`;
+        badgeContainer.innerHTML = `<span class="notification-badge">${neprocitane > 9 ? '9+' : neprocitane}</span>`; 
     }
 }
 
@@ -697,12 +738,13 @@ async function prikaziInbox() {
     if (!div) return;
 
     div.innerHTML = "";
-    // **KLJUČNO**: Provjerite postoji li trenutniKorisnik prije filtriranja
     const chatKeys = (trenutniKorisnik && trenutniKorisnik.id) ? Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id)) : [];
 
     if (chatKeys.length === 0) {
         div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
         swap("lokacijePrikaz", "inboxPrikaz"); // Prebacite se na inbox ekran čak i ako nema poruka
+        // **NOVO**: Zatvori dropdown nakon odabira opcije
+        document.getElementById('settingsDropdown').classList.remove('show');
         return;
     }
 
@@ -717,7 +759,6 @@ async function prikaziInbox() {
         const partner = sviKorisnici.find(u => u.id == partnerId);
         if (!partner) {
                 console.error("Partner za chat nije pronađen za ID:", partnerId);
-                // Možda prikazati "Nepoznat korisnik" ili preskočiti
                 div.innerHTML += `<div class="chat-item">Nepoznat korisnik (ID: ${partnerId}) - Greška pri učitavanju.</div>`;
                 return;
         }
@@ -737,6 +778,8 @@ async function prikaziInbox() {
         </div>`;
     });
     swap("lokacijePrikaz", "inboxPrikaz");
+    // **NOVO**: Zatvori dropdown nakon odabira opcije
+    document.getElementById('settingsDropdown').classList.remove('show');
 }
 
 async function pokreniPrivatniChat(partnerId, saEkrana) {
@@ -819,7 +862,6 @@ async function posaljiPrivatno() {
 }
 
 function prikaziPrivatniLog() {
-    // **KLJUČNO**: Provjerite postoji li trenutniKorisnik prije formiranja chatKey-a
     if (!trenutniKorisnik || !trenutniKorisnik.id || !trenutniChatPartnerId) {
         console.warn("Nedostaju podaci za prikaz privatnog chata.");
         document.getElementById("privatniChatLog").innerHTML = '<p style="text-align:center; color:#888;">Nema poruka.</p>';
@@ -849,7 +891,6 @@ async function dohvatiSveKorisnike() {
         const response = await authenticatedFetch('/api/users');
         if (response.ok) {
             sviKorisnici = await response.json();
-            // console.log("Dohvaćeni svi korisnici:", sviKorisnici); // Opcionalno za debug
         } else {
             console.error("Greška pri dohvaćanju korisnika:", await response.text());
             sviKorisnici = [];
@@ -865,7 +906,6 @@ async function dohvatiSvePijanke() {
         const response = await authenticatedFetch('/api/posts');
         if (response.ok) {
             svePijanke = await response.json();
-            // console.log("Dohvaćene pijanke:", svePijanke); // Opcionalno za debug
         } else {
             console.error("Greška pri dohvaćanju pijanki:", await response.text());
             svePijanke = [];
@@ -887,7 +927,6 @@ async function dohvatiSvePoruke() {
         const response = await authenticatedFetch('/api/messages');
         if (response.ok) {
             privatnePoruke = await response.json();
-            // console.log("Dohvaćene poruke:", privatnePoruke); // Opcionalno za debug
         } else {
             console.error("Greška pri dohvaćanju poruka:", await response.text());
             privatnePoruke = {};
