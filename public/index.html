@@ -7,14 +7,14 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <!-- Splash Screen (ostaje isti) -->
+    <!-- Splash Screen -->
     <div id="splashScreen">
         <h1>DRINKER</h1>
     </div>
 
     <!-- Omotač za sve ekrane -->
     <div id="appWrapper">
-        <!-- AUTH EKRANI (Prijava/Registracija) -->
+        <!-- AUTH EKRANI -->
         <div class="container" id="intro">
             <h2>🍻 Dosadno vam je?</h2>
             <p style="text-align:center;">Pridruži se ekipi koja zna kako se loče!</p>
@@ -55,7 +55,7 @@
             <h2>Registracija</h2>
             <input id="ime" placeholder="Korisničko ime" />
             <input id="sifra" type="password" placeholder="Lozinka" />
-            <label style="font-size:14px; display:block; margin-bottom:5px;">Profilna slika:</label>
+            <label>Profilna slika:</label>
             <input type="file" id="slikaUpload" accept="image/*" />
             <img id="previewSlike" class="preview-slika" />
             <input id="instagram" placeholder="Instagram korisničko ime (bez @)" />
@@ -64,7 +64,7 @@
             <button id="registracijaSubmitBtn" onclick="registruj()">Spremi</button>
         </div>
         
-        <!-- GLAVNI EKRAN APLIKACIJE (APP SHELL) -->
+        <!-- GLAVNI EKRAN APLIKACIJE -->
         <div class="app-shell" id="mainAppView">
             <header class="main-header">
                 <div class="header-left">
@@ -87,13 +87,12 @@
             </main>
             <footer class="bottom-nav">
                 <button class="add-party-btn" aria-label="Objavi pijanku" onclick="pokaziObjavu()">
-                     <!-- SVG Ikona za kriglu -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 256 256"><path d="M239.3,71.3l-32-32a8,8,0,0,0-11.3,0l-16,16a8,8,0,0,0,0,11.3L202.7,99.3a8,8,0,0,0,11.3,0l16-16A8,8,0,0,0,239.3,71.3ZM208,116.7a8,8,0,0,0-8,8V216H48V88h85.3a8,8,0,0,0,5.7-2.3l24-24a8,8,0,0,0-11.4-11.4L128,73.9V40a8,8,0,0,0-8-8H40A16,16,0,0,0,24,48V216a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V124.7A8,8,0,0,0,208,116.7ZM96,168a8,8,0,0,1-16,0,24,24,0,0,0-48,0,8,8,0,0,1-16,0,40,40,0,0,1,80,0ZM192,168a8,8,0,0,1-16,0,24,24,0,0,0-48,0,8,8,0,0,1-16,0,40,40,0,0,1,80,0Z"></path></svg>
                 </button>
             </footer>
         </div>
         
-        <!-- OVERLAY EKRANI (koji idu preko glavnog) -->
+        <!-- OVERLAY EKRANI -->
         <div class="overlay-screen" id="overlayHost">
             <div class="overlay-header">
                 <button class="back-button" onclick="zatvoriOverlay()">
@@ -101,9 +100,7 @@
                 </button>
                 <h2 id="overlayNaslov"></h2>
             </div>
-            <div class="overlay-content" id="overlayContent">
-                <!-- Sadržaj za profil, objavu, poruke, edit profila itd. -->
-            </div>
+            <div class="overlay-content" id="overlayContent"></div>
         </div>
 
         <div class="overlay-screen" id="chatOverlay">
@@ -122,9 +119,7 @@
                 <button id="posaljiPrivatnoBtn" onclick="posaljiPrivatno()">Pošalji</button>
             </div>
         </div>
-
     </div>
-
     <script src="/script.js"></script>
 </body>
 </html>

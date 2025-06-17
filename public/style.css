@@ -1,7 +1,3 @@
-/* ================================== */
-/* ===      NOVI REDIZAJN CSS     === */
-/* ================================== */
-
 :root {
     --primary-color: #ff4757;
     --background-dark: #121212;
@@ -13,7 +9,6 @@
     --footer-height: 75px;
 }
 
-/* --- Globalni Reset i Osnovni Stilovi --- */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -29,7 +24,6 @@ html, body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* --- Omotač za sve ekrane --- */
 #appWrapper {
     height: 100%;
     width: 100%;
@@ -39,7 +33,6 @@ html, body {
     align-items: center;
 }
 
-/* --- Ekrani za Prijavu/Registraciju --- */
 .container {
     width: 95%;
     max-width: 400px;
@@ -48,12 +41,10 @@ html, body {
     border-radius: 18px;
     border: 1px solid var(--border-color);
     box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
-    
-    display: none; /* Inicijalno sakriveni */
+    display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    
     position: absolute;
     opacity: 0;
     transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
@@ -84,24 +75,21 @@ html, body {
     cursor: pointer;
 }
 
-/* --- Novi Glavni Ekran (App Shell) --- */
 .app-shell {
     width: 100%;
     height: 100%;
-    display: none; /* Inicijalno sakriven */
+    display: none;
     flex-direction: column;
     background-color: var(--background-dark);
     position: absolute;
     top: 0;
     left: 0;
 }
-
 .app-shell.active-screen {
     display: flex;
     z-index: 10;
 }
 
-/* Header */
 .main-header {
     display: flex;
     justify-content: space-between;
@@ -142,7 +130,6 @@ html, body {
 .header-profile-avatar:active {
     transform: scale(0.9);
 }
-
 .header-action-icon {
     background: none;
     border: none;
@@ -164,11 +151,9 @@ html, body {
     background-color: var(--primary-color);
     border-radius: 50%;
     border: 2px solid var(--surface-color);
-    display: none; /* Prikazuje se preko JS-a */
+    display: none;
 }
 
-
-/* Glavni Sadržaj */
 .content-area {
     flex-grow: 1;
     overflow-y: auto;
@@ -176,7 +161,6 @@ html, body {
     padding: 16px;
 }
 
-/* Footer */
 .bottom-nav {
     display: flex;
     justify-content: center;
@@ -209,7 +193,6 @@ html, body {
     color: white;
 }
 
-/* --- Overlay Ekrani (Profil, Chat, Objava...) --- */
 .overlay-screen {
     position: fixed;
     top: 0;
@@ -228,7 +211,6 @@ html, body {
     transform: translateX(0);
     visibility: visible;
 }
-
 .overlay-header {
     display: flex;
     align-items: center;
@@ -261,8 +243,6 @@ html, body {
     overflow-y: auto;
     padding: 20px;
 }
-
-/* Chat Overlay specifični stilovi */
 #chatOverlay {
     padding: 0;
 }
@@ -279,7 +259,7 @@ html, body {
 }
 .chat-log-container {
     display: flex;
-    flex-direction: column-reverse; /* Poruke idu odozdo prema gore */
+    flex-direction: column-reverse;
 }
 .chat-input-area {
     display: flex;
@@ -301,7 +281,6 @@ html, body {
     margin: 0;
 }
 
-/* --- Opći stilovi za forme i gumbe --- */
 input, textarea, button {
     width: 100%;
     padding: 14px;
@@ -332,6 +311,12 @@ input:focus, textarea:focus {
     cursor: not-allowed;
     opacity: 0.5;
 }
+.container > button:not([disabled]):active, .form-button:not([disabled]):active {
+    transform: scale(0.98);
+}
+#odabir button {
+    margin-bottom: 10px;
+}
 .btn-secondary {
     background: #3a3a3a;
 }
@@ -349,11 +334,19 @@ input:focus, textarea:focus {
      margin: 0; font-size: 14px;
 }
 .pravila-text{
-    height: 300px;
+    max-height: 50vh;
     overflow-y: auto;
+    padding-right: 10px;
+    text-align: left;
+}
+#registracija label {
+    font-size: 14px;
+    display: block;
+    margin-bottom: 5px;
+    text-align: left;
+    width: 100%;
 }
 
-/* --- Pijanka Kartice --- */
 .pijanka-card {
     background: var(--surface-color);
     padding: 15px;
@@ -376,6 +369,7 @@ input:focus, textarea:focus {
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--primary-color);
+    flex-shrink: 0;
 }
 .pijanka-info { flex-grow: 1; }
 .pijanka-info strong { font-size: 16px; }
@@ -392,7 +386,6 @@ input:focus, textarea:focus {
 .delete-btn:hover { color: var(--primary-color); }
 .pijanka-opis p { margin: 0; color: var(--text-primary); }
 
-/* --- Profil --- */
 .profile-view { text-align: center; }
 .profilna-slika, .preview-slika {
     width: 100px;
@@ -413,20 +406,18 @@ input:focus, textarea:focus {
 .social-links svg { width: 28px; height: 28px; color: var(--text-secondary); }
 .profile-actions button { margin-top: 10px; }
 
-/* --- Chat --- */
 #listaChatova .chat-item {
     display: flex; align-items: center; gap: 15px; padding: 10px;
     border-radius: 8px; margin-bottom: 10px; transition: background 0.2s;
     cursor: pointer;
 }
 #listaChatova .chat-item:hover { background: #252525; }
-#listaChatova .chat-item .profilna-slika { width: 50px; height: 50px; }
+#listaChatova .chat-item .profilna-slika { width: 50px; height: 50px; border-color: #444;}
 #listaChatova .chat-item-info { flex-grow: 1; }
 .notification-dot-chat {
      width: 12px; height: 12px; background-color: var(--primary-color); border-radius: 50%;
      margin-left: auto;
 }
-
 .msg-bubble {
     padding: 8px 14px;
     border-radius: 18px;
@@ -452,8 +443,6 @@ input:focus, textarea:focus {
     flex-direction: column;
 }
 
-
-/* --- Splash Screen --- */
 #splashScreen {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: #111; display: none; justify-content: center; align-items: center; z-index: 9999;
