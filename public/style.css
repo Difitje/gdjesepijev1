@@ -273,4 +273,32 @@ img.preview-slika { display: none; }
 @keyframes bounceIn { 0% { transform: scale(0.1); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
 @keyframes fadeOutSplash { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
 
+#profilKorisnika button,
+#editProfil button {
+    /* Koristimo tamnu boju s blagom prozirnošću (npr. 70% neprozirnosti) */
+    background: rgba(30, 30, 30, 0.7); /* Prilagodi zadnju brojku (0.1 do 0.9) za željenu prozirnost */
+    box-shadow: none; /* Uklanjamo box-shadow da izgledaju prozračnije */
+    border: 1px solid rgba(51, 51, 51, 0.5); /* Dodajemo prozirnu granicu */
+}
+
+#profilKorisnika button:hover,
+#editProfil button:hover {
+    background: rgba(40, 40, 40, 0.9); /* Tamnije na hover (više neprozirnosti) */
+    transform: none; /* Sprečava "skakanje" na hoveru ako ne želiš */
+    box-shadow: none; /* Osiguraj da nema sjene na hoveru */
+}
+
+#objavaForma button {
+    /* Postavi pozadinu na blagu prozirnost */
+    background: rgba(255, 71, 87, 0.7); /* Originalna #ff4757 boja s 70% neprozirnosti */
+    border: none; /* Ukloni granicu ako je bila definirana */
+    box-shadow: none; /* Ukloni sjenu */
+}
+
+#objavaForma button:hover {
+    background: rgba(255, 71, 87, 0.9); /* Tamnije na hover (više neprozirnosti) */
+    transform: none; /* Sprečava "skakanje" na hoveru */
+    box-shadow: none; /* Osiguraj da nema sjene na hoveru */
+}
+
 /* === KRAJ CSS-a === */
