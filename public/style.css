@@ -43,7 +43,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.90); /* Crni prozirni sloj (40% neprozirnosti) */
+    background-color: rgba(0, 0, 0, 0.85); /* Crni prozirni sloj (40% neprozirnosti) */
     z-index: 1; /* Mora biti iznad body-ja, ali ispod sadržaja */
 }
 
@@ -289,16 +289,20 @@ img.preview-slika { display: none; }
 }
 
 #objavaForma button {
-    /* Postavi pozadinu na blagu prozirnost */
-    background: rgba(255, 71, 87, 0.7); /* Originalna #ff4757 boja s 70% neprozirnosti */
+    /* Trenutno imaš: background: linear-gradient(45deg, #ff4757, #e03f4d); */
+    /* Mijenjamo ga u RGBA boju */
+    background: rgba(255, 71, 87, 0.7); /* Crvena (#ff4757) s 70% neprozirnosti */
     border: none; /* Ukloni granicu ako je bila definirana */
-    box-shadow: none; /* Ukloni sjenu */
+    font-weight: bold;
+    position: relative;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    box-shadow: none; /* Uklanjamo sjenu da izgleda prozračnije */
 }
 
 #objavaForma button:hover {
-    background: rgba(255, 71, 87, 0.9); /* Tamnije na hover (više neprozirnosti) */
-    transform: none; /* Sprečava "skakanje" na hoveru */
+    /* Prilagodi hover stanje da bude konzistentno */
+    background: rgba(255, 71, 87, 0.9); /* Crvena s blago većom neprozirnosti na hoveru */
+    transform: none; /* Sprečava "skakanje" na hoveru ako ne želiš */
     box-shadow: none; /* Osiguraj da nema sjene na hoveru */
 }
-
-/* === KRAJ CSS-a === */
