@@ -34,6 +34,18 @@ html, body {
 }
 
 .container {
+    display: none;
+    opacity: 0;
+    position: absolute;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+.container.active-screen {
+    display: flex;
+    opacity: 1;
+    transform: scale(1);
+    z-index: 20;
+}
+.container.centered {
     width: 95%;
     max-width: 400px;
     background: var(--surface-color);
@@ -41,53 +53,40 @@ html, body {
     border-radius: 18px;
     border: 1px solid var(--border-color);
     box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
-    display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    position: absolute;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
     transform: scale(0.95);
 }
-
-.container.active-screen {
+.container.fullscreen {
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 0;
+    background-color: var(--background-dark);
+    transform: scale(1);
+}
+.splash {
+    background: #111;
+    z-index: 9999;
+}
+.splash.active-screen {
     display: flex;
     opacity: 1;
-    transform: scale(1);
-    z-index: 50;
 }
-.container > h2 {
+
+.container.centered > h2 {
     color: var(--primary-color);
     margin-bottom: 25px;
 }
-.container .back-button {
+.container.centered .back-button {
     position: absolute;
     top: 20px;
     left: 20px;
-    background: none;
-    border: none;
     color: #fff;
     font-size: 24px;
-    width: auto;
-    margin: 0;
-    padding: 0;
-    cursor: pointer;
-}
-
-.app-shell {
-    width: 100%;
-    height: 100%;
-    display: none;
-    flex-direction: column;
-    background-color: var(--background-dark);
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-.app-shell.active-screen {
-    display: flex;
-    z-index: 10;
+    background: none; border: none; cursor: pointer;
 }
 
 .main-header {
@@ -117,6 +116,11 @@ html, body {
     font-weight: 700;
     letter-spacing: 1px;
     color: var(--primary-color);
+}
+.header-title-text {
+    color: var(--text-primary);
+    font-size: 20px;
+    margin: 0 auto;
 }
 .header-profile-avatar {
     width: 38px;
@@ -153,6 +157,10 @@ html, body {
     border: 2px solid var(--surface-color);
     display: none;
 }
+.main-header .back-button {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-primary); font-size: 24px;
+}
 
 .content-area {
     flex-grow: 1;
@@ -160,7 +168,6 @@ html, body {
     -webkit-overflow-scrolling: touch;
     padding: 16px;
 }
-
 .bottom-nav {
     display: flex;
     justify-content: center;
@@ -192,71 +199,6 @@ html, body {
     height: 28px;
     color: white;
 }
-
-.overlay-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--background-dark);
-    display: flex;
-    flex-direction: column;
-    transform: translateX(100%);
-    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-    z-index: 100;
-    visibility: hidden;
-}
-.overlay-screen.active {
-    transform: translateX(0);
-    visibility: visible;
-}
-.overlay-header {
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    height: var(--header-height);
-    flex-shrink: 0;
-    background-color: var(--surface-color);
-    padding-top: env(safe-area-inset-top);
-}
-.overlay-header .back-button {
-    background: none;
-    border: none;
-    padding: 0;
-    margin-right: 15px;
-    cursor: pointer;
-}
-.overlay-header .back-button svg {
-    width: 28px;
-    height: 28px;
-    color: var(--text-primary);
-}
-.overlay-header h2 {
-    margin: 0;
-    font-size: 20px;
-    text-align: left;
-    color: var(--text-primary);
-}
-.overlay-content {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 20px;
-}
-#chatOverlay {
-    padding: 0;
-}
-#chatOverlay .overlay-header {
-    border-bottom: 1px solid var(--border-color);
-}
-#chatOverlay .chat-header-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-#chatOverlay .chat-header-info h2 {
-    line-height: 1.2;
-}
 .chat-log-container {
     display: flex;
     flex-direction: column-reverse;
@@ -268,6 +210,7 @@ html, body {
     background-color: var(--surface-color);
     border-top: 1px solid var(--border-color);
     padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    flex-shrink: 0;
 }
 #privatniInput {
     flex-grow: 1;
@@ -298,7 +241,7 @@ input:focus, textarea:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
 }
-.container > button, .form-button {
+.container.centered > button, .form-button {
     background: linear-gradient(45deg, #ff4757, #e03f4d);
     cursor: pointer;
     border: none;
@@ -306,12 +249,12 @@ input:focus, textarea:focus {
     text-transform: uppercase;
     letter-spacing: 0.8px;
 }
-.container > button:disabled, .form-button:disabled {
+.container.centered > button:disabled, .form-button:disabled {
     background: #555;
     cursor: not-allowed;
     opacity: 0.5;
 }
-.container > button:not([disabled]):active, .form-button:not([disabled]):active {
+.container.centered > button:not([disabled]):active, .form-button:not([disabled]):active {
     transform: scale(0.98);
 }
 #odabir button {
@@ -443,12 +386,4 @@ input:focus, textarea:focus {
     flex-direction: column;
 }
 
-#splashScreen {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #111; display: none; justify-content: center; align-items: center; z-index: 9999;
-    transition: opacity 0.5s ease-out;
-}
-#splashScreen.active-screen {
-    display: flex;
-}
 #splashScreen h1 { font-size: 3em; color: var(--primary-color); letter-spacing: 4px; }
