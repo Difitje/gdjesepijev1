@@ -1,3 +1,7 @@
+/* ================================== */
+/* ===   FINALNI CSS (v9.0)       === */
+/* ================================== */
+
 :root {
     --primary-color: #ff4757;
     --background-dark: #121212;
@@ -21,53 +25,106 @@ html, body {
     color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
-#appWrapper {
-    height: 100%;
-    width: 100%;
+/* Omotač za sve ekrane */
+#appWrapper, body {
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-/* EKRANI (Containers) */
+/* Svi ekrani */
 .container {
     display: none;
     opacity: 0;
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
     transition: opacity 0.3s ease-in-out;
-    background-color: var(--background-dark);
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
 }
 .container.active-screen {
     display: flex;
     opacity: 1;
     z-index: 20;
 }
-.container.centered {
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 30px;
-}
-.container.centered > * {
-    max-width: 400px;
-    width: 100%;
-}
-.container.fullscreen {
-    flex-direction: column;
-    justify-content: flex-start;
-    padding: 0;
-}
 .splash {
     background: #111;
     z-index: 9999;
-    justify-content: center;
-    align-items: center;
-}
-.splash.active-screen {
-    display: flex;
-    opacity: 1;
 }
 
-/* Header */
+/* === Stari stil za AUTH ekrane === */
+.container:not(.app-view) {
+    width: 95%;
+    max-width: 400px;
+    height: auto;
+    max-height: 90vh;
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid #2a2a2a;
+    box-shadow: 0 3px 20px rgba(255, 71, 87, 0.12);
+    margin: 20px auto;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    overflow-y: auto;
+    position: relative;
+}
+.container:not(.app-view).active-screen {
+    top: auto;
+    left: auto;
+    position: relative;
+}
+.container:not(.app-view) h2 {
+    text-align: center;
+    color: #ff4757;
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+.container:not(.app-view) p {
+    margin-bottom: 12px;
+    color: #b0b0b0;
+    font-size: 14px;
+}
+.container:not(.app-view) input, 
+.container:not(.app-view) textarea, 
+.container:not(.app-view) button {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #333;
+    background: #252525;
+    color: #f0f0f0;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    transition: all 0.2s ease-in-out;
+}
+.container:not(.app-view) button {
+    background: linear-gradient(45deg, #ff4757, #e03f4d);
+    cursor: pointer;
+    border: none;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.back-button.left-aligned {
+    position: absolute;
+    top: 25px;
+    left: 20px;
+    background: none !important;
+    border: none !important;
+    color: white !important;
+    font-size: 24px !important;
+}
+
+/* === Novi stil za APP ekrane === */
+.app-view {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 0;
+    background-color: var(--background-dark);
+}
 .main-header {
     display: flex;
     justify-content: space-between;
@@ -79,337 +136,53 @@ html, body {
     flex-shrink: 0;
     padding-top: env(safe-area-inset-top);
 }
-.header-side {
-    flex: 1;
-    display: flex;
-    align-items: center;
-}
-.header-side.right {
-    justify-content: flex-end;
-}
-.header-center {
-    flex: 2;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-.header-title {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: var(--primary-color);
-}
-.header-title-text {
-    color: var(--text-primary);
-    font-size: 20px;
-}
-.header-profile-avatar {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #444;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-.header-profile-avatar:active {
-    transform: scale(0.9);
-}
-.header-action-icon {
-    background: none;
-    border: none;
-    padding: 5px;
-    cursor: pointer;
-    position: relative;
-}
-.header-action-icon svg {
-    width: 28px;
-    height: 28px;
-    color: var(--text-primary);
-}
-.notification-dot-header {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 10px;
-    height: 10px;
-    background-color: var(--primary-color);
-    border-radius: 50%;
-    border: 2px solid var(--surface-color);
-    display: none;
-}
-.back-button-header {
-    background: none; border: none; cursor: pointer;
-    color: var(--text-primary); font-size: 24px;
-    padding: 5px;
-}
-.chat-header h2, .chat-header p {
-    margin: 0;
-    line-height: 1.2;
-}
+.header-side { flex: 1; display: flex; align-items: center; }
+.header-side.right { justify-content: flex-end; }
+.header-center { flex: 2; text-align: center; }
+.header-title { font-size: 22px; font-weight: 700; color: var(--primary-color); }
+.header-title-text { color: var(--text-primary); font-size: 20px; }
+.header-profile-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #444; cursor: pointer; }
+.header-action-icon { background: none; border: none; padding: 5px; cursor: pointer; position: relative; }
+.header-action-icon svg { width: 28px; height: 28px; color: var(--text-primary); }
+.back-button-header { background: none; border: none; cursor: pointer; color: var(--text-primary); font-size: 24px; padding: 5px; }
+.notification-dot-header { position: absolute; top: 6px; right: 6px; width: 10px; height: 10px; background-color: var(--primary-color); border-radius: 50%; border: 2px solid var(--surface-color); display: none; }
+.chat-header h2, .chat-header p { margin: 0; line-height: 1.2; text-align: center;}
 
-/* Glavni Sadržaj */
-.content-area {
-    flex-grow: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 16px;
-}
-.bottom-nav {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: var(--footer-height);
-    background-color: var(--surface-color);
-    border-top: 1px solid var(--border-color);
-    flex-shrink: 0;
-    padding-bottom: env(safe-area-inset-bottom);
-}
-.add-party-btn {
-    background: linear-gradient(45deg, #ff4757, #e03f4d);
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
-    transition: transform 0.2s ease;
-}
-.add-party-btn:active {
-    transform: scale(0.92);
-}
-.add-party-btn svg {
-    width: 28px;
-    height: 28px;
-    color: white;
-}
-.chat-log-container {
-    display: flex;
-    flex-direction: column-reverse;
-}
-.chat-input-area {
-    display: flex;
-    gap: 10px;
-    padding: 10px;
-    background-color: var(--surface-color);
-    border-top: 1px solid var(--border-color);
-    padding-bottom: calc(10px + env(safe-area-inset-bottom));
-    flex-shrink: 0;
-}
-#privatniInput {
-    flex-grow: 1;
-    margin: 0;
-    resize: none;
-}
-#posaljiPrivatnoBtn {
-    width: auto;
-    flex-shrink: 0;
-    padding: 12px 20px;
-    margin: 0;
-}
+.content-area { flex-grow: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; }
+.bottom-nav { display: flex; justify-content: center; align-items: center; height: var(--footer-height); background-color: var(--surface-color); border-top: 1px solid var(--border-color); flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
+.add-party-btn { background: linear-gradient(45deg, #ff4757, #e03f4d); width: 56px; height: 56px; border-radius: 50%; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3); }
+.chat-log-container { display: flex; flex-direction: column-reverse; }
+.chat-input-area { display: flex; gap: 10px; padding: 10px; background-color: var(--surface-color); border-top: 1px solid var(--border-color); padding-bottom: calc(10px + env(safe-area-inset-bottom)); flex-shrink: 0; }
+#privatniInput { flex-grow: 1; margin: 0; resize: none; }
+#posaljiPrivatnoBtn, .form-button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; text-transform: uppercase; letter-spacing: 0.8px; }
+#posaljiPrivatnoBtn { width: auto; flex-shrink: 0; padding: 12px 20px; margin: 0; }
+.btn-secondary { background: #3a3a3a; }
+.pravila-checkbox-wrapper { display: flex; align-items: center; gap: 8px; margin: 10px 0; justify-content: center; }
+.pravila-checkbox-wrapper input { width: auto; margin: 0; }
+.pravila-checkbox-wrapper label { margin: 0; font-size: 14px; }
+.pravila-text { max-height: 50vh; overflow-y: auto; padding: 15px; text-align: left; background: #111; border-radius: 8px; }
 
-/* Auth ekrani - opći stilovi */
-.container.centered input, 
-.container.centered textarea, 
-.container.centered button {
-    width: 100%;
-    padding: 14px;
-    margin-bottom: 12px;
-    border: 1px solid #333;
-    background: #252525;
-    color: #f0f0f0;
-    border-radius: 8px;
-    font-size: 15px;
-    font-family: inherit;
-    transition: all 0.2s ease-in-out;
-}
-.container.centered input:focus, 
-.container.centered textarea:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
-}
-.container.centered button {
-    background: linear-gradient(45deg, #ff4757, #e03f4d);
-    cursor: pointer;
-    border: none;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-}
-.container.centered button:disabled {
-    background: #555;
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-.container.centered button:not([disabled]):active {
-    transform: scale(0.98);
-}
-.form-button { 
-    background: linear-gradient(45deg, #ff4757, #e03f4d);
-    cursor: pointer;
-    border: none;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-}
-#odabir button {
-    margin-bottom: 10px;
-}
-.btn-secondary {
-    background: #3a3a3a;
-}
-.pravila-checkbox-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 10px 0;
-    justify-content: center;
-}
-.pravila-checkbox-wrapper input {
-    width: auto; margin: 0;
-}
-.pravila-checkbox-wrapper label {
-     margin: 0; font-size: 14px;
-}
-.pravila-text{
-    max-height: 50vh;
-    overflow-y: auto;
-    padding-right: 10px;
-    text-align: left;
-    background: #111;
-    padding: 15px;
-    border-radius: 8px;
-}
-.back-button-auth {
-    position: absolute;
-    top: 25px;
-    left: 25px;
-    background: none !important;
-    border: none !important;
-    color: #fff !important;
-    font-size: 24px !important;
-    width: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    cursor: pointer;
-    text-transform: none !important;
-}
-.container.centered > h2 {
-    padding: 0 40px; 
-    text-align: center;
-    color: var(--primary-color);
-    margin-bottom: 25px;
-}
-#registracija label {
-    font-size: 14px;
-    display: block;
-    margin-bottom: 5px;
-    text-align: left;
-    width: 100%;
-}
-
-/* Pijanka Card */
-.pijanka-card {
-    background: var(--surface-color);
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 16px;
-    border-left: 3px solid var(--primary-color);
-}
-.pijanka-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #333;
-}
-.pijanka-profilna-slika {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--primary-color);
-    flex-shrink: 0;
-}
+/* Pijanka Card & Profil */
+.pijanka-card { background: var(--surface-color); padding: 15px; border-radius: 12px; margin-bottom: 16px; border-left: 3px solid var(--primary-color); }
+.pijanka-header { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid #333; }
+.pijanka-profilna-slika { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-color); flex-shrink: 0; }
 .pijanka-info { flex-grow: 1; }
 .pijanka-info strong { font-size: 16px; }
 .status-text { font-size: 12px; color: var(--text-secondary); margin: 0; }
-.delete-btn {
-    background: none;
-    border: none;
-    font-size: 20px;
-    padding: 5px;
-    cursor: pointer;
-    color: #777;
-    transition: color 0.2s ease;
-}
-.delete-btn:hover { color: var(--primary-color); }
-.pijanka-opis p { margin: 0; color: var(--text-primary); }
-
-/* Profil */
+.delete-btn { background: none; border: none; font-size: 20px; padding: 5px; cursor: pointer; color: #777; transition: color 0.2s ease; }
 .profile-view { text-align: center; }
-.profilna-slika, .preview-slika {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--primary-color);
-    margin: 0 auto 15px auto;
-}
-.preview-slika{
-    display: none;
-    border-color: var(--text-secondary);
-}
-.profile-view h3 { font-size: 22px; margin-bottom: 5px; color: var(--text-primary); }
-.profile-view .opis { font-style: italic; color: var(--text-secondary); margin-bottom: 20px; max-width: 300px; margin-left: auto; margin-right: auto; }
-.social-links { margin-bottom: 20px; }
-.social-links a { margin: 0 10px; }
-.social-links svg { width: 28px; height: 28px; color: var(--text-secondary); }
+.profilna-slika, .preview-slika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-color); margin: 0 auto 15px auto; }
+.preview-slika { display: none; border-color: var(--text-secondary); }
 .profile-actions button { margin-top: 10px; }
 
 /* Chat */
-#listaChatova .chat-item {
-    display: flex; align-items: center; gap: 15px; padding: 10px;
-    border-radius: 8px; margin-bottom: 10px; transition: background 0.2s;
-    cursor: pointer;
-}
+#listaChatova .chat-item { display: flex; align-items: center; gap: 15px; padding: 10px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; }
 #listaChatova .chat-item:hover { background: #252525; }
-#listaChatova .chat-item .profilna-slika { width: 50px; height: 50px; border-color: #444;}
+#listaChatova .chat-item .pijanka-profilna-slika { width: 50px; height: 50px; border-color: #444; }
 #listaChatova .chat-item-info { flex-grow: 1; }
-.notification-dot-chat {
-     width: 12px; height: 12px; background-color: var(--primary-color); border-radius: 50%;
-     margin-left: auto;
-}
-.msg-bubble {
-    padding: 8px 14px;
-    border-radius: 18px;
-    max-width: 75%;
-    width: fit-content;
-    margin-bottom: 8px;
-    line-height: 1.4;
-}
-.moja-poruka {
-    background: var(--primary-color);
-    color: white;
-    align-self: flex-end;
-    border-bottom-right-radius: 4px;
-}
-.tudja-poruka {
-    background: #3a3a3a;
-    color: var(--text-primary);
-    align-self: flex-start;
-    border-bottom-left-radius: 4px;
-}
-.chat-log-container > div {
-    display: flex;
-    flex-direction: column;
-}
+.notification-dot-chat { width: 12px; height: 12px; background-color: var(--primary-color); border-radius: 50%; margin-left: auto; }
+.msg-bubble { padding: 8px 14px; border-radius: 18px; max-width: 75%; width: fit-content; margin-bottom: 8px; line-height: 1.4; }
+.moja-poruka { background: var(--primary-color); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+.tudja-poruka { background: #3a3a3a; color: var(--text-primary); align-self: flex-start; border-bottom-left-radius: 4px; }
+.chat-log-container > div { display: flex; flex-direction: column; }
 #splashScreen h1 { font-size: 3em; color: var(--primary-color); letter-spacing: 4px; }
