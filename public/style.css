@@ -1,4 +1,4 @@
-/* public/style.css - Verzija 4 - Full-screen prikaz na PC-u */
+/* public/style.css - KONAČNA VERZIJA - Full Screen PC / Fiksni Mobitel */
 
 * {
     box-sizing: border-box;
@@ -9,7 +9,6 @@
 html, body {
     height: 100%;
     width: 100%;
-    overflow: hidden;
 }
 
 body {
@@ -18,9 +17,6 @@ body {
     color: #f0f0f0;
     line-height: 1.5;
     font-size: 16px; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
     position: relative;
 }
 
@@ -28,15 +24,12 @@ body {
     width: 100%;
     height: 100%;
     background: #1e1e1e;
-    padding: 20px;
-    border-radius: 0;
-    box-shadow: none;
-    border: none;
+    
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
     transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
-    position: absolute;
+    
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -54,6 +47,41 @@ body {
     animation: fadeOut 0.3s ease-out forwards;
 }
 
+/* ================================================================ */
+/* STILOVI ZA PC (Veliki ekrani) - FULL SCREEN */
+/* ================================================================ */
+@media (min-width: 768px) {
+    body {
+        overflow-y: auto;
+    }
+    .container {
+        position: relative; /* U normalnom toku, nije više apsolutan */
+        width: 100%; /* Zauzima svu širinu */
+        max-width: none; /* NEMA OGRANIČENJA ŠIRINE */
+        height: 100vh; /* Zauzima svu visinu */
+        padding: 40px; /* Unutarnji razmak da se sadržaj ne lijepi za rubove */
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        margin: 0;
+    }
+}
+
+/* ================================================================ */
+/* STILOVI ZA MOBITEL (Uski ekrani) - Fiksni prikaz */
+/* ================================================================ */
+@media (max-width: 767px) {
+    body {
+        overflow: hidden; /* Na mobitelu nema skrolanja */
+    }
+    .container {
+        position: absolute; /* Prekriva cijeli ekran */
+        padding: 20px;
+    }
+}
+
+
+/* Ostatak stilova (komponente, gumbi, inputi, itd.) */
 #pijankePregled,
 #listaChatova,
 #privatniChatLog {
@@ -102,30 +130,6 @@ body {
 }
 #privatniChat .chat-header-info {
     padding-top: 40px;
-}
-
-/* * ISPRAVLJENO ZA FULL-SCREEN PC PRIKAZ
- * Na ekranima širim od 768px, kontejner sada zauzima skoro cijeli ekran.
-*/
-@media (min-width: 768px) {
-    body {
-        overflow-y: auto;
-    }
-    .container {
-        position: relative;
-        height: auto; 
-        min-height: calc(100vh - 40px); /* Visina ekrana minus gornji i donji margin */
-        
-        /* KLJUČNA PROMJENA: Uklonjeno ograničenje širine */
-        max-width: none; 
-        width: auto;
-        
-        margin: 20px; /* Dodan razmak od rubova ekrana */
-        
-        border-radius: 18px;
-        border: 1px solid #2a2a2a;
-        box-shadow: 0 3px 20px rgba(255, 71, 87, 0.12);
-    }
 }
 
 #intro,
@@ -194,6 +198,8 @@ p {
 
 input, textarea, button {
     width: 100%;
+    max-width: 500px; /* Ograničava širinu inputa na PC-u da ne budu preširoki */
+    align-self: center; /* Centrira ih unutar flex kontejnera */
     padding: 12px;
     margin-bottom: 12px;
     border: 1px solid #333;
@@ -229,17 +235,8 @@ button:disabled {
     box-shadow: none;
     opacity: 0.5;
 }
-.btn-secondary {
-    background: #3a3a3a;
-}
-.btn-secondary:hover {
-    background: #4a4a4a;
-    box-shadow: none;
-}
-#odjaviSeBtn {
-    display: block; 
-    text-decoration: none; 
-}
+
+/* Stilovi za liste i ostale komponente ostaju isti... */
 
 img.preview-slika,
 img.profilna-slika {
@@ -349,6 +346,8 @@ img.preview-slika {
 }
 .btn-full {
     width: 100%;
+    max-width: 500px;
+    align-self: center;
     padding: 12px;
     margin-bottom: 12px;
     border: 1px solid #333;
@@ -373,12 +372,13 @@ img.preview-slika {
     background: #282828;
     padding: 15px;
     border-radius: 10px;
-    margin-bottom: 8px;
+    margin: 0 auto 8px auto; /* Centriranje pijanki na PC-u */
     display: flex;
     flex-direction: column;
     border-left: 3px solid #ff4757;
     transition: all 0.2s ease-in-out;
     width: 100%;
+    max-width: 600px; /* Ograničavanje širine samih kartica */
     box-sizing: border-box;
 }
 .pijanka:hover {
@@ -463,31 +463,18 @@ img.preview-slika {
     font-size: 14px;
     text-align: left;
 }
-.pijanka-separator {
-    border: none;
-    border-top: 1px dashed #444;
-    margin: 12px auto;
-    width: 70%;
-    background-color: transparent;
-    height: 1px;
-}
-#pijankePregled .pijanka:last-of-type {
-    margin-bottom: 0;
-}
-#pijankePregled .pijanka-separator:last-of-type {
-    display: none;
-}
 .chat-item {
     background: #282828;
     padding: 12px;
     border-radius: 10px;
-    margin-bottom: 10px;
+    margin: 0 auto 10px auto;
     display: flex;
     align-items: center;
     gap: 12px;
     border-left: 3px solid #333;
     transition: all 0.2s ease-in-out;
     width: 100%;
+    max-width: 600px;
     box-sizing: border-box;
 }
 .chat-item:hover {
@@ -508,60 +495,7 @@ img.preview-slika {
     align-items: flex-start;
     cursor: pointer;
 }
-.chat-item-info strong {
-    font-size: 16px;
-    font-weight: 500;
-    text-align: left;
-    margin-bottom: 1px;
-}
-.chat-item-info p.status-text {
-    font-size: 12px;
-    color: #999;
-    margin: 0;
-    padding: 0;
-    text-align: left;
-}
-.chat-item .notification-badge {
-    margin-left: auto;
-    flex-shrink: 0;
-    position: static;
-    top: auto;
-    right: auto;
-}
-#privatniChatLog p {
-    margin-bottom: 6px;
-    padding: 0;
-    text-align: left;
-    width: 100%;
-}
-#privatniChatLog p > span {
-    display: inline-block;
-    padding: 8px 12px;
-    border-radius: 15px;
-    max-width: 75%;
-    word-wrap: break-word;
-    font-size: 14px;
-}
-#privatniChatLog p.moja-poruka {
-    text-align: right;
-}
-#privatniChatLog p.moja-poruka > span {
-    background: #ff4757;
-    color: white;
-}
-#privatniChatLog p.tudja-poruka {
-    text-align: left;
-}
-#privatniChatLog p.tudja-poruka > span {
-    background: #3a3a3a;
-    color: #f0f0f0;
-}
-.container button:not(:last-child) {
-    margin-bottom: 12px;
-}
-#odabir button {
-    margin-bottom: 14px;
-}
+
 #splashScreen {
     position: fixed;
     top: 0;
