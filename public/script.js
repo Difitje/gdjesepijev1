@@ -161,7 +161,7 @@ async function globalRefreshUI() {
         prikaziPijankePregled();
     }
     if (document.getElementById("inboxPrikaz")?.classList.contains('active-screen')) {
-        otvoriInbox(prethodniEkran); // Ponovno iscrtaj listu s postojećim stanjem
+        otvoriInbox(prethodniEkran); 
     }
     if (document.getElementById("privatniChat")?.classList.contains('active-screen') && trenutniChatPartnerId) {
         prikaziPrivatniLog();
@@ -313,10 +313,17 @@ function pokreniAplikaciju() {
     });
 }
 
-function pokaziPostavkeEkran() {
-    prethodniEkran = document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz';
-    swap(prethodniEkran, 'postavkeEkran');
-    azurirajNotifikacije();
+// Funkcija je obrisana jer je ekran s postavkama uklonjen
+// function pokaziPostavkeEkran() {}
+
+// NOVA funkcija koju poziva ikona profila
+function prikaziMojProfil() {
+    if (trenutniKorisnik && trenutniKorisnik.id) {
+        otvoriProfil(trenutniKorisnik.id);
+    } else {
+        // Ako korisnik nije ulogiran iz nekog razloga, vrati ga na početak
+        swap('lokacijePrikaz', 'odabir');
+    }
 }
 
 async function prikaziEditProfila() {
@@ -330,7 +337,8 @@ async function prikaziEditProfila() {
     document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
     document.getElementById("previewEditSlike").style.display = "block";
     odabranaEditSlika = null;
-    swap('postavkeEkran', 'editProfil');
+    // Prijelaz se sada vrši s ekrana profila ('glavniDio')
+    swap('glavniDio', 'editProfil');
 }
 
 async function sacuvajProfil() {
@@ -361,7 +369,8 @@ async function sacuvajProfil() {
         if (response.ok) {
             alert(data.message);
             await globalRefreshUI();
-            zatvoriEkran("editProfil", 'postavkeEkran');
+            // Vraća se na ekran profila ('glavniDio')
+            zatvoriEkran("editProfil", 'glavniDio');
         } else {
             alert("Greška pri spremanju profila: " + data.message);
         }
@@ -517,21 +526,34 @@ async function otvoriProfil(korisnikId) {
     swap(prethodniEkran, "glavniDio");
     
     const profilKorisnikaDiv = document.getElementById("profilKorisnika");
-    document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
     document.getElementById("objavaForma").style.display = "none";
     profilKorisnikaDiv.style.display = "flex";
     
+    let actionButtons = '';
+    // Provjera da li korisnik gleda svoj profil
+    if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
+        document.querySelector('#glavniDio h2').innerText = "Moj profil";
+        actionButtons = `
+            <button onclick="prikaziEditProfila()">Uredi profil</button>
+            <button class="btn-danger" onclick="odjaviSe()">Odjavi se</button>
+        `;
+    } else {
+        document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
+        actionButtons = `<button onclick="pokreniPrivatniChat('${korisnik.id}', 'glavniDio')">💬 Pošalji poruku</button>`;
+    }
+
     profilKorisnikaDiv.innerHTML = `
         <img src="${korisnik.slika || 'default_profile.png'}" class="profilna-slika-velika">
-        <h2 style="padding-top:0;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
+        <h2 style="padding-top:0; margin-bottom: 5px;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
         <p class="profil-opis">${korisnik.opis || "Nema opisa."}</p>
         <div class="drustvene-mreze">${prikaziMreze(korisnik)}</div>
-        ${trenutniKorisnik && korisnik.id !== trenutniKorisnik.id ? `<button onclick="pokreniPrivatniChat('${korisnik.id}', 'glavniDio')">💬 Pošalji poruku</button>` : '<em style="color:#888; margin-top: 20px;">Ovo je tvoj profil.</em>'}
+        <div class="profil-actions">${actionButtons}</div>
     `;
 
     document.querySelector('#glavniDio .back-button').style.display = 'flex';
     document.querySelector('#glavniDio .close-btn').style.display = 'none';
 }
+
 
 function prikaziMreze(p) {
     let s = "";
@@ -542,8 +564,7 @@ function prikaziMreze(p) {
 
 function azurirajNotifikacije() {
     let neprocitane = 0;
-    const badgeSettings = document.getElementById("notifikacijaPorukaSettings");
-    const badgeGlavna = document.getElementById("notifikacijaPorukaGlavna"); // Nova notifikacija na glavnoj stranici
+    const badgeGlavna = document.getElementById("notifikacijaPorukaGlavna"); 
 
     if (trenutniKorisnik && trenutniKorisnik.id) {
         for (const chatKey in privatnePoruke) {
@@ -555,22 +576,16 @@ function azurirajNotifikacije() {
 
     const brPrikaz = neprocitane > 9 ? '9+' : neprocitane;
     const prikazi = neprocitane > 0;
-
-    if(badgeSettings) {
-        badgeSettings.style.display = prikazi ? 'flex' : 'none';
-        badgeSettings.innerText = brPrikaz;
-    }
+    
     if(badgeGlavna) {
         badgeGlavna.style.display = prikazi ? 'flex' : 'none';
         badgeGlavna.innerText = brPrikaz;
     }
 }
 
-
-// Nova funkcija koja zamjenjuje staru 'prikaziInbox'
 function otvoriInbox(fromScreen) {
-    prethodniEkran = fromScreen; // Postavi ekran na koji se vraćamo
-    swap(fromScreen, 'inboxPrikaz'); // Prebaci na inbox
+    prethodniEkran = fromScreen;
+    swap(fromScreen, 'inboxPrikaz'); 
 
     const div = document.getElementById("listaChatova");
     div.innerHTML = "";
