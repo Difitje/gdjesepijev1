@@ -97,8 +97,12 @@
     </div>
 
     <div class="container" id="glavniDio">
-        <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">←</button> <button class="close-btn right-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">✖</button> </div>
-        <h2 id="glavniNaslov"></h2> <div id="objavaForma">
+        <div class="top-nav-buttons">
+            <button class="back-button" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">←</button>
+            <button class="close-btn" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">✖</button>
+        </div>
+        <h2 id="glavniNaslov"></h2>
+        <div id="objavaForma">
             <textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea>
             <button onclick="objaviPijanku()">Objavi</button>
         </div>
@@ -106,17 +110,24 @@
     </div>
 
     <div class="container" id="privatniChat">
-        <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('privatniChat', prethodniEkran)">←</button> </div>
-        <div class="chat-header-info"> <h2 id="chatSaKorisnikom"></h2> <p id="chatPartnerStatus" class="status-text"></p>
+        <div class="top-nav-buttons">
+            <button class="back-button" onclick="zatvoriEkran('privatniChat', prethodniEkran)">←</button>
+        </div>
+        <div class="chat-header-info">
+            <h2 id="chatSaKorisnikom"></h2>
+            <p id="chatPartnerStatus" class="status-text"></p>
         </div>
         <div id="privatniChatLog" class="chat"></div>
-        <div class="chat-input-area"> <textarea id="privatniInput" placeholder="Upiši poruku..." rows="2"></textarea>
+        <div class="chat-input-area">
+            <textarea id="privatniInput" placeholder="Upiši poruku..." rows="2"></textarea>
             <button id="posaljiPrivatnoBtn" onclick="posaljiPrivatno()">Pošalji</button>
         </div>
     </div>
     
     <div class="container" id="editProfil">
-        <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">←</button> </div>
+        <div class="top-nav-buttons">
+            <button class="back-button" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">←</button>
+        </div>
         <h2>Uredi profil</h2>
         <div style="text-align:center;">
             <img id="previewEditSlike" class="profilna-slika" />

@@ -1,19 +1,15 @@
-/* public/style.css - Zadržan originalni dizajn, dodana funkcionalnost */
+/* public/style.css - Verzija 3 - Ispravke za gumbe i zoom */
 
-/* Globalni reset i osnovni stilovi */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-/* * KLJUČNE PROMJENE ZA FIKSNI "APP-LIKE" PRIKAZ
- * Ovo čini da se stranica ne skrola, već samo kontejneri unutar nje.
-*/
 html, body {
     height: 100%;
     width: 100%;
-    overflow: hidden; /* NAJVAŽNIJE: Sprječava skrolanje cijele stranice */
+    overflow: hidden;
 }
 
 body {
@@ -21,36 +17,30 @@ body {
     background: linear-gradient(170deg, #111111 0%, #0d0d0d 100%);
     color: #f0f0f0;
     line-height: 1.5;
-    font-size: 15px;
-    display: flex; /* Koristi se za centriranje na PC-u */
+    /* ISPRAVLJENO: Font-size podignut na 16px da se spriječi auto-zoom na mobitelu */
+    font-size: 16px; 
+    display: flex;
     justify-content: center;
     align-items: center;
-    position: relative; /* Potrebno za pozicioniranje kontejnera */
+    position: relative;
 }
 
-/* Kontejneri za ekrane - Baza za animacije */
 .container {
     width: 100%;
-    height: 100%; /* Na mobitelu zauzima cijeli ekran */
+    height: 100%;
     background: #1e1e1e;
     padding: 20px;
-    
-    /* Na mobitelu nema radijusa i sjene za full-screen osjećaj */
     border-radius: 0;
     box-shadow: none;
     border: none;
-    
-    /* Animacije i prikaz */
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
     transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
-    position: absolute; /* Svi kontejneri su na istom mjestu */
-
-    /* KLJUČNO: Ovo čini kontejner flex stupcem i omogućava unutarnje skrolanje */
+    position: absolute;
     display: flex;
     flex-direction: column;
-    overflow-y: auto; /* Omogućava skrolanje SAMO unutar kontejnera */
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -65,30 +55,20 @@ body {
     animation: fadeOut 0.3s ease-out forwards;
 }
 
-/* * EKRANI S LISTAMA KOJE SE SKROLAJU
- * Ovo osigurava da liste zauzmu sav dostupan prostor i skrolaju se,
- * dok fiksni elementi (npr. gumbi na dnu) ostaju na mjestu.
-*/
 #pijankePregled,
 #listaChatova,
 #privatniChatLog {
-    flex-grow: 1; /* Zauzima sav preostali vertikalni prostor */
-    overflow-y: auto; /* Skrola se ako je sadržaj veći */
-    min-height: 100px; /* Osigurava minimalnu visinu */
+    flex-grow: 1;
+    overflow-y: auto;
+    min-height: 100px;
 }
 
-/* Gumbi na dnu ekrana ostaju fiksni */
 .controls-bottom {
-    flex-shrink: 0; /* Sprječava da se smanji */
-    margin-top: auto; /* Gura ga na dno flex kontejnera */
-    padding-top: 20px; /* Razmak od liste iznad */
+    flex-shrink: 0;
+    margin-top: auto;
+    padding-top: 20px;
 }
 
-
-/*
- * NOVI STILOVI ZA GUMBE ZA NAZAD
- * Ovi stilovi pozicioniraju gumbe na vrh ekrana.
-*/
 .top-nav-buttons {
     position: absolute;
     top: 10px;
@@ -98,10 +78,10 @@ body {
     justify-content: space-between;
     align-items: center;
     z-index: 10;
-    pointer-events: none; /* Omogućava klikanje kroz prazan prostor */
+    pointer-events: none;
 }
 .back-button, .close-btn {
-    pointer-events: auto; /* Ali gumbi se mogu kliknuti */
+    pointer-events: auto;
     background: none;
     border: none;
     color: #f0f0f0;
@@ -117,47 +97,32 @@ body {
     color: #ff4757;
     transform: scale(1.1);
 }
-/* Sakrivanje starih, ne-apsolutnih gumba */
-.left-aligned {
-    display: none !important;
-}
 
-/* Prilagodba paddinga za ekrane koji imaju gornje gumbe */
+/* ISPRAVLJENO: Uklonjena problematična klasa */
+/* .left-aligned { display: none !important; } */
+
 .container > h2 {
-    padding-top: 30px; /* Gura naslov ispod gumba */
+    padding-top: 30px;
 }
-/* Za ekrane bez naslova, ali s gumbima */
 #privatniChat .chat-header-info {
     padding-top: 40px;
 }
 
-
-/* * MEDIA QUERY ZA PC - "FULL RESOLUTION"
- * Na ekranima širim od 768px, primjenjuju se ovi stilovi.
-*/
 @media (min-width: 768px) {
     body {
-        overflow-y: auto; /* Na PC-u dozvoljavamo skrolanje tijela stranice */
+        overflow-y: auto;
     }
     .container {
-        position: relative; /* Više nije apsolutan */
-        height: auto; /* Visina se prilagođava sadržaju */
-        min-height: 80vh; /* Ali ima minimalnu visinu */
-        max-width: 960px; /* Širi prikaz za PC */
-        margin: 40px auto; /* Centriranje i razmak */
-        
-        /* Vraćamo stilove iz vašeg originalnog dizajna za PC */
+        position: relative;
+        height: auto;
+        min-height: 80vh;
+        max-width: 960px;
+        margin: 40px auto;
         border-radius: 18px;
         border: 1px solid #2a2a2a;
         box-shadow: 0 3px 20px rgba(255, 71, 87, 0.12);
     }
 }
-
-
-/* ================================================== */
-/* SVI VAŠI ORIGINALNI STILOVI IDU ISPOD OVE LINIJE   */
-/* Ovdje je kopiran ostatak vašeg originalnog CSS-a. */
-/* ================================================== */
 
 #intro,
 #pravilaEkran,
@@ -216,7 +181,7 @@ h2 {
 p {
     margin-bottom: 12px;
     color: #b0b0b0;
-    font-size: 14px;
+    /* Font size je sada 16px naslijeđen iz body-a */
     text-align: left;
     width: 100%; 
 }
@@ -224,6 +189,7 @@ p {
     text-align: center;
 }
 
+/* ISPRAVLJENO: Osigurano da inputi imaju 16px font */
 input, textarea, button {
     width: 100%;
     padding: 12px;
@@ -232,7 +198,7 @@ input, textarea, button {
     background: #252525;
     color: #f0f0f0;
     border-radius: 8px;
-    font-size: 15px;
+    font-size: 16px;
     font-family: inherit;
     transition: all 0.2s ease-in-out;
 }
@@ -387,7 +353,7 @@ img.preview-slika {
     background: #252525;
     color: #f0f0f0;
     border-radius: 8px;
-    font-size: 15px;
+    font-size: 16px;
     font-family: inherit;
     transition: all 0.2s ease-in-out;
     text-align: center;
