@@ -1,5 +1,5 @@
 // ==================================
-// ===   FINALNA SKRIPTA v5.1     ===
+// ===   FINALNA SKRIPTA v6.1     ===
 // ==================================
 
 // --- Globalne varijable ---
@@ -84,12 +84,8 @@ window.addEventListener('DOMContentLoaded', async function() {
         if (splashScreen) {
             splashScreen.style.opacity = '0';
             setTimeout(() => {
-                splashScreen.classList.remove('active-screen');
-                if (appInitializedSuccessfully) {
-                    pokreniAplikaciju();
-                } else {
-                    swap(null, 'intro');
-                }
+                swap('splashScreen', appInitializedSuccessfully ? 'lokacijePrikaz' : 'intro');
+                if(appInitializedSuccessfully) pokreniAplikaciju();
             }, 300);
         }
     }, 1500);
@@ -107,14 +103,13 @@ function swap(hideId, showId) {
         showElement.style.display = 'flex';
         setTimeout(() => showElement.classList.add('active-screen'), 10);
     }
-     // Ažuriraj prethodni ekran samo ako se ne vraćamo nazad
     if (hideId && showId !== prethodniEkran) {
         prethodniEkran = hideId;
     }
 }
 
-function zatvoriEkran(trenutniEkranId) {
-    swap(trenutniEkranId, prethodniEkran);
+function zatvoriEkran(trenutniEkranId, povratniEkran = null) {
+    swap(trenutniEkranId, povratniEkran || prethodniEkran);
     if (trenutniEkranId === 'privatniChat') {
         if (chatStatusInterval) clearInterval(chatStatusInterval);
         trenutniChatPartnerId = null;
@@ -124,11 +119,6 @@ function zatvoriEkran(trenutniEkranId) {
 
 // --- Glavne Funkcije Aplikacije ---
 function pokreniAplikaciju() {
-    document.querySelectorAll('.container').forEach(el => {
-        el.classList.remove('active-screen');
-    });
-    swap(null, 'lokacijePrikaz');
-    
     const headerPic = document.getElementById('headerProfilePic');
     if (headerPic && trenutniKorisnik && trenutniKorisnik.slika) {
         headerPic.src = trenutniKorisnik.slika;
@@ -151,6 +141,7 @@ async function globalRefreshUI() {
     await Promise.all([dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke()]);
 
     if(trenutnoAktivni === 'lokacijePrikaz') prikaziPijankePregled();
+    if(trenutnoAktivni === 'inboxPrikaz') prikaziInbox(false); // false da se ne poziva swap
     azurirajNotifikacije();
 
     if (trenutnoAktivni === 'privatniChat' && trenutniChatPartnerId) {
@@ -219,6 +210,7 @@ async function ulogujSe(username = null, password = null) {
             localStorage.setItem("token", data.token);
             trenutniKorisnik = data.user;
             await Promise.all([dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke()]);
+            swap(document.querySelector('.container.active-screen').id, 'lokacijePrikaz');
             pokreniAplikaciju();
         } else {
             alert("Greška: " + data.message);
@@ -245,13 +237,26 @@ async function odjaviSe() {
 
 
 // --- Prikaz Sadržaja ---
+function otvoriSvojProfil(event) {
+    if(event) event.preventDefault();
+    if(trenutniKorisnik) {
+        otvoriProfil(trenutniKorisnik.id);
+    }
+}
 async function otvoriProfil(korisnikId) {
     if (!korisnikId) return;
 
-    const contentDiv = document.getElementById('genericScreenContent');
-    document.getElementById('genericScreenTitle').innerText = 'Profil';
-    contentDiv.innerHTML = '<p style="text-align: center; padding-top: 40px;">Učitavam profil...</p>';
-    swap('lokacijePrikaz', 'genericScreen');
+    const contentDiv = document.getElementById('glavniDio');
+    const titleEl = contentDiv.querySelector('#glavniNaslov');
+    const profilDiv = contentDiv.querySelector('#profilKorisnika');
+    const objavaDiv = contentDiv.querySelector('#objavaForma');
+    
+    titleEl.innerText = 'Profil';
+    profilDiv.innerHTML = '<p style="text-align: center; padding-top: 40px;">Učitavam profil...</p>';
+    profilDiv.style.display = 'block';
+    objavaDiv.style.display = 'none';
+
+    swap(document.querySelector('.container.active-screen').id, 'glavniDio');
     
     try {
         const response = await authenticatedFetch(`/api/users/${korisnikId}`);
@@ -265,7 +270,7 @@ async function otvoriProfil(korisnikId) {
                <button class="form-button btn-secondary" onclick="odjaviSe()">Odjavi se</button>`
             : `<button class="form-button" onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
         
-        contentDiv.innerHTML = `
+        profilDiv.innerHTML = `
             <div class="profile-view">
                 <img src="${korisnik.slika || 'https://placehold.co/100'}" class="profilna-slika" alt="Profilna">
                 <h3>${korisnik.ime}</h3>
@@ -274,16 +279,16 @@ async function otvoriProfil(korisnikId) {
                 <div class="profile-actions">${actionButtons}</div>
             </div>`;
     } catch (error) {
-        contentDiv.innerHTML = `<p style="text-align: center;">${error.message}</p>`;
+        profilDiv.innerHTML = `<p style="text-align: center;">${error.message}</p>`;
     }
 }
 
 async function prikaziEditProfila() {
     if (!trenutniKorisnik) return;
     const { ime, opis, instagram, tiktok, slika } = trenutniKorisnik;
-    const contentDiv = document.getElementById('genericScreenContent');
-    document.getElementById('genericScreenTitle').innerText = 'Uredi profil';
-
+    
+    const contentDiv = document.getElementById('editProfilContent');
+    
     contentDiv.innerHTML = `
         <div style="text-align:center;">
             <img id="previewEditSlike" src="${slika || 'https://placehold.co/100'}" class="profilna-slika" style="margin-bottom: 20px;" />
@@ -296,7 +301,7 @@ async function prikaziEditProfila() {
         <input type="file" id="editSlikaUpload" accept="image/*" />
         <button id="sacuvajProfilBtn" class="form-button" onclick="sacuvajProfil()">Spremi promjene</button>
     `;
-    swap('genericScreen', 'genericScreen'); // Osvježi prikaz
+    swap('glavniDio', 'editProfil');
 
     odabranaEditSlika = null;
     const editSlikaUploadEl = document.getElementById("editSlikaUpload");
@@ -305,7 +310,7 @@ async function prikaziEditProfila() {
     }
 }
 
-async function prikaziInbox() {
+async function prikaziInbox(doSwap = true) {
     await dohvatiSvePoruke();
     const listaChatova = document.getElementById('listaChatova');
     const chatKeys = Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id));
@@ -329,7 +334,7 @@ async function prikaziInbox() {
             const neprocitane = privatnePoruke[chatKey].some(m => !m.isRead && m.autorId === partner.id);
             return `
                 <div class="chat-item" onclick="pokreniPrivatniChat('${partner.id}')">
-                    <img src="${partner.slika || 'https://placehold.co/100'}" class="profilna-slika" alt="profilna">
+                    <img src="${partner.slika || 'https://placehold.co/100'}" class="pijanka-profilna-slika" alt="profilna">
                     <div class="chat-item-info">
                         <strong>${partner.ime}</strong>
                         <p class="status-text">${formatirajStatus(partner.lastActive).text}</p>
@@ -339,16 +344,24 @@ async function prikaziInbox() {
             `;
         }).join('');
     }
-    swap('lokacijePrikaz', 'inboxPrikaz');
+    if (doSwap) {
+        swap('lokacijePrikaz', 'inboxPrikaz');
+    }
 }
 
 function pokaziObjavu() {
-    const contentDiv = document.getElementById('genericScreenContent');
-    document.getElementById('genericScreenTitle').innerText = 'Objavi pijanku';
-    contentDiv.innerHTML = `
+    const objavaDiv = document.getElementById('objavaForma');
+    const profilDiv = document.getElementById('profilKorisnika');
+    const titleEl = document.getElementById('glavniNaslov');
+    
+    titleEl.innerText = 'Objavi pijanku';
+    profilDiv.style.display = 'none';
+    objavaDiv.style.display = 'block';
+
+    objavaDiv.innerHTML = `
         <textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)" rows="5"></textarea>
         <button class="form-button" onclick="objaviPijanku()">Objavi</button>`;
-    swap('lokacijePrikaz', 'genericScreen');
+    swap('lokacijePrikaz', 'glavniDio');
 }
 
 async function pokreniPrivatniChat(partnerId) {
@@ -358,7 +371,7 @@ async function pokreniPrivatniChat(partnerId) {
 
     document.getElementById('chatSaKorisnikom').innerText = partner.ime;
     document.getElementById('chatPartnerStatus').innerText = formatirajStatus(partner.lastActive).text;
-    document.getElementById('privatniChatLog').innerHTML = ''; // Clear previous log
+    document.getElementById('privatniChatLog').innerHTML = '';
     swap(document.querySelector('.container.active-screen').id, 'privatniChat');
     
     const chatKey = [trenutniKorisnik.id, partnerId].sort().join("-");
@@ -410,7 +423,7 @@ async function sacuvajProfil() {
         if (response.ok) {
             trenutniKorisnik = { ...trenutniKorisnik, ...data.user };
             document.getElementById('headerProfilePic').src = trenutniKorisnik.slika;
-            zatvoriEkran('genericScreen');
+            zatvoriEkran('editProfil', 'lokacijePrikaz');
         } else {
             alert("Greška: " + data.message);
         }
@@ -432,7 +445,7 @@ async function objaviPijanku() {
         });
     }
     
-    const btn = document.querySelector('#genericScreenContent button');
+    const btn = document.querySelector('#objavaForma button');
     btn.disabled = true;
     btn.textContent = 'Objavljujem...';
 
@@ -445,7 +458,7 @@ async function objaviPijanku() {
         if (response.ok) {
             await dohvatiSvePijanke();
             prikaziPijankePregled();
-            zatvoriEkran('genericScreen');
+            zatvoriEkran('glavniDio', 'lokacijePrikaz');
         } else {
             const data = await response.json();
             alert("Greška: " + data.message);
@@ -554,7 +567,7 @@ function handleSlikaUpload(event) {
         const reader = new FileReader();
         reader.onload = e => {
             odabranaSlika = e.target.result;
-            const preview = document.getElementById("previewSlike");
+            const preview = document.getElementById("previewSlikes");
             if (preview) {
                 preview.src = odabranaSlika;
                 preview.style.display = "block";
