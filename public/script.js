@@ -1,5 +1,5 @@
 // ==================================
-// ===   FINALNA SKRIPTA v6.1     ===
+// ===   FINALNA SKRIPTA v5.1     ===
 // ==================================
 
 // --- Globalne varijable ---
@@ -84,8 +84,12 @@ window.addEventListener('DOMContentLoaded', async function() {
         if (splashScreen) {
             splashScreen.style.opacity = '0';
             setTimeout(() => {
-                swap('splashScreen', appInitializedSuccessfully ? 'lokacijePrikaz' : 'intro');
-                if(appInitializedSuccessfully) pokreniAplikaciju();
+                splashScreen.classList.remove('active-screen');
+                if (appInitializedSuccessfully) {
+                    pokreniAplikaciju();
+                } else {
+                    swap(null, 'intro');
+                }
             }, 300);
         }
     }, 1500);
@@ -103,13 +107,14 @@ function swap(hideId, showId) {
         showElement.style.display = 'flex';
         setTimeout(() => showElement.classList.add('active-screen'), 10);
     }
+     // Ažuriraj prethodni ekran samo ako se ne vraćamo nazad
     if (hideId && showId !== prethodniEkran) {
         prethodniEkran = hideId;
     }
 }
 
-function zatvoriEkran(trenutniEkranId, povratniEkran = null) {
-    swap(trenutniEkranId, povratniEkran || prethodniEkran);
+function zatvoriEkran(trenutniEkranId) {
+    swap(trenutniEkranId, prethodniEkran);
     if (trenutniEkranId === 'privatniChat') {
         if (chatStatusInterval) clearInterval(chatStatusInterval);
         trenutniChatPartnerId = null;
@@ -119,6 +124,11 @@ function zatvoriEkran(trenutniEkranId, povratniEkran = null) {
 
 // --- Glavne Funkcije Aplikacije ---
 function pokreniAplikaciju() {
+    document.querySelectorAll('.container').forEach(el => {
+        el.classList.remove('active-screen');
+    });
+    swap(null, 'lokacijePrikaz');
+    
     const headerPic = document.getElementById('headerProfilePic');
     if (headerPic && trenutniKorisnik && trenutniKorisnik.slika) {
         headerPic.src = trenutniKorisnik.slika;
@@ -141,7 +151,6 @@ async function globalRefreshUI() {
     await Promise.all([dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke()]);
 
     if(trenutnoAktivni === 'lokacijePrikaz') prikaziPijankePregled();
-    if(trenutnoAktivni === 'inboxPrikaz') prikaziInbox(false); // false da se ne poziva swap
     azurirajNotifikacije();
 
     if (trenutnoAktivni === 'privatniChat' && trenutniChatPartnerId) {
@@ -210,7 +219,6 @@ async function ulogujSe(username = null, password = null) {
             localStorage.setItem("token", data.token);
             trenutniKorisnik = data.user;
             await Promise.all([dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke()]);
-            swap(document.querySelector('.container.active-screen').id, 'lokacijePrikaz');
             pokreniAplikaciju();
         } else {
             alert("Greška: " + data.message);
@@ -237,19 +245,13 @@ async function odjaviSe() {
 
 
 // --- Prikaz Sadržaja ---
-function otvoriSvojProfil(event) {
-    if(event) event.preventDefault();
-    if(trenutniKorisnik) {
-        otvoriProfil(trenutniKorisnik.id);
-    }
-}
 async function otvoriProfil(korisnikId) {
     if (!korisnikId) return;
 
     const contentDiv = document.getElementById('genericScreenContent');
     document.getElementById('genericScreenTitle').innerText = 'Profil';
     contentDiv.innerHTML = '<p style="text-align: center; padding-top: 40px;">Učitavam profil...</p>';
-    swap(document.querySelector('.container.active-screen').id, 'genericScreen');
+    swap('lokacijePrikaz', 'genericScreen');
     
     try {
         const response = await authenticatedFetch(`/api/users/${korisnikId}`);
@@ -279,8 +281,9 @@ async function otvoriProfil(korisnikId) {
 async function prikaziEditProfila() {
     if (!trenutniKorisnik) return;
     const { ime, opis, instagram, tiktok, slika } = trenutniKorisnik;
-    const contentDiv = document.getElementById('editProfilContent');
-    
+    const contentDiv = document.getElementById('genericScreenContent');
+    document.getElementById('genericScreenTitle').innerText = 'Uredi profil';
+
     contentDiv.innerHTML = `
         <div style="text-align:center;">
             <img id="previewEditSlike" src="${slika || 'https://placehold.co/100'}" class="profilna-slika" style="margin-bottom: 20px;" />
@@ -293,7 +296,7 @@ async function prikaziEditProfila() {
         <input type="file" id="editSlikaUpload" accept="image/*" />
         <button id="sacuvajProfilBtn" class="form-button" onclick="sacuvajProfil()">Spremi promjene</button>
     `;
-    swap('genericScreen', 'editProfil');
+    swap('genericScreen', 'genericScreen'); // Osvježi prikaz
 
     odabranaEditSlika = null;
     const editSlikaUploadEl = document.getElementById("editSlikaUpload");
@@ -302,7 +305,7 @@ async function prikaziEditProfila() {
     }
 }
 
-async function prikaziInbox(doSwap = true) {
+async function prikaziInbox() {
     await dohvatiSvePoruke();
     const listaChatova = document.getElementById('listaChatova');
     const chatKeys = Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id));
@@ -326,7 +329,7 @@ async function prikaziInbox(doSwap = true) {
             const neprocitane = privatnePoruke[chatKey].some(m => !m.isRead && m.autorId === partner.id);
             return `
                 <div class="chat-item" onclick="pokreniPrivatniChat('${partner.id}')">
-                    <img src="${partner.slika || 'https://placehold.co/100'}" class="pijanka-profilna-slika" alt="profilna">
+                    <img src="${partner.slika || 'https://placehold.co/100'}" class="profilna-slika" alt="profilna">
                     <div class="chat-item-info">
                         <strong>${partner.ime}</strong>
                         <p class="status-text">${formatirajStatus(partner.lastActive).text}</p>
@@ -336,9 +339,7 @@ async function prikaziInbox(doSwap = true) {
             `;
         }).join('');
     }
-    if (doSwap) {
-        swap('lokacijePrikaz', 'inboxPrikaz');
-    }
+    swap('lokacijePrikaz', 'inboxPrikaz');
 }
 
 function pokaziObjavu() {
@@ -357,7 +358,7 @@ async function pokreniPrivatniChat(partnerId) {
 
     document.getElementById('chatSaKorisnikom').innerText = partner.ime;
     document.getElementById('chatPartnerStatus').innerText = formatirajStatus(partner.lastActive).text;
-    document.getElementById('privatniChatLog').innerHTML = '';
+    document.getElementById('privatniChatLog').innerHTML = ''; // Clear previous log
     swap(document.querySelector('.container.active-screen').id, 'privatniChat');
     
     const chatKey = [trenutniKorisnik.id, partnerId].sort().join("-");
@@ -409,7 +410,7 @@ async function sacuvajProfil() {
         if (response.ok) {
             trenutniKorisnik = { ...trenutniKorisnik, ...data.user };
             document.getElementById('headerProfilePic').src = trenutniKorisnik.slika;
-            zatvoriEkran('editProfil', 'lokacijePrikaz');
+            zatvoriEkran('genericScreen');
         } else {
             alert("Greška: " + data.message);
         }
@@ -444,7 +445,7 @@ async function objaviPijanku() {
         if (response.ok) {
             await dohvatiSvePijanke();
             prikaziPijankePregled();
-            zatvoriEkran('genericScreen', 'lokacijePrikaz');
+            zatvoriEkran('genericScreen');
         } else {
             const data = await response.json();
             alert("Greška: " + data.message);
