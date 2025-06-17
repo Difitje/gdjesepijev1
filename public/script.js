@@ -1,336 +1,241 @@
-// public/script.js
+// public/script.js - VERZIJA S UKLONJENIM SEPARATOROM
 
 // Globalne varijale
 let trenutniKorisnik = null;
 let sviKorisnici = [];
 let svePijanke = [];
-let privatnePoruke = {}; // Strukturirano kao {chatKey: [messages]}
+let privatnePoruke = {}; 
 
 let trenutniChatPartnerId = null;
-let mojPoz = null; // Geolokacija ostaje lokalno na frontendu
+let mojPoz = null; 
 let activityInterval = null;
 let chatStatusInterval = null;
 let globalDataRefreshInterval = null;
-let odabranaSlika = null; // Za upload profilne slike pri registraciji (Base64)
-let odabranaEditSlika = null; // Za upload profilne slike pri uređivanje (Base64)
-let prethodniEkran = "lokacijePrikaz"; // Dodana globalna varijabla za prethodni ekran
+let odabranaSlika = null;
+let odabranaEditSlika = null; 
+let prethodniEkran = "lokacijePrikaz";
 
-// --- POMOĆNA FUNKCIJA ZA FETCH POZIVE SA AUTORIZACIJOM ---
 async function authenticatedFetch(url, options = {}) {
-    const token = localStorage.getItem('token');
-    if (token) {
-        options.headers = {
-            ...options.headers,
-            'Authorization': `Bearer ${token}`
-        };
-    }
-    return fetch(url, options);
+    const token = localStorage.getItem('token');
+    if (token) {
+        options.headers = {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`
+        };
+    }
+    return fetch(url, options);
 }
 
-// --- FUNKCIJA ZA KOMPRESIJU SLIKE PRIJE UPLOADA ---
-// Smanjuje dimenzije i kvalitetu Base64 slike
 function compressImage(base64Image, maxWidth = 400, quality = 0.8) {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.src = base64Image;
-
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-
-            // Smanji dimenzije ako su veće od maxWidth
-            if (width > maxWidth) {
-                height = height * (maxWidth / width);
-                width = maxWidth;
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-
-            // Kompresiraj na JPEG format s određenom kvalitetom
-            resolve(canvas.toDataURL('image/jpeg', quality));
-        };
-        img.onerror = () => {
-            // Ako dođe do greške pri učitavanju slike, vrati original
-            console.error("Greška pri učitavanju slike za kompresiju.");
-            resolve(base64Image);
-        };
-    });
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.src = base64Image;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+                height = height * (maxWidth / width);
+                width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => {
+            console.error("Greška pri učitavanju slike za kompresiju.");
+            resolve(base64Image);
+        };
+    });
 }
 
-// --- POČETNO UČITAVANJE APLIKACIJE ---
 window.addEventListener('DOMContentLoaded', async function() {
-    localStorage.removeItem("loggedInUserId"); // Čišćenje starog, lokalnog ID-a
+    localStorage.removeItem("loggedInUserId");
+    const token = localStorage.getItem("token");
+    const splashScreen = document.getElementById('splashScreen');
 
-    const token = localStorage.getItem("token");
-    console.log("DOMContentLoaded: Pokušavam dohvatiti token:", token ? "Token pronađen" : "Nema tokena");
+    document.querySelectorAll('.container').forEach(el => {
+        if (el.id !== 'splashScreen') {
+            el.style.display = 'none';
+            el.classList.remove('active-screen', 'fade-out-screen');
+        }
+    });
 
-    const splashScreen = document.getElementById('splashScreen');
+    let appInitializedSuccessfully = false;
+    if (token) {
+        try {
+            const response = await authenticatedFetch('/api/auth/me');
+            if (response.ok) {
+                const data = await response.json();
+                trenutniKorisnik = data.user;
+                await Promise.all([
+                    dohvatiSveKorisnike(),
+                    dohvatiSvePijanke(),
+                    dohvatiSvePoruke()
+                ]);
+                appInitializedSuccessfully = true;
+            } else {
+                localStorage.removeItem("token");
+            }
+        } catch (error) {
+            localStorage.removeItem("token");
+        }
+    }
 
-    // Inicijalno sakrij sve kontejnere osim splash screena.
-    document.querySelectorAll('.container').forEach(el => {
-        if (el.id !== 'splashScreen') {
-            el.style.display = 'none'; // Sakrij odmah
-            el.classList.remove('active-screen', 'fade-out-screen'); // Osiguraj čisto stanje
-        }
-    });
-
-    let appInitializedSuccessfully = false; // Flag za praćenje je li aplikacija spremna za pokretanje
-
-    if (token) {
-        try {
-            const response = await authenticatedFetch('/api/auth/me');
-            console.log("DOMContentLoaded: Odgovor od /api/auth/me (status):", response.status);
-
-            if (response.ok) {
-                const data = await response.json();
-                trenutniKorisnik = data.user;
-                console.log("DOMContentLoaded: Korisnik uspješno autentificiran:", trenutniKorisnik.ime);
-
-                // **KLJUČNO**: Dohvati sve potrebne podatke prije pokretanja aplikacije
-                await Promise.all([
-                    dohvatiSveKorisnike(),
-                    dohvatiSvePijanke(),
-                    dohvatiSvePoruke()
-                ]);
-                console.log("DOMContentLoaded: Svi početni podaci dohvaćeni.");
-                appInitializedSuccessfully = true; // Svi podaci su tu
-            } else {
-                console.warn("DOMContentLoaded: Token nevalidan ili istekao, odjavljujem korisnika (status:", response.status, ").");
-                localStorage.removeItem("token");
-            }
-        } catch (error) {
-            console.error("DOMContentLoaded: Greška pri provjeri tokena ili mreži (catch blok):", error);
-            localStorage.removeItem("token");
-        }
-    } else {
-        console.log("DOMContentLoaded: Nema tokena, prikazujem intro ekran.");
-    }
-
-    // Skrivanje splash screena nakon 2 sekunde
-    if (splashScreen) {
-        setTimeout(() => {
-            splashScreen.style.animation = 'fadeOutSplash 0.5s ease-out forwards'; // Koristi novu animaciju
-            setTimeout(() => {
-                splashScreen.style.display = 'none';
-                splashScreen.remove(); // Ukloni element nakon animacije ako više nije potreban
-
-                // Nakon što se splash screen skloni, pokreni aplikaciju ili prikaži intro
-                if (appInitializedSuccessfully) {
-                    pokreniAplikaciju();
-                } else {
-                    // Ako nije spremno (nema tokena/greška), prikaži intro
-                    const introEl = document.getElementById('intro');
-                    if (introEl) {
-                        introEl.style.display = 'flex'; // Promijenjeno u flex
-                        setTimeout(() => introEl.classList.add('active-screen'), 10);
-                    }
-                }
-            }, 500); // 500ms je trajanje fadeOutSplash animacije
-        }, 2000); // Čekaj 2 sekunde prije nego što počne nestajati
-    } else {
-        // Ako nema splash screena (npr. dev okruženje), odmah pokreni aplikaciju ili prikaži intro
-        if (appInitializedSuccessfully) {
-            pokreniAplikaciju();
-        } else {
-            const introEl = document.getElementById('intro');
-            if (introEl) {
-                introEl.style.display = 'flex'; // Promijenjeno u flex
-                setTimeout(() => introEl.classList.add('active-screen'), 10);
-            }
-        }
-    }
+    if (splashScreen) {
+        setTimeout(() => {
+            splashScreen.style.animation = 'fadeOutSplash 0.5s ease-out forwards';
+            setTimeout(() => {
+                splashScreen.style.display = 'none';
+                splashScreen.remove();
+                if (appInitializedSuccessfully) {
+                    pokreniAplikaciju();
+                } else {
+                    const introEl = document.getElementById('intro');
+                    if (introEl) {
+                        introEl.style.display = 'flex';
+                        setTimeout(() => introEl.classList.add('active-screen'), 10);
+                    }
+                }
+            }, 500);
+        }, 2000);
+    }
 });
 
-// --- FUNKCIJE ZA PREBACIVANJE EKRANA (UI LOGIKA) ---
 function swap(hideId, showId) {
-    const hideElement = document.getElementById(hideId);
-    const showElement = document.getElementById(showId);
+    const hideElement = document.getElementById(hideId);
+    const showElement = document.getElementById(showId);
+    if (!showElement) return;
 
-    if (!showElement) {
-        console.error("Target element for swap (showId) not found:", showId);
-        return;
-    }
+    const showNewElement = () => {
+        showElement.style.display = 'flex';
+        setTimeout(() => {
+            showElement.classList.add('active-screen');
+        }, 10);
+    };
 
-    // Postavi z-index za trenutno aktivni ekran da bude ispod
-    if (hideElement) {
-        hideElement.style.zIndex = '0'; // Stari ekran ide nazad
-    }
-    // Postavi z-index za novi ekran da bude na vrhu
-    showElement.style.zIndex = '1'; // Novi ekran ide naprijed
-
-    const showNewElement = () => {
-        showElement.style.display = 'flex'; // Prvo ga učini vidljivim (display: flex jer su kontejneri flex)
-        // ODGODA: Mali timeout da preglednik registrira display:block/flex prije nego što se aktivira tranzicija
-        setTimeout(() => {
-            showElement.classList.add('active-screen'); // Dodaj klasu za fade-in
-        }, 10); // Minimalno kašnjenje od 10ms
-    };
-
-    // Ako postoji element za sakriti I on je trenutno aktivan (tj. već ima animaciju)
-    if (hideElement && hideElement.classList.contains('active-screen')) {
-        hideElement.classList.remove('active-screen'); // Ukloni aktivno stanje
-        hideElement.classList.add('fade-out-screen'); // Dodaj klasu za fade-out animaciju
-
-        hideElement.addEventListener('animationend', function handler() {
-            hideElement.classList.remove('fade-out-screen'); // Ukloni fade-out klasu
-            hideElement.style.display = 'none'; // Sakrij element nakon animacije
-            hideElement.removeEventListener('animationend', handler); // Važno: Ukloni listener
-
-            showNewElement(); // Prikazi novi element tek nakon što stari nestane
-        }, { once: true }); // '{ once: true }' osigurava da se listener automatski ukloni nakon prvog okidanja
-    } else {
-        // Ako nema elementa za sakriti, ili element nije bio "active-screen" (npr. inicijalni prikazi),
-        // samo sakrij prethodni (ako postoji) i odmah prikaži novi.
-        if (hideElement) {
-             hideElement.style.display = 'none';
-             hideElement.classList.remove('active-screen', 'fade-out-screen'); // Osiguraj čisto stanje
-        }
-        showNewElement(); // Odmah prikaži novi element
-    }
+    if (hideElement && hideElement.classList.contains('active-screen')) {
+        hideElement.classList.remove('active-screen');
+        hideElement.classList.add('fade-out-screen');
+        hideElement.addEventListener('animationend', function handler() {
+            hideElement.style.display = 'none';
+            hideElement.classList.remove('fade-out-screen');
+            hideElement.removeEventListener('animationend', handler);
+            showNewElement();
+        }, { once: true });
+    } else {
+        if (hideElement) {
+            hideElement.style.display = 'none';
+            hideElement.classList.remove('active-screen', 'fade-out-screen');
+        }
+        showNewElement();
+    }
 }
 
-// NOVA FUNKCIJA ZA ZATVARANJE EKRANA (KLIKOM NA X)
 function zatvoriEkran(trenutniEkranId, povratniEkranId) {
-    swap(trenutniEkranId, povratniEkranId);
-    // Dodatne akcije pri zatvaranju određenih ekrana
-    if (trenutniEkranId === 'privatniChat') {
-        if (chatStatusInterval) clearInterval(chatStatusInterval);
-        trenutniChatPartnerId = null;
-        document.getElementById("privatniInput").value = "";
-    }
-    azurirajNotifikacije(); // Osvježi notifikacije ako se mijenja stanje
+    swap(trenutniEkranId, povratniEkranId);
+    if (trenutniEkranId === 'privatniChat') {
+        if (chatStatusInterval) clearInterval(chatStatusInterval);
+        trenutniChatPartnerId = null;
+        document.getElementById("privatniInput").value = "";
+    }
+    azurirajNotifikacije();
 }
-
 
 function proveriPrihvatanje() {
-    const checkbox = document.getElementById('prihvatamPravila');
-    const button = document.getElementById('nastaviBtn');
-    if (button && checkbox) button.disabled = !checkbox.checked;
+    const checkbox = document.getElementById('prihvatamPravila');
+    const button = document.getElementById('nastaviBtn');
+    if (button && checkbox) button.disabled = !checkbox.checked;
 }
-
 
 async function globalRefreshUI() {
-    if (!trenutniKorisnik) return;
-
-    await Promise.all([
-        dohvatiSveKorisnike(),
-        dohvatiSvePijanke(),
-        dohvatiSvePoruke()
-    ]);
-
-    if (document.getElementById("lokacijePrikaz")?.classList.contains('active-screen')) {
-        prikaziPijankePregled();
-    }
-    if (document.getElementById("inboxPrikaz")?.classList.contains('active-screen')) {
-        prikaziInbox();
-    }
-    if (document.getElementById("privatniChat")?.classList.contains('active-screen') && trenutniChatPartnerId) {
-        prikaziPrivatniLog();
-    }
-    azurirajNotifikacije();
+    if (!trenutniKorisnik) return;
+    await Promise.all([
+        dohvatiSveKorisnike(),
+        dohvatiSvePijanke(),
+        dohvatiSvePoruke()
+    ]);
+    if (document.getElementById("lokacijePrikaz")?.classList.contains('active-screen')) {
+        prikaziPijankePregled();
+    }
+    if (document.getElementById("inboxPrikaz")?.classList.contains('active-screen')) {
+        prikaziInbox();
+    }
+    if (document.getElementById("privatniChat")?.classList.contains('active-screen') && trenutniChatPartnerId) {
+        prikaziPrivatniLog();
+    }
+    azurirajNotifikacije();
 }
-
-// --- FUNKCIJE ZA UPLOAD SLIKA (Lokalna obrada Base64) ---
-// Globalne varijable već deklarirane na početku skripte
-// let odabranaSlika = null;
-// let odabranaEditSlika = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const slikaUploadEl = document.getElementById("slikaUpload");
-    if (slikaUploadEl) {
-        slikaUploadEl.addEventListener("change", function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    odabranaSlika = e.target.result;
-                    const previewElement = document.getElementById("previewSlike"); // Ispravljen ID
-                    if (previewElement) {
-                        previewElement.src = odabranaSlika;
-                        previewElement.style.display = "block";
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
+    const slikaUploadEl = document.getElementById("slikaUpload");
+    if (slikaUploadEl) {
+        slikaUploadEl.addEventListener("change", function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    odabranaSlika = e.target.result;
+                    const previewElement = document.getElementById("previewSlikes");
+                    if (previewElement) {
+                        previewElement.src = odabranaSlika;
+                        previewElement.style.display = "block";
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 
-    const editSlikaUploadEl = document.getElementById("editSlikaUpload");
-    if (editSlikaUploadEl) {
-        editSlikaUploadEl.addEventListener("change", handleEditSlikaUploadChange);
-    }
+    const editSlikaUploadEl = document.getElementById("editSlikaUpload");
+    if (editSlikaUploadEl) {
+        editSlikaUploadEl.addEventListener("change", handleEditSlikaUploadChange);
+    }
 });
 
-// Funkcija za handle-anje promjene slike za edit profila, da se može ponovno pripojiti
 function handleEditSlikaUploadChange() {
-    const file = this.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            odabranaEditSlika = e.target.result;
-            const previewElement = document.getElementById("previewEditSlike");
-            if (previewElement) {
-                previewElement.src = odabranaEditSlika;
-                if (previewElement.style.display === "none") {
-                    previewElement.style.display = "block";
-                }
-            }
-        };
-        reader.readAsDataURL(file);
-    }
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            odabranaEditSlika = e.target.result;
+            const previewElement = document.getElementById("previewEditSlike");
+            if (previewElement) {
+                previewElement.src = odabranaEditSlika;
+                if (previewElement.style.display === "none") {
+                    previewElement.style.display = "block";
+                }
+            }
+        };
+        reader.readAsDataURL(file);
+    }
 }
 
-
-// --- FUNKCIJE ZA AUTENTIFIKACIJU (REGISTRACIJA, PRIJAVA, ODJAVA) ---
-
 async function registruj() {
-    const imeInput = document.getElementById("ime");
-    const sifraInput = document.getElementById("sifra");
-    const instagramInput = document.getElementById("instagram");
-    const tiktokInput = document.getElementById("tiktok");
-    const opisInput = document.getElementById("opis");
-    const registrujBtn = document.getElementById('registracijaSubmitBtn'); // Dohvati gumb pomoću ID-a
-
-    const ime = imeInput ? imeInput.value.trim() : '';
-    const sifra = sifraInput ? sifraInput.value.trim() : '';
-    const instagram = instagramInput ? instagramInput.value.trim() : '';
-    const tiktok = tiktokInput ? tiktokInput.value.trim() : '';
-    const opis = opisInput ? opisInput.value.trim() : '';
+    const ime = document.getElementById("ime").value.trim();
+    const sifra = document.getElementById("sifra").value.trim();
+    const instagram = document.getElementById("instagram").value.trim();
+    const tiktok = document.getElementById("tiktok").value.trim();
+    const opis = document.getElementById("opis").value.trim();
+    const registrujBtn = document.getElementById('registracijaSubmitBtn');
 
     if (!ime || !sifra || !odabranaSlika) {
         return alert("Molimo popunite korisničko ime, lozinku i odaberite sliku!");
     }
 
-    // Prikaz loading stanja
-    if (registrujBtn) {
-        registrujBtn.disabled = true;
-        registrujBtn.textContent = 'Registracija u tijeku...';
-    }
+    registrujBtn.disabled = true;
+    registrujBtn.textContent = 'Registracija u tijeku...';
 
     try {
-        // Kompresiraj sliku prije slanja
         const compressedSlika = await compressImage(odabranaSlika);
-
         const response = await fetch('/api/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                username: ime,
-                password: sifra,
-                slika: compressedSlika, // KORISTI KOMPRESIRANU SLIKU
-                instagram,
-                tiktok,
-                opis
-            })
+            body: JSON.stringify({ username: ime, password: sifra, slika: compressedSlika, instagram, tiktok, opis })
         });
-
         const data = await response.json();
-
         if (response.ok) {
             alert(data.message);
             await ulogujSe(ime, sifra);
@@ -338,34 +243,24 @@ async function registruj() {
             alert("Greška pri registraciji: " + data.message);
         }
     } catch (error) {
-        console.error("Greška kod registracije:", error);
         alert("Došlo je do greške pri registraciji.");
     } finally {
-        // Vrati originalno stanje gumba
-        if (registrujBtn) {
-            registrujBtn.disabled = false;
-            registrujBtn.textContent = 'Spremi';
-        }
+        registrujBtn.disabled = false;
+        registrujBtn.textContent = 'Spremi';
     }
 }
 
 async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null) {
-    const loginImeInput = document.getElementById("loginIme");
-    const loginSifraInput = document.getElementById("loginSifra");
-    const loginBtn = document.getElementById('loginSubmitBtn'); // Dohvati login gumb pomoću ID-a
-
-    const ime = usernameFromRegister || (loginImeInput ? loginImeInput.value.trim() : '');
-    const sifra = passwordFromRegister || (loginSifraInput ? loginSifraInput.value.trim() : '');
+    const ime = usernameFromRegister || document.getElementById("loginIme").value.trim();
+    const sifra = passwordFromRegister || document.getElementById("loginSifra").value.trim();
+    const loginBtn = document.getElementById('loginSubmitBtn');
 
     if (!ime || !sifra) {
         return alert("Unesite korisničko ime i lozinku!");
     }
 
-    // Prikaz loading stanja
-    if (loginBtn) {
-        loginBtn.disabled = true;
-        loginBtn.textContent = 'Prijava u tijeku...';
-    }
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Prijava u tijeku...';
 
     try {
         const response = await authenticatedFetch('/api/login', {
@@ -373,200 +268,69 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: ime, password: sifra })
         });
-
         const data = await response.json();
-
         if (response.ok) {
             localStorage.setItem("token", data.token);
             trenutniKorisnik = data.user;
-            await Promise.all([
-                dohvatiSveKorisnike(),
-                dohvatiSvePijanke(),
-                dohvatiSvePoruke()
-            ]);
+            await Promise.all([dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke()]);
             pokreniAplikaciju();
         } else {
             alert("Greška pri prijavi: " + data.message);
         }
     } catch (error) {
-        console.error("Greška kod prijave:", error);
         alert("Došlo je do greške pri prijavi.");
     } finally {
-        // Vrati originalno stanje gumba
-        if (loginBtn) {
-            loginBtn.disabled = false;
-            loginBtn.textContent = 'Prijavi se';
-        }
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Prijavi se';
     }
 }
 
 async function odjaviSe() {
     [activityInterval, chatStatusInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
-
     if (trenutniKorisnik && trenutniKorisnik.id) {
         await azurirajMojuAktivnost(true);
     }
-
     localStorage.removeItem("token");
     trenutniKorisnik = null;
     odabranaSlika = null;
     odabranaEditSlika = null;
-
     ["loginIme", "loginSifra", "ime", "sifra", "instagram", "tiktok", "opis", "editIme", "editOpis", "editInstagram", "editTiktok", "opisPijanke", "privatniInput"].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = "";
     });
-
-    document.querySelectorAll('.container.active-screen').forEach(el => {
-        el.classList.remove('active-screen');
-        el.classList.add('fade-out-screen');
-        el.addEventListener('animationend', function handler() {
-            el.style.display = 'none';
-            el.classList.remove('fade-out-screen');
-            el.removeEventListener('animationend', handler);
-        }, { once: true });
-    });
-
-    const introScreen = document.getElementById('intro');
-    if (introScreen) {
-        setTimeout(() => {
-            introScreen.style.display = 'flex'; // Promijenjeno u flex
-            setTimeout(() => introScreen.classList.add('active-screen'), 10);
-        }, 300);
-    }
+    swap(document.querySelector('.container.active-screen').id, 'intro');
 }
 
-// --- LOGIKA POKRETANJA APLIKACIJE NAKON PRIJAVE/REGISTRACIJE ---
 function pokreniAplikaciju() {
-    console.log("pokreniAplikaciju: Pokrećem glavni dio aplikacije.");
-
-    document.querySelectorAll('.container').forEach(el => {
-        if (el.id !== "lokacijePrikaz") {
-            el.classList.remove('active-screen', 'fade-out-screen');
-            el.style.display = 'none';
-        }
-    });
-
-    const lokacijePrikazEl = document.getElementById("lokacijePrikaz");
-    if (lokacijePrikazEl) {
-        lokacijePrikazEl.style.display = 'flex'; // Promijenjeno u flex
-        setTimeout(() => lokacijePrikazEl.classList.add('active-screen'), 10);
-    }
-
+    swap(document.querySelector('.container.active-screen')?.id, 'lokacijePrikaz');
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
     globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
-
     azurirajMojuAktivnost();
     dohvatiLokaciju(() => {
         prikaziPijankePregled();
         azurirajNotifikacije();
     });
-    console.log("pokreniAplikaciju: Aplikacija pokrenuta, intervali postavljeni.");
 }
 
-// --- LOGIKA PROFILA I UREĐIVANJA PROFILA ---
-
-// NOVA FUNKCIJA ZA PRIKAZ EKRANA POSTAVKI
 function pokaziPostavkeEkran() {
     prethodniEkran = document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz';
-    swap(prethodniEkran, 'postavkeEkran'); // Prebaci na novi ekran postavki
-    azurirajNotifikacije(); // Osvježi notifikacije na novom ekranu
+    swap(prethodniEkran, 'postavkeEkran');
+    azurirajNotifikacije();
 }
-
 
 async function prikaziEditProfila() {
     if (!trenutniKorisnik || !trenutniKorisnik.id) return;
-    
-    // Prikaz loading stanja dok se profil učitava
-    const editProfilScreen = document.getElementById("editProfil");
-    // Dohvaćanje elemenata koji će se ponovno dodati nakon loadanja
-    const topNavButtonsEdit = editProfilScreen.querySelector('.top-nav-buttons'); // Koristimo top-nav-buttons
-    const glavniNaslovEdit = editProfilScreen.querySelector('h2');
-
-
-    if (editProfilScreen) {
-        editProfilScreen.innerHTML = ''; // Prvo isprazni sadržaj
-
-        // Ponovno dodaj top nav buttons i naslov (ako postoje u originalnom HTML-u)
-        if(topNavButtonsEdit) editProfilScreen.appendChild(topNavButtonsEdit);
-        if(glavniNaslovEdit) editProfilScreen.appendChild(glavniNaslovEdit);
-        
-        // Sakrij gumb X (ako ga ima) i prikaži Nazad gumb u top-nav-buttons
-        const backButton = editProfilScreen.querySelector('.top-nav-buttons .back-button');
-        const closeButton = editProfilScreen.querySelector('.top-nav-buttons .close-btn'); // Možda ne postoji, ali provjeri
-        if (backButton) backButton.style.display = 'flex';
-        if (closeButton) closeButton.style.display = 'none'; // Sakrij X, jer je ovdje Nazad
-
-        // Dodaj loading poruku i ikonu (NE unutar content-wrappera, jer ga ovdje uklanjamo privremeno)
-        const loadingP = document.createElement('p');
-        loadingP.style.textAlign = 'center';
-        loadingP.innerText = 'Učitavam profil...';
-        editProfilScreen.appendChild(loadingP);
-
-        const loadingIcon = document.createElement('div');
-        loadingIcon.style.textAlign = 'center';
-        loadingIcon.style.marginTop = '20px';
-        loadingIcon.style.fontSize = '3em';
-        loadingIcon.innerText = '⚙️';
-        editProfilScreen.appendChild(loadingIcon);
-        
-        swap(document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz', "editProfil");
-    }
-
-    try {
-        const response = await authenticatedFetch(`/api/users/${trenutniKorisnik.id}`);
-        if (response.ok) {
-            const user = await response.json();
-            
-            // Nakon uspješnog dohvaćanja, popuni originalnu strukturu podacima
-            if (editProfilScreen) {
-                editProfilScreen.innerHTML = `
-                    <div class="top-nav-buttons">
-                        <button class="back-button left-aligned" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">←</button>
-                    </div>
-                    <h2>Uredi profil</h2>
-                    <div style="text-align:center;">
-                        <img id="previewEditSlike" class="profilna-slika" />
-                    </div>
-                    <input id="editIme" placeholder="Korisničko ime" />
-                    <textarea id="editOpis" placeholder="O meni..." rows="3"></textarea>
-                    <input id="editInstagram" placeholder="Instagram korisničko ime" />
-                    <input id="editTiktok" placeholder="TikTok korisničko ime" />
-                    <label style="font-size:14px; display:block; margin-bottom:5px;">Promijeni profilnu sliku:</label>
-                    <input type="file" id="editSlikaUpload" accept="image/*" />
-                    <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
-                `;
-                // Sada popuni inpute
-                document.getElementById("editIme").value = user.ime || '';
-                document.getElementById("editOpis").value = user.opis || '';
-                document.getElementById("editInstagram").value = user.instagram || '';
-                document.getElementById("editTiktok").value = user.tiktok || '';
-                document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
-                document.getElementById("previewEditSlike").style.display = "block"; // Osiguraj da je vidljiva
-                odabranaEditSlika = null;
-            }
-            prethodniEkran = 'postavkeEkran'; // Postavi prethodni ekran za vraćanje
-
-            // Ponovno pripoji event listener za upload slike nakon što se DOM ponovno generira
-            const editSlikaUploadEl = document.getElementById("editSlikaUpload");
-            if (editSlikaUploadEl) {
-                editSlikaUploadEl.removeEventListener("change", handleEditSlikaUploadChange); // Ukloni prethodni ako postoji
-                editSlikaUploadEl.addEventListener("change", handleEditSlikaUploadChange); // Dodaj novi
-            }
-
-
-        } else {
-            const errorData = await response.json();
-            alert("Greška pri dohvaćanju profila: " + errorData.message);
-            // U slučaju greške, vrati se na prethodni ekran ili prikaži error
-            zatvoriEkran('editProfil', prethodniEkran); 
-        }
-    } catch (error) {
-        console.error("Greška mreže pri dohvaćanju profila:", error);
-        alert("Došlo je do greške pri dohvaćanju profila.");
-        zatvoriEkran('editProfil', prethodniEkran);
-    }
+    const user = sviKorisnici.find(u => u.id === trenutniKorisnik.id);
+    if (!user) return;
+    document.getElementById("editIme").value = user.ime || '';
+    document.getElementById("editOpis").value = user.opis || '';
+    document.getElementById("editInstagram").value = user.instagram || '';
+    document.getElementById("editTiktok").value = user.tiktok || '';
+    document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
+    document.getElementById("previewEditSlike").style.display = "block";
+    odabranaEditSlika = null;
+    swap('postavkeEkran', 'editProfil');
 }
 
 async function sacuvajProfil() {
@@ -574,64 +338,38 @@ async function sacuvajProfil() {
     const noviOpis = document.getElementById("editOpis").value.trim();
     const noviInstagram = document.getElementById("editInstagram").value.trim();
     const noviTiktok = document.getElementById("editTiktok").value.trim();
-    const sacuvajBtn = document.getElementById('sacuvajProfilBtn'); // Dohvati gumb pomoću ID-a
+    const sacuvajBtn = document.getElementById('sacuvajProfilBtn');
 
     if (!novoIme) return alert("Ime ne može biti prazno!");
-    if (!trenutniKorisnik || !trenutniKorisnik.id) return alert("Korisnik nije prijavljen.");
-
-    // Prikaz loading stanja
-    if (sacuvajBtn) {
-        sacuvajBtn.disabled = true;
-        sacuvajBtn.textContent = 'Spremam promjene...';
-    }
-
+    sacuvajBtn.disabled = true;
+    sacuvajBtn.textContent = 'Spremam promjene...';
     let finalSlika = null;
     if (odabranaEditSlika) {
-        finalSlika = await compressImage(odabranaEditSlika); // KORISTI KOMPRESIRANU SLIKU
+        finalSlika = await compressImage(odabranaEditSlika);
     }
-
-    const updateData = {
-        username: novoIme,
-        opis: noviOpis,
-        instagram: noviInstagram,
-        tiktok: noviTiktok
-    };
-    if (finalSlika) { // Koristi finalSlika
+    const updateData = { username: novoIme, opis: noviOpis, instagram: noviInstagram, tiktok: noviTiktok };
+    if (finalSlika) {
         updateData.slika = finalSlika;
     }
-
     try {
         const response = await authenticatedFetch(`/api/users/${trenutniKorisnik.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updateData)
         });
-
         const data = await response.json();
-
         if (response.ok) {
             alert(data.message);
-            trenutniKorisnik.ime = novoIme;
-            trenutniKorisnik.opis = noviOpis;
-            trenutniKorisnik.instagram = noviInstagram;
-            trenutniKorisnik.tiktok = noviTiktok;
-            if (finalSlika) { // Ažuriraj lokalni objekt samo ako je slika poslana
-                trenutniKorisnik.slika = finalSlika;
-            }
             await globalRefreshUI();
-            zatvoriEkran("editProfil", 'postavkeEkran'); // Vraća na postavke ekran
+            zatvoriEkran("editProfil", 'postavkeEkran');
         } else {
             alert("Greška pri spremanju profila: " + data.message);
         }
     } catch (error) {
-        console.error("Greška kod spremanja profila:", error);
         alert("Došlo je do greške pri spremanja profila.");
     } finally {
-        // Vrati originalno stanje gumba
-        if (sacuvajBtn) {
-            sacuvajBtn.disabled = false;
-            sacuvajBtn.textContent = 'Spremi promjene';
-        }
+        sacuvajBtn.disabled = false;
+        sacuvajBtn.textContent = 'Spremi promjene';
     }
 }
 
@@ -644,150 +382,87 @@ async function azurirajMojuAktivnost(loggingOut = false) {
             body: JSON.stringify({ loggingOut })
         });
     }
-    catch (error) {
-        console.error("Greška pri ažuriranju aktivnosti:", error);
-    }
+    catch (error) { console.error("Greška pri ažuriranju aktivnosti:", error); }
 }
 
 function formatirajStatus(isoTimestamp) {
     if (!isoTimestamp) return { text: "Offline", online: false };
-    const timestamp = new Date(isoTimestamp).getTime();
-    const diffSekunde = Math.round((Date.now() - timestamp) / 1e3);
+    const diffSekunde = Math.round((Date.now() - new Date(isoTimestamp).getTime()) / 1e3);
     if (diffSekunde < 30) return { text: "Online", online: true };
     if (diffSekunde < 60) return { text: "viđen/a prije minutu", online: false };
     const diffMinute = Math.round(diffSekunde / 60);
     if (diffMinute < 60) return { text: `viđen/a prije ${diffMinute} min`, online: false };
     const diffSati = Math.round(diffMinute / 60);
     if (diffSati < 24) return { text: `viđen/a prije ${diffSati} h`, online: false };
-    const diffDani = Math.round(diffSati / 24);
-    return { text: `viđen/a prije ${diffDani} dana`, online: false };
+    return { text: `viđen/a prije ${Math.round(diffSati / 24)} dana`, online: false };
 }
 
-// --- GEOLOKACIJA ---
 function dohvatiLokaciju(callback) {
-    if (!navigator.geolocation) {
-        console.warn("Geolokacija nije podržana u ovom pregledniku.");
-        return callback && callback();
-    }
+    if (!navigator.geolocation) return callback && callback();
     navigator.geolocation.getCurrentPosition(pos => {
         mojPoz = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-        console.log("Geolokacija uspješno dobivena:", mojPoz);
         callback && callback();
     }, (error) => {
-        console.error("Greška pri dohvaćanju geolokacije:", error);
-        if (error.code === error.PERMISSION_DENIED) {
-             alert("Pristup lokaciji je odbijen. Molimo odobrite pristup lokaciji u postavkama preglednika za ovu stranicu. Bez lokacije nećete moći objavljivati pijanke.");
-             mojPoz = null;
-        } else {
-            alert("Nismo dobili geolokaciju. Molimo odobrite pristup lokaciji. Bez lokacije nećete moći objavljivati pijanke.");
-            mojPoz = null;
-        }
+        alert("Pristup lokaciji je odbijen. Aplikacija ne može ispravno raditi bez lokacije.");
         callback && callback();
-    }, {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 60000
-    });
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
 }
 
 function distKM(p1, p2) {
-    if (!p1 || !p2 || p1.lat === undefined || p1.lon === undefined || p2.lat === undefined || p2.lon === undefined) return "?";
-    const R = 6371,
-        dLat = (p2.lat - p1.lat) * Math.PI / 180,
-        dLon = (p2.lon - p1.lon) * Math.PI / 180,
-        a = Math.sin(dLat / 2) ** 2 + Math.cos(p1.lat * Math.PI / 180) * Math.cos(p2.lat * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+    if (!p1 || !p2) return "?";
+    const R = 6371, dLat = (p2.lat - p1.lat) * Math.PI / 180, dLon = (p2.lon - p1.lon) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(p1.lat * Math.PI / 180) * Math.cos(p2.lat * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
     return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(1);
 }
 
-// --- OBJAVE (PIJANKE) LOGIKA ---
 function pokaziObjavu() {
     prethodniEkran = 'lokacijePrikaz';
     swap(prethodniEkran, "glavniDio");
-    
-    // Dohvati elemente
-    const glavniNaslov = document.getElementById("glavniNaslov");
-    const objavaForma = document.getElementById("objavaForma");
-    const profilKorisnika = document.getElementById("profilKorisnika");
-    const backButton = document.querySelector('#glavniDio .back-button');
-    const closeButton = document.querySelector('#glavniDio .close-btn');
-
-    // Postavi naslov
-    if (glavniNaslov) glavniNaslov.innerText = "Objavi pijanku";
-
-    // Pobrini se da je forma za objavu vidljiva, a profil skriven
-    if (objavaForma) objavaForma.style.display = "block";
-    if (profilKorisnika) profilKorisnika.style.display = "none";
+    document.querySelector('#glavniDio h2').innerText = "Objavi pijanku";
+    document.getElementById("objavaForma").style.display = "flex";
+    document.getElementById("profilKorisnika").style.display = "none";
     document.getElementById("opisPijanke").value = "";
-
-    // Kontrola gornjih gumba: Prikaži X, Sakrij Nazad
-    if (backButton) backButton.style.display = 'none';
-    if (closeButton) closeButton.style.display = 'flex'; // X gumb
+    document.querySelector('#glavniDio .back-button').style.display = 'none';
+    document.querySelector('#glavniDio .close-btn').style.display = 'flex';
 }
 
 async function objaviPijanku() {
     const opis = document.getElementById("opisPijanke").value.trim();
-    const objaviBtn = document.querySelector('#objavaForma button'); // Dohvati gumb unutar forme
-
     if (!opis) return alert("Molimo popunite opis pijanke!");
+    if (!mojPoz) return dohvatiLokaciju(() => objaviPijanku());
 
-    if (!mojPoz || mojPoz.lat === null || mojPoz.lon === null) {
-        return dohvatiLokaciju(() => objaviPijanku());
-    }
-
-    // Prikaz loading stanja
-    if (objaviBtn) {
-        objaviBtn.disabled = true;
-        objaviBtn.textContent = 'Objavljujem...';
-    }
-
+    const objaviBtn = document.querySelector('#objavaForma button');
+    objaviBtn.disabled = true;
+    objaviBtn.textContent = 'Objavljujem...';
     try {
         const response = await authenticatedFetch('/api/posts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                opis,
-                lat: mojPoz.lat,
-                lon: mojPoz.lon
-            })
+            body: JSON.stringify({ opis, lat: mojPoz.lat, lon: mojPoz.lon })
         });
-
         const data = await response.json();
-
         if (response.ok) {
             alert(data.message);
             await dohvatiSvePijanke();
-            zatvoriEkran("glavniDio", "lokacijePrikaz"); // Koristi zatvoriEkran
+            zatvoriEkran("glavniDio", "lokacijePrikaz");
             prikaziPijankePregled();
         } else {
             alert("Greška pri objavi pijanke: " + data.message);
         }
     } catch (error) {
-        console.error("Greška kod objave pijanke:", error);
         alert("Došlo je do greške pri objavi pijanke.");
     } finally {
-        // Vrati originalno stanje gumba
-        if (objaviBtn) {
-            objaviBtn.disabled = false;
-            objaviBtn.textContent = 'Objavi';
-        }
+        objaviBtn.disabled = false;
+        objaviBtn.textContent = 'Objavi';
     }
 }
 
 async function obrisiPijanku(pijankaId, event) {
     if (event) event.stopPropagation();
-    if (!pijankaId) {
-        console.error("Pokušaj brisanja pijanke bez ID-a.");
-        return;
-    }
-
     if (confirm("Jeste li sigurni da želite obrisati ovu objavu?")) {
         try {
-            const response = await authenticatedFetch(`/api/posts?postId=${pijankaId}`, {
-                method: 'DELETE'
-            });
-
+            const response = await authenticatedFetch(`/api/posts?postId=${pijankaId}`, { method: 'DELETE' });
             const data = await response.json();
-
             if (response.ok) {
                 alert(data.message);
                 await dohvatiSvePijanke();
@@ -796,7 +471,6 @@ async function obrisiPijanku(pijankaId, event) {
                 alert("Greška pri brisanju objave: " + data.message);
             }
         } catch (error) {
-            console.error("Greška kod brisanja objave:", error);
             alert("Došlo je do greške pri brisanja objave.");
         }
     }
@@ -811,26 +485,17 @@ function prikaziPijankePregled() {
         return;
     }
     svePijanke.forEach(pijanka => {
-        if (!pijanka.id) {
-            console.error("Pijanka nema ID (ili je '_id' nedostupan):", pijanka);
-            return;
-        }
-
         const autor = sviKorisnici.find(u => u.id === pijanka.korisnikId);
-        if (!autor) {
-            console.error("Autor pijanke nije pronađen za ID:", pijanka.korisnikId, "Pijanka:", pijanka);
-            div.innerHTML += `<div class="pijanka">Autor nepoznat (ID: ${pijanka.korisnikId}) - Greška pri učitavanju.</div>`;
-            return;
-        }
-
+        if (!autor) return;
         const status = formatirajStatus(autor.lastActive);
+        // *** ISPRAVAK: Uklonjen <hr> element odavde ***
         div.innerHTML += `
-            <div class="pijanka">
-                <div class="pijanka-header" onclick="otvoriProfil('${autor.id}')">
+            <div class="pijanka" onclick="otvoriProfil('${autor.id}')">
+                <div class="pijanka-header">
                     <img src="${autor.slika || 'default_profile.png'}" alt="Profilna slika" class="pijanka-profilna-slika">
                     <div class="pijanka-info">
                         <div>
-                            <span class="status-dot ${status.online?"online":"offline"}"></span>
+                            <span class="status-dot ${status.online ? "online" : "offline"}"></span>
                             <strong>${autor.ime}</strong>
                         </div>
                         <p class="status-text">pije ${distKM(mojPoz, pijanka)}km od tebe</p>
@@ -840,325 +505,167 @@ function prikaziPijankePregled() {
                 <div class="pijanka-opis">
                     <p>${pijanka.opis}</p>
                 </div>
-            </div>
-            <hr class="pijanka-separator">
-        `;
+            </div>`;
     });
 }
 
 async function otvoriProfil(korisnikId) {
     if (!korisnikId) return;
-
-    // Ažurirano: Spremi TRENUTNI aktivni ekran kao prethodni prije ulaska u glavniDio
-    // Ovo osigurava da se ispravno vratimo na lokacijePrikaz ili inboxPrikaz
-    prethodniEkran = document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz'; 
+    prethodniEkran = document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz';
+    const korisnik = sviKorisnici.find(u => u.id === korisnikId);
+    if (!korisnik) return;
     
-    // Prikaz loading stanja za profil dok se podaci učitavaju
-    const glavniDioScreen = document.getElementById("glavniDio");
-    const glavniNaslov = document.getElementById("glavniNaslov");
-    const objavaForma = document.getElementById("objavaForma");
-    const profilKorisnika = document.getElementById("profilKorisnika");
-    const backButton = document.querySelector('#glavniDio .back-button');
-    const closeButton = document.querySelector('#glavniDio .close-btn');
+    swap(prethodniEkran, "glavniDio");
+    
+    const profilKorisnikaDiv = document.getElementById("profilKorisnika");
+    document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
+    document.getElementById("objavaForma").style.display = "none";
+    profilKorisnikaDiv.style.display = "flex";
+    
+    profilKorisnikaDiv.innerHTML = `
+        <img src="${korisnik.slika || 'default_profile.png'}" class="profilna-slika-velika">
+        <h2 style="padding-top:0;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
+        <p class="profil-opis">${korisnik.opis || "Nema opisa."}</p>
+        <div class="drustvene-mreze">${prikaziMreze(korisnik)}</div>
+        ${trenutniKorisnik && korisnik.id !== trenutniKorisnik.id ? `<button onclick="pokreniPrivatniChat('${korisnik.id}', 'glavniDio')">💬 Pošalji poruku</button>` : '<em style="color:#888; margin-top: 20px;">Ovo je tvoj profil.</em>'}
+    `;
 
-
-    if (glavniDioScreen) {
-        if (glavniNaslov) glavniNaslov.innerText = "Profil korisnika";
-
-        // Kontrola gornjih gumba: Prikaži Nazad, Sakrij X
-        if (backButton) backButton.style.display = 'flex'; // Prikaži Nazad
-        if (closeButton) closeButton.style.display = 'none'; // Sakrij X
-
-        // Sakrij formu za objavu i prikaži loading unutar profilKorisnika
-        if (objavaForma) objavaForma.style.display = 'none';
-        if (profilKorisnika) {
-            profilKorisnika.style.display = 'block'; // Osiguraj da je kontejner za profil vidljiv
-            profilKorisnika.innerHTML = `
-                <p style="text-align:center;">Učitavam profil korisnika...</p>
-                <div style="text-align:center; margin-top:20px; font-size: 3em;">👤</div>
-            `;
-        }
-        
-        swap(prethodniEkran, "glavniDio");
-    }
-
-    try {
-        const response = await authenticatedFetch(`/api/users/${korisnikId}`);
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Korisnik nije pronađen.");
-        }
-        const korisnik = await response.json();
-
-        // Nakon uspješnog dohvaćanja, popuni `profilKorisnika` podacima
-        if (profilKorisnika) {
-            profilKorisnika.innerHTML = `
-                <div style="text-align:center; cursor:default; display:block;">
-                    <img src="${korisnik.slika || 'default_profile.png'}" class="profilna-slika" style="margin-bottom:15px;">
-                    <h2 style="display:block; vertical-align:middle;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
-                    <p style="font-size:15px; font-style:italic; color:#ccc;">${korisnik.opis || "Nema opisa."}</p>
-                    <div style="margin:20px 0;">${prikaziMreze(korisnik)}</div>
-                    ${trenutniKorisnik && korisnik.id !== trenutniKorisnik.id ? `<button onclick="pokreniPrivatniChat('${korisnik.id}', prethodniEkran)">💬 Pošalji poruku</button>` : '<em style="color:#888;">Ovo je tvoj profil.</em>'}
-                </div>
-            `;
-            profilKorisnika.style.display = 'block';
-        }
-    } catch (error) {
-        console.error("Greška pri otvaranju profila:", error);
-        alert("Došlo je do greške pri otvaranju profila: " + error.message);
-        zatvoriEkran('glavniDio', prethodniEkran); // Vrati se na prethodni ekran u slučaju greške
-    }
+    document.querySelector('#glavniDio .back-button').style.display = 'flex';
+    document.querySelector('#glavniDio .close-btn').style.display = 'none';
 }
 
 function prikaziMreze(p) {
     let s = "";
     if (p.instagram) s += `<a href="https://instagram.com/${p.instagram}" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" class="mreza-ikonica" alt="instagram"></a>`;
-    if (p.tiktok) s += `<a href="https://tiktok.com/@${p.tiktok}" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" class="mreza-ikonica" alt="tiktok"></a>`;
+    if (p.tiktok) s += `<a href="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" class="mreza-ikonica" alt="tiktok"></a>`;
     return s || '<span style="font-size:13px; color:#888;">Nema društvenih mreža.</span>';
 }
 
-// --- LOGIKA INBOXA I PORUKA ---
 function azurirajNotifikacije() {
     let neprocitane = 0;
-    const badgeContainerInbox = document.getElementById("notifikacijaPoruka"); // Stari ID za inboxPrikaz (trenutno nije u HTML-u)
-    const badgeContainerSettings = document.getElementById("notifikacijaPorukaSettings"); // Novi ID za postavkeEkran
-
-    // Čišćenje prethodnog sadržaja badgeova
-    if (badgeContainerInbox) badgeContainerInbox.innerHTML = "";
-    if (badgeContainerSettings) badgeContainerSettings.innerHTML = "";
-    
+    const badgeSettings = document.getElementById("notifikacijaPorukaSettings");
     if (trenutniKorisnik && trenutniKorisnik.id) {
         for (const chatKey in privatnePoruke) {
-            // Check if current user is part of this chatKey
             if (chatKey.includes(trenutniKorisnik.id)) {
-                // Filter messages that are not read AND sent by the other party
                 neprocitane += privatnePoruke[chatKey].filter(msg => !msg.isRead && msg.autorId !== trenutniKorisnik.id).length;
             }
         }
     }
-    
-    if (neprocitane > 0) {
-        const badgeContent = `${neprocitane > 9 ? '9+' : neprocitane}`; // Samo broj/tekst
-        if (badgeContainerInbox) badgeContainerInbox.innerText = badgeContent;
-        if (badgeContainerSettings) badgeContainerSettings.innerText = badgeContent;
-        if (badgeContainerInbox) badgeContainerInbox.style.display = 'flex'; // Prikazi badge
-        if (badgeContainerSettings) badgeContainerSettings.style.display = 'flex'; // Prikazi badge
-    } else {
-        if (badgeContainerInbox) badgeContainerInbox.style.display = 'none'; // Sakrij badge
-        if (badgeContainerSettings) badgeContainerSettings.style.display = 'none'; // Sakrij badge
+    if(badgeSettings) {
+        badgeSettings.style.display = neprocitane > 0 ? 'flex' : 'none';
+        badgeSettings.innerText = neprocitane > 9 ? '9+' : neprocitane;
     }
 }
 
 async function prikaziInbox() {
+    swap('postavkeEkran', 'inboxPrikaz');
     const div = document.getElementById("listaChatova");
-    if (!div) return;
-
     div.innerHTML = "";
     const chatKeys = (trenutniKorisnik && trenutniKorisnik.id) ? Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id)) : [];
-
     if (chatKeys.length === 0) {
         div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
-        // PROMJENA: PRETHODNI EKRAN ZA VRACANJE
-        swap(document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz', "inboxPrikaz");
         return;
     }
-
-    chatKeys.sort((a, b) => {
-        const lastMsgA = privatnePoruke[a][privatnePoruke[a].length - 1];
-        const lastMsgB = privatnePoruke[b][privatnePoruke[b].length - 1];
-        if (!lastMsgA || !lastMsgB) return 0;
-        return new Date(lastMsgB.time) - new Date(lastMsgA.time);
-    }).forEach(chatKey => {
-        const ids = chatKey.split("-");
-        const partnerId = ids[0] == trenutniKorisnik.id ? ids[1] : ids[0];
+    chatKeys.sort((a, b) => new Date(privatnePoruke[b].slice(-1)[0]?.time) - new Date(privatnePoruke[a].slice(-1)[0]?.time))
+    .forEach(chatKey => {
+        const partnerId = chatKey.split("-").find(id => id !== trenutniKorisnik.id);
         const partner = sviKorisnici.find(u => u.id == partnerId);
-        if (!partner) {
-                console.error("Partner za chat nije pronađen za ID:", partnerId);
-                div.innerHTML += `<div class="chat-item">Nepoznat korisnik (ID: ${partnerId}) - Greška pri učitavanju.</div>`;
-                return;
-        }
-
+        if (!partner) return;
         const neprocitane = privatnePoruke[chatKey].some(m => !m.isRead && m.autorId == partner.id);
         const status = formatirajStatus(partner.lastActive);
         div.innerHTML += `
-            <div class="chat-item">
+            <div class="chat-item" onclick="pokreniPrivatniChat('${partner.id}', 'inboxPrikaz')">
                 <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
-                <div class="chat-item-info" onclick="pokreniPrivatniChat('${partner.id}', 'inboxPrikaz')">
+                <div class="chat-item-info">
                     <div>
-                        <span class="status-dot ${status.online?"online":"offline"}"></span>
+                        <span class="status-dot ${status.online ? "online" : "offline"}"></span>
                         <strong>${partner.ime}</strong>
                     </div>
-                    <p class="status-text">${status.online?"Online":status.text}</p>
+                    <p class="status-text">${status.online ? "Online" : status.text}</p>
                 </div>
-                ${neprocitane?'<span class="notification-badge" style="position:static; top:auto; right:auto;"></span>':""}
-            </div>
-        `;
+                ${neprocitane ? '<span class="notification-badge-chat"></span>' : ""}
+            </div>`;
     });
-    // PROMJENA: PRETHODNI EKRAN ZA VRACANJE
-    swap(document.querySelector('.container.active-screen')?.id || 'lokacijePrikaz', "inboxPrikaz");
 }
 
 async function pokreniPrivatniChat(partnerId, saEkrana) {
-    // 'saEkrana' sada ispravno sadrži originalni ekran s kojeg smo došli (npr. lokacijePrikaz ili inboxPrikaz).
-    // Tu vrijednost prosljeđujemo funkciji 'zatvoriEkran' kada se vraćamo iz chata.
-    prethodniEkran = saEkrana; // Ažurira globalnu varijablu, da bi povratak na profil bio ispravan
-    
+    prethodniEkran = saEkrana;
     trenutniChatPartnerId = partnerId;
     const primalac = sviKorisnici.find(u => u.id === partnerId);
-    if (!primalac) {
-        console.error("Primalac za chat nije pronađen za ID:", partnerId);
-        alert("Korisnik s kojim pokušavate chatati nije pronađen.");
-        return;
-    }
-
+    if (!primalac) return;
     document.getElementById("chatSaKorisnikom").innerText = primalac.ime;
-
+    swap(saEkrana, "privatniChat");
     const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
     try {
-        const markReadResponse = await authenticatedFetch('/api/messages', {
+        await authenticatedFetch('/api/messages', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chatKey: chatKey })
+            body: JSON.stringify({ chatKey })
         });
-        if (markReadResponse.ok) {
-            await dohvatiSvePoruke();
-            azurirajNotifikacije();
-        } else {
-            console.error("Greška pri označavanju poruka kao pročitanih:", await markReadResponse.text());
-        }
-    } catch (error) {
-        console.error("Greška pri označavanju poruka kao pročitanih (catch):", error);
-    }
-
+        await dohvatiSvePoruke();
+        azurirajNotifikacije();
+    } catch (error) { console.error("Greška kod označavanja poruka kao pročitanih:", error); }
     const azurirajStatusSagovornika = () => {
         const svezPartner = sviKorisnici.find(u => u.id === partnerId);
         if (svezPartner) {
-            const status = formatirajStatus(svezPartner.lastActive);
-            document.getElementById("chatPartnerStatus").innerText = status.text;
+            document.getElementById("chatPartnerStatus").innerText = formatirajStatus(svezPartner.lastActive).text;
         }
     };
     if (chatStatusInterval) clearInterval(chatStatusInterval);
     chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
     azurirajStatusSagovornika();
-
-    const currentlyActiveId = document.querySelector('.container.active-screen')?.id;
-    swap(currentlyActiveId, "privatniChat"); 
     prikaziPrivatniLog();
 }
 
 async function posaljiPrivatno() {
-    const privatniInputEl = document.getElementById("privatniInput");
-    const tekst = privatniInputEl.value.trim();
-    const posaljiBtn = document.getElementById('posaljiPrivatnoBtn'); // Dohvati gumb pomoću ID-a
-
-
-    if (!tekst) return;
-    if (!trenutniChatPartnerId) {
-        alert("Nije odabran partner za chat.");
-        return;
-    }
-
-    if (posaljiBtn) {
-        posaljiBtn.disabled = true;
-        posaljiBtn.textContent = 'Šaljem...';
-    }
-
+    const privatniInput = document.getElementById("privatniInput");
+    const tekst = privatniInput.value.trim();
+    if (!tekst || !trenutniChatPartnerId) return;
+    const posaljiBtn = document.getElementById('posaljiPrivatnoBtn');
+    posaljiBtn.disabled = true;
     try {
-        const response = await authenticatedFetch('/api/messages', {
+        await authenticatedFetch('/api/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                receiverId: trenutniChatPartnerId,
-                content: tekst
-            })
+            body: JSON.stringify({ receiverId: trenutniChatPartnerId, content: tekst })
         });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            privatniInputEl.value = "";
-            await dohvatiSvePoruke();
-            prikaziPrivatniLog();
-            globalRefreshUI();
-        } else {
-            alert("Greška pri slanju poruke: " + data.message);
-        }
+        privatniInput.value = "";
+        await dohvatiSvePoruke();
+        prikaziPrivatniLog();
     } catch (error) {
-        console.error("Greška kod slanja poruke:", error);
         alert("Došlo je do greške pri slanju poruke.");
     } finally {
-        if (posaljiBtn) {
-            posaljiBtn.disabled = false;
-            posaljiBtn.textContent = 'Pošalji';
-        }
+        posaljiBtn.disabled = false;
     }
 }
 
 function prikaziPrivatniLog() {
-    if (!trenutniKorisnik || !trenutniKorisnik.id || !trenutniChatPartnerId) {
-        console.warn("Nedostaju podaci za prikaz privatnog chata.");
-        document.getElementById("privatniChatLog").innerHTML = '<p style="text-align:center; color:#888;">Nema poruka.</p>';
-        return;
-    }
-
+    if (!trenutniKorisnik || !trenutniChatPartnerId) return;
     const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
     const log = privatnePoruke[chatKey] || [];
     const div = document.getElementById("privatniChatLog");
-    if (!div) return;
-
     div.innerHTML = log.map(msg => `<p class="${msg.autorId === trenutniKorisnik.id ? "moja-poruka" : "tudja-poruka"}"><span>${msg.tekst}</span></p>`).join("");
     div.scrollTop = div.scrollHeight;
 }
 
-
-// --- FUNKCIJE ZA DOHVAĆANJE PODATAKA SA SERVERA ---
 async function dohvatiSveKorisnike() {
     try {
         const response = await authenticatedFetch('/api/users');
-        if (response.ok) {
-            sviKorisnici = await response.json();
-        } else {
-            console.error("Greška pri dohvaćanju korisnika:", await response.text());
-            sviKorisnici = [];
-        }
-    } catch (error) {
-        console.error("Greška mreže pri dohvaćanju korisnika:", error);
-        sviKorisnici = [];
-    }
+        if (response.ok) sviKorisnici = await response.json();
+    } catch (error) { console.error("Greška mreže pri dohvaćanju korisnika:", error); }
 }
 
 async function dohvatiSvePijanke() {
     try {
         const response = await authenticatedFetch('/api/posts');
-        if (response.ok) {
-            svePijanke = await response.json();
-        } else {
-            console.error("Greška pri dohvaćanju pijanki:", await response.text());
-            svePijanke = [];
-        }
-    } catch (error) {
-        console.error("Greška mreže pri dohvaćanju pijanki:", error);
-        svePijanke = [];
-    }
+        if (response.ok) svePijanke = await response.json();
+    } catch (error) { console.error("Greška mreže pri dohvaćanju pijanki:", error); }
 }
 
 async function dohvatiSvePoruke() {
+    if (!localStorage.getItem("token")) return;
     try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-                privatnePoruke = {};
-                return;
-        }
-
         const response = await authenticatedFetch('/api/messages');
-        if (response.ok) {
-            privatnePoruke = await response.json();
-        } else {
-            console.error("Greška pri dohvaćanju poruka:", await response.text());
-            privatnePoruke = {};
-        }
-    } catch (error) {
-        console.error("Greška mreže pri dohvaćanju poruka:", error);
-        privatnePoruke = {};
-    }
+        if (response.ok) privatnePoruke = await response.json();
+    } catch (error) { console.error("Greška mreže pri dohvaćanju poruka:", error); }
 }

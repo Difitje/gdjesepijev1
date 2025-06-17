@@ -1,4 +1,4 @@
-/* public/style.css - KONAČNA VERZIJA - Full Screen PC / Fiksni Mobitel */
+/* public/style.css - KONAČNA VERZIJA 2 - Ispravljen izgled komponenti na PC-u */
 
 * {
     box-sizing: border-box;
@@ -24,12 +24,10 @@ body {
     width: 100%;
     height: 100%;
     background: #1e1e1e;
-    
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
     transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
-    
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -55,15 +53,28 @@ body {
         overflow-y: auto;
     }
     .container {
-        position: relative; /* U normalnom toku, nije više apsolutan */
-        width: 100%; /* Zauzima svu širinu */
-        max-width: none; /* NEMA OGRANIČENJA ŠIRINE */
-        height: 100vh; /* Zauzima svu visinu */
-        padding: 40px; /* Unutarnji razmak da se sadržaj ne lijepi za rubove */
+        position: relative;
+        width: 100%;
+        max-width: none;
+        height: 100vh;
+        padding: 40px;
         border: none;
         border-radius: 0;
         box-shadow: none;
         margin: 0;
+    }
+
+    /* ISPRAVAK: Ograničavanje širine sadržaja unutar full-screen prikaza na PC-u */
+    #objavaForma, #profilKorisnika, .chat-input-area {
+        width: 100%;
+        max-width: 700px; /* Maksimalna širina za forme i chat input */
+        margin-left: auto;
+        margin-right: auto;
+    }
+    #privatniChatLog p {
+        max-width: 700px; /* Poruke u chatu također imaju max širinu */
+        margin-left: auto;
+        margin-right: auto;
     }
 }
 
@@ -72,16 +83,14 @@ body {
 /* ================================================================ */
 @media (max-width: 767px) {
     body {
-        overflow: hidden; /* Na mobitelu nema skrolanja */
+        overflow: hidden;
     }
     .container {
-        position: absolute; /* Prekriva cijeli ekran */
+        position: absolute;
         padding: 20px;
     }
 }
 
-
-/* Ostatak stilova (komponente, gumbi, inputi, itd.) */
 #pijankePregled,
 #listaChatova,
 #privatniChatLog {
@@ -144,6 +153,12 @@ body {
     align-items: center; 	
 }
 
+#objavaForma, #profilKorisnika {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 #privatniChat {
     justify-content: flex-start; 
     align-items: stretch;
@@ -158,7 +173,6 @@ body {
     font-size: 20px;
 }
 .chat-input-area {
-    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: stretch; 
@@ -192,14 +206,16 @@ p {
     text-align: left;
     width: 100%; 
 }
-#intro p, #odabir p, #pijankePregled p.center-text, #listaChatova p.center-text {
+#intro p, #odabir p, #pijankePregled p {
+    text-align: center;
+}
+
+.profil-opis, .drustvene-mreze {
     text-align: center;
 }
 
 input, textarea, button {
     width: 100%;
-    max-width: 500px; /* Ograničava širinu inputa na PC-u da ne budu preširoki */
-    align-self: center; /* Centrira ih unutar flex kontejnera */
     padding: 12px;
     margin-bottom: 12px;
     border: 1px solid #333;
@@ -235,9 +251,6 @@ button:disabled {
     box-shadow: none;
     opacity: 0.5;
 }
-
-/* Stilovi za liste i ostale komponente ostaju isti... */
-
 img.preview-slika,
 img.profilna-slika {
     margin-top: 8px;
@@ -249,6 +262,13 @@ img.profilna-slika {
     display: block;
     margin-left: auto;
     margin-right: auto;
+}
+.profilna-slika-velika {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ff4757;
 }
 img.preview-slika {
     display: none;
@@ -290,6 +310,12 @@ img.preview-slika {
     align-items: center;
     font-size: 10px;
 }
+.notification-badge-chat {
+    width: 12px; height: 12px; background: #ff4757;
+    border-radius: 50%;
+    margin-left: auto;
+}
+
 .mreza-ikonica {
     width: 24px;
     margin: 0 8px;
@@ -346,8 +372,6 @@ img.preview-slika {
 }
 .btn-full {
     width: 100%;
-    max-width: 500px;
-    align-self: center;
     padding: 12px;
     margin-bottom: 12px;
     border: 1px solid #333;
@@ -372,13 +396,13 @@ img.preview-slika {
     background: #282828;
     padding: 15px;
     border-radius: 10px;
-    margin: 0 auto 8px auto; /* Centriranje pijanki na PC-u */
+    margin: 0 auto 8px auto; 
     display: flex;
     flex-direction: column;
     border-left: 3px solid #ff4757;
     transition: all 0.2s ease-in-out;
     width: 100%;
-    max-width: 600px; /* Ograničavanje širine samih kartica */
+    max-width: 600px;
     box-sizing: border-box;
 }
 .pijanka:hover {
@@ -451,11 +475,6 @@ img.preview-slika {
     background: rgba(51, 51, 51, 0.5);
     box-shadow: none;
     transform: scale(1.05);
-    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
-}
-.pijanka-opis {
-    padding-top: 4px;
-    width: 100%;
 }
 .pijanka-opis p {
     margin-bottom: 0;
@@ -495,7 +514,28 @@ img.preview-slika {
     align-items: flex-start;
     cursor: pointer;
 }
-
+#privatniChatLog p > span {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 15px;
+    max-width: 90%; /* Poruke mogu biti malo šire */
+    word-wrap: break-word;
+    font-size: 14px;
+}
+#privatniChatLog p.moja-poruka {
+    text-align: right;
+}
+#privatniChatLog p.moja-poruka > span {
+    background: #ff4757;
+    color: white;
+}
+#privatniChatLog p.tudja-poruka {
+    text-align: left;
+}
+#privatniChatLog p.tudja-poruka > span {
+    background: #3a3a3a;
+    color: #f0f0f0;
+}
 #splashScreen {
     position: fixed;
     top: 0;
@@ -534,16 +574,4 @@ img.preview-slika {
 @keyframes fadeOutSplash {
     from { opacity: 1; }
     to { opacity: 0; visibility: hidden; }
-}
-/*
- * ISPRAVAK: Stil za liniju ispod pijanke
- * Ovo vraća originalni stil za separator liniju.
-*/
-.pijanka-separator {
-    border: none;
-    border-top: 1px dashed #444; /* Tamno siva isprekidana linija */
-    margin: 12px auto;
-    width: 70%;
-    background-color: transparent;
-    height: 1px;
 }
