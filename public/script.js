@@ -1,5 +1,5 @@
 // ==================================
-// ===   FINALNA SKRIPTA v5.2     ===
+// ===   FINALNA SKRIPTA v5.1     ===
 // ==================================
 
 // --- Globalne varijable ---
@@ -107,6 +107,7 @@ function swap(hideId, showId) {
         showElement.style.display = 'flex';
         setTimeout(() => showElement.classList.add('active-screen'), 10);
     }
+     // Ažuriraj prethodni ekran samo ako se ne vraćamo nazad
     if (hideId && showId !== prethodniEkran) {
         prethodniEkran = hideId;
     }
@@ -124,7 +125,7 @@ function zatvoriEkran(trenutniEkranId) {
 // --- Glavne Funkcije Aplikacije ---
 function pokreniAplikaciju() {
     document.querySelectorAll('.container').forEach(el => {
-        if(el.id !== 'lokacijePrikaz') el.classList.remove('active-screen');
+        el.classList.remove('active-screen');
     });
     swap(null, 'lokacijePrikaz');
     
@@ -250,7 +251,7 @@ async function otvoriProfil(korisnikId) {
     const contentDiv = document.getElementById('genericScreenContent');
     document.getElementById('genericScreenTitle').innerText = 'Profil';
     contentDiv.innerHTML = '<p style="text-align: center; padding-top: 40px;">Učitavam profil...</p>';
-    swap(document.querySelector('.container.active-screen').id, 'genericScreen');
+    swap('lokacijePrikaz', 'genericScreen');
     
     try {
         const response = await authenticatedFetch(`/api/users/${korisnikId}`);
@@ -295,6 +296,7 @@ async function prikaziEditProfila() {
         <input type="file" id="editSlikaUpload" accept="image/*" />
         <button id="sacuvajProfilBtn" class="form-button" onclick="sacuvajProfil()">Spremi promjene</button>
     `;
+    swap('genericScreen', 'genericScreen'); // Osvježi prikaz
 
     odabranaEditSlika = null;
     const editSlikaUploadEl = document.getElementById("editSlikaUpload");
@@ -356,7 +358,7 @@ async function pokreniPrivatniChat(partnerId) {
 
     document.getElementById('chatSaKorisnikom').innerText = partner.ime;
     document.getElementById('chatPartnerStatus').innerText = formatirajStatus(partner.lastActive).text;
-    document.getElementById('privatniChatLog').innerHTML = '';
+    document.getElementById('privatniChatLog').innerHTML = ''; // Clear previous log
     swap(document.querySelector('.container.active-screen').id, 'privatniChat');
     
     const chatKey = [trenutniKorisnik.id, partnerId].sort().join("-");
