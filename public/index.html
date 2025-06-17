@@ -1,167 +1,121 @@
 <!DOCTYPE html>
 <html lang="hr">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gdje se pije? (beta) </title>
-    <link rel="stylesheet" href="/style.css">
-    <style>
-        .container { display: none; }
-        #intro { display: block; } /* Prikazuje početni ekran */
-    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gdje se pije? (beta) </title>
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <div id="splashScreen">
-        <h1>DRINKER</h1>
-    </div>
+    <div id="splashScreen">
+        <h1>DRINKER</h1>
+    </div>
 
-    <div class="container" id="intro">
-        <h2>🍻 Dosadno vam je?</h2>
-        <p style="text-align:center;">Pridruži se ekipi koja zna kako se loče!</p>
-        <button onclick="swap('intro', 'odabir')">Pridruži se</button>
-    </div>
+    <div class="container" id="intro">
+        <h2>🍻 Dosadno vam je?</h2>
+        <p style="text-align:center;">Pridruži se ekipi koja zna kako se loče!</p>
+        <button onclick="swap('intro', 'odabir')">Pridruži se</button>
+    </div>
 
-    <div class="container" id="pravilaEkran">
-        <button class="back-button left-aligned" onclick="swap('pravilaEkran', 'odabir')">←</button> <h2>Pravila korištenja</h2>
-        <div class="pravila-text">
-            <p>Dobrodošli! Prije nego što nastavite, molimo vas da pažljivo pročitate i prihvatite sljedeća pravila:</p>
-            <p><strong>1. Punoljetnost:</strong> Morate imati najmanje 18 godina da biste koristili ovu aplikaciju.</p>
-            <p><strong>2. Poštovanje:</strong> Ponašajte se prema drugima s poštovanjem. Bilo kakav oblik uznemiravanja, govora mržnje ili nasilnog ponašanja nije dozvoljen i rezultirat će trajnom zabranom.</p>
-            <p><strong>3. Sigurnost na prvom mjestu:</strong> Kada se sastajete s drugim korisnicima, činite to na javnim i sigurnim mjestima. Obavijestite prijatelja gdje idete. Budite odgovorni.</p>
-            <p><strong>4. Zakonitost:</strong> Zabranjeno je organiziranje ili promoviranje bilo kakvih ilegalnih aktivnosti putem ove platforme.</p>
-            <p><strong>Odricanje od odgovornosti:</strong> Ova aplikacija je samo platforma za povezivanje. Mi, kao kreatori, nismo odgovorni za ponašanje korisnika, niti za bilo kakve direktne ili indirektne posljedice, štete ili povrede koje mogu nastati kao rezultat korištenja aplikacije. Koristite je na vlastitu odgovornost.</p>
-        </div>
-        <div class="pravila-checkbox-wrapper">
-            <input type="checkbox" id="prihvatamPravila" onchange="proveriPrihvatanje()">
-            <label for="prihvatamPravila">Pročitao/la sam i prihvaćam pravila.</label>
-        </div>
-        <button id="nastaviBtn" onclick="swap('pravilaEkran', 'registracija')" disabled>Prihvati i nastavi</button>
-    </div>
+    <div class="container" id="pravilaEkran">
+        <button class="back-button left-aligned" onclick="swap('pravilaEkran', 'odabir')">←</button> <h2>Pravila korištenja</h2>
+        <div class="pravila-text">
+            <p>Dobrodošli! Prije nego što nastavite, molimo vas da pažljivo pročitate i prihvatite sljedeća pravila:</p>
+            <p><strong>1. Punoljetnost:</strong> Morate imati najmanje 18 godina da biste koristili ovu aplikaciju.</p>
+            <p><strong>2. Poštovanje:</strong> Ponašajte se prema drugima s poštovanjem. Bilo kakav oblik uznemiravanja, govora mržnje ili nasilnog ponašanja nije dozvoljen i rezultirat će trajnom zabranom.</p>
+            <p><strong>3. Sigurnost na prvom mjestu:</strong> Kada se sastajete s drugim korisnicima, činite to na javnim i sigurnim mjestima. Obavijestite prijatelja gdje idete. Budite odgovorni.</p>
+            <p><strong>4. Zakonitost:</strong> Zabranjeno je organiziranje ili promoviranje bilo kakvih ilegalnih aktivnosti putem ove platforme.</p>
+            <p><strong>Odricanje od odgovornosti:</strong> Ova aplikacija je samo platforma za povezivanje. Mi, kao kreatori, nismo odgovorni za ponašanje korisnika, niti za bilo kakve direktne ili indirektne posljedice, štete ili povrede koje mogu nastati kao rezultat korištenja aplikacije. Koristite je na vlastitu odgovornost.</p>
+        </div>
+        <div class="pravila-checkbox-wrapper">
+            <input type="checkbox" id="prihvatamPravila" onchange="proveriPrihvatanje()">
+            <label for="prihvatamPravila">Pročitao/la sam i prihvaćam pravila.</label>
+        </div>
+        <button id="nastaviBtn" onclick="swap('pravilaEkran', 'registracija')" disabled>Prihvati i nastavi</button>
+    </div>
 
-    <div class="container" id="odabir">
-        <h2>Dobrodošli!</h2>
-        <p style="text-align:center;">Imaš račun? Prijavi se. Nemaš? Registriraj se.</p>
-        <button onclick="swap('odabir', 'login')">Prijava</button>
-        <button onclick="swap('odabir', 'pravilaEkran')">Registracija</button>
-    </div>
+    <div class="container" id="odabir">
+        <h2>Dobrodošli!</h2>
+        <p style="text-align:center;">Imaš račun? Prijavi se. Nemaš? Registriraj se.</p>
+        <button onclick="swap('odabir', 'login')">Prijava</button>
+        <button onclick="swap('odabir', 'pravilaEkran')">Registracija</button>
+    </div>
 
-    <div class="container" id="login">
-        <button class="back-button left-aligned" onclick="swap('login', 'odabir')">←</button> <h2>Prijava</h2>
-        <input id="loginIme" placeholder="Korisničko ime" />
-        <input id="loginSifra" type="password" placeholder="Lozinka" />
-        <button id="loginSubmitBtn" onclick="ulogujSe()">Prijavi se</button>
-    </div>
+    <div class="container" id="login">
+        <button class="back-button left-aligned" onclick="swap('login', 'odabir')">←</button> <h2>Prijava</h2>
+        <input id="loginIme" placeholder="Korisničko ime" />
+        <input id="loginSifra" type="password" placeholder="Lozinka" />
+        <button id="loginSubmitBtn" onclick="ulogujSe()">Prijavi se</button>
+    </div>
 
-    <div class="container" id="registracija">
-        <button class="back-button left-aligned" onclick="swap('registracija', 'pravilaEkran')">←</button> <h2>Registracija</h2>
-        <input id="ime" placeholder="Korisničko ime" />
-        <input id="sifra" type="password" placeholder="Lozinka" />
-        <label style="font-size:14px; display:block; margin-bottom:5px;">Profilna slika:</label>
-        <input type="file" id="slikaUpload" accept="image/*" />
-        <img id="previewSlikes" class="preview-slika" /> <input id="instagram" placeholder="Instagram korisničko ime (bez @)" />
-        <input id="tiktok" placeholder="TikTok korisničko ime (bez @)" />
-        <textarea id="opis" placeholder="O meni..." rows="3"></textarea>
-        <button id="registracijaSubmitBtn" onclick="registruj()">Spremi</button>
-    </div>
+    <div class="container" id="registracija">
+        <button class="back-button left-aligned" onclick="swap('registracija', 'pravilaEkran')">←</button> <h2>Registracija</h2>
+        <input id="ime" placeholder="Korisničko ime" />
+        <input id="sifra" type="password" placeholder="Lozinka" />
+        <label style="font-size:14px; display:block; margin-bottom:5px;">Profilna slika:</label>
+        <input type="file" id="slikaUpload" accept="image/*" />
+        <img id="previewSlikes" class="preview-slika" /> <input id="instagram" placeholder="Instagram korisničko ime (bez @)" />
+        <input id="tiktok" placeholder="TikTok korisničko ime (bez @)" />
+        <textarea id="opis" placeholder="O meni..." rows="3"></textarea>
+        <button id="registracijaSubmitBtn" onclick="registruj()">Spremi</button>
+    </div>
 
-    <div class="container" id="lokacijePrikaz">
-        <h2>🍺 Trenutno pije:</h2>
-        <div id="pijankePregled"></div>
-        <div class="controls-bottom">
-            <button id="objaviPijankuBtn" class="action-icon large-action-icon" onclick="pokaziObjavu()">🍺</button>
-            <button id="settingsBtn" class="action-icon" onclick="pokaziPostavkeEkran()">⚙️</button>
-        </div>
-    </div>
+    <div class="container" id="lokacijePrikaz">
+        <h2>🍺 Trenutno pije:</h2>
+        <div id="pijankePregled"></div>
+        <div class="controls-bottom">
+            <button id="objaviPijankuBtn" class="action-icon large-action-icon" onclick="pokaziObjavu()">🍺</button>
+            <button id="settingsBtn" class="action-icon" onclick="pokaziPostavkeEkran()">⚙️</button>
+        </div>
+    </div>
 
-    <div class="container" id="inboxPrikaz">
-        <button class="back-button left-aligned" onclick="zatvoriEkran('inboxPrikaz', 'lokacijePrikaz')">←</button> <h2>Poruke</h2>
-        <div id="listaChatova"></div>
-    </div>
+    <div class="container" id="inboxPrikaz">
+        <button class="back-button left-aligned" onclick="zatvoriEkran('inboxPrikaz', 'lokacijePrikaz')">←</button> <h2>Poruke</h2>
+        <div id="listaChatova"></div>
+    </div>
 
-    <div class="container" id="postavkeEkran">
-        <button class="back-button left-aligned" onclick="zatvoriEkran('postavkeEkran', 'lokacijePrikaz')">←</button> <h2>Postavke</h2>
-        <a href="#" class="btn-full" onclick="prikaziInbox(); return false;">Poruke <span id="notifikacijaPorukaSettings" class="notification-badge"></span></a>
-        <a href="#" class="btn-full" onclick="prikaziEditProfila(); return false;">Moj profil</a>
-        <a href="#" class="btn-full" onclick="odjaviSe(); return false;" id="odjaviSeBtn">Odjavi se</a> </div>
+    <div class="container" id="postavkeEkran">
+        <button class="back-button left-aligned" onclick="zatvoriEkran('postavkeEkran', 'lokacijePrikaz')">←</button> <h2>Postavke</h2>
+        <a href="#" class="btn-full" onclick="prikaziInbox(); return false;">Poruke <span id="notifikacijaPorukaSettings" class="notification-badge"></span></a>
+        <a href="#" class="btn-full" onclick="prikaziEditProfila(); return false;">Moj profil</a>
+        <a href="#" class="btn-full" onclick="odjaviSe(); return false;" id="odjaviSeBtn">Odjavi se</a> </div>
 
-    <div class="container" id="glavniDio">
-        <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">←</button> <button class="close-btn right-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">✖</button> </div>
-        
-        <h2></h2> 
-        
+        <div class="container" id="glavniDio">
+        <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">←</button> <button class="close-btn right-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">✖</button> </div>
+        
+        <h2>Objavi pijanku</h2> 
+
         <div id="objavaForma">
-            <textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea>
-            <button onclick="objaviPijanku()">Objavi</button>
-        </div>
-        <div id="profilKorisnika"></div>
-    </div>
+            <textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea>
+            <button onclick="objaviPijanku()">Objavi</button>
+        </div>
+        <div id="profilKorisnika"></div>
+    </div>
+        <div class="container" id="privatniChat">
+        <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('privatniChat', prethodniEkran)">←</button> </div>
+        <div class="chat-header-info"> <h2 id="chatSaKorisnikom"></h2> <p id="chatPartnerStatus" class="status-text"></p>
+        </div>
+        <div id="privatniChatLog" class="chat"></div>
+        <div class="chat-input-area"> <textarea id="privatniInput" placeholder="Upiši poruku..." rows="2"></textarea>
+            <button id="posaljiPrivatnoBtn" onclick="posaljiPrivatno()">Pošalji</button>
+        </div>
+    </div>
 
-    <div class="container" id="privatniChat">
-        <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('privatniChat', prethodniEkran)">←</button> </div>
-        <div class="chat-header-info"> <h2 id="chatSaKorisnikom"></h2> <p id="chatPartnerStatus" class="status-text"></p>
-        </div>
-        <div id="privatniChatLog" class="chat"></div>
-        <div class="chat-input-area"> <textarea id="privatniInput" placeholder="Upiši poruku..." rows="2"></textarea>
-            <button id="posaljiPrivatnoBtn" onclick="posaljiPrivatno()">Pošalji</button>
-        </div>
-    </div>
+    <div class="container" id="editProfil">
+        <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">←</button> </div>
+        <h2>Uredi profil</h2>
+        <div style="text-align:center;">
+            <img id="previewEditSlike" class="profilna-slika" />
+        </div>
+        <input id="editIme" placeholder="Korisničko ime" />
+        <textarea id="editOpis" placeholder="O meni..." rows="3"></textarea>
+        <input id="editInstagram" placeholder="Instagram korisničko ime" />
+        <input id="editTiktok" placeholder="TikTok korisničko ime" />
+        <label style="font-size:14px; display:block; margin-bottom:5px;">Promijeni profilnu sliku:</label>
+        <input type="file" id="editSlikaUpload" accept="image/*" />
+        <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
+    </div>
 
-    <div class="container" id="editProfil">
-        <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">←</button> </div>
-        <h2>Uredi profil</h2>
-        <div style="text-align:center;">
-            <img id="previewEditSlike" class="profilna-slika" />
-        </div>
-        <input id="editIme" placeholder="Korisničko ime" />
-        <textarea id="editOpis" placeholder="O meni..." rows="3"></textarea>
-        <input id="editInstagram" placeholder="Instagram korisničko ime" />
-        <input id="editTiktok" placeholder="TikTok korisničko ime" />
-        <label style="font-size:14px; display:block; margin-bottom:5px;">Promijeni profilnu sliku:</label>
-        <input type="file" id="editSlikaUpload" accept="image/*" />
-        <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
-    </div>
-
-    <script>
-        // Globalna varijabla za pamćenje prethodnog ekrana
-        let prethodniEkran = 'lokacijePrikaz'; 
-
-        // Osnovna funkcija za sakrivanje i prikazivanje ekrana
-        function swap(hideId, showId) {
-            document.getElementById(hideId).style.display = 'none';
-            document.getElementById(showId).style.display = 'block'; // Ili 'flex' ovisno o tvom CSS-u
-            prethodniEkran = hideId;
-        }
-
-        // ******** POPRAVLJENA FUNKCIJA ********
-        function pokaziObjavu() {
-            swap('lokacijePrikaz', 'glavniDio');
-            
-            // Ova linija pronalazi prazan H2 tag i upisuje tekst u njega
-            document.querySelector('#glavniDio h2').innerText = 'Objavi pijanku';
-            
-            // Osigurava da je forma vidljiva, a ne profil korisnika
-            document.getElementById('objavaForma').style.display = 'block';
-            document.getElementById('profilKorisnika').style.display = 'none';
-        }
-        
-        // --- Ostatak funkcija (da ne dobivaš 'not defined' greške) ---
-        function zatvoriEkran(trenutni, prosli) {
-            swap(trenutni, prosli);
-        }
-
-        function proveriPrihvatanje() {
-            document.getElementById('nastaviBtn').disabled = !document.getElementById('prihvatamPravila').checked;
-        }
-
-        function ulogujSe() { console.log("ulogujSe pozvana"); }
-        function registruj() { console.log("registruj pozvana"); }
-        function pokaziPostavkeEkran() { swap('lokacijePrikaz', 'postavkeEkran'); }
-        function prikaziInbox() { swap('postavkeEkran', 'inboxPrikaz'); }
-        function prikaziEditProfila() { swap('postavkeEkran', 'editProfil'); }
-        function odjaviSe() { console.log("odjaviSe pozvana"); }
-        function objaviPijanku() { console.log("objaviPijanku pozvana"); }
-        function posaljiPrivatno() { console.log("posaljiPrivatno pozvana"); }
-        function sacuvajProfil() { console.log("sacuvajProfil pozvana"); }
-    </script>
+    <script src="/script.js"></script>
 </body>
 </html>
