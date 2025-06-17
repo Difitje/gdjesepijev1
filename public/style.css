@@ -1,148 +1,76 @@
 /* =================================================================== */
-/* FINALNI REDIZAJNIRANI STYLE.CSS                 */
+/* RESET CSS - Samo stabilan layout, bez dizajna!                      */
 /* =================================================================== */
 :root {
-    --primary-color: #ff4757;
-    --dark-bg: #101010;
-    --content-bg: #181818;
-    --card-bg: #1F1F1F;
-    --input-bg: #2a2a2a;
+    --bunker: #101010;
+    --bunker-light: #181818;
+    --primary: #ff4757;
     --text-primary: #EAEAEA;
     --text-secondary: #A0A0A0;
     --border-color: #2a2a2a;
-    --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
-
-/* --- OSNOVNA POSTAVKA --- */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
-    height: 100%; width: 100%; overflow: hidden; font-family: var(--font-family); background: var(--dark-bg); color: var(--text-primary);
+    height: 100%; width: 100%; overflow: hidden; font-family: sans-serif; background: var(--bunker); color: var(--text-primary);
 }
 
 /* --- SPLASH & WRAPPER --- */
 #splashScreen {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark-bg); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s ease-out;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bunker); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s;
 }
 #splashScreen.hidden { opacity: 0; pointer-events: none; }
-#splashScreen h1 { color: var(--primary-color); }
-#pageWrapper {
-    position: relative; width: 100%; height: 100%; background: var(--dark-bg); overflow: hidden; display: none;
-}
+#pageWrapper { position: relative; width: 100%; height: 100%; overflow: hidden; }
 
-/* --- HEADER I FOOTER --- */
-#noviHeader, #noviFooter {
-    position: absolute; left: 0; width: 100%; z-index: 1000; display: none;
+/* --- HEADER, FOOTER, MAIN CONTENT --- */
+#appHeader, #appFooter {
+    position: absolute; left: 0; width: 100%; z-index: 100; display: none; /* Sakriveni po defaultu */
 }
-#noviHeader {
-    top: 0; height: 60px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; background: rgba(30, 30, 30, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color);
+#appHeader {
+    top: 0; height: 60px; background: var(--bunker-light); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
 }
-.header-icon { font-size: 22px; cursor: pointer; width: 40px; height: 40px; text-align: center; position: relative; display: grid; place-items: center; border-radius: 50%; transition: background-color 0.2s; }
-.header-icon:hover { background-color: rgba(255,255,255,0.1); }
-.logo-container { font-size: 22px; font-weight: 600; color: var(--primary-color); }
-.notification-badge-header { position: absolute; top: 0px; right: 0px; background-color: var(--primary-color); color: white; border-radius: 50%; height: 18px; min-width: 18px; display: none; justify-content: center; align-items: center; font-size: 10px; border: 2px solid var(--content-bg); }
-#noviFooter { bottom: 0; height: 80px; display: flex; justify-content: center; align-items: center; pointer-events: none; }
-.publish-btn { pointer-events: all; width: 60px; height: 60px; background: var(--primary-color); color: white; border: none; border-radius: 50%; font-size: 28px; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3); flex-shrink: 0; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-.publish-btn:hover { transform: scale(1.1); box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4); }
+#appFooter {
+    bottom: 0; height: 80px; display: flex; justify-content: center; align-items: center;
+}
+#appContent {
+    width: 100%; height: 100%; position: relative;
+}
 
 /* --- EKRANI (KONTEJNERI) --- */
-#appContent { width: 100%; height: 100%; position: relative; }
 .container {
-    width: 100%; height: 100%; position: absolute; top: 0; left: 0; padding: 60px 0 80px 0; display: none; flex-direction: column; align-items: center; background-color: var(--content-bg); overflow-y: auto; -webkit-overflow-scrolling: touch;
+    width: 100%; height: 100%; position: absolute; top: 0; left: 0;
+    padding: 20px;
+    display: none; /* Svi su sakriveni */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Većina ekrana je centrirana */
+    text-align: center;
+    overflow-y: auto;
 }
-.container.active-screen { display: flex; }
-
-/* --- ZAJEDNIČKI ELEMENTI --- */
-h2 { text-align: center; color: var(--text-primary); font-weight: 600; margin-bottom: 25px; width: 100%; }
-p { color: var(--text-secondary); text-align: center; margin-bottom: 25px; }
-input, textarea {
-    width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-primary); border-radius: 10px; font-size: 16px; font-family: var(--font-family); transition: border-color 0.2s, box-shadow 0.2s;
+.container.active {
+    display: flex; /* Prikazuje se samo aktivni */
 }
-input:focus, textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.2); }
-button, .btn-full {
-    width: 100%; padding: 14px; margin-bottom: 12px; border: none; background: var(--primary-color); color: white; border-radius: 10px; font-size: 16px; font-weight: 600; font-family: var(--font-family); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+#lokacijePrikaz {
+    padding-top: 60px; /* Mjesto za header */
+    padding-bottom: 80px; /* Mjesto za footer */
+    justify-content: flex-start; /* Lista kreće od vrha */
 }
-button:hover, .btn-full:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.6; }
-.btn-secondary { background: var(--input-bg); }
-.btn-logout { background: #2f2022; color: #ff8a8a; }
 
-/* --- POJEDINAČNI EKRANI --- */
-#intro, #odabir, #login, #registracija, #profilMeni, #pravilaEkran { padding-left: 20px; padding-right: 20px; justify-content: center; }
-.back-button, .close-btn { position: absolute; top: 15px; background: none; border: none; color: var(--text-secondary); font-size: 20px; z-index: 20; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; transition: background-color 0.2s; cursor: pointer; }
-.back-button:hover, .close-btn:hover { background-color: rgba(255,255,255,0.1); }
-.back-button { left: 10px; }
-.close-btn { right: 10px; }
-label { margin-bottom: 5px; font-size: 14px; width: 100%; color: var(--text-secondary); }
-img.preview-slika { display: none; margin: 10px auto; width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
-.pravila-text { max-height: 50vh; padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 15px; }
-.pravila-text p { text-align: left; }
-.pravila-checkbox-wrapper { display: flex; align-items: center; gap: 10px; justify-content: center; width: 100%; }
-.pravila-checkbox-wrapper input { width: auto; margin-bottom: 0; }
 
-/* --- PRIKAZ PIJANKI --- */
-#lokacijePrikaz { padding: 80px 10px 90px 10px; }
-#pijankePregled { width: 100%; max-width: 1200px; display: grid; grid-template-columns: 1fr; gap: 15px; }
-.pijanka {
-    background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s;
+/* --- Elementi --- */
+.header-icon { font-size: 22px; cursor: pointer; }
+.logo-container { font-size: 22px; font-weight: bold; color: var(--primary); }
+.publish-btn {
+    width: 60px; height: 60px; background: var(--primary); color: white; border: none; border-radius: 50%; font-size: 28px; cursor: pointer;
 }
-.pijanka:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
-.pijanka-header { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); margin-bottom: 12px; }
-.pijanka-profilna-slika { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.pijanka-info { flex-grow: 1; }
-.pijanka-info strong { color: var(--text-primary); font-weight: 600; }
-.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-.status-dot.online { background-color: #2ecc71; }
-.status-dot.offline { background-color: #7f8c8d; }
-.status-text { font-size: 13px; color: var(--text-secondary); margin: 0; }
-.delete-btn { margin-left: auto; background: none; border: none; color: var(--text-secondary); font-size: 16px; cursor: pointer; padding: 5px; }
-.pijanka-opis p { margin: 0; color: var(--text-primary); text-align: left; font-size: 15px; }
-
-/* --- CHAT --- */
-#inboxPrikaz, #editProfil { padding: 80px 10px 90px 10px; }
-#listaChatova { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 500px; }
-.chat-item { background: var(--card-bg); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: background-color 0.2s; }
-.chat-item:hover { background-color: #252525; }
-#privatniChat { padding: 0; display: flex; flex-direction: column; }
-.chat-header-info { padding: 15px; text-align: center; border-bottom: 1px solid var(--border-color); margin-top: 60px; flex-shrink: 0; }
-#privatniChatLog { flex-grow: 1; overflow-y: auto; padding: 15px; }
-.chat-input-area { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--content-bg); border-top: 1px solid var(--border-color); }
-#privatniInput { margin: 0; resize: none; }
-#posaljiPrivatnoBtn { width: 50px; height: 50px; padding: 0; margin: 0; border-radius: 50%; flex-shrink: 0; }
-.moja-poruka, .tudja-poruka { margin-bottom: 8px; display: flex; }
-.moja-poruka { justify-content: flex-end; }
-.tudja-poruka { justify-content: flex-start; }
-.moja-poruka > span, .tudja-poruka > span { padding: 10px 15px; border-radius: 20px; max-width: 80%; line-height: 1.4; }
-.moja-poruka > span { background: var(--primary-color); color: white; border-bottom-right-radius: 5px; }
-.tudja-poruka > span { background: var(--input-bg); color: var(--text-primary); border-bottom-left-radius: 5px; }
-
-/* --- FORMA OBJAVE KAO MODAL --- */
-#glavniDio {
-    background-color: transparent; padding: 20px; justify-content: center; align-items: center;
+h2 { margin-bottom: 20px; }
+p { color: var(--text-secondary); margin-bottom: 20px; }
+button {
+    width: 100%; max-width: 300px; padding: 12px; margin-bottom: 12px; border: none; background: var(--primary); color: white; border-radius: 8px; font-size: 16px;
 }
-#glavniDio #objavaForma, #glavniDio #profilKorisnika {
-    background-color: var(--content-bg); padding: 25px; border-radius: 15px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 450px;
-}
-#glavniDio #profilKorisnika img { width: 90px; height: 90px; border-radius: 50%; margin-bottom: 15px; }
-#glavniDio #profilKorisnika h2 { margin-bottom: 5px; }
-#glavniDio #profilKorisnika p { padding: 0 15px; }
+.btn-secondary { background: #333; }
+.back-button { position: absolute; top: 15px; left: 15px; font-size: 24px; background: none; border: none; color: white; }
 
-/* =================================================================== */
-/* DESKTOP APLIKACIJA (FULL-SCREEN)            */
-/* =================================================================== */
+/* --- DESKTOP --- */
 @media (min-width: 768px) {
-    #pijankePregled {
-        grid-template-columns: repeat(2, 1fr);
-        max-width: 800px;
-    }
-}
-@media (min-width: 1200px) {
-    #pijankePregled {
-        grid-template-columns: repeat(3, 1fr);
-        max-width: 1200px;
-    }
+    #pageWrapper { max-width: 420px; height: 90%; max-height: 800px; margin: auto; border-radius: 20px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
 }
