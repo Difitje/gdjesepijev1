@@ -255,8 +255,8 @@ img.preview-slika { display: none; }
 .delete-btn { background: none; border: none; font-size: 14px; padding: 2px; margin-left: auto; cursor: pointer; color: #777; flex-shrink: 0; line-height: 1; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; border-radius: 50%; }
 .delete-btn:hover { color: #ff4757; background: rgba(51, 51, 51, 0.5); box-shadow: none; transform: scale(1.05); }
 .pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
-.chat-item { background: #282828; padding: 12px; border-radius: 10px; margin: 0 auto 10px auto; display: flex; align-items: center; gap: 12px; border-left: 3px solid #333; transition: all 0.2s ease-in-out; width: 100%; max-width: 600px; box-sizing: border-box; }
-.chat-item:hover { background: #303030; border-left-color: #ff4757; }
+.chat-item { background: rgba(40, 40, 40, 0.7); padding: 12px; border-radius: 10px; margin: 0 auto 10px auto; display: flex; align-items: center; gap: 12px; border-left: 3px solid rgba(51, 51, 51, 0.5); transition: all 0.2s ease-in-out; width: 100%; max-width: 600px; box-sizing: border-box; }
+.chat-item:hover { background: rgba(48, 48, 48, 0.9); border-left-color: #ff4757; }
 .chat-item img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 .chat-item-info { cursor: pointer; }
 
