@@ -1,4 +1,4 @@
-// public/script.js - VERZIJA S POPRAVLJENOM NAVIGACIJOM
+// public/script.js - VERZIJA S POPRAVLJENIM RASPOREDOM TEKSTA
 
 // Globalne varijale
 let trenutniKorisnik = null;
@@ -14,7 +14,7 @@ let globalDataRefreshInterval = null;
 let odabranaSlika = null;
 let odabranaEditSlika = null; 
 let prethodniEkran = "lokacijePrikaz";
-let inboxReturnPath = "lokacijePrikaz"; // NOVA VARIJABLA ZA ISPRAVAK NAVIGACIJE
+let inboxReturnPath = "lokacijePrikaz"; 
 
 async function authenticatedFetch(url, options = {}) {
     const token = localStorage.getItem('token');
@@ -491,16 +491,17 @@ function prikaziPijankePregled() {
         const autor = sviKorisnici.find(u => u.id === pijanka.korisnikId);
         if (!autor) return;
         const status = formatirajStatus(autor.lastActive);
+        // IZMIJENJENA STRUKTURA ZA BOLJI RASPORED
         div.innerHTML += `
             <div class="pijanka" onclick="otvoriProfil('${autor.id}')">
                 <div class="pijanka-header">
                     <img src="${autor.slika || 'default_profile.png'}" alt="Profilna slika" class="pijanka-profilna-slika">
                     <div class="pijanka-info">
-                        <div>
-                            <span class="status-dot ${status.online ? "online" : "offline"}"></span>
+                        <span class="status-dot ${status.online ? "online" : "offline"}"></span>
+                        <div class="pijanka-info-text">
                             <strong>${autor.ime}</strong>
+                            <p class="status-text">pije ${distKM(mojPoz, pijanka)}km od tebe</p>
                         </div>
-                        <p class="status-text">pije ${distKM(mojPoz, pijanka)}km od tebe</p>
                     </div>
                     ${trenutniKorisnik && autor.id === trenutniKorisnik.id ? `<button class="delete-btn" onclick="obrisiPijanku('${pijanka.id}', event)">🗑️</button>` : ""}
                 </div>
@@ -576,7 +577,6 @@ function azurirajNotifikacije() {
     }
 }
 
-// Funkcija sada sprema putanju za povratak
 function otvoriInbox(fromScreen) {
     inboxReturnPath = fromScreen;
     prethodniEkran = fromScreen;
@@ -598,15 +598,16 @@ function otvoriInbox(fromScreen) {
         if (!partner) return;
         const neprocitane = privatnePoruke[chatKey].some(m => !m.isRead && m.autorId == partner.id);
         const status = formatirajStatus(partner.lastActive);
+        // IZMIJENJENA STRUKTURA ZA BOLJI RASPORED
         div.innerHTML += `
             <div class="chat-item" onclick="pokreniPrivatniChat('${partner.id}', 'inboxPrikaz')">
                 <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
                 <div class="chat-item-info">
-                    <div>
-                        <span class="status-dot ${status.online ? "online" : "offline"}"></span>
+                    <span class="status-dot ${status.online ? "online" : "offline"}"></span>
+                    <div class="chat-item-info-text">
                         <strong>${partner.ime}</strong>
+                        <p class="status-text">${status.online ? "Online" : status.text}</p>
                     </div>
-                    <p class="status-text">${status.online ? "Online" : status.text}</p>
                 </div>
                 ${neprocitane ? '<span class="notification-badge-chat"></span>' : ""}
             </div>`;
@@ -614,7 +615,7 @@ function otvoriInbox(fromScreen) {
 }
 
 async function pokreniPrivatniChat(partnerId, saEkrana) {
-    prethodniEkran = saEkrana; // Postavlja ekran za povratak (na inbox)
+    prethodniEkran = saEkrana;
     trenutniChatPartnerId = partnerId;
     const primalac = sviKorisnici.find(u => u.id === partnerId);
     if (!primalac) return;

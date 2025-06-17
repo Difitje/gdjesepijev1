@@ -1,4 +1,4 @@
-/* public/style.css - VERZIJA 8 - Twitter-like FAB */
+/* public/style.css - VERZIJA 9 - Ispravljen raspored teksta */
 
 * {
     box-sizing: border-box;
@@ -174,8 +174,6 @@ body {
     font-weight: bold;
     border: 2px solid #1a1a1a;
 }
-
-/* === JEDNOSTAVNIJI 'TWITTER-LIKE' FAB STIL === */
 .fab {
     position: fixed;
     bottom: 30px;
@@ -212,8 +210,6 @@ body {
         right: 40px;
     }
 }
-/* ========================================= */
-
 #pijankePregled,
 #listaChatova,
 #privatniChatLog {
@@ -221,7 +217,6 @@ body {
     overflow-y: auto;
     min-height: 100px;
 }
-
 .top-nav-buttons {
     position: absolute;
     top: 15px; left: 15px; right: 15px;
@@ -274,8 +269,13 @@ body {
 .chat-header-info {
     text-align: center; margin-bottom: 10px; flex-shrink: 0; 
 }
+/* PROMJENA ZA RASPORED U ZAGLAVLJU CHATA */
 .chat-header-info h2 {
-    margin-bottom: 0; font-size: 20px;
+    margin-bottom: 2px;
+    font-size: 20px;
+}
+.chat-header-info .status-text {
+    margin-top: 0;
 }
 .chat-input-area {
     display: flex; flex-direction: column; align-items: stretch; 
@@ -379,12 +379,13 @@ img.preview-slika {
 }
 .status-dot {
     height: 8px; width: 8px; border-radius: 50%;
-    display: inline-block; margin-right: 6px;
+    display: inline-block;
+    flex-shrink: 0;
 }
 .status-dot.online { background-color: #2ecc71; }
 .status-dot.offline { background-color: #7f8c8d; }
 .status-text {
-    font-size: 12px; color: #999; margin: 0;
+    font-size: 13px; color: #999; margin: 0;
 }
 .notification-badge-chat {
     width: 12px; height: 12px; background: #ff4757;
@@ -430,20 +431,26 @@ img.preview-slika {
     width: 50px; height: 50px; border-radius: 50%;
     object-fit: cover; border: 2px solid #ff4757; flex-shrink: 0;
 }
-.pijanka-info {
-    flex-grow: 1; display: flex; flex-direction: column;
-    align-items: flex-start; justify-content: center;
+/* NOVI STILOVI ZA ISPRAVAK RASPOREDA */
+.pijanka-info, .chat-item-info {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
-.pijanka-info > div {
-    display: flex; align-items: center;
-    margin-bottom: 1px; justify-content: flex-start;
+.pijanka-info-text, .chat-item-info-text {
+    display: flex;
+    flex-direction: column;
 }
-.pijanka-info strong {
-    font-size: 18px; margin-right: 4px; text-align: left;
+.pijanka-info strong, .chat-item-info strong {
+    line-height: 1.2;
+    font-size: 18px;
 }
-.pijanka-info p.status-text {
-    font-size: 13px; color: #a0a0a0; margin: 0; padding: 0;
-    text-align: left; width: 100%; white-space: nowrap;
+.pijanka-info .status-text, .chat-item-info .status-text {
+    line-height: 1.2;
+    margin: 0;
+    padding: 0;
+    color: #a0a0a0;
 }
 .delete-btn {
     background: none; border: none; font-size: 14px;
@@ -473,10 +480,6 @@ img.preview-slika {
 .chat-item img {
     width: 45px; height: 45px; border-radius: 50%;
     object-fit: cover; flex-shrink: 0;
-}
-.chat-item-info {
-    flex-grow: 1; display: flex; flex-direction: column;
-    align-items: flex-start; cursor: pointer;
 }
 #privatniChatLog p > span {
     display: inline-block; padding: 8px 12px;
