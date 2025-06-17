@@ -1,4 +1,4 @@
-// public/script.js - VERZIJA S UKLONJENIM SEPARATOROM
+// public/script.js - VERZIJA S POPRAVLJENOM NAVIGACIJOM
 
 // Globalne varijale
 let trenutniKorisnik = null;
@@ -14,6 +14,7 @@ let globalDataRefreshInterval = null;
 let odabranaSlika = null;
 let odabranaEditSlika = null; 
 let prethodniEkran = "lokacijePrikaz";
+let inboxReturnPath = "lokacijePrikaz"; // NOVA VARIJABLA ZA ISPRAVAK NAVIGACIJE
 
 async function authenticatedFetch(url, options = {}) {
     const token = localStorage.getItem('token');
@@ -161,7 +162,7 @@ async function globalRefreshUI() {
         prikaziPijankePregled();
     }
     if (document.getElementById("inboxPrikaz")?.classList.contains('active-screen')) {
-        otvoriInbox(prethodniEkran); 
+        otvoriInbox(inboxReturnPath); 
     }
     if (document.getElementById("privatniChat")?.classList.contains('active-screen') && trenutniChatPartnerId) {
         prikaziPrivatniLog();
@@ -313,15 +314,10 @@ function pokreniAplikaciju() {
     });
 }
 
-// Funkcija je obrisana jer je ekran s postavkama uklonjen
-// function pokaziPostavkeEkran() {}
-
-// NOVA funkcija koju poziva ikona profila
 function prikaziMojProfil() {
     if (trenutniKorisnik && trenutniKorisnik.id) {
         otvoriProfil(trenutniKorisnik.id);
     } else {
-        // Ako korisnik nije ulogiran iz nekog razloga, vrati ga na početak
         swap('lokacijePrikaz', 'odabir');
     }
 }
@@ -337,7 +333,6 @@ async function prikaziEditProfila() {
     document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
     document.getElementById("previewEditSlike").style.display = "block";
     odabranaEditSlika = null;
-    // Prijelaz se sada vrši s ekrana profila ('glavniDio')
     swap('glavniDio', 'editProfil');
 }
 
@@ -369,7 +364,6 @@ async function sacuvajProfil() {
         if (response.ok) {
             alert(data.message);
             await globalRefreshUI();
-            // Vraća se na ekran profila ('glavniDio')
             zatvoriEkran("editProfil", 'glavniDio');
         } else {
             alert("Greška pri spremanju profila: " + data.message);
@@ -530,7 +524,6 @@ async function otvoriProfil(korisnikId) {
     profilKorisnikaDiv.style.display = "flex";
     
     let actionButtons = '';
-    // Provjera da li korisnik gleda svoj profil
     if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
         document.querySelector('#glavniDio h2').innerText = "Moj profil";
         actionButtons = `
@@ -583,7 +576,9 @@ function azurirajNotifikacije() {
     }
 }
 
+// Funkcija sada sprema putanju za povratak
 function otvoriInbox(fromScreen) {
+    inboxReturnPath = fromScreen;
     prethodniEkran = fromScreen;
     swap(fromScreen, 'inboxPrikaz'); 
 
@@ -619,7 +614,7 @@ function otvoriInbox(fromScreen) {
 }
 
 async function pokreniPrivatniChat(partnerId, saEkrana) {
-    prethodniEkran = saEkrana;
+    prethodniEkran = saEkrana; // Postavlja ekran za povratak (na inbox)
     trenutniChatPartnerId = partnerId;
     const primalac = sviKorisnici.find(u => u.id === partnerId);
     if (!primalac) return;
