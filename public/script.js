@@ -1,4 +1,17 @@
-// public/script.js - VERZIJA S POPRAVLJENOM NAVIGACIJOM (STACK)
+// === KOD ZA ZABRANU ZUMIRANJA ===
+document.addEventListener('touchstart', function(event) {
+    if (event.touches.length > 1) {
+        event.preventDefault();
+    }
+}, { passive: false });
+
+document.addEventListener('touchmove', function(event) {
+    if (event.touches.length > 1) {
+        event.preventDefault();
+    }
+}, { passive: false });
+// ===================================
+
 
 // --- GLOBALNE VARIJABLE ---
 let trenutniKorisnik = null;
@@ -299,13 +312,12 @@ async function odjaviSe() {
     ["loginIme", "loginSifra", "ime", "sifra", "instagram", "tiktok", "opis", "editIme", "editOpis", "editInstagram", "editTiktok", "opisPijanke", "privatniInput"].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = "";
     });
-    // Resetira navigaciju
     navigationStack = [];
     swap(document.querySelector('.container.active-screen').id, 'intro');
 }
 
 function pokreniAplikaciju() {
-    navigationStack = []; // Resetira navigaciju
+    navigationStack = [];
     swap(document.querySelector('.container.active-screen')?.id || null, 'lokacijePrikaz');
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
@@ -362,7 +374,7 @@ async function sacuvajProfil() {
         if (response.ok) {
             alert(data.message);
             await globalRefreshUI();
-            navigateBack(); // Vraća se na prethodni ekran (profil)
+            navigateBack();
         } else {
             alert("Greška pri spremanju profila: " + data.message);
         }
