@@ -67,7 +67,7 @@
         <!-- GLAVNI EKRAN APLIKACIJE -->
         <div class="container fullscreen" id="lokacijePrikaz">
             <header class="main-header">
-                <div class="header-left">
+                <div class="header-side">
                     <a href="#" onclick="otvoriProfil(trenutniKorisnik.id)">
                         <img src="https://placehold.co/80x80/1e1e1e/a0a0a0?text=..." alt="Profilna slika" class="header-profile-avatar" id="headerProfilePic">
                     </a>
@@ -75,7 +75,7 @@
                 <div class="header-center">
                     <h1 class="header-title">LOCALO</h1>
                 </div>
-                <div class="header-right">
+                <div class="header-side right">
                     <button class="header-action-icon" aria-label="Poruke" onclick="prikaziInbox()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H40a16,16,0,0,0-16,16V176a16,16,0,0,0,16,16h48.37a15.8,15.8,0,0,1,11.31,4.69l31.25,31.25a8,8,0,0,0,11.32,0l31.25-31.25A15.8,15.8,0,0,1,187.63,192H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48Zm0,128H187.63a31.79,31.79,0,0,0-22.63,9.37L128,222.63,90.9,185.37A31.79,31.79,0,0,0,68.27,176H40V64H216Z"></path></svg>
                         <span id="inbox-notification-dot" class="notification-dot-header"></span>
@@ -95,9 +95,13 @@
         <!-- EKRAN ZA INBOX -->
         <div class="container fullscreen" id="inboxPrikaz">
             <header class="main-header">
-                <button class="back-button" onclick="zatvoriEkran('inboxPrikaz')">←</button>
-                <h2 class="header-title-text">Poruke</h2>
-                <div style="width: 40px;"></div><!-- Prazan div za poravnanje -->
+                <div class="header-side">
+                    <button class="back-button-header" onclick="zatvoriEkran('inboxPrikaz')">←</button>
+                </div>
+                <div class="header-center">
+                    <h2 class="header-title-text">Poruke</h2>
+                </div>
+                <div class="header-side right"></div>
             </header>
             <main class="content-area" id="listaChatova"></main>
         </div>
@@ -105,9 +109,13 @@
         <!-- EKRAN ZA PROFIL, OBJAVU, EDIT PROFILA -->
         <div class="container fullscreen" id="genericScreen">
             <header class="main-header">
-                 <button class="back-button" onclick="zatvoriEkran('genericScreen')">←</button>
-                 <h2 id="genericScreenTitle" class="header-title-text"></h2>
-                 <div style="width: 40px;"></div>
+                 <div class="header-side">
+                    <button class="back-button-header" onclick="zatvoriEkran('genericScreen')">←</button>
+                 </div>
+                 <div class="header-center">
+                    <h2 id="genericScreenTitle" class="header-title-text"></h2>
+                 </div>
+                 <div class="header-side right"></div>
             </header>
             <main class="content-area" id="genericScreenContent"></main>
         </div>
@@ -115,12 +123,14 @@
         <!-- EKRAN ZA PRIVATNI CHAT -->
         <div class="container fullscreen" id="privatniChat">
             <header class="main-header">
-                <button class="back-button" onclick="zatvoriEkran('privatniChat')">←</button>
-                <div class="chat-header-info">
+                <div class="header-side">
+                    <button class="back-button-header" onclick="zatvoriEkran('privatniChat')">←</button>
+                </div>
+                <div class="header-center chat-header">
                     <h2 id="chatSaKorisnikom" class="header-title-text"></h2>
                     <p id="chatPartnerStatus" class="status-text"></p>
                 </div>
-                 <div style="width: 40px;"></div>
+                <div class="header-side right"></div>
             </header>
             <main class="content-area chat-log-container" id="privatniChatLog"></main>
             <footer class="chat-input-area">
