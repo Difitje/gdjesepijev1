@@ -38,12 +38,14 @@ html, body {
     opacity: 0;
     position: absolute;
     transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    pointer-events: none; /* ČINI NEAKTIVNE KONTENJERE "PROPUSTLJIVIM" ZA KLIKOVE */
 }
 .container.active-screen {
     display: flex;
     opacity: 1;
     transform: scale(1);
     z-index: 20;
+    pointer-events: auto; /* VRAĆA MOGUĆNOST KLIKANJA SAMO ZA AKTIVNI KONTENJER */
 }
 .container.centered {
     width: 95%;
@@ -81,21 +83,6 @@ html, body {
     margin-bottom: 25px;
 }
 
-/* === IZMJENE SU OVDJE === */
-
-/* 1. Uklonjeno pravilo koje je stvaralo problem */
-/*
-.container.centered .back-button {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    color: #fff;
-    font-size: 24px;
-    background: none; border: none; cursor: pointer;
-}
-*/
-
-/* 2. Dodano novo pravilo za ispravno zaglavlje forme */
 .form-header {
     display: flex;
     justify-content: space-between;
@@ -110,7 +97,7 @@ html, body {
     cursor: pointer;
     color: var(--text-primary);
     font-size: 24px;
-    width: 40px; /* Fiksna širina radi poravnanja naslova */
+    width: 40px; 
     padding: 0;
     margin: 0;
     text-align: left;
@@ -122,9 +109,6 @@ html, body {
     flex-grow: 1;
     text-align: center;
 }
-
-/* === KRAJ IZMJENA === */
-
 
 .main-header {
     display: flex;
