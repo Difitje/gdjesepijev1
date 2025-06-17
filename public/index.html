@@ -18,7 +18,10 @@
     </div>
 
     <div class="container" id="pravilaEkran">
-        <button class="back-button left-aligned" onclick="swap('pravilaEkran', 'odabir')">←</button> <h2>Pravila korištenja</h2>
+        <div class="top-nav-buttons">
+            <button class="back-button" onclick="swap('pravilaEkran', 'odabir')">←</button>
+        </div>
+        <h2>Pravila korištenja</h2>
         <div class="pravila-text">
             <p>Dobrodošli! Prije nego što nastavite, molimo vas da pažljivo pročitate i prihvatite sljedeća pravila:</p>
             <p><strong>1. Punoljetnost:</strong> Morate imati najmanje 18 godina da biste koristili ovu aplikaciju.</p>
@@ -42,14 +45,20 @@
     </div>
 
     <div class="container" id="login">
-        <button class="back-button left-aligned" onclick="swap('login', 'odabir')">←</button> <h2>Prijava</h2>
+        <div class="top-nav-buttons">
+            <button class="back-button" onclick="swap('login', 'odabir')">←</button>
+        </div>
+        <h2>Prijava</h2>
         <input id="loginIme" placeholder="Korisničko ime" />
         <input id="loginSifra" type="password" placeholder="Lozinka" />
         <button id="loginSubmitBtn" onclick="ulogujSe()">Prijavi se</button>
     </div>
 
     <div class="container" id="registracija">
-        <button class="back-button left-aligned" onclick="swap('registracija', 'pravilaEkran')">←</button> <h2>Registracija</h2>
+        <div class="top-nav-buttons">
+            <button class="back-button" onclick="swap('registracija', 'pravilaEkran')">←</button>
+        </div>
+        <h2>Registracija</h2>
         <input id="ime" placeholder="Korisničko ime" />
         <input id="sifra" type="password" placeholder="Lozinka" />
         <label style="font-size:14px; display:block; margin-bottom:5px;">Profilna slika:</label>
@@ -70,19 +79,26 @@
     </div>
 
     <div class="container" id="inboxPrikaz">
-        <button class="back-button left-aligned" onclick="zatvoriEkran('inboxPrikaz', 'lokacijePrikaz')">←</button> <h2>Poruke</h2>
+        <div class="top-nav-buttons">
+            <button class="back-button" onclick="zatvoriEkran('inboxPrikaz', 'postavkeEkran')">←</button>
+        </div>
+        <h2>Poruke</h2>
         <div id="listaChatova"></div>
     </div>
 
     <div class="container" id="postavkeEkran">
-        <button class="back-button left-aligned" onclick="zatvoriEkran('postavkeEkran', 'lokacijePrikaz')">←</button> <h2>Postavke</h2>
+        <div class="top-nav-buttons">
+            <button class="back-button" onclick="zatvoriEkran('postavkeEkran', 'lokacijePrikaz')">←</button>
+        </div>
+        <h2>Postavke</h2>
         <a href="#" class="btn-full" onclick="prikaziInbox(); return false;">Poruke <span id="notifikacijaPorukaSettings" class="notification-badge"></span></a>
         <a href="#" class="btn-full" onclick="prikaziEditProfila(); return false;">Moj profil</a>
-        <a href="#" class="btn-full" onclick="odjaviSe(); return false;" id="odjaviSeBtn">Odjavi se</a> </div>
+        <a href="#" class="btn-full" onclick="odjaviSe(); return false;" id="odjaviSeBtn">Odjavi se</a>
+    </div>
 
     <div class="container" id="glavniDio">
         <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">←</button> <button class="close-btn right-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">✖</button> </div>
-        <h2></h2> <div id="objavaForma">
+        <h2 id="glavniNaslov"></h2> <div id="objavaForma">
             <textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea>
             <button onclick="objaviPijanku()">Objavi</button>
         </div>
@@ -98,7 +114,7 @@
             <button id="posaljiPrivatnoBtn" onclick="posaljiPrivatno()">Pošalji</button>
         </div>
     </div>
-
+    
     <div class="container" id="editProfil">
         <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">←</button> </div>
         <h2>Uredi profil</h2>
