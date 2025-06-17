@@ -1,76 +1,408 @@
-/* =================================================================== */
-/* RESET CSS - Samo stabilan layout, bez dizajna!                      */
-/* =================================================================== */
-:root {
-    --bunker: #101010;
-    --bunker-light: #181818;
-    --primary: #ff4757;
-    --text-primary: #EAEAEA;
-    --text-secondary: #A0A0A0;
-    --border-color: #2a2a2a;
+/* public/style.css - TVOJ ORIGINALNI KOD */
+
+/* Globalni reset i osnovni stilovi */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
-    height: 100%; width: 100%; overflow: hidden; font-family: sans-serif; background: var(--bunker); color: var(--text-primary);
+    height: 100%; width: 100%; overflow-x: hidden;
 }
-
-/* --- SPLASH & WRAPPER --- */
-#splashScreen {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bunker); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s;
-}
-#splashScreen.hidden { opacity: 0; pointer-events: none; }
-#pageWrapper { position: relative; width: 100%; height: 100%; overflow: hidden; }
-
-/* --- HEADER, FOOTER, MAIN CONTENT --- */
-#appHeader, #appFooter {
-    position: absolute; left: 0; width: 100%; z-index: 100; display: none; /* Sakriveni po defaultu */
-}
-#appHeader {
-    top: 0; height: 60px; background: var(--bunker-light); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
-}
-#appFooter {
-    bottom: 0; height: 80px; display: flex; justify-content: center; align-items: center;
-}
-#appContent {
-    width: 100%; height: 100%; position: relative;
-}
-
-/* --- EKRANI (KONTEJNERI) --- */
-.container {
-    width: 100%; height: 100%; position: absolute; top: 0; left: 0;
-    padding: 20px;
-    display: none; /* Svi su sakriveni */
-    flex-direction: column;
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(170deg, #111111 0%, #0d0d0d 100%);
+    color: #f0f0f0;
+    line-height: 1.5;
+    font-size: 15px;
+    display: flex;
+    justify-content: center;
     align-items: center;
-    justify-content: center; /* Većina ekrana je centrirana */
-    text-align: center;
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-top: env(safe-area-inset-top, 0px);
     overflow-y: auto;
 }
-.container.active {
-    display: flex; /* Prikazuje se samo aktivni */
+.container {
+    width: 95%; max-width: 400px; background: #1e1e1e; padding: 20px; border-radius: 18px; border: 1px solid #2a2a2a; box-shadow: 0 3px 20px rgba(255, 71, 87, 0.12); margin: 20px auto; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.3s ease-out, visibility 0.3s ease-out; z-index: 0; display: flex; flex-direction: column; height: auto; min-height: 80vh; max-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 40px); justify-content: flex-start; align-items: stretch; overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
-#lokacijePrikaz {
-    padding-top: 60px; /* Mjesto za header */
-    padding-bottom: 80px; /* Mjesto za footer */
-    justify-content: flex-start; /* Lista kreće od vrha */
+.container.active-screen {
+    opacity: 1; visibility: visible; pointer-events: auto; z-index: 1;
 }
-
-
-/* --- Elementi --- */
-.header-icon { font-size: 22px; cursor: pointer; }
-.logo-container { font-size: 22px; font-weight: bold; color: var(--primary); }
-.publish-btn {
-    width: 60px; height: 60px; background: var(--primary); color: white; border: none; border-radius: 50%; font-size: 28px; cursor: pointer;
+.container.fade-out-screen {
+    animation: fadeOut 0.3s ease-out forwards;
 }
-h2 { margin-bottom: 20px; }
-p { color: var(--text-secondary); margin-bottom: 20px; }
+#intro, #pravilaEkran, #odabir, #login, #registracija, #postavkeEkran, #editProfil, #profilMeni {
+    justify-content: center; align-items: center; overflow-y: hidden;
+}
+#privatniChat {
+    justify-content: flex-start; align-items: stretch; overflow-y: auto;
+}
+.chat-header-info {
+    text-align: center; margin-bottom: 10px; flex-shrink: 0; padding-top: 10px;
+}
+.chat-header-info h2 {
+    margin-bottom: 0; font-size: 20px;
+}
+.chat-input-area {
+    width: 100%; display: flex; flex-direction: column; align-items: stretch; padding-top: 10px; margin-top: auto; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.chat-input-area textarea {
+    margin-bottom: 5px;
+}
+.chat-input-area button {
+    margin-bottom: 0;
+}
+h1, h2 {
+    text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%;
+}
+h2 {
+    font-size: 20px;
+}
+p {
+    margin-bottom: 12px; color: #b0b0b0; font-size: 14px; text-align: left; width: 100%;
+}
+#intro p, #odabir p, #pijankePregled p.center-text, #listaChatova p.center-text {
+    text-align: center;
+}
+input, textarea, button {
+    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525; color: #f0f0f0; border-radius: 8px; font-size: 15px; font-family: inherit; transition: all 0.2s ease-in-out;
+}
+input:focus, textarea:focus {
+    outline: none; border-color: #ff4757; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
+}
 button {
-    width: 100%; max-width: 300px; padding: 12px; margin-bottom: 12px; border: none; background: var(--primary); color: white; border-radius: 8px; font-size: 16px;
+    background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px;
 }
-.btn-secondary { background: #333; }
-.back-button { position: absolute; top: 15px; left: 15px; font-size: 24px; background: none; border: none; color: white; }
+button:hover {
+    transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25);
+}
+button:disabled {
+    background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5;
+}
+.btn-secondary {
+    background: #3a3a3a;
+}
+.btn-secondary:hover {
+    background: #4a4a4a; box-shadow: none;
+}
+#odjaviSeBtn {
+    display: block; text-decoration: none;
+}
+.back-button {
+    background: none; border: none; color: #f0f0f0; font-weight: normal; font-size: 28px; cursor: pointer; padding: 5px; margin: 0; line-height: 1; transition: color 0.2s ease, transform 0.2s ease; width: auto; height: auto; display: flex; justify-content: center; align-items: center; position: absolute; top: 10px; left: 10px; z-index: 10;
+}
+.back-button:hover {
+    color: #ff4757; transform: scale(1.1); background: rgba(255, 71, 87, 0.1); border-radius: 8px;
+}
+img.preview-slika, img.profilna-slika {
+    margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto;
+}
+img.preview-slika {
+    display: none;
+}
+#previewEditSlike {
+    display: block; margin: 8px auto;
+}
+.status-dot {
+    height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px;
+}
+.status-dot.online {
+    background-color: #2ecc71;
+}
+.status-dot.offline {
+    background-color: #7f8c8d;
+}
+.status-text {
+    font-size: 12px; color: #999; margin: 0;
+}
+.notification-badge {
+    position: absolute; top: 50%; right: 12px; transform: translateY(-50%); background-color: #e74c3c; color: white; border-radius: 50%; height: 18px; width: 18px; display: flex; justify-content: center; align-items: center; font-size: 10px;
+}
+.mreza-ikonica {
+    width: 24px; margin: 0 8px; vertical-align: middle;
+}
+.pravila-checkbox-wrapper {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px; justify-content: center;
+}
+.pravila-checkbox-wrapper input[type="checkbox"] {
+    width: auto; margin-bottom: 0; flex-shrink: 0;
+}
+.pravila-checkbox-wrapper label {
+    margin-bottom: 0; font-size: 14px; color: #f0f0f0; text-align: left;
+}
+.action-icon {
+    width: 50px; height: 50px; border-radius: 50%; background: #3a3a3a; color: #f0f0f0; font-size: 24px; display: flex; justify-content: center; align-items: center; border: none; cursor: pointer; transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; padding: 0; margin: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); flex-shrink: 0;
+}
+.action-icon:hover {
+    background: #ff4757; transform: scale(1.05); box-shadow: 0 0px 12px rgba(255, 71, 87, 0.4);
+}
+.large-action-icon {
+    box-shadow: 0 0px 10px rgba(255, 71, 87, 0.3);
+}
+.large-action-icon:hover {
+    background: linear-gradient(45deg, #e03f4d, #ff4757); transform: scale(1.1); box-shadow: 0 0px 15px rgba(255, 71, 87, 0.6);
+}
+.controls-bottom {
+    display: flex; justify-content: space-around; align-items: center; margin-top: auto; padding-top: 20px; width: 100%; position: sticky; bottom: 0; background: #1e1e1e; box-shadow: 0 -5px 15px rgba(0,0,0,0.3); z-index: 2; flex-shrink: 0; padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
+.btn-full {
+    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525; color: #f0f0f0; border-radius: 8px; font-size: 15px; font-family: inherit; transition: all 0.2s ease-in-out; text-align: center; display: block; text-decoration: none; font-weight: bold; position: relative;
+}
+.btn-full:hover {
+    background: #3a3a3a; transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.1);
+}
+.top-nav-buttons {
+    position: absolute; top: 10px; left: 10px; width: calc(100% - 20px); display: flex; justify-content: space-between; align-items: center; z-index: 10;
+}
+.close-btn {
+    background: none; border: none; color: #b0b0b0; font-size: 28px; cursor: pointer; padding: 5px; margin: 0; line-height: 1; transition: color 0.2s ease, transform 0.2s ease; width: auto; height: auto; display: flex; justify-content: center; align-items: center;
+}
+.close-btn:hover {
+    color: #ff4757; transform: scale(1.1); background: rgba(255, 71, 87, 0.1); border-radius: 8px;
+}
+#glavniDio, #privatniChat, #editProfil {
+    padding-top: 60px;
+}
+#pijankePregled, #listaChatova, #privatniChatLog {
+    display: flex; flex-direction: column; align-items: center; width: 100%; flex-grow: 1; overflow-y: auto; padding-bottom: 20px; min-height: 100px; -webkit-overflow-scrolling: touch;
+}
+.pijanka {
+    background: #282828; padding: 15px; border-radius: 10px; margin-bottom: 8px; display: flex; flex-direction: column; border-left: 3px solid #ff4757; transition: all 0.2s ease-in-out; width: 100%; max-width: 350px; box-sizing: border-box;
+}
+.pijanka:hover {
+    background: #303030; border-left-color: #e03f4d;
+}
+.pijanka-header {
+    display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 8px; border-bottom: 1px solid #333; margin-bottom: 8px; width: 100%;
+}
+.pijanka-profilna-slika {
+    width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #ff4757; flex-shrink: 0;
+}
+.pijanka-info {
+    flex-grow: 1; display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+}
+.pijanka-info > div {
+    display: flex; align-items: center; margin-bottom: 1px; justify-content: flex-start;
+}
+.pijanka-info strong {
+    font-size: 18px; margin-right: 4px; text-align: left;
+}
+.pijanka-info p.status-text {
+    font-size: 13px; color: #a0a0a0; margin: 0; padding: 0; text-align: left; white-space: nowrap;
+}
+.delete-btn {
+    background: none; border: none; font-size: 14px; padding: 2px; margin-left: auto; cursor: pointer; color: #777; flex-shrink: 0; line-height: 1; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; border-radius: 50%;
+}
+.delete-btn:hover {
+    color: #ff4757; background: rgba(51, 51, 51, 0.5); box-shadow: none; transform: scale(1.05); transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.pijanka-opis {
+    padding-top: 4px; width: 100%;
+}
+.pijanka-opis p {
+    margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left;
+}
+.pijanka-separator {
+    border: none; border-top: 1px dashed #444; margin: 12px auto; width: 70%; background-color: transparent; height: 1px;
+}
+#pijankePregled .pijanka:last-of-type {
+    margin-bottom: 0;
+}
+#pijankePregled .pijanka-separator:last-of-type {
+    display: none;
+}
+.chat-item {
+    background: #282828; padding: 12px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; border-left: 3px solid #333; transition: all 0.2s ease-in-out; width: 100%; max-width: 350px; box-sizing: border-box;
+}
+.chat-item:hover {
+    background: #303030; border-left-color: #ff4757;
+}
+.chat-item img {
+    width: 45px; height: 45px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+}
+.chat-item-info {
+    flex-grow: 1; display: flex; flex-direction: column; align-items: flex-start; cursor: pointer;
+}
+.chat-item-info strong {
+    font-size: 16px; font-weight: 500; text-align: left; margin-bottom: 1px;
+}
+.chat-item-info p.status-text {
+    font-size: 12px; color: #999; margin: 0; padding: 0; text-align: left;
+}
+.chat-item .notification-badge {
+    margin-left: auto; flex-shrink: 0; position: static; top: auto; right: auto;
+}
+#privatniChatLog p {
+    margin-bottom: 6px; padding: 0; text-align: left; width: 100%;
+}
+#privatniChatLog p > span {
+    display: inline-block; padding: 8px 12px; border-radius: 15px; max-width: 75%; word-wrap: break-word; font-size: 14px;
+}
+#privatniChatLog p.moja-poruka {
+    text-align: right;
+}
+#privatniChatLog p.moja-poruka > span {
+    background: #ff4757; color: white;
+}
+#privatniChatLog p.tudja-poruka {
+    text-align: left;
+}
+#privatniChatLog p.tudja-poruka > span {
+    background: #3a3a3a; color: #f0f0f0;
+}
+.container button:not(:last-child) {
+    margin-bottom: 12px;
+}
+#odabir button {
+    margin-bottom: 14px;
+}
+#splashScreen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111111; display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 1; visibility: visible;
+}
+#splashScreen h1 {
+    font-size: 4em; color: #ff4757; text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6); letter-spacing: 4px; text-transform: uppercase; animation: bounceIn 1.5s ease-out forwards;
+}
+@keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes fadeOut {
+    from { opacity: 1; } to { opacity: 0; }
+}
+@keyframes bounceIn {
+    0% { transform: scale(0.1); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); }
+}
+@keyframes fadeOutSplash {
+    from { opacity: 1; } to { opacity: 0; visibility: hidden; }
+}
+@media (max-width: 420px) {
+    .container {
+        padding: 15px;
+    }
+    h1 {
+        font-size: 2em;
+    }
+    h2 {
+        font-size: 1.7em;
+    }
+    .action-icon {
+        width: 40px; height: 40px; font-size: 18px;
+    }
+    .close-btn, .back-button {
+        font-size: 18px;
+    }
+    input, textarea, button, .btn-full {
+        padding: 10px; margin-bottom: 10px;
+    }
+}
+@media (min-height: 800px) {
+    .container {
+        max-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 20px);
+    }
+}
 
-/* --- DESKTOP --- */
-@media (min-width: 768px) {
-    #pageWrapper { max-width: 420px; height: 90%; max-height: 800px; margin: auto; border-radius: 20px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+
+/* ======================================================= */
+/* NOVI CSS DODAN NA KRAJ - ZA NOVI HEADER, FOOTER I LAYOUT */
+/* ======================================================= */
+
+body {
+    padding-top: 60px;  /* Prostor za fiksni header */
+    padding-bottom: 80px; /* Prostor za fiksni footer */
+    overflow-y: hidden; /* Sprječava skrolanje cijelog body taga */
+}
+
+/* Osigurava da se kontejneri mogu skrolati */
+.container {
+    height: 100vh; /* Zauzima cijelu visinu vidljivog dijela ekrana */
+    padding-top: 80px; /* Dodatni padding da sadržaj ne bude ispod headera */
+    padding-bottom: 100px;
+}
+
+#noviHeader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: #1e1e1e;
+    border-bottom: 1px solid #2a2a2a;
+    display: none; /* JS će ovo promijeniti u 'flex' nakon logina */
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 1000;
+}
+
+#noviFooter {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    display: none; /* JS će ovo promijeniti u 'flex' nakon logina */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.header-icon {
+    font-size: 24px;
+    color: #f0f0f0;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.logo-container {
+    font-size: 28px;
+    font-weight: bold;
+    color: #ff4757;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.publish-btn {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(45deg, #ff4757, #e03f4d);
+    color: white;
+    border-radius: 50%;
+    border: none;
+    font-size: 32px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+}
+
+#notifikacijaPorukaHeader {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    height: 18px;
+    min-width: 18px;
+    font-size: 10px;
+    display: none; /* JS će ovo promijeniti */
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+}
+
+/* Prilagodba za Desktop */
+@media (min-width: 1024px) {
+    #lokacijePrikaz .pijanka-pregled-wrapper {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
 }
