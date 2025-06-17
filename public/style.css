@@ -174,27 +174,70 @@ body::before {
 #privatniChat { justify-content: flex-start; align-items: stretch; }
 
 /* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
+/* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
 .chat-input-area {
-    display: flex; align-items: flex-end; gap: 10px; padding: 8px 12px;
-    background-color: #1e1e1e; border-top: 1px solid #3a3a3a;
-    margin-top: auto; flex-shrink: 0; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    display: flex; 
+    align-items: flex-end; /* Poravnava stavke na dno flex kontejnera */
+    gap: 10px; /* Razmak između inputa i gumba (ostavljamo ga) */
+    padding: 8px 12px;
+    background-color: transparent; /* PROMIJENJENO: Uklanjamo pravokutnu pozadinu */
+    border-top: none; /* PROMIJENJENO: Uklanjamo gornju liniju */
+    margin-top: auto; 
+    flex-shrink: 0; 
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    position: relative; /* Dodano za pozicioniranje gumba unutar ovog područja */
 }
+
 #privatniInput {
-    flex-grow: 1; border: none; padding: 10px 15px; border-radius: 20px;
-    background-color: #3a3a3a; color: #f0f0f0; font-size: 16px;
-    line-height: 1.4; max-height: 100px; overflow-y: auto; resize: none;
-    transition: all 0.2s ease; margin: 0;
+    flex-grow: 1; 
+    border: none; 
+    padding: 10px 15px; 
+    border-radius: 20px;
+    background-color: #3a3a3a; 
+    color: #f0f0f0; 
+    font-size: 16px;
+    line-height: 1.4; 
+    max-height: 100px; 
+    overflow-y: auto; 
+    resize: none;
+    transition: all 0.2s ease; 
+    margin: 0;
+    /* Dodaj desni padding da gumb ne preklapa tekst */
+    padding-right: 55px; /* Dodano: napravis prostor za gumb */
 }
+
 #privatniInput:focus { outline: none; background-color: #4a4a4a; box-shadow: none; border-color: transparent; }
+
 #posaljiPrivatnoBtn {
-    flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%;
-    border: none; padding: 0; margin: 0; background-color: #ff4757;
-    display: flex; justify-content: center; align-items: center;
-    cursor: pointer; transition: transform 0.2s ease, opacity 0.2s ease;
-    transform: scale(0); opacity: 0; /* Gumb je skriven po defaultu */
+    flex-shrink: 0; 
+    width: 40px; 
+    height: 40px; 
+    border-radius: 50%;
+    border: none; 
+    padding: 0; 
+    margin: 0; 
+    background-color: #ff4757;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    cursor: pointer; 
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    
+    /* PROMIJENJENO: Pozicioniranje gumba */
+    position: absolute; /* Postavlja gumb izvan normalnog toka */
+    right: 20px; /* Pomakni s desne strane .chat-input-area */
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); /* Pozicija na dnu */
+    z-index: 10; /* Osigurava da je iznad inputa */
+    
+    transform: scale(0); 
+    opacity: 0; /* Gumb je skriven po defaultu */
 }
-#posaljiPrivatnoBtn.enabled { transform: scale(1); opacity: 1; } /* Pojavljuje se kad ima teksta */
+#posaljiPrivatnoBtn.enabled { 
+    transform: scale(1); 
+    opacity: 1; 
+} /* Pojavljuje se kad ima teksta */
 #posaljiPrivatnoBtn svg { width: 22px; height: 22px; fill: #ffffff; margin-left: -2px; }
+/* ========================================= */
 /* ========================================= */
 
 /* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
@@ -275,34 +318,34 @@ img.preview-slika { display: none; }
 
 #profilKorisnika button,
 #editProfil button {
-    /* Koristimo tamnu boju s blagom prozirnošću (npr. 70% neprozirnosti) */
-    background: rgba(30, 30, 30, 0.7); /* Prilagodi zadnju brojku (0.1 do 0.9) za željenu prozirnost */
-    box-shadow: none; /* Uklanjamo box-shadow da izgledaju prozračnije */
-    border: 1px solid rgba(51, 51, 51, 0.5); /* Dodajemo prozirnu granicu */
+    /* Puno prozirnije za "glassy" efekt */
+    background: rgba(30, 30, 30, 0.3); /* PROMIJENJENO: Vrlo prozirno (30% neprozirnosti) */
+    box-shadow: none; /* Uklanjamo sjenu */
+    border: 1px solid rgba(51, 51, 51, 0.2); /* PROMIJENJENO: I border je prozirniji */
 }
 
 #profilKorisnika button:hover,
 #editProfil button:hover {
-    background: rgba(40, 40, 40, 0.9); /* Tamnije na hover (više neprozirnosti) */
-    transform: none; /* Sprečava "skakanje" na hoveru ako ne želiš */
-    box-shadow: none; /* Osiguraj da nema sjene na hoveru */
+    /* Na hoveru malo manje prozirno da se istakne */
+    background: rgba(40, 40, 40, 0.6); /* PROMIJENJENO: Malo manje prozirno na hoveru */
+    transform: none;
+    box-shadow: none;
 }
 
 #objavaForma button {
-    /* Trenutno imaš: background: linear-gradient(45deg, #ff4757, #e03f4d); */
-    /* Mijenjamo ga u RGBA boju */
-    background: rgba(255, 71, 87, 0.7); /* Crvena (#ff4757) s 70% neprozirnosti */
-    border: none; /* Ukloni granicu ako je bila definirana */
+    /* Puno prozirnije crveno za "glassy" efekt */
+    background: rgba(255, 71, 87, 0.3); /* PROMIJENJENO: Crvena s 30% neprozirnosti */
+    border: none;
     font-weight: bold;
     position: relative;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    box-shadow: none; /* Uklanjamo sjenu da izgleda prozračnije */
+    box-shadow: none;
 }
 
 #objavaForma button:hover {
-    /* Prilagodi hover stanje da bude konzistentno */
-    background: rgba(255, 71, 87, 0.9); /* Crvena s blago većom neprozirnosti na hoveru */
-    transform: none; /* Sprečava "skakanje" na hoveru ako ne želiš */
-    box-shadow: none; /* Osiguraj da nema sjene na hoveru */
+    /* Na hoveru malo manje prozirno da se istakne */
+    background: rgba(255, 71, 87, 0.6); /* PROMIJENJENO: Crvena s 60% neprozirnosti na hoveru */
+    transform: none;
+    box-shadow: none;
 }
