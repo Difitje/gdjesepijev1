@@ -1,5 +1,5 @@
-/* === POCETAK CSS-a === */
-/* public/style.css - VERZIJA 10 - Moderan Chat Input */
+/* === POCETAK CSS-a (Konačna verzija) === */
+/* public/style.css - VERZIJA 11 - Finalno centriranje */
 
 * {
     box-sizing: border-box;
@@ -162,9 +162,17 @@ body {
 #posaljiPrivatnoBtn svg { width: 22px; height: 22px; fill: #ffffff; margin-left: -2px; }
 /* ========================================= */
 
-.chat-header-info { text-align: center; margin-bottom: 10px; flex-shrink: 0; }
+/* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
+.chat-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
 .chat-header-info h2 { margin-bottom: 2px; font-size: 20px; }
 .chat-header-info .status-text { margin-top: 0; }
+/* ========================================= */
 
 h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
 h2 { font-size: 20px; }
@@ -205,7 +213,6 @@ img.preview-slika { display: none; }
 .pijanka-header { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 8px; border-bottom: 1px solid #333; margin-bottom: 8px; width: 100%; }
 .pijanka-profilna-slika { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #ff4757; flex-shrink: 0; }
 
-/* === NOVI STILOVI ZA ISPRAVAK RASPOREDA U LISTAMA === */
 .pijanka-info, .chat-item-info { flex-grow: 1; display: flex; align-items: center; gap: 10px; }
 .pijanka-info-text, .chat-item-info-text { display: flex; flex-direction: column; }
 .pijanka-info strong, .chat-item-info strong { line-height: 1.2; font-size: 18px; color: #f0f0f0; }
