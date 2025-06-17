@@ -16,201 +16,201 @@ let odabranaEditSlika = null;
 let prethodniEkran = "lokacijePrikaz";
 
 async function authenticatedFetch(url, options = {}) {
-    const token = localStorage.getItem('token');
-    if (token) {
-        options.headers = {
-            ...options.headers,
-            'Authorization': `Bearer ${token}`
-        };
-    }
-    return fetch(url, options);
+    const token = localStorage.getItem('token');
+    if (token) {
+        options.headers = {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`
+        };
+    }
+    return fetch(url, options);
 }
 
 function compressImage(base64Image, maxWidth = 400, quality = 0.8) {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.src = base64Image;
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            if (width > maxWidth) {
-                height = height * (maxWidth / width);
-                width = maxWidth;
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', quality));
-        };
-        img.onerror = () => {
-            console.error("Greška pri učitavanju slike za kompresiju.");
-            resolve(base64Image);
-        };
-    });
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.src = base64Image;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+                height = height * (maxWidth / width);
+                width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => {
+            console.error("Greška pri učitavanju slike za kompresiju.");
+            resolve(base64Image);
+        };
+    });
 }
 
 window.addEventListener('DOMContentLoaded', async function() {
-    localStorage.removeItem("loggedInUserId");
-    const token = localStorage.getItem("token");
-    const splashScreen = document.getElementById('splashScreen');
+    localStorage.removeItem("loggedInUserId");
+    const token = localStorage.getItem("token");
+    const splashScreen = document.getElementById('splashScreen');
 
-    document.querySelectorAll('.container').forEach(el => {
-        if (el.id !== 'splashScreen') {
-            el.style.display = 'none';
-            el.classList.remove('active-screen', 'fade-out-screen');
-        }
-    });
+    document.querySelectorAll('.container').forEach(el => {
+        if (el.id !== 'splashScreen') {
+            el.style.display = 'none';
+            el.classList.remove('active-screen', 'fade-out-screen');
+        }
+    });
 
-    let appInitializedSuccessfully = false;
-    if (token) {
-        try {
-            const response = await authenticatedFetch('/api/auth/me');
-            if (response.ok) {
-                const data = await response.json();
-                trenutniKorisnik = data.user;
-                await Promise.all([
-                    dohvatiSveKorisnike(),
-                    dohvatiSvePijanke(),
-                    dohvatiSvePoruke()
-                ]);
-                appInitializedSuccessfully = true;
-            } else {
-                localStorage.removeItem("token");
-            }
-        } catch (error) {
-            localStorage.removeItem("token");
-        }
-    }
+    let appInitializedSuccessfully = false;
+    if (token) {
+        try {
+            const response = await authenticatedFetch('/api/auth/me');
+            if (response.ok) {
+                const data = await response.json();
+                trenutniKorisnik = data.user;
+                await Promise.all([
+                    dohvatiSveKorisnike(),
+                    dohvatiSvePijanke(),
+                    dohvatiSvePoruke()
+                ]);
+                appInitializedSuccessfully = true;
+            } else {
+                localStorage.removeItem("token");
+            }
+        } catch (error) {
+            localStorage.removeItem("token");
+        }
+    }
 
-    if (splashScreen) {
-        setTimeout(() => {
-            splashScreen.style.animation = 'fadeOutSplash 0.5s ease-out forwards';
-            setTimeout(() => {
-                splashScreen.style.display = 'none';
-                splashScreen.remove();
-                if (appInitializedSuccessfully) {
-                    pokreniAplikaciju();
-                } else {
-                    const introEl = document.getElementById('intro');
-                    if (introEl) {
-                        introEl.style.display = 'flex';
-                        setTimeout(() => introEl.classList.add('active-screen'), 10);
-                    }
-                }
-            }, 500);
-        }, 2000);
-    }
+    if (splashScreen) {
+        setTimeout(() => {
+            splashScreen.style.animation = 'fadeOutSplash 0.5s ease-out forwards';
+            setTimeout(() => {
+                splashScreen.style.display = 'none';
+                splashScreen.remove();
+                if (appInitializedSuccessfully) {
+                    pokreniAplikaciju();
+                } else {
+                    const introEl = document.getElementById('intro');
+                    if (introEl) {
+                        introEl.style.display = 'flex';
+                        setTimeout(() => introEl.classList.add('active-screen'), 10);
+                    }
+                }
+            }, 500);
+        }, 2000);
+    }
 });
 
 function swap(hideId, showId) {
-    const hideElement = document.getElementById(hideId);
-    const showElement = document.getElementById(showId);
-    if (!showElement) return;
+    const hideElement = document.getElementById(hideId);
+    const showElement = document.getElementById(showId);
+    if (!showElement) return;
 
-    const showNewElement = () => {
-        showElement.style.display = 'flex';
-        setTimeout(() => {
-            showElement.classList.add('active-screen');
-        }, 10);
-    };
+    const showNewElement = () => {
+        showElement.style.display = 'flex';
+        setTimeout(() => {
+            showElement.classList.add('active-screen');
+        }, 10);
+    };
 
-    if (hideElement && hideElement.classList.contains('active-screen')) {
-        hideElement.classList.remove('active-screen');
-        hideElement.classList.add('fade-out-screen');
-        hideElement.addEventListener('animationend', function handler() {
-            hideElement.style.display = 'none';
-            hideElement.classList.remove('fade-out-screen');
-            hideElement.removeEventListener('animationend', handler);
-            showNewElement();
-        }, { once: true });
-    } else {
-        if (hideElement) {
-            hideElement.style.display = 'none';
-            hideElement.classList.remove('active-screen', 'fade-out-screen');
-        }
-        showNewElement();
-    }
+    if (hideElement && hideElement.classList.contains('active-screen')) {
+        hideElement.classList.remove('active-screen');
+        hideElement.classList.add('fade-out-screen');
+        hideElement.addEventListener('animationend', function handler() {
+            hideElement.style.display = 'none';
+            hideElement.classList.remove('fade-out-screen');
+            hideElement.removeEventListener('animationend', handler);
+            showNewElement();
+        }, { once: true });
+    } else {
+        if (hideElement) {
+            hideElement.style.display = 'none';
+            hideElement.classList.remove('active-screen', 'fade-out-screen');
+        }
+        showNewElement();
+    }
 }
 
 function zatvoriEkran(trenutniEkranId, povratniEkranId) {
-    swap(trenutniEkranId, povratniEkranId);
-    if (trenutniEkranId === 'privatniChat') {
-        if (chatStatusInterval) clearInterval(chatStatusInterval);
-        trenutniChatPartnerId = null;
-        document.getElementById("privatniInput").value = "";
-    }
-    azurirajNotifikacije();
+    swap(trenutniEkranId, povratniEkranId);
+    if (trenutniEkranId === 'privatniChat') {
+        if (chatStatusInterval) clearInterval(chatStatusInterval);
+        trenutniChatPartnerId = null;
+        document.getElementById("privatniInput").value = "";
+    }
+    azurirajNotifikacije();
 }
 
 function proveriPrihvatanje() {
-    const checkbox = document.getElementById('prihvatamPravila');
-    const button = document.getElementById('nastaviBtn');
-    if (button && checkbox) button.disabled = !checkbox.checked;
+    const checkbox = document.getElementById('prihvatamPravila');
+    const button = document.getElementById('nastaviBtn');
+    if (button && checkbox) button.disabled = !checkbox.checked;
 }
 
 async function globalRefreshUI() {
-    if (!trenutniKorisnik) return;
-    await Promise.all([
-        dohvatiSveKorisnike(),
-        dohvatiSvePijanke(),
-        dohvatiSvePoruke()
-    ]);
-    if (document.getElementById("lokacijePrikaz")?.classList.contains('active-screen')) {
-        prikaziPijankePregled();
-    }
-    if (document.getElementById("inboxPrikaz")?.classList.contains('active-screen')) {
-        prikaziInbox();
-    }
-    if (document.getElementById("privatniChat")?.classList.contains('active-screen') && trenutniChatPartnerId) {
-        prikaziPrivatniLog();
-    }
-    azurirajNotifikacije();
+    if (!trenutniKorisnik) return;
+    await Promise.all([
+        dohvatiSveKorisnike(),
+        dohvatiSvePijanke(),
+        dohvatiSvePoruke()
+    ]);
+    if (document.getElementById("lokacijePrikaz")?.classList.contains('active-screen')) {
+        prikaziPijankePregled();
+    }
+    if (document.getElementById("inboxPrikaz")?.classList.contains('active-screen')) {
+        otvoriInbox(prethodniEkran); // Ponovno iscrtaj listu s postojećim stanjem
+    }
+    if (document.getElementById("privatniChat")?.classList.contains('active-screen') && trenutniChatPartnerId) {
+        prikaziPrivatniLog();
+    }
+    azurirajNotifikacije();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const slikaUploadEl = document.getElementById("slikaUpload");
-    if (slikaUploadEl) {
-        slikaUploadEl.addEventListener("change", function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    odabranaSlika = e.target.result;
-                    const previewElement = document.getElementById("previewSlikes");
-                    if (previewElement) {
-                        previewElement.src = odabranaSlika;
-                        previewElement.style.display = "block";
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
+    const slikaUploadEl = document.getElementById("slikaUpload");
+    if (slikaUploadEl) {
+        slikaUploadEl.addEventListener("change", function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    odabranaSlika = e.target.result;
+                    const previewElement = document.getElementById("previewSlikes");
+                    if (previewElement) {
+                        previewElement.src = odabranaSlika;
+                        previewElement.style.display = "block";
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 
-    const editSlikaUploadEl = document.getElementById("editSlikaUpload");
-    if (editSlikaUploadEl) {
-        editSlikaUploadEl.addEventListener("change", handleEditSlikaUploadChange);
-    }
+    const editSlikaUploadEl = document.getElementById("editSlikaUpload");
+    if (editSlikaUploadEl) {
+        editSlikaUploadEl.addEventListener("change", handleEditSlikaUploadChange);
+    }
 });
 
 function handleEditSlikaUploadChange() {
-    const file = this.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            odabranaEditSlika = e.target.result;
-            const previewElement = document.getElementById("previewEditSlike");
-            if (previewElement) {
-                previewElement.src = odabranaEditSlika;
-                if (previewElement.style.display === "none") {
-                    previewElement.style.display = "block";
-                }
-            }
-        };
-        reader.readAsDataURL(file);
-    }
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            odabranaEditSlika = e.target.result;
+            const previewElement = document.getElementById("previewEditSlike");
+            if (previewElement) {
+                previewElement.src = odabranaEditSlika;
+                if (previewElement.style.display === "none") {
+                    previewElement.style.display = "block";
+                }
+            }
+        };
+        reader.readAsDataURL(file);
+    }
 }
 
 async function registruj() {
@@ -488,7 +488,6 @@ function prikaziPijankePregled() {
         const autor = sviKorisnici.find(u => u.id === pijanka.korisnikId);
         if (!autor) return;
         const status = formatirajStatus(autor.lastActive);
-        // *** ISPRAVAK: Uklonjen <hr> element odavde ***
         div.innerHTML += `
             <div class="pijanka" onclick="otvoriProfil('${autor.id}')">
                 <div class="pijanka-header">
@@ -544,6 +543,8 @@ function prikaziMreze(p) {
 function azurirajNotifikacije() {
     let neprocitane = 0;
     const badgeSettings = document.getElementById("notifikacijaPorukaSettings");
+    const badgeGlavna = document.getElementById("notifikacijaPorukaGlavna"); // Nova notifikacija na glavnoj stranici
+
     if (trenutniKorisnik && trenutniKorisnik.id) {
         for (const chatKey in privatnePoruke) {
             if (chatKey.includes(trenutniKorisnik.id)) {
@@ -551,21 +552,35 @@ function azurirajNotifikacije() {
             }
         }
     }
+
+    const brPrikaz = neprocitane > 9 ? '9+' : neprocitane;
+    const prikazi = neprocitane > 0;
+
     if(badgeSettings) {
-        badgeSettings.style.display = neprocitane > 0 ? 'flex' : 'none';
-        badgeSettings.innerText = neprocitane > 9 ? '9+' : neprocitane;
+        badgeSettings.style.display = prikazi ? 'flex' : 'none';
+        badgeSettings.innerText = brPrikaz;
+    }
+    if(badgeGlavna) {
+        badgeGlavna.style.display = prikazi ? 'flex' : 'none';
+        badgeGlavna.innerText = brPrikaz;
     }
 }
 
-async function prikaziInbox() {
-    swap('postavkeEkran', 'inboxPrikaz');
+
+// Nova funkcija koja zamjenjuje staru 'prikaziInbox'
+function otvoriInbox(fromScreen) {
+    prethodniEkran = fromScreen; // Postavi ekran na koji se vraćamo
+    swap(fromScreen, 'inboxPrikaz'); // Prebaci na inbox
+
     const div = document.getElementById("listaChatova");
     div.innerHTML = "";
     const chatKeys = (trenutniKorisnik && trenutniKorisnik.id) ? Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id)) : [];
+    
     if (chatKeys.length === 0) {
         div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
         return;
     }
+    
     chatKeys.sort((a, b) => new Date(privatnePoruke[b].slice(-1)[0]?.time) - new Date(privatnePoruke[a].slice(-1)[0]?.time))
     .forEach(chatKey => {
         const partnerId = chatKey.split("-").find(id => id !== trenutniKorisnik.id);

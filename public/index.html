@@ -70,17 +70,25 @@
     </div>
 
     <div class="container" id="lokacijePrikaz">
-        <h2>🍺 Trenutno pije:</h2>
-        <div id="pijankePregled"></div>
-        <div class="controls-bottom">
-            <button id="objaviPijankuBtn" class="action-icon large-action-icon" onclick="pokaziObjavu()">🍺</button>
-            <button id="settingsBtn" class="action-icon" onclick="pokaziPostavkeEkran()">⚙️</button>
+        <div class="main-header">
+            <button class="header-icon" onclick="pokaziPostavkeEkran()">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </button>
+            <h1 class="main-logo">LOCALO</h1>
+            <button class="header-icon" onclick="otvoriInbox('lokacijePrikaz')">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                 <span id="notifikacijaPorukaGlavna" class="notification-badge-main"></span>
+            </button>
         </div>
-    </div>
 
+        <h2>Trenutno pije:</h2>
+        <div id="pijankePregled"></div>
+        
+        <button id="fabObjaviPijanku" class="fab" onclick="pokaziObjavu()">+</button>
+    </div>
     <div class="container" id="inboxPrikaz">
         <div class="top-nav-buttons">
-            <button class="back-button" onclick="zatvoriEkran('inboxPrikaz', 'postavkeEkran')">←</button>
+             <button class="back-button" onclick="zatvoriEkran('inboxPrikaz', prethodniEkran)">←</button>
         </div>
         <h2>Poruke</h2>
         <div id="listaChatova"></div>
@@ -91,7 +99,7 @@
             <button class="back-button" onclick="zatvoriEkran('postavkeEkran', 'lokacijePrikaz')">←</button>
         </div>
         <h2>Postavke</h2>
-        <a href="#" class="btn-full" onclick="prikaziInbox(); return false;">Poruke <span id="notifikacijaPorukaSettings" class="notification-badge"></span></a>
+        <a href="#" class="btn-full" onclick="otvoriInbox('postavkeEkran'); return false;">Poruke <span id="notifikacijaPorukaSettings" class="notification-badge"></span></a>
         <a href="#" class="btn-full" onclick="prikaziEditProfila(); return false;">Moj profil</a>
         <a href="#" class="btn-full" onclick="odjaviSe(); return false;" id="odjaviSeBtn">Odjavi se</a>
     </div>
