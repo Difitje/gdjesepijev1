@@ -1,4 +1,4 @@
-/* public/style.css - KONAČNA VERZIJA 2 - Ispravljen izgled komponenti na PC-u */
+/* public/style.css - KONAČNA VERZIJA 3 - Balansirani PC Prikaz + Ispravak pozicije teksta */
 
 * {
     box-sizing: border-box;
@@ -46,33 +46,38 @@ body {
 }
 
 /* ================================================================ */
-/* STILOVI ZA PC (Veliki ekrani) - FULL SCREEN */
+/* STILOVI ZA PC (Veliki ekrani) - VRAĆEN CENTRIRANI IZGLED */
 /* ================================================================ */
 @media (min-width: 768px) {
     body {
         overflow-y: auto;
+        /* Dodajemo padding na body da kontejner ne bude zalijepljen za vrh */
+        padding: 40px 20px;
     }
     .container {
         position: relative;
         width: 100%;
-        max-width: none;
-        height: 100vh;
+        max-width: 1200px; /* Širi, ali i dalje ograničen prikaz za PC */
+        height: auto;
+        min-height: 80vh;
+        
+        margin: 0 auto; /* Automatske margine za centriranje */
+        
+        /* Vraćamo elegantni izgled prozora za PC */
         padding: 40px;
-        border: none;
-        border-radius: 0;
-        box-shadow: none;
-        margin: 0;
+        border: 1px solid #2a2a2a;
+        border-radius: 24px;
+        box-shadow: 0 10px 40px rgba(0,0,0, 0.5);
     }
 
-    /* ISPRAVAK: Ograničavanje širine sadržaja unutar full-screen prikaza na PC-u */
     #objavaForma, #profilKorisnika, .chat-input-area {
         width: 100%;
-        max-width: 700px; /* Maksimalna širina za forme i chat input */
+        max-width: 700px; 
         margin-left: auto;
         margin-right: auto;
     }
     #privatniChatLog p {
-        max-width: 700px; /* Poruke u chatu također imaju max širinu */
+        max-width: 700px;
         margin-left: auto;
         margin-right: auto;
     }
@@ -88,6 +93,9 @@ body {
     .container {
         position: absolute;
         padding: 20px;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
     }
 }
 
@@ -216,6 +224,8 @@ p {
 
 input, textarea, button {
     width: 100%;
+    max-width: 500px;
+    align-self: center;
     padding: 12px;
     margin-bottom: 12px;
     border: 1px solid #333;
@@ -372,6 +382,8 @@ img.preview-slika {
 }
 .btn-full {
     width: 100%;
+    max-width: 500px;
+    align-self: center;
     padding: 12px;
     margin-bottom: 12px;
     border: 1px solid #333;
@@ -445,12 +457,14 @@ img.preview-slika {
     margin-right: 4px;
     text-align: left;
 }
+/* ISPRAVAK: Osigurava da status tekst ide u novi red */
 .pijanka-info p.status-text {
     font-size: 13px;
     color: #a0a0a0;
     margin: 0;
     padding: 0;
     text-align: left;
+    width: 100%;
     white-space: nowrap;
 }
 .delete-btn {
@@ -518,7 +532,7 @@ img.preview-slika {
     display: inline-block;
     padding: 8px 12px;
     border-radius: 15px;
-    max-width: 90%; /* Poruke mogu biti malo šire */
+    max-width: 90%; 
     word-wrap: break-word;
     font-size: 14px;
 }
