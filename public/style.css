@@ -19,7 +19,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
     /* NOVE LINIJE ZA POZADINSKU SLIKU */
-    background-image: url('pozadina.jpg'); /* Ovdje upišite točno ime vaše slike */
+    background-image: url('pozadina.png'); /* Ovdje upišite točno ime vaše slike */
     background-size: cover; /* Ovo osigurava da slika prekrije cijeli ekran */
     background-position: center center; /* Centrira sliku */
     background-repeat: no-repeat; /* Sprječava ponavljanje slike */
