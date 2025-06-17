@@ -80,18 +80,16 @@
         <a href="#" class="btn-full" onclick="prikaziEditProfila(); return false;">Moj profil</a>
         <a href="#" class="btn-full" onclick="odjaviSe(); return false;" id="odjaviSeBtn">Odjavi se</a> </div>
 
-        <div class="container" id="glavniDio">
+    <div class="container" id="glavniDio">
         <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">←</button> <button class="close-btn right-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">✖</button> </div>
-        
-        <h2>Objavi pijanku</h2> 
-
-        <div id="objavaForma">
+        <h2>Objavi pijanku</h2> <div id="objavaForma">
             <textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea>
             <button onclick="objaviPijanku()">Objavi</button>
         </div>
         <div id="profilKorisnika"></div>
     </div>
-        <div class="container" id="privatniChat">
+
+    <div class="container" id="privatniChat">
         <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('privatniChat', prethodniEkran)">←</button> </div>
         <div class="chat-header-info"> <h2 id="chatSaKorisnikom"></h2> <p id="chatPartnerStatus" class="status-text"></p>
         </div>
