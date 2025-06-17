@@ -108,8 +108,9 @@ body::before {
 .main-header {
     position: absolute; top: 0; left: 0; right: 0; height: 60px; padding: 0 10px;
     display: flex; justify-content: space-between; align-items: center;
-    background-color: transparent; /* PROMIJENJENO: Transparentno */
-    border-bottom: 1px solid #333; /* Možda ćeš htjeti ovo ukloniti ili prilagoditi */
+    /* Ovo će dati blagu prozirnost (80% neprozirno, 20% prozirno) */
+    background-color: rgba(26, 26, 26, 0.8); /* Prilagodi zadnju brojku (0.1 do 0.9) */
+    border-bottom: 1px solid rgba(51, 51, 51, 0.5); /* Ako želiš i border da bude proziran */
     z-index: 100;
 }
 @media (min-width: 768px) {
