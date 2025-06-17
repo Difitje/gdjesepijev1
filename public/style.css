@@ -10,6 +10,9 @@
 html, body {
     height: 100%;
     width: 100%;
+    overflow: hidden;      /* NOVO */
+    position: fixed;        /* NOVO */
+    touch-action: none;     /* NOVO I AGRESIVNIJE */
 }
 
 body {
