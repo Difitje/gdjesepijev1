@@ -1,4 +1,4 @@
-/* public/style.css - KONAČNA VERZIJA 4 - Full-width pozadina sa centriranim sadržajem */
+/* public/style.css - KONAČNA VERZIJA 5 - Balansirani i polirani izgled na PC-u */
 
 * {
     box-sizing: border-box;
@@ -46,58 +46,60 @@ body {
 }
 
 /* ================================================================ */
-/* STILOVI ZA PC - FULL-WIDTH POZADINA, CENTRIRAN SADRŽAJ */
+/* STILOVI ZA PC - BALANSIRANI IZGLED */
 /* ================================================================ */
 @media (min-width: 768px) {
     body {
         overflow-y: auto;
-        /* KLJUČNA PROMJENA: Body dobiva tamnu pozadinu aplikacije */
-        background: #1e1e1e;
         padding: 40px 20px;
     }
     .container {
         position: relative;
         width: 100%;
-        max-width: 1200px; /* Sadržaj ostaje na "dobroj veličini" */
+        max-width: 1200px; /* Veličina koja Vam se svidjela */
         height: auto;
         min-height: 80vh;
         margin: 0 auto;
-        
-        /* KLJUČNA PROMJENA: Kontejner postaje proziran i bez granica/sjene */
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        
         padding: 40px;
+        background: #1e1e1e;
+        border: 1px solid #2a2a2a;
+        border-radius: 24px;
+        box-shadow: 0 10px 40px rgba(0,0,0, 0.5);
     }
 
-    #objavaForma, #profilKorisnika, .chat-input-area {
+    /* BALANSIRANJE: Ograničavanje širine i centriranje specifičnih elemenata */
+    #objavaForma, #profilKorisnika, .chat-input-area,
+    #login > input, #login > button,
+    #registracija > input, #registracija > textarea, #registracija > button, #registracija > label, #registracija > img,
+    #editProfil > input, #editProfil > textarea, #editProfil > button, #editProfil > label, #editProfil > div,
+    #postavkeEkran > a {
         width: 100%;
-        max-width: 700px; 
+        max-width: 600px; /* Maksimalna širina za forme i profile */
         margin-left: auto;
         margin-right: auto;
     }
+     /* Za elemente koji su direktno u flex kontejneru */
+    #login, #registracija, #editProfil, #postavkeEkran {
+        align-items: center;
+    }
+
     #privatniChatLog p {
-        max-width: 700px;
+        max-width: 800px; /* Chat poruke mogu biti malo šire */
         margin-left: auto;
         margin-right: auto;
     }
 }
 
 /* ================================================================ */
-/* STILOVI ZA MOBITEL - Originalni izgled ostaje netaknut */
+/* STILOVI ZA MOBITEL - Fiksni prikaz */
 /* ================================================================ */
 @media (max-width: 767px) {
     body {
         overflow: hidden;
-        /* Vraćamo originalnu pozadinu za body na mobitelu */
-        background: linear-gradient(170deg, #111111 0%, #0d0d0d 100%);
     }
     .container {
         position: absolute;
         padding: 20px;
-        /* Kontejner na mobitelu ima svoju tamnu pozadinu */
-        background: #1e1e1e; 
         border-radius: 0;
         border: none;
         box-shadow: none;
@@ -119,10 +121,17 @@ body {
 }
 
 .top-nav-buttons {
+    /* Pozicioniranje unutar .container koji je roditelj */
     position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    /* Na PC-u gdje je padding veći, odmakni gumbe s vrha */
+    @media (min-width: 768px) {
+        top: 25px;
+        left: 25px;
+        right: 25px;
+    }
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -229,8 +238,6 @@ p {
 
 input, textarea, button {
     width: 100%;
-    max-width: 500px;
-    align-self: center;
     padding: 12px;
     margin-bottom: 12px;
     border: 1px solid #333;
@@ -330,7 +337,6 @@ img.preview-slika {
     border-radius: 50%;
     margin-left: auto;
 }
-
 .mreza-ikonica {
     width: 24px;
     margin: 0 8px;
@@ -387,8 +393,6 @@ img.preview-slika {
 }
 .btn-full {
     width: 100%;
-    max-width: 500px;
-    align-self: center;
     padding: 12px;
     margin-bottom: 12px;
     border: 1px solid #333;
