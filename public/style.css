@@ -1,4 +1,6 @@
-/* public/style.css - KONAČNA VERZIJA 6 - Precizno pozicioniranje gumba i chata */
+/* =================================================================== */
+/* KONAČNA ISPRAVLJENA VERZIJA - Sve primjedbe su uzete u obzir */
+/* =================================================================== */
 
 * {
     box-sizing: border-box;
@@ -32,8 +34,7 @@ body {
     flex-direction: column;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    /* Kontejner mora biti relative kako bi se gumbi pozicionirali unutar njega */
-    position: relative;
+    position: relative; /* Važno za pozicioniranje gumba unutar kontejnera */
 }
 
 .container.active-screen {
@@ -43,12 +44,8 @@ body {
     z-index: 1;
 }
 
-.container.fade-out-screen {
-    animation: fadeOut 0.3s ease-out forwards;
-}
-
 /* ================================================================ */
-/* STILOVI ZA PC - Balansirani izgled */
+/* STILOVI ZA PC - ISPRAVLJENI I BALANSIRANI */
 /* ================================================================ */
 @media (min-width: 768px) {
     body {
@@ -60,7 +57,7 @@ body {
         width: 100%;
         max-width: 1200px;
         height: auto;
-        min-height: 80vh;
+        min-height: 85vh;
         margin: 0 auto;
         padding: 40px;
         background: #1e1e1e;
@@ -68,30 +65,10 @@ body {
         border-radius: 24px;
         box-shadow: 0 10px 40px rgba(0,0,0, 0.5);
     }
-
-    #objavaForma, #profilKorisnika,
-    #login > input, #login > button,
-    #registracija > input, #registracija > textarea, #registracija > button, #registracija > label, #registracija > img,
-    #editProfil > input, #editProfil > textarea, #editProfil > button, #editProfil > label, #editProfil > div,
-    #postavkeEkran > a {
-        width: 100%;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    #login, #registracija, #editProfil, #postavkeEkran {
-        align-items: center;
-    }
-
-    .chat-input-area {
-        max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
-    }
 }
 
 /* ================================================================ */
-/* STILOVI ZA MOBITEL - Fiksni prikaz */
+/* STILOVI ZA MOBITEL */
 /* ================================================================ */
 @media (max-width: 767px) {
     body {
@@ -106,310 +83,195 @@ body {
     }
 }
 
+/* === GLAVNI SADRŽAJ (LISTE) === */
 #pijankePregled,
-#listaChatova {
+#listaChatova,
+#privatniChatLog {
     flex-grow: 1;
     overflow-y: auto;
     min-height: 100px;
-    /* Dodajemo padding na dno da skrolanje ne ide ispod fiksnih gumba */
-    padding-bottom: 80px; 
+    padding-bottom: 90px; /* Ostavlja prostor da se vidi sadržaj ispod gumba */
 }
 
-/* ISPRAVAK: Donji gumbi više nisu u flex kontejneru */
-.controls-bottom {
-    /* Ovaj div više ne treba stilove, služi samo kao kontejner u HTML-u */
-}
-
-/* ISPRAVAK: Pozicioniranje gumba u kuteve */
-#objaviPijankuBtn, #settingsBtn {
-    position: absolute; /* Fiksirano unutar .container-a */
-    bottom: 25px;
-    z-index: 10;
-}
-#objaviPijankuBtn {
-    left: 25px;
-}
-#settingsBtn {
-    right: 25px;
-}
-
+/* === GUMBI NA VRHU === */
 .top-nav-buttons {
     position: absolute;
     top: 15px;
     left: 15px;
     width: calc(100% - 30px);
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start; /* UVIJEK LIJEVO PORAVNANJE */
     align-items: center;
     z-index: 10;
     pointer-events: none;
 }
-.back-button, .close-btn {
+.back-button {
     pointer-events: auto;
-    background: none;
-    border: none;
-    color: #f0f0f0;
-    font-size: 28px;
-    cursor: pointer;
-    padding: 5px;
-    line-height: 1;
-    transition: color 0.2s ease, transform 0.2s ease;
+    background: none; border: none; color: #f0f0f0;
+    font-size: 28px; cursor: pointer; padding: 5px;
+    line-height: 1; transition: all 0.2s ease;
+}
+.close-btn {
+    pointer-events: auto;
+    background: none; border: none; color: #f0f0f0;
+    font-size: 28px; cursor: pointer; padding: 5px;
+    line-height: 1; transition: all 0.2s ease;
+    margin-left: auto; /* Gura gumb "X" na desnu stranu */
 }
 .back-button:hover, .close-btn:hover {
     color: #ff4757;
     transform: scale(1.1);
 }
 
-.container > h2 {
-    padding-top: 30px;
-}
-#privatniChat .chat-header-info {
-    padding-top: 40px;
-}
-
-#intro, #pravilaEkran, #odabir, #login, #registracija, #postavkeEkran, #editProfil {
-    justify-content: center; 
-    align-items: center; 	
-}
-
-#objavaForma, #profilKorisnika {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-#privatniChat {
-    justify-content: flex-start; 
-    align-items: stretch;
-}
-.chat-header-info {
-    text-align: center;
-    margin-bottom: 10px;
-    flex-shrink: 0; 
-}
-.chat-header-info h2 {
-    margin-bottom: 0;
-    font-size: 20px;
-}
-.chat-input-area {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch; 
-    padding-top: 10px;
-    margin-top: auto;
-    flex-shrink: 0;
-    width: 100%;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-.chat-input-area textarea { margin-bottom: 5px; }
-.chat-input-area button { margin-bottom: 0; }
-
-h1, h2 {
-    text-align: center;
-    color: #ff4757;
-    margin-bottom: 20px;
-    font-size: 22px;
-    font-weight: 600;
-    letter-spacing: 0.4px;
-    width: 100%;
-}
-h2 { font-size: 20px; }
-p {
-    margin-bottom: 12px;
-    color: #b0b0b0;
-    text-align: left;
-    width: 100%; 
-}
-#intro p, #odabir p, #pijankePregled p { text-align: center; }
-.profil-opis, .drustvene-mreze { text-align: center; }
-
-input, textarea, button {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 12px;
-    border: 1px solid #333;
-    background: #252525;
-    color: #f0f0f0;
-    border-radius: 8px;
-    font-size: 16px;
-    font-family: inherit;
-    transition: all 0.2s ease-in-out;
-}
-input:focus, textarea:focus {
-    outline: none;
-    border-color: #ff4757;
-    box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
-}
-button {
-    background: linear-gradient(45deg, #ff4757, #e03f4d);
-    cursor: pointer;
-    border: none;
-    font-weight: bold;
-    position: relative;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-}
-
-img.preview-slika, img.profilna-slika {
-    margin-top: 8px;
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    border: 2px solid #333;
-    object-fit: cover;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-.profilna-slika-velika {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #ff4757;
-}
-.status-dot {
-    height: 8px; width: 8px; border-radius: 50%;
-    display: inline-block; margin-right: 6px;
-}
-.status-dot.online { background-color: #2ecc71; }
-.status-dot.offline { background-color: #7f8c8d; }
-.status-text { font-size: 12px; color: #999; margin: 0; }
-.action-icon {
+/* === GUMBI NA DNU (PIVO, POSTAVKE) === */
+#objaviPijankuBtn, #settingsBtn {
+    position: absolute; /* Apsolutno pozicionirani unutar .container */
+    bottom: 25px;
+    z-index: 10;
     width: 50px; height: 50px; border-radius: 50%;
     background: #3a3a3a; color: #f0f0f0; font-size: 24px;
     display: flex; justify-content: center; align-items: center;
     border: none; cursor: pointer; transition: all 0.2s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
-.action-icon:hover {
+#objaviPijankuBtn {
+    left: 25px; /* U LIJEVOM KUTU */
+    width: 60px; height: 60px; font-size: 28px;
     background: #ff4757;
-    transform: scale(1.05);
+}
+#settingsBtn {
+    right: 25px; /* U DESNOM KUTU */
+}
+#objaviPijankuBtn:hover, #settingsBtn:hover {
+    transform: scale(1.1);
     box-shadow: 0 0px 12px rgba(255, 71, 87, 0.4);
 }
-.large-action-icon {
-    width: 60px; height: 60px; font-size: 28px;
-    box-shadow: 0 0px 10px rgba(255, 71, 87, 0.3);
+
+/* === SADRŽAJ EKRANA === */
+.container > h2 {
+    padding-top: 30px; /* Gura naslov ispod gumba za nazad */
 }
 
-.pijanka {
-    background: #282828;
-    padding: 15px;
-    border-radius: 10px;
-    margin: 0 auto 8px auto; 
-    display: flex;
-    flex-direction: column;
-    border-left: 3px solid #ff4757;
-    width: 100%;
-    max-width: 600px;
-    box-sizing: border-box;
-}
-.pijanka-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #333;
-    margin-bottom: 8px;
-    width: 100%;
-}
-.pijanka-profilna-slika {
-    width: 50px; height: 50px; border-radius: 50%;
-    object-fit: cover; border: 2px solid #ff4757; flex-shrink: 0;
-}
-.pijanka-info {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+/* Centriranje sadržaja na ekranima s formama */
+#login, #registracija, #editProfil, #postavkeEkran, #objavaForma, #profilKorisnika {
     justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-grow: 1; /* Da zauzme sav prostor i vertikalno centrira */
 }
-.pijanka-info > div {
-    display: flex; align-items: center;
-    margin-bottom: 1px; justify-content: flex-start;
+#objavaForma, #profilKorisnika {
+    width: 100%;
 }
-.pijanka-info strong { font-size: 18px; margin-right: 4px; text-align: left; }
-.pijanka-info p.status-text {
-    font-size: 13px; color: #a0a0a0; margin: 0; padding: 0;
-    text-align: left; width: 100%; white-space: nowrap;
-}
-.delete-btn {
-    background: none; border: none; font-size: 14px;
-    padding: 2px; margin-left: auto; cursor: pointer; color: #777;
-    flex-shrink: 0; line-height: 1; display: flex;
-    justify-content: center; align-items: center;
-    width: 24px; height: 24px; border-radius: 50%;
-}
-.pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
-
-.chat-item {
-    background: #282828; padding: 12px; border-radius: 10px;
-    margin: 0 auto 10px auto; display: flex; align-items: center;
-    gap: 12px; border-left: 3px solid #333;
-    width: 100%; max-width: 600px; box-sizing: border-box;
-}
-.chat-item img {
-    width: 45px; height: 45px; border-radius: 50%;
-    object-fit: cover; flex-shrink: 0;
+input, textarea, button, .btn-full {
+    width: 100%;
+    max-width: 500px; /* Forme i gumbi neće biti preširoki na PC-u */
+    margin-left: auto;
+    margin-right: auto;
 }
 
-/* ISPRAVAK: Bolje poravnanje poruka u chatu */
+/* ISPRAVAK: Stil za gumbe na stranici s postavkama */
+.btn-full {
+    display: block;
+    padding: 14px;
+    margin-bottom: 15px;
+    border: 1px solid #333;
+    background: #252525;
+    color: #f0f0f0;
+    border-radius: 8px;
+    font-size: 16px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.2s ease-in-out;
+}
+.btn-full:hover {
+    background: #3a3a3a;
+    transform: translateY(-2px);
+    border-color: #555;
+}
+
+/* === CHAT === */
+#privatniChat {
+    justify-content: flex-start; 
+    align-items: stretch;
+}
+.chat-header-info {
+    text-align: center; margin-bottom: 10px;
+    flex-shrink: 0; padding-top: 40px;
+}
+.chat-input-area {
+    display: flex; flex-direction: column; align-items: stretch; 
+    padding-top: 10px; margin-top: auto; flex-shrink: 0;
+    width: 100%; max-width: 800px;
+    margin-left: auto; margin-right: auto;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
 #privatniChatLog {
-    flex-grow: 1;
-    overflow-y: auto;
     width: 100%;
     padding: 10px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
 }
+/* ISPRAVAK: Centriranje i poravnanje poruka */
 #privatniChatLog p {
-    display: flex; /* Ovo omogućava poravnanje s justify-content */
+    display: flex;
     width: 100%;
-    margin: 0 auto;
-    max-width: 800px; /* Širina bloka poruka na PC-u */
+    padding: 0 10px; /* Mali odmak od rubova */
+    margin: 0 auto 8px auto;
+    max-width: 800px;
 }
 #privatniChatLog p.moja-poruka {
-    justify-content: flex-end; /* Gura poruku na desnu stranu */
+    justify-content: flex-end;
 }
 #privatniChatLog p.tudja-poruka {
-    justify-content: flex-start; /* Drži poruku na lijevoj strani */
+    justify-content: flex-start;
 }
 #privatniChatLog p > span {
-    display: inline-block;
-    padding: 8px 12px;
-    border-radius: 15px;
-    max-width: 75%; /* Poruka ne može biti šira od 75% kontejnera */
+    max-width: 75%;
+    padding: 10px 15px;
+    border-radius: 18px;
+    line-height: 1.4;
+    text-align: left;
     word-wrap: break-word;
-    font-size: 14px;
-    text-align: left; /* Tekst unutar poruke je uvijek lijevo poravnat */
 }
-#privatniChatLog p.moja-poruka > span {
-    background: #ff4757;
-    color: white;
+#privatniChatLog p.moja-poruka > span { background: #ff4757; color: white; border-bottom-right-radius: 5px; }
+#privatniChatLog p.tudja-poruka > span { background: #3a3a3a; color: #f0f0f0; border-bottom-left-radius: 5px; }
+
+
+/* === Ostali stilovi (uglavnom nepromijenjeni) === */
+h1, h2 {
+    text-align: center; color: #ff4757; margin-bottom: 20px;
+    font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%;
 }
-#privatniChatLog p.tudja-poruka > span {
-    background: #3a3a3a;
-    color: #f0f0f0;
+p { margin-bottom: 12px; color: #b0b0b0; width: 100%; }
+.profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 15px;}
+.pijanka {
+    background: #282828; padding: 15px; border-radius: 10px;
+    margin: 0 auto 15px auto; display: flex; flex-direction: column;
+    border-left: 3px solid #ff4757; width: 100%; max-width: 600px;
 }
+.pijanka-header { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 8px; border-bottom: 1px solid #333; margin-bottom: 8px; }
+.pijanka-profilna-slika { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #ff4757; flex-shrink: 0; }
+.pijanka-info { flex-grow: 1; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
+.pijanka-info > div { display: flex; align-items: center; }
+.pijanka-info strong { font-size: 18px; }
+.status-text { font-size: 13px; color: #999; margin-top: 2px;}
+.pijanka-opis p { margin-bottom: 0; }
+.delete-btn { margin-left: auto; }
+.chat-item {
+    background: #282828; padding: 12px; border-radius: 10px; margin: 0 auto 10px auto;
+    display: flex; align-items: center; gap: 12px; border-left: 3px solid #333;
+    width: 100%; max-width: 600px; cursor: pointer;
+}
+.chat-item img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
+.chat-item-info { flex-grow: 1; text-align: left; }
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.status-dot.online { background-color: #2ecc71; }
+.status-dot.offline { background-color: #7f8c8d; }
 
 #splashScreen {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: #111111; display: flex; justify-content: center;
-    align-items: center; z-index: 9999; opacity: 1; visibility: visible;
+    align-items: center; z-index: 9999;
 }
-#splashScreen h1 {
-    font-size: 4em; color: #ff4757;
-    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6);
-    letter-spacing: 4px; text-transform: uppercase;
-    animation: bounceIn 1.5s ease-out forwards;
-}
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+#splashScreen h1 { font-size: 4em; color: #ff4757; animation: bounceIn 1.5s ease-out forwards; }
+@keyframes bounceIn { 0% { transform: scale(0.1); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
 @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-@keyframes bounceIn {
-    0% { transform: scale(0.1); opacity: 0; }
-    60% { transform: scale(1.1); opacity: 1; }
-    100% { transform: scale(1); }
-}
 @keyframes fadeOutSplash { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
