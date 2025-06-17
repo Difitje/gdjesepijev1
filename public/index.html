@@ -88,11 +88,11 @@
         <h2>Trenutno pije:</h2>
         <div id="pijankePregled"></div>
         
-    <button id="fabObjaviPijanku" class="fab" onclick="pokaziObjavu()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-    </button>
+        <button id="fabObjaviPijanku" class="fab" onclick="pokaziObjavu()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+        </button>
     </div>
 
     <div class="container" id="inboxPrikaz">
@@ -126,11 +126,14 @@
         </div>
         <div id="privatniChatLog" class="chat"></div>
         <div class="chat-input-area">
-            <textarea id="privatniInput" placeholder="Upiši poruku..." rows="2"></textarea>
-            <button id="posaljiPrivatnoBtn" onclick="posaljiPrivatno()">Pošalji</button>
+            <textarea id="privatniInput" placeholder="Poruka..." rows="1"></textarea>
+            <button id="posaljiPrivatnoBtn" onclick="posaljiPrivatno()" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+                </svg>
+            </button>
         </div>
     </div>
-    
     <div class="container" id="editProfil">
         <div class="top-nav-buttons">
             <button class="back-button" onclick="zatvoriEkran('editProfil', 'glavniDio')">←</button>

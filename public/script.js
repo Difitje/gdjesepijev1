@@ -1,4 +1,4 @@
-// public/script.js - VERZIJA S POPRAVLJENIM RASPOREDOM TEKSTA
+// public/script.js - VERZIJA S REDIZAJNIRANIM CHATOM
 
 // Globalne varijale
 let trenutniKorisnik = null;
@@ -53,6 +53,7 @@ function compressImage(base64Image, maxWidth = 400, quality = 0.8) {
 }
 
 window.addEventListener('DOMContentLoaded', async function() {
+    // ... (postojeći kod odavde do kraja inicijalizacije)
     localStorage.removeItem("loggedInUserId");
     const token = localStorage.getItem("token");
     const splashScreen = document.getElementById('splashScreen');
@@ -140,7 +141,10 @@ function zatvoriEkran(trenutniEkranId, povratniEkranId) {
     if (trenutniEkranId === 'privatniChat') {
         if (chatStatusInterval) clearInterval(chatStatusInterval);
         trenutniChatPartnerId = null;
-        document.getElementById("privatniInput").value = "";
+        const privatniInput = document.getElementById("privatniInput");
+        privatniInput.value = "";
+        privatniInput.style.height = 'auto'; // Resetiraj visinu
+        document.getElementById('posaljiPrivatnoBtn').classList.remove('enabled');
     }
     azurirajNotifikacije();
 }
@@ -171,6 +175,7 @@ async function globalRefreshUI() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Postojeći listeneri
     const slikaUploadEl = document.getElementById("slikaUpload");
     if (slikaUploadEl) {
         slikaUploadEl.addEventListener("change", function() {
@@ -193,6 +198,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const editSlikaUploadEl = document.getElementById("editSlikaUpload");
     if (editSlikaUploadEl) {
         editSlikaUploadEl.addEventListener("change", handleEditSlikaUploadChange);
+    }
+    
+    // NOVA LOGIKA ZA CHAT INPUT
+    const privatniInput = document.getElementById('privatniInput');
+    const posaljiBtn = document.getElementById('posaljiPrivatnoBtn');
+    
+    if (privatniInput && posaljiBtn) {
+        privatniInput.addEventListener('input', () => {
+            // Automatsko mijenjanje visine
+            privatniInput.style.height = 'auto';
+            privatniInput.style.height = `${privatniInput.scrollHeight}px`;
+
+            // Prikaz/skrivanje gumba za slanje
+            if (privatniInput.value.trim().length > 0) {
+                posaljiBtn.disabled = false;
+                posaljiBtn.classList.add('enabled');
+            } else {
+                posaljiBtn.disabled = true;
+                posaljiBtn.classList.remove('enabled');
+            }
+        });
     }
 });
 
@@ -491,7 +517,6 @@ function prikaziPijankePregled() {
         const autor = sviKorisnici.find(u => u.id === pijanka.korisnikId);
         if (!autor) return;
         const status = formatirajStatus(autor.lastActive);
-        // IZMIJENJENA STRUKTURA ZA BOLJI RASPORED
         div.innerHTML += `
             <div class="pijanka" onclick="otvoriProfil('${autor.id}')">
                 <div class="pijanka-header">
@@ -598,7 +623,6 @@ function otvoriInbox(fromScreen) {
         if (!partner) return;
         const neprocitane = privatnePoruke[chatKey].some(m => !m.isRead && m.autorId == partner.id);
         const status = formatirajStatus(partner.lastActive);
-        // IZMIJENJENA STRUKTURA ZA BOLJI RASPORED
         div.innerHTML += `
             <div class="chat-item" onclick="pokreniPrivatniChat('${partner.id}', 'inboxPrikaz')">
                 <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
@@ -643,25 +667,32 @@ async function pokreniPrivatniChat(partnerId, saEkrana) {
     prikaziPrivatniLog();
 }
 
+// AŽURIRANA FUNKCIJA - resetira visinu polja i gumb nakon slanja
 async function posaljiPrivatno() {
     const privatniInput = document.getElementById("privatniInput");
     const tekst = privatniInput.value.trim();
     if (!tekst || !trenutniChatPartnerId) return;
+    
     const posaljiBtn = document.getElementById('posaljiPrivatnoBtn');
     posaljiBtn.disabled = true;
+
     try {
         await authenticatedFetch('/api/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ receiverId: trenutniChatPartnerId, content: tekst })
         });
-        privatniInput.value = "";
+        
+        privatniInput.value = ""; // Očisti polje
+        privatniInput.style.height = 'auto'; // Resetiraj visinu
+        posaljiBtn.classList.remove('enabled'); // Sakrij gumb
+        
         await dohvatiSvePoruke();
         prikaziPrivatniLog();
     } catch (error) {
         alert("Došlo je do greške pri slanju poruke.");
     } finally {
-        posaljiBtn.disabled = false;
+        // Omogućavanje gumba se sada vrši preko 'input' eventa
     }
 }
 
