@@ -21,7 +21,7 @@
             <button onclick="swap('intro', 'odabir')">Pridruži se</button>
         </div>
         <div class="container centered" id="pravilaEkran">
-            <button class="back-button" onclick="swap('pravilaEkran', 'odabir')">←</button>
+            <button class="back-button-auth" onclick="swap('pravilaEkran', 'odabir')">←</button>
             <h2>Pravila korištenja</h2>
             <div class="pravila-text">
                  <p>Dobrodošli! Prije nego što nastavite, molimo vas da pažljivo pročitate i prihvatite sljedeća pravila:</p>
@@ -44,14 +44,14 @@
             <button onclick="swap('odabir', 'pravilaEkran')">Registracija</button>
         </div>
         <div class="container centered" id="login">
-            <button class="back-button" onclick="swap('login', 'odabir')">←</button>
+            <button class="back-button-auth" onclick="swap('login', 'odabir')">←</button>
             <h2>Prijava</h2>
             <input id="loginIme" placeholder="Korisničko ime" />
             <input id="loginSifra" type="password" placeholder="Lozinka" />
             <button id="loginSubmitBtn" onclick="ulogujSe()">Prijavi se</button>
         </div>
         <div class="container centered" id="registracija">
-            <button class="back-button" onclick="swap('registracija', 'pravilaEkran')">←</button>
+            <button class="back-button-auth" onclick="swap('registracija', 'pravilaEkran')">←</button>
             <h2>Registracija</h2>
             <input id="ime" placeholder="Korisničko ime" />
             <input id="sifra" type="password" placeholder="Lozinka" />

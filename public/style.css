@@ -8,13 +8,11 @@
     --header-height: 60px;
     --footer-height: 75px;
 }
-
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
-
 html, body {
     height: 100%;
     width: 100%;
@@ -23,7 +21,6 @@ html, body {
     color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
-
 #appWrapper {
     height: 100%;
     width: 100%;
@@ -32,8 +29,6 @@ html, body {
     justify-content: center;
     align-items: center;
 }
-
-/* Ekrani za Auth i Glavni App */
 .container {
     display: none;
     opacity: 0;
@@ -58,7 +53,7 @@ html, body {
     justify-content: center;
     align-items: center;
     transform: scale(0.95);
-    position: relative; /* Važno za pozicioniranje back-buttona */
+    position: relative;
 }
 .container.fullscreen {
     width: 100%;
@@ -72,6 +67,8 @@ html, body {
 .splash {
     background: #111;
     z-index: 9999;
+    width: 100%;
+    height: 100%;
 }
 .splash.active-screen {
     display: flex;
@@ -282,13 +279,22 @@ input:focus, textarea:focus {
     padding-right: 10px;
     text-align: left;
 }
-.container.centered .back-button {
+.back-button-auth {
     position: absolute;
     top: 25px;
     left: 25px;
+    background: none !important;
+    border: none !important;
+    color: #fff !important;
+    font-size: 24px !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    cursor: pointer;
+    text-transform: none !important;
 }
 .container.centered > h2 {
-    padding: 0 40px; /* Dodaje prostor da naslov ne ide ispod back buttona */
+    padding: 0 40px; 
     text-align: center;
 }
 #registracija label {
