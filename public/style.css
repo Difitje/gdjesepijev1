@@ -1,4 +1,4 @@
-/* public/style.css - KONAČNA VERZIJA 3 - Balansirani PC Prikaz + Ispravak pozicije teksta */
+/* public/style.css - KONAČNA VERZIJA 4 - Full-width pozadina sa centriranim sadržajem */
 
 * {
     box-sizing: border-box;
@@ -46,28 +46,29 @@ body {
 }
 
 /* ================================================================ */
-/* STILOVI ZA PC (Veliki ekrani) - VRAĆEN CENTRIRANI IZGLED */
+/* STILOVI ZA PC - FULL-WIDTH POZADINA, CENTRIRAN SADRŽAJ */
 /* ================================================================ */
 @media (min-width: 768px) {
     body {
         overflow-y: auto;
-        /* Dodajemo padding na body da kontejner ne bude zalijepljen za vrh */
+        /* KLJUČNA PROMJENA: Body dobiva tamnu pozadinu aplikacije */
+        background: #1e1e1e;
         padding: 40px 20px;
     }
     .container {
         position: relative;
         width: 100%;
-        max-width: 1200px; /* Širi, ali i dalje ograničen prikaz za PC */
+        max-width: 1200px; /* Sadržaj ostaje na "dobroj veličini" */
         height: auto;
         min-height: 80vh;
+        margin: 0 auto;
         
-        margin: 0 auto; /* Automatske margine za centriranje */
+        /* KLJUČNA PROMJENA: Kontejner postaje proziran i bez granica/sjene */
+        background: transparent;
+        border: none;
+        box-shadow: none;
         
-        /* Vraćamo elegantni izgled prozora za PC */
         padding: 40px;
-        border: 1px solid #2a2a2a;
-        border-radius: 24px;
-        box-shadow: 0 10px 40px rgba(0,0,0, 0.5);
     }
 
     #objavaForma, #profilKorisnika, .chat-input-area {
@@ -84,15 +85,19 @@ body {
 }
 
 /* ================================================================ */
-/* STILOVI ZA MOBITEL (Uski ekrani) - Fiksni prikaz */
+/* STILOVI ZA MOBITEL - Originalni izgled ostaje netaknut */
 /* ================================================================ */
 @media (max-width: 767px) {
     body {
         overflow: hidden;
+        /* Vraćamo originalnu pozadinu za body na mobitelu */
+        background: linear-gradient(170deg, #111111 0%, #0d0d0d 100%);
     }
     .container {
         position: absolute;
         padding: 20px;
+        /* Kontejner na mobitelu ima svoju tamnu pozadinu */
+        background: #1e1e1e; 
         border-radius: 0;
         border: none;
         box-shadow: none;
@@ -457,7 +462,6 @@ img.preview-slika {
     margin-right: 4px;
     text-align: left;
 }
-/* ISPRAVAK: Osigurava da status tekst ide u novi red */
 .pijanka-info p.status-text {
     font-size: 13px;
     color: #a0a0a0;
