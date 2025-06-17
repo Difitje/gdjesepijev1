@@ -1,4 +1,4 @@
-/* public/style.css - KONAČNA VERZIJA 5 - Balansirani i polirani izgled na PC-u */
+/* public/style.css - KONAČNA VERZIJA 6 - Premium Dizajn */
 
 * {
     box-sizing: border-box;
@@ -46,7 +46,7 @@ body {
 }
 
 /* ================================================================ */
-/* STILOVI ZA PC - BALANSIRANI IZGLED */
+/* STILOVI ZA PC */
 /* ================================================================ */
 @media (min-width: 768px) {
     body {
@@ -56,7 +56,7 @@ body {
     .container {
         position: relative;
         width: 100%;
-        max-width: 1200px; /* Veličina koja Vam se svidjela */
+        max-width: 1200px;
         height: auto;
         min-height: 80vh;
         margin: 0 auto;
@@ -66,31 +66,27 @@ body {
         border-radius: 24px;
         box-shadow: 0 10px 40px rgba(0,0,0, 0.5);
     }
-
-    /* BALANSIRANJE: Ograničavanje širine i centriranje specifičnih elemenata */
     #objavaForma, #profilKorisnika, .chat-input-area,
     #login > input, #login > button,
     #registracija > input, #registracija > textarea, #registracija > button, #registracija > label, #registracija > img,
     #editProfil > input, #editProfil > textarea, #editProfil > button, #editProfil > label, #editProfil > div {
         width: 100%;
-        max-width: 600px; /* Maksimalna širina za forme i profile */
+        max-width: 600px;
         margin-left: auto;
         margin-right: auto;
     }
-    /* Za elemente koji su direktno u flex kontejneru */
     #login, #registracija, #editProfil {
         align-items: center;
     }
-
     #privatniChatLog p {
-        max-width: 800px; /* Chat poruke mogu biti malo šire */
+        max-width: 800px;
         margin-left: auto;
         margin-right: auto;
     }
 }
 
 /* ================================================================ */
-/* STILOVI ZA MOBITEL - Fiksni prikaz */
+/* STILOVI ZA MOBITEL */
 /* ================================================================ */
 @media (max-width: 767px) {
     body {
@@ -104,18 +100,18 @@ body {
         box-shadow: none;
     }
     #lokacijePrikaz {
-        padding-top: 70px; /* Mjesto za fiksiranu gornju traku */
+        padding-top: 70px;
     }
 }
 
-/* === HEADER I FAB STILOVI === */
+/* === POBOLJŠANI HEADER I FAB STILOVI === */
 .main-header {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 60px;
-    padding: 0 15px;
+    padding: 0 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -128,29 +124,37 @@ body {
         position: relative;
         border-radius: 24px 24px 0 0;
         margin: -40px -40px 20px -40px;
-        padding: 0 40px;
+        padding: 0 30px;
         height: 70px;
         background-color: #222222;
     }
 }
 .header-icon {
-    background: none;
+    background: transparent;
     border: none;
     cursor: pointer;
-    padding: 5px;
     position: relative;
-    width: auto;
-    height: auto;
+    width: 44px;
+    height: 44px;
     margin: 0;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s ease-in-out;
+}
+.header-icon:hover {
+    background-color: rgba(255, 255, 255, 0.08);
 }
 .header-icon svg {
-    fill: #f0f0f0;
-    width: 28px;
-    height: 28px;
-    transition: fill 0.2s ease;
+    stroke: #e0e0e0;
+    width: 26px;
+    height: 26px;
+    stroke-width: 1.5;
+    transition: stroke 0.2s ease;
 }
 .header-icon:hover svg {
-    fill: #ff4757;
+    stroke: #ff4757;
 }
 .main-logo {
     color: #f0f0f0;
@@ -163,8 +167,8 @@ body {
 }
 .notification-badge-main {
     position: absolute;
-    top: 2px;
-    right: 2px;
+    top: 5px;
+    right: 5px;
     background-color: #e74c3c;
     color: white;
     border-radius: 50%;
@@ -183,21 +187,29 @@ body {
     right: 30px;
     width: 60px;
     height: 60px;
-    background: linear-gradient(45deg, #ff4757, #e03f4d);
+    background: linear-gradient(135deg, #ff6b6b, #ff4757);
     border-radius: 50%;
     border: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    color: white;
-    font-size: 36px;
-    line-height: 56px;
-    text-align: center;
+    box-shadow: 0px 5px 15px rgba(255, 71, 87, 0.3), 0px 2px 5px rgba(0, 0, 0, 0.2);
     cursor: pointer;
     z-index: 1000;
-    transition: all 0.2s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background 0.2s ease-in-out;
 }
 .fab:hover {
-    transform: scale(1.05) rotate(90deg);
-    box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0px 8px 20px rgba(255, 71, 87, 0.4), 0px 4px 8px rgba(0, 0, 0, 0.25);
+    background: linear-gradient(135deg, #ff7979, #ff5262);
+}
+.fab:active {
+    transform: translateY(-1px) scale(1);
+    box-shadow: 0px 5px 15px rgba(255, 71, 87, 0.3), 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+.fab svg {
+    width: 30px;
+    height: 30px;
 }
 @media (min-width: 768px) {
     .fab {
@@ -310,7 +322,6 @@ p {
     margin-bottom: 15px;
 }
 
-/* === NOVI STILOVI ZA GUMBE NA PROFILU === */
 .profil-actions {
     display: flex;
     flex-direction: column;
@@ -329,8 +340,6 @@ p {
     background: #c0392b;
     box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3);
 }
-/* ========================================= */
-
 
 input, textarea, button {
     width: 100%; padding: 12px; margin-bottom: 12px;
