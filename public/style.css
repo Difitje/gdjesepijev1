@@ -1,4 +1,4 @@
-/* public/style.css - VERZIJA 7 - Luksuzni gumb i ispravak navigacije */
+/* public/style.css - VERZIJA 8 - Twitter-like FAB */
 
 * {
     box-sizing: border-box;
@@ -175,42 +175,35 @@ body {
     border: 2px solid #1a1a1a;
 }
 
-/* === LUKSUZNI FAB STIL === */
+/* === JEDNOSTAVNIJI 'TWITTER-LIKE' FAB STIL === */
 .fab {
     position: fixed;
     bottom: 30px;
     right: 30px;
     width: 60px;
     height: 60px;
-    background: radial-gradient(circle at 50% 0%, #ff8a8a, #ff4757 70%);
+    background: linear-gradient(45deg, #ff4757, #e03f4d);
     border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0px 8px 25px rgba(255, 71, 87, 0.4),
-                inset 0 1px 1px rgba(255, 255, 255, 0.3),
-                inset 0 -1px 1px rgba(0, 0, 0, 0.2);
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     cursor: pointer;
     z-index: 1000;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    transition: all 0.3s ease-in-out;
 }
 .fab:hover {
-    transform: translateY(-4px) scale(1.1);
-    box-shadow: 0px 12px 30px rgba(255, 71, 87, 0.5),
-                inset 0 1px 1px rgba(255, 255, 255, 0.3),
-                inset 0 -1px 1px rgba(0, 0, 0, 0.2);
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5);
 }
 .fab:active {
-    transform: translateY(-1px) scale(1.05);
-    box-shadow: 0px 5px 15px rgba(255, 71, 87, 0.3),
-                inset 0 1px 1px rgba(255, 255, 255, 0.3),
-                inset 0 -1px 1px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05) rotate(90deg);
 }
 .fab svg {
-    width: 32px;
-    height: 32px;
-    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
+    width: 30px;
+    height: 30px;
+    color: #ffffff;
 }
 @media (min-width: 768px) {
     .fab {
