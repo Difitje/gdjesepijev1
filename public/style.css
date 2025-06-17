@@ -31,9 +31,10 @@ html, body {
     display: none;
     opacity: 0;
     position: absolute;
-    top: 0; left: 0; /* Svi kontejneri su na istom mjestu */
+    top: 0; left: 0;
     width: 100%; height: 100%;
     transition: opacity 0.3s ease-in-out;
+    background-color: var(--background-dark);
 }
 .container.active-screen {
     display: flex;
@@ -48,22 +49,22 @@ html, body {
 }
 .container.centered > * {
     max-width: 400px;
-    width: 95%;
+    width: 100%;
 }
 .container.fullscreen {
     flex-direction: column;
     justify-content: flex-start;
     padding: 0;
-    background-color: var(--background-dark);
 }
 .splash {
     background: #111;
     z-index: 9999;
+    justify-content: center;
+    align-items: center;
 }
 .splash.active-screen {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    opacity: 1;
 }
 
 /* Header */
@@ -213,7 +214,9 @@ html, body {
 }
 
 /* Auth ekrani - opći stilovi */
-input, textarea, button {
+.container.centered input, 
+.container.centered textarea, 
+.container.centered button {
     width: 100%;
     padding: 14px;
     margin-bottom: 12px;
@@ -225,7 +228,8 @@ input, textarea, button {
     font-family: inherit;
     transition: all 0.2s ease-in-out;
 }
-input:focus, textarea:focus {
+.container.centered input:focus, 
+.container.centered textarea:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
@@ -246,8 +250,8 @@ input:focus, textarea:focus {
 .container.centered button:not([disabled]):active {
     transform: scale(0.98);
 }
-.form-button { /* Za gumbe unutar dinamičkog sadržaja */
-     background: linear-gradient(45deg, #ff4757, #e03f4d);
+.form-button { 
+    background: linear-gradient(45deg, #ff4757, #e03f4d);
     cursor: pointer;
     border: none;
     font-weight: bold;
@@ -278,6 +282,9 @@ input:focus, textarea:focus {
     overflow-y: auto;
     padding-right: 10px;
     text-align: left;
+    background: #111;
+    padding: 15px;
+    border-radius: 8px;
 }
 .back-button-auth {
     position: absolute;
