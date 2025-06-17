@@ -80,6 +80,11 @@ html, body {
     color: var(--primary-color);
     margin-bottom: 25px;
 }
+
+/* === IZMJENE SU OVDJE === */
+
+/* 1. Uklonjeno pravilo koje je stvaralo problem */
+/*
 .container.centered .back-button {
     position: absolute;
     top: 20px;
@@ -88,6 +93,38 @@ html, body {
     font-size: 24px;
     background: none; border: none; cursor: pointer;
 }
+*/
+
+/* 2. Dodano novo pravilo za ispravno zaglavlje forme */
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.form-header .back-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-primary);
+    font-size: 24px;
+    width: 40px; /* Fiksna širina radi poravnanja naslova */
+    padding: 0;
+    margin: 0;
+    text-align: left;
+}
+
+.form-header h2 {
+    color: var(--primary-color);
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+}
+
+/* === KRAJ IZMJENA === */
+
 
 .main-header {
     display: flex;

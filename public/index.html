@@ -7,29 +7,28 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <!-- Omotač za sve ekrane -->
     <div id="appWrapper">
-        <!-- Splash Screen -->
         <div class="container splash" id="splashScreen">
             <h1>DRINKER</h1>
         </div>
 
-        <!-- AUTH EKRANI -->
         <div class="container centered" id="intro">
             <h2>🍻 Dosadno vam je?</h2>
             <p style="text-align:center;">Pridruži se ekipi koja zna kako se loče!</p>
             <button onclick="swap('intro', 'odabir')">Pridruži se</button>
         </div>
         <div class="container centered" id="pravilaEkran">
-            <button class="back-button" onclick="swap('pravilaEkran', 'odabir')">←</button>
-            <h2>Pravila korištenja</h2>
+            <div class="form-header">
+                <button class="back-button" onclick="swap('pravilaEkran', 'odabir')">←</button>
+                <h2>Pravila korištenja</h2>
+                <div style="width: 40px;"></div> </div>
             <div class="pravila-text">
                  <p>Dobrodošli! Prije nego što nastavite, molimo vas da pažljivo pročitate i prihvatite sljedeća pravila:</p>
-                <p><strong>1. Punoljetnost:</strong> Morate imati najmanje 18 godina da biste koristili ovu aplikaciju.</p>
-                <p><strong>2. Poštovanje:</strong> Ponašajte se prema drugima s poštovanjem. Bilo kakav oblik uznemiravanja, govora mržnje ili nasilnog ponašanja nije dozvoljen i rezultirat će trajnom zabranom.</p>
-                <p><strong>3. Sigurnost na prvom mjestu:</strong> Kada se sastajete s drugim korisnicima, činite to na javnim i sigurnim mjestima. Obavijestite prijatelja gdje idete. Budite odgovorni.</p>
-                <p><strong>4. Zakonitost:</strong> Zabranjeno je organiziranje ili promoviranje bilo kakvih ilegalnih aktivnosti putem ove platforme.</p>
-                <p><strong>Odricanje od odgovornosti:</strong> Ova aplikacija je samo platforma za povezivanje. Mi, kao kreatori, nismo odgovorni za ponašanje korisnika, niti za bilo kakve direktne ili indirektne posljedice, štete ili povrede koje mogu nastati kao rezultat korištenja aplikacije. Koristite je na vlastitu odgovornost.</p>
+                 <p><strong>1. Punoljetnost:</strong> Morate imati najmanje 18 godina da biste koristili ovu aplikaciju.</p>
+                 <p><strong>2. Poštovanje:</strong> Ponašajte se prema drugima s poštovanjem. Bilo kakav oblik uznemiravanja, govora mržnje ili nasilnog ponašanja nije dozvoljen i rezultirat će trajnom zabranom.</p>
+                 <p><strong>3. Sigurnost na prvom mjestu:</strong> Kada se sastajete s drugim korisnicima, činite to na javnim i sigurnim mjestima. Obavijestite prijatelja gdje idete. Budite odgovorni.</p>
+                 <p><strong>4. Zakonitost:</strong> Zabranjeno je organiziranje ili promoviranje bilo kakvih ilegalnih aktivnosti putem ove platforme.</p>
+                 <p><strong>Odricanje od odgovornosti:</strong> Ova aplikacija je samo platforma za povezivanje. Mi, kao kreatori, nismo odgovorni za ponašanje korisnika, niti za bilo kakve direktne ili indirektne posljedice, štete ili povrede koje mogu nastati kao rezultat korištenja aplikacije. Koristite je na vlastitu odgovornost.</p>
             </div>
             <div class="pravila-checkbox-wrapper">
                 <input type="checkbox" id="prihvatamPravila" onchange="proveriPrihvatanje()">
@@ -44,15 +43,19 @@
             <button onclick="swap('odabir', 'pravilaEkran')">Registracija</button>
         </div>
         <div class="container centered" id="login">
-            <button class="back-button" onclick="swap('login', 'odabir')">←</button>
-            <h2>Prijava</h2>
+            <div class="form-header">
+                <button class="back-button" onclick="swap('login', 'odabir')">←</button>
+                <h2>Prijava</h2>
+                <div style="width: 40px;"></div> </div>
             <input id="loginIme" placeholder="Korisničko ime" />
             <input id="loginSifra" type="password" placeholder="Lozinka" />
             <button id="loginSubmitBtn" onclick="ulogujSe()">Prijavi se</button>
         </div>
         <div class="container centered" id="registracija">
-            <button class="back-button" onclick="swap('registracija', 'pravilaEkran')">←</button>
-            <h2>Registracija</h2>
+             <div class="form-header">
+                <button class="back-button" onclick="swap('registracija', 'pravilaEkran')">←</button>
+                <h2>Registracija</h2>
+                <div style="width: 40px;"></div> </div>
             <input id="ime" placeholder="Korisničko ime" />
             <input id="sifra" type="password" placeholder="Lozinka" />
             <label>Profilna slika:</label>
@@ -64,7 +67,6 @@
             <button id="registracijaSubmitBtn" onclick="registruj()">Spremi</button>
         </div>
         
-        <!-- GLAVNI EKRAN APLIKACIJE -->
         <div class="container fullscreen" id="lokacijePrikaz">
             <header class="main-header">
                 <div class="header-left">
@@ -92,17 +94,14 @@
             </footer>
         </div>
 
-        <!-- EKRAN ZA INBOX -->
         <div class="container fullscreen" id="inboxPrikaz">
             <header class="main-header">
                 <button class="back-button" onclick="zatvoriEkran('inboxPrikaz')">←</button>
                 <h2 class="header-title-text">Poruke</h2>
-                <div style="width: 40px;"></div><!-- Prazan div za poravnanje -->
-            </header>
+                <div style="width: 40px;"></div></header>
             <main class="content-area" id="listaChatova"></main>
         </div>
 
-        <!-- EKRAN ZA PROFIL, OBJAVU, EDIT PROFILA -->
         <div class="container fullscreen" id="genericScreen">
             <header class="main-header">
                  <button class="back-button" onclick="zatvoriEkran('genericScreen')">←</button>
@@ -112,7 +111,6 @@
             <main class="content-area" id="genericScreenContent"></main>
         </div>
 
-        <!-- EKRAN ZA PRIVATNI CHAT -->
         <div class="container fullscreen" id="privatniChat">
             <header class="main-header">
                 <button class="back-button" onclick="zatvoriEkran('privatniChat')">←</button>
