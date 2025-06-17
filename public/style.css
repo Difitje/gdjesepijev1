@@ -535,3 +535,15 @@ img.preview-slika {
     from { opacity: 1; }
     to { opacity: 0; visibility: hidden; }
 }
+/*
+ * ISPRAVAK: Stil za liniju ispod pijanke
+ * Ovo vraća originalni stil za separator liniju.
+*/
+.pijanka-separator {
+    border: none;
+    border-top: 1px dashed #444; /* Tamno siva isprekidana linija */
+    margin: 12px auto;
+    width: 70%;
+    background-color: transparent;
+    height: 1px;
+}
