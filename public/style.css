@@ -29,6 +29,7 @@ html, body {
     justify-content: center;
     align-items: center;
 }
+/* EKRANI (Containers) */
 .container {
     display: none;
     opacity: 0;
@@ -53,7 +54,7 @@ html, body {
     justify-content: center;
     align-items: center;
     transform: scale(0.95);
-    position: relative;
+    position: relative; /* Važno za pozicioniranje back-buttona */
 }
 .container.fullscreen {
     width: 100%;
@@ -89,9 +90,10 @@ html, body {
 }
 .header-side {
     flex: 1;
+    display: flex;
+    align-items: center;
 }
 .header-side.right {
-    display: flex;
     justify-content: flex-end;
 }
 .header-center {
@@ -296,6 +298,8 @@ input:focus, textarea:focus {
 .container.centered > h2 {
     padding: 0 40px; 
     text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 25px;
 }
 #registracija label {
     font-size: 14px;

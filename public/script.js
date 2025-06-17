@@ -124,7 +124,7 @@ function zatvoriEkran(trenutniEkranId) {
 // --- Glavne Funkcije Aplikacije ---
 function pokreniAplikaciju() {
     document.querySelectorAll('.container').forEach(el => {
-        el.classList.remove('active-screen');
+        if(el.id !== 'lokacijePrikaz') el.classList.remove('active-screen');
     });
     swap(null, 'lokacijePrikaz');
     
