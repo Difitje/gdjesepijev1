@@ -5,18 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gdje se pije? (beta) </title>
     <link rel="stylesheet" href="/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
-    <header id="noviHeader">
-        <div id="profilIcon" class="header-icon"><i class="fas fa-user"></i></div>
-        <div class="logo-container">LOCALO</div>
-        <div id="porukeIcon" class="header-icon">
-            <i class="fas fa-inbox"></i>
-            <span id="notifikacijaPorukaHeader" class="notification-badge"></span>
-        </div>
-    </header>
-
     <div id="splashScreen">
         <h1>DRINKER</h1>
     </div>
@@ -73,6 +63,10 @@
     <div class="container" id="lokacijePrikaz">
         <h2>🍺 Trenutno pije:</h2>
         <div id="pijankePregled"></div>
+        <div class="controls-bottom">
+            <button id="objaviPijankuBtn" class="action-icon large-action-icon" onclick="pokaziObjavu()">🍺</button>
+            <button id="settingsBtn" class="action-icon" onclick="pokaziPostavkeEkran()">⚙️</button>
+        </div>
     </div>
 
     <div class="container" id="inboxPrikaz">
@@ -80,18 +74,11 @@
         <div id="listaChatova"></div>
     </div>
 
-    <div class="container" id="profilMeni">
-        <button class="back-button left-aligned" onclick="zatvoriEkran('profilMeni', prethodniEkran || 'lokacijePrikaz')">←</button> <h2>Moj Profil</h2>
-        <a href="#" class="btn-full" onclick="prikaziEditProfila(); return false;">Uredi Profil</a>
-        <a href="#" class="btn-full" onclick="odjaviSe(); return false;" id="odjaviSeBtn">Odjavi se</a>
-    </div>
-
-    <div class="container" id="postavkeEkran" style="display:none !important;">
+    <div class="container" id="postavkeEkran">
         <button class="back-button left-aligned" onclick="zatvoriEkran('postavkeEkran', 'lokacijePrikaz')">←</button> <h2>Postavke</h2>
         <a href="#" class="btn-full" onclick="prikaziInbox(); return false;">Poruke <span id="notifikacijaPorukaSettings" class="notification-badge"></span></a>
         <a href="#" class="btn-full" onclick="prikaziEditProfila(); return false;">Moj profil</a>
-        <a href="#" class="btn-full" onclick="odjaviSe(); return false;" id="odjaviSeBtn">Odjavi se</a>
-    </div>
+        <a href="#" class="btn-full" onclick="odjaviSe(); return false;" id="odjaviSeBtn">Odjavi se</a> </div>
 
     <div class="container" id="glavniDio">
         <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">←</button> <button class="close-btn right-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">✖</button> </div>
@@ -126,12 +113,6 @@
         <input type="file" id="editSlikaUpload" accept="image/*" />
         <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
     </div>
-
-    <footer id="noviFooter">
-        <button id="novaObjavaBtn" class="publish-btn">
-            <i class="fas fa-plus"></i>
-        </button>
-    </footer>
 
     <script src="/script.js"></script>
 </body>
