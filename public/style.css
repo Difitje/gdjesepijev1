@@ -11,8 +11,8 @@ html, body {
     height: 100%;
     width: 100%;
     overflow: hidden;      /* NOVO */
-    position: fixed;        /* NOVO */
-    touch-action: none;     /* NOVO I AGRESIVNIJE */
+    position: fixed;       /* NOVO */
+    touch-action: none;    /* NOVO I AGRESIVNIJE */
 }
 
 body {
@@ -30,8 +30,21 @@ body {
     color: #f0f0f0;
     line-height: 1.5;
     font-size: 16px; 
-    position: relative;
+    position: relative; /* OVO JE KLJUČNO ZA PSEUDO-ELEMENT */
     touch-action: manipulation;
+    z-index: 0; /* Dodano za osiguranje z-indeksa ispod overlay-a */
+}
+
+/* --- Zatamnjivanje pozadine --- */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Crni prozirni sloj (40% neprozirnosti) */
+    z-index: 1; /* Mora biti iznad body-ja, ali ispod sadržaja */
 }
 
 .container {
@@ -51,7 +64,7 @@ body {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    z-index: 1;
+    z-index: 2; /* PROMIJENJENO: Povećano da bude iznad body::before overlay-a */
 }
 
 .container.fade-out-screen {
@@ -95,10 +108,19 @@ body {
 .main-header {
     position: absolute; top: 0; left: 0; right: 0; height: 60px; padding: 0 10px;
     display: flex; justify-content: space-between; align-items: center;
-    background-color: #1a1a1a; border-bottom: 1px solid #333; z-index: 100;
+    background-color: transparent; /* PROMIJENJENO: Transparentno */
+    border-bottom: 1px solid #333; /* Možda ćeš htjeti ovo ukloniti ili prilagoditi */
+    z-index: 100;
 }
 @media (min-width: 768px) {
-    .main-header { position: relative; border-radius: 24px 24px 0 0; margin: -40px -40px 20px -40px; padding: 0 30px; height: 70px; background-color: #222222; }
+    .main-header { 
+        position: relative; 
+        border-radius: 24px 24px 0 0; 
+        margin: -40px -40px 20px -40px; 
+        padding: 0 30px; 
+        height: 70px; 
+        background-color: transparent; /* PROMIJENJENO: Transparentno i za desktop */
+    }
 }
 .header-icon {
     background: transparent; border: none; cursor: pointer; position: relative;
