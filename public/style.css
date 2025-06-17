@@ -43,7 +43,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.75); /* Crni prozirni sloj (40% neprozirnosti) */
+    background-color: rgba(0, 0, 0, 0.90); /* Crni prozirni sloj (40% neprozirnosti) */
     z-index: 1; /* Mora biti iznad body-ja, ali ispod sadržaja */
 }
 
