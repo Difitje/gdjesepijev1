@@ -324,6 +324,10 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
 }
 
 async function odjaviSe() {
+    // SAKRIJ HEADER I FOOTER
+    document.getElementById('noviHeader').style.display = 'none';
+    document.getElementById('noviFooter').style.display = 'none';
+
     [activityInterval, chatStatusInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     if (trenutniKorisnik && trenutniKorisnik.id) {
         await azurirajMojuAktivnost(true);
@@ -331,12 +335,24 @@ async function odjaviSe() {
     localStorage.removeItem("token");
     trenutniKorisnik = null;
     document.querySelectorAll('input, textarea').forEach(el => el.value = "");
-    swap(document.querySelector('.container.active-screen')?.id, 'intro');
+    
+    // Nađi koji je ekran trenutno aktivan da ga možeš sakriti
+    const aktivniEkran = document.querySelector('.container.active-screen');
+    if (aktivniEkran) {
+        swap(aktivniEkran.id, 'intro');
+    } else {
+        // Ako nijedan nije aktivan, samo pokaži intro
+        swap(null, 'intro');
+    }
 }
 
 
 // --- LOGIKA POKRETANJA APLIKACIJE NAKON PRIJAVE/REGISTRACIJE ---
 function pokreniAplikaciju() {
+    // PRIKAŽI HEADER I FOOTER
+    document.getElementById('noviHeader').style.display = 'flex';
+    document.getElementById('noviFooter').style.display = 'flex';
+
     const trenutniAktivniEkran = document.querySelector('.container.active-screen')?.id;
     swap(trenutniAktivniEkran, 'lokacijePrikaz');
 

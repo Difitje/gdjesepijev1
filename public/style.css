@@ -1,70 +1,83 @@
-/* public/style.css - AŽURIRANA VERZIJA */
+/* =================================================================== */
+/* FINALNI STABILNI STYLE.CSS                      */
+/* =================================================================== */
 
-/* Globalni reset i osnovni stilovi */
+/* --- OSNOVNA POSTAVKA --- */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-html {
+html, body {
     height: 100%;
     width: 100%;
-}
-
-body {
+    overflow: hidden; /* KLJUČNO: Onemogućuje skrolanje cijele stranice */
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: linear-gradient(170deg, #111111 0%, #0d0d0d 100%);
+    background: #000;
     color: #f0f0f0;
-    line-height: 1.5;
-    font-size: 15px;
-    width: 100%;
-    min-height: 100%;
-    overflow-x: hidden;
-    position: relative;
-    /* NOVO: Padding za fiksni header i footer */
-    padding-top: 70px; /* 60px header + 10px razmak */
-    padding-bottom: 90px; /* 80px footer + 10px razmak */
 }
 
-/* NOVO: Omotač za cijelu stranicu za lakšu kontrolu na desktopu */
-#pageWrapper {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-/* NOVO: Stilovi za fiksni HEADER */
-#noviHeader {
+/* --- SPLASH SCREEN --- */
+#splashScreen {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
+    height: 100%;
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+#splashScreen h1 {
+    color: #ff4757;
+    font-size: 3em;
+}
+
+/* --- GLAVNI OKVIR APLIKACIJE --- */
+#pageWrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #111;
+    overflow: hidden; /* Skriva sve što izađe izvan okvira */
+}
+
+/* --- HEADER I FOOTER --- */
+#noviHeader, #noviFooter {
+    position: absolute; /* Vezani za #pageWrapper */
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: none; /* Sakriveni po defaultu, JS ih prikazuje */
+}
+
+#noviHeader {
+    top: 0;
     height: 60px;
-    background: #1e1e1e;
-    border-bottom: 1px solid #2a2a2a;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
-    z-index: 1000;
+    background: rgba(30, 30, 30, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid #2a2a2a;
 }
 .header-icon {
-    font-size: 24px;
-    color: #f0f0f0;
+    font-size: 22px;
     cursor: pointer;
     width: 40px;
     text-align: center;
     position: relative;
 }
 .logo-container {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
     color: #ff4757;
-    letter-spacing: 1px;
 }
-
-/* NOVO: Badge za notifikacije u headeru */
 .notification-badge-header {
     position: absolute;
     top: -5px;
@@ -74,106 +87,66 @@ body {
     border-radius: 50%;
     height: 18px;
     min-width: 18px;
-    padding: 0 5px;
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     font-size: 10px;
     border: 2px solid #1e1e1e;
-    display: none; /* Sakriven po defaultu */
 }
 
-/* NOVO: Stilovi za fiksni FOOTER i gumb za objavu */
 #noviFooter {
-    position: fixed;
     bottom: 0;
-    left: 0;
-    width: 100%;
     height: 80px;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
-    pointer-events: none; /* Omogućuje klikanje kroz footer, samo gumb je aktivan */
+    pointer-events: none;
 }
 .publish-btn {
-    pointer-events: all; /* Gumb je jedini element koji reagira na klik */
+    pointer-events: all;
     width: 60px;
     height: 60px;
-    background: linear-gradient(45deg, #ff4757, #e03f4d);
+    background: #ff4757;
     color: white;
     border: none;
     border-radius: 50%;
     font-size: 28px;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: transform 0.2s ease-in-out;
-}
-.publish-btn:hover {
-    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
-/* Kontejneri za ekrane */
+/* --- GLAVNI SADRŽAJ I EKRANI --- */
+#appContent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
 .container {
-    width: 95%;
-    max-width: 420px; /* Malo šire za bolji izgled */
-    background: #1e1e1e;
-    padding: 20px;
-    border-radius: 18px;
-    border: 1px solid #2a2a2a;
-    box-shadow: 0 3px 20px rgba(0, 0, 0, 0.2);
-    margin: 0 auto 20px auto; /* Centriraj i dodaj razmak na dnu */
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
-    z-index: 0;
-    display: none; /* Po defaultu display none, JS će promijeniti u flex */
+    width: 100%;
+    height: 100%; /* Svaki ekran zauzima cijeli prostor roditelja (#appContent) */
+    padding: 60px 0 80px 0; /* Ostavlja prostor za header i footer */
+    display: none; /* Sakriven po defaultu */
     flex-direction: column;
-    height: auto;
-    min-height: calc(100vh - 160px); /* Visina viewporta minus header i footer */
-    justify-content: flex-start;
-    align-items: stretch;
-    overflow-y: auto;
+    align-items: center;
+    overflow-y: auto; /* KLJUČNO: Samo se ovaj kontejner skrola */
     -webkit-overflow-scrolling: touch;
 }
-
 .container.active-screen {
-    display: flex; /* Mijenjamo display na flex kada je ekran aktivan */
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    z-index: 1;
+    display: flex; /* Prikazuje se samo aktivni ekran */
 }
 
-.container.fade-out-screen {
-    animation: fadeOut 0.3s ease-out forwards;
-}
-
-#intro, #odabir, #login, #registracija, #profilMeni, #postavkeEkran {
-    justify-content: center;
-    align-items: center;
-}
-
-/* Naslovi */
-h1, h2 {
-    text-align: center;
-    color: #ff4757;
-    margin-bottom: 20px;
-    font-size: 22px;
-    font-weight: 600;
-    letter-spacing: 0.4px;
+/* Sadržaj unutar kontejnera */
+.container > * {
     width: 100%;
+    max-width: 420px;
+    padding-left: 15px;
+    padding-right: 15px;
 }
 
-h2 {
-    font-size: 20px;
-}
-
-/* Inputi, textarea, dugmad */
+/* --- ELEMENTI FORME --- */
+h2 { text-align: center; color: #ff4757; margin-bottom: 20px; }
 input, textarea, button, .btn-full {
     width: 100%;
     padding: 12px;
@@ -183,253 +156,88 @@ input, textarea, button, .btn-full {
     color: #f0f0f0;
     border-radius: 8px;
     font-size: 15px;
-    font-family: inherit;
-    transition: all 0.2s ease-in-out;
 }
-input:focus, textarea:focus {
-    outline: none;
-    border-color: #ff4757;
-    box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
-}
-button {
-    background: linear-gradient(45deg, #ff4757, #e03f4d);
+button, .btn-full {
     cursor: pointer;
+    background: #ff4757;
     border: none;
     font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
 }
-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25);
-}
-button:disabled {
-    background: #555;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-    opacity: 0.5;
-}
-
-/* Stil za linkove koji izgledaju kao gumbi */
-.btn-full {
-    display: block;
-    text-decoration: none;
-    text-align: center;
-    background: #3a3a3a;
-}
-.btn-full:hover {
-    background: #4a4a4a;
-    box-shadow: none;
-}
-
-/* Gumbi za navigaciju */
+.btn-full { display: block; text-align: center; text-decoration: none; background: #3a3a3a; }
 .back-button, .close-btn {
+    position: absolute;
+    top: 15px;
     background: none;
     border: none;
     color: #f0f0f0;
-    font-size: 28px;
-    cursor: pointer;
-    padding: 5px;
-    margin: 0;
-    line-height: 1;
-    width: auto;
-    height: auto;
-    position: absolute;
-    top: 10px;
-    z-index: 10;
+    font-size: 24px;
+    z-index: 20;
 }
-.back-button { left: 10px; }
-.close-btn { right: 10px; }
+.back-button { left: 15px; }
+.close-btn { right: 15px; }
 
-/* Slike profila */
-img.preview-slika, img.profilna-slika {
-    margin-top: 8px;
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    border: 2px solid #333;
-    object-fit: cover;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+/* --- PRIKAZ PIJANKI I CHATOVA --- */
+#pijankePregled, #listaChatova, #profilKorisnika, #objavaForma, .pravila-text {
+    padding-top: 15px;
 }
-
-/* Status točke (online/offline) */
-.status-dot {
-    height: 8px;
-    width: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 6px;
-}
-.status-dot.online { background-color: #2ecc71; }
-.status-dot.offline { background-color: #7f8c8d; }
-.status-text {
-    font-size: 12px;
-    color: #999;
-    margin: 0;
-}
-
-/* OBRISANO: Stilovi za .controls-bottom, .action-icon, .large-action-icon jer se više ne koriste */
-
-/* Specifični padding za kontejnere koji imaju TOP-NAV-BUTTONS */
-#glavniDio, #privatniChat, #editProfil, #profilMeni, #pravilaEkran, #registracija, #login, #inboxPrikaz {
-    padding-top: 50px;
-}
-
-/* Liste (pijanke, chatovi) */
-#pijankePregled, #listaChatova, #privatniChatLog {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    flex-grow: 1;
-    overflow-y: auto;
-    padding-bottom: 20px;
-    min-height: 100px;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* Pojedinačna pijanka */
-.pijanka {
-    background: #282828;
+.pijanka, .chat-item {
+    background: #1e1e1e;
     padding: 15px;
     border-radius: 10px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     border-left: 3px solid #ff4757;
-    width: 100%;
-    max-width: 400px; /* Povećano da odgovara kontejneru */
 }
-.pijanka-header {
+.pijanka-header, .chat-item {
     display: flex;
     align-items: center;
     gap: 12px;
-    cursor: pointer;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #333;
-    margin-bottom: 8px;
-    width: 100%;
 }
-.pijanka-profilna-slika {
+.pijanka-profilna-slika, .chat-item img {
     width: 50px;
     height: 50px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #ff4757;
     flex-shrink: 0;
 }
-.pijanka-info {
-    flex-grow: 1;
-}
-.delete-btn {
-    background: none;
-    border: none;
-    font-size: 14px;
-    padding: 2px;
-    margin-left: auto;
-    cursor: pointer;
-    color: #777;
-}
+.pijanka-info, .chat-item-info { flex-grow: 1; }
+.delete-btn { margin-left: auto; background: none; border: none; color: #777; font-size: 16px; }
 
-/* Inbox (lista chatova) */
-.chat-item {
-    background: #282828;
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 10px;
+/* Privatni chat */
+#privatniChatLog {
+    flex-grow: 1;
     display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    max-width: 400px; /* Povećano da odgovara kontejneru */
+    flex-direction: column;
+    padding-bottom: 10px;
 }
-.chat-item img {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-.chat-item-info {
-    flex-grow: 1;
-    cursor: pointer;
-}
-
-/* Poruke u chatu */
 .chat-input-area {
-    margin-top: auto;
+    background: #1e1e1e;
     padding-top: 10px;
+    flex-shrink: 0;
 }
-#privatniChatLog p {
-    margin-bottom: 6px;
-}
-#privatniChatLog p > span {
-    display: inline-block;
-    padding: 8px 12px;
-    border-radius: 15px;
-    max-width: 75%;
-}
-p.moja-poruka { text-align: right; }
-p.moja-poruka > span { background: #ff4757; color: white; }
-p.tudja-poruka { text-align: left; }
-p.tudja-poruka > span { background: #3a3a3a; color: #f0f0f0; }
+.moja-poruka { text-align: right; }
+.moja-poruka > span { background: #ff4757; color: white; padding: 8px 12px; border-radius: 15px; display: inline-block; }
+.tudja-poruka { text-align: left; }
+.tudja-poruka > span { background: #3a3a3a; color: #f0f0f0; padding: 8px 12px; border-radius: 15px; display: inline-block; }
 
-/* Splash Screen */
-#splashScreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #111111;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-#splashScreen h1 {
-    animation: bounceIn 1.5s ease-out forwards;
-}
 
-/* Animacije */
-@keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
-}
-@keyframes bounceIn {
-    0% { transform: scale(0.1); opacity: 0; }
-    60% { transform: scale(1.1); opacity: 1; }
-    100% { transform: scale(1); }
-}
-@keyframes fadeOutSplash {
-    from { opacity: 1; }
-    to { opacity: 0; visibility: hidden; }
-}
-
-/* NOVO: Prilagodba za DESKTOP */
+/* =================================================================== */
+/* DESKTOP PRILAGODBA                             */
+/* =================================================================== */
 @media (min-width: 768px) {
     body {
+        /* Stvara okvir oko aplikacije na desktopu */
+        background: #333;
+        padding: 20px;
         display: flex;
         justify-content: center;
-        background: #333; /* Tamnija pozadina oko glavnog okvira */
+        align-items: center;
     }
     #pageWrapper {
         max-width: 420px;
-        margin: 0 auto;
+        height: 95%;
+        max-height: 800px;
+        border-radius: 20px;
         box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        min-height: 100vh;
-        height: auto;
-    }
-    #noviHeader, #noviFooter {
-        /* Na desktopu, header i footer se vežu za #pageWrapper */
-        position: absolute;
-        width: 100%;
-        max-width: 420px;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-    .container {
-        /* Osigurava da se kontejneri lijepo uklope unutar wrappera */
-        min-height: calc(100vh - 160px);
+        border: 1px solid #444;
     }
 }
