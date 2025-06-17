@@ -1,4 +1,4 @@
-/* public/style.css - Verzija 3 - Ispravke za gumbe i zoom */
+/* public/style.css - Verzija 4 - Full-screen prikaz na PC-u */
 
 * {
     box-sizing: border-box;
@@ -17,7 +17,6 @@ body {
     background: linear-gradient(170deg, #111111 0%, #0d0d0d 100%);
     color: #f0f0f0;
     line-height: 1.5;
-    /* ISPRAVLJENO: Font-size podignut na 16px da se spriječi auto-zoom na mobitelu */
     font-size: 16px; 
     display: flex;
     justify-content: center;
@@ -98,9 +97,6 @@ body {
     transform: scale(1.1);
 }
 
-/* ISPRAVLJENO: Uklonjena problematična klasa */
-/* .left-aligned { display: none !important; } */
-
 .container > h2 {
     padding-top: 30px;
 }
@@ -108,16 +104,24 @@ body {
     padding-top: 40px;
 }
 
+/* * ISPRAVLJENO ZA FULL-SCREEN PC PRIKAZ
+ * Na ekranima širim od 768px, kontejner sada zauzima skoro cijeli ekran.
+*/
 @media (min-width: 768px) {
     body {
         overflow-y: auto;
     }
     .container {
         position: relative;
-        height: auto;
-        min-height: 80vh;
-        max-width: 960px;
-        margin: 40px auto;
+        height: auto; 
+        min-height: calc(100vh - 40px); /* Visina ekrana minus gornji i donji margin */
+        
+        /* KLJUČNA PROMJENA: Uklonjeno ograničenje širine */
+        max-width: none; 
+        width: auto;
+        
+        margin: 20px; /* Dodan razmak od rubova ekrana */
+        
         border-radius: 18px;
         border: 1px solid #2a2a2a;
         box-shadow: 0 3px 20px rgba(255, 71, 87, 0.12);
@@ -181,7 +185,6 @@ h2 {
 p {
     margin-bottom: 12px;
     color: #b0b0b0;
-    /* Font size je sada 16px naslijeđen iz body-a */
     text-align: left;
     width: 100%; 
 }
@@ -189,7 +192,6 @@ p {
     text-align: center;
 }
 
-/* ISPRAVLJENO: Osigurano da inputi imaju 16px font */
 input, textarea, button {
     width: 100%;
     padding: 12px;
