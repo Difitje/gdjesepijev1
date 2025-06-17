@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>LOCALO</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
@@ -17,7 +20,7 @@
 
         <header id="noviHeader">
             <div id="profilIcon" class="header-icon"><i class="fa-solid fa-user"></i></div>
-            <div class="logo-container">LOCALNO</div>
+            <div class="logo-container">LOCALO</div>
             <div id="porukeIcon" class="header-icon">
                 <i class="fa-solid fa-inbox"></i>
                 <span id="notifikacijaPorukaHeader" class="notification-badge-header"></span>
@@ -27,18 +30,25 @@
         <main id="appContent">
             <div class="container" id="intro">
                 <h2>🍻 Dosadno vam je?</h2>
-                <p style="text-align:center;">Pridruži se ekipi koja zna kako se loče!</p>
+                <p>Pridruži se ekipi koja zna kako se loče!</p>
                 <button onclick="swap('intro', 'odabir')">Pridruži se</button>
             </div>
 
+            <div class="container" id="odabir">
+                <h2>Dobrodošli!</h2>
+                <p>Imaš račun? Prijavi se. Nemaš? Registriraj se.</p>
+                <button onclick="swap('odabir', 'login')">Prijava</button>
+                <button class="btn-secondary" onclick="swap('odabir', 'pravilaEkran')">Registracija</button>
+            </div>
+            
             <div class="container" id="pravilaEkran">
-                <button class="back-button left-aligned" onclick="swap('pravilaEkran', 'odabir')">←</button>
+                <button class="back-button" onclick="swap('pravilaEkran', 'odabir')"><i class="fas fa-arrow-left"></i></button>
                 <h2>Pravila korištenja</h2>
                 <div class="pravila-text">
                     <p><strong>1. Punoljetnost:</strong> Morate imati najmanje 18 godina.</p>
                     <p><strong>2. Poštovanje:</strong> Bez govora mržnje i uznemiravanja.</p>
-                    <p><strong>3. Sigurnost:</strong> Sastanci na javnim mjestima.</p>
-                    <p><strong>Odricanje od odgovornosti:</strong> Koristite na vlastitu odgovornost.</p>
+                    <p><strong>3. Sigurnost:</strong> Sastanci na javnim mjestima. Obavijestite nekoga gdje idete.</p>
+                    <p><strong>Odricanje od odgovornosti:</strong> Aplikaciju koristite na vlastitu odgovornost.</p>
                 </div>
                 <div class="pravila-checkbox-wrapper">
                     <input type="checkbox" id="prihvatamPravila" onchange="proveriPrihvatanje()">
@@ -47,57 +57,49 @@
                 <button id="nastaviBtn" onclick="swap('pravilaEkran', 'registracija')" disabled>Prihvati i nastavi</button>
             </div>
 
-            <div class="container" id="odabir">
-                <h2>Dobrodošli!</h2>
-                <button onclick="swap('odabir', 'login')">Prijava</button>
-                <button onclick="swap('odabir', 'pravilaEkran')">Registracija</button>
-            </div>
-
             <div class="container" id="login">
-                <button class="back-button left-aligned" onclick="swap('login', 'odabir')">←</button>
+                <button class="back-button" onclick="swap('login', 'odabir')"><i class="fas fa-arrow-left"></i></button>
                 <h2>Prijava</h2>
-                <input id="loginIme" placeholder="Korisničko ime" />
+                <input id="loginIme" placeholder="Korisničko ime" type="text" />
                 <input id="loginSifra" type="password" placeholder="Lozinka" />
                 <button id="loginSubmitBtn" onclick="ulogujSe()">Prijavi se</button>
             </div>
 
             <div class="container" id="registracija">
-                <button class="back-button left-aligned" onclick="swap('registracija', 'pravilaEkran')">←</button>
+                <button class="back-button" onclick="swap('registracija', 'pravilaEkran')"><i class="fas fa-arrow-left"></i></button>
                 <h2>Registracija</h2>
-                <input id="ime" placeholder="Korisničko ime" />
+                <input id="ime" placeholder="Korisničko ime" type="text" />
                 <input id="sifra" type="password" placeholder="Lozinka" />
                 <label>Profilna slika:</label>
                 <input type="file" id="slikaUpload" accept="image/*" />
                 <img id="previewSlikes" class="preview-slika" />
-                <input id="instagram" placeholder="Instagram (bez @)" />
-                <input id="tiktok" placeholder="TikTok (bez @)" />
+                <input id="instagram" placeholder="Instagram (bez @)" type="text" />
+                <input id="tiktok" placeholder="TikTok (bez @)" type="text" />
                 <textarea id="opis" placeholder="O meni..." rows="3"></textarea>
                 <button id="registracijaSubmitBtn" onclick="registruj()">Spremi</button>
             </div>
 
             <div class="container" id="lokacijePrikaz">
-                <div id="pijankePregled"></div>
+                <div id="pijankePregled">
+                    </div>
             </div>
 
             <div class="container" id="profilMeni">
-                <button class="back-button left-aligned" onclick="zatvoriEkran('profilMeni', prethodniEkran || 'lokacijePrikaz')">←</button>
+                <button class="back-button" onclick="zatvoriEkran('profilMeni', prethodniEkran || 'lokacijePrikaz')"><i class="fas fa-arrow-left"></i></button>
                 <h2>Moj Profil</h2>
                 <a href="#" class="btn-full" onclick="prikaziEditProfila(); return false;">Uredi Profil</a>
-                <a href="#" class="btn-full" onclick="odjaviSe(); return false;">Odjavi se</a>
+                <a href="#" class="btn-full btn-logout" onclick="odjaviSe(); return false;">Odjavi se</a>
             </div>
 
             <div class="container" id="inboxPrikaz">
-                <button class="back-button left-aligned" onclick="zatvoriEkran('inboxPrikaz', 'lokacijePrikaz')">←</button>
+                <button class="back-button" onclick="zatvoriEkran('inboxPrikaz', 'lokacijePrikaz')"><i class="fas fa-arrow-left"></i></button>
                 <h2>Poruke</h2>
                 <div id="listaChatova"></div>
             </div>
 
             <div class="container" id="glavniDio">
-                <div class="top-nav-buttons">
-                    <button class="back-button left-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">←</button>
-                    <button class="close-btn right-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">✖</button>
-                </div>
-                <h2></h2>
+                <button class="close-btn" onclick="zatvoriEkran('glavniDio', prethodniEkran)"><i class="fas fa-times"></i></button>
+                <h2 id="glavniDioNaslov"></h2>
                 <div id="objavaForma">
                     <textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea>
                     <button onclick="objaviPijanku()">Objavi</button>
@@ -106,21 +108,21 @@
             </div>
 
             <div class="container" id="privatniChat">
-                <div class="top-nav-buttons">
-                    <button class="back-button left-aligned" onclick="zatvoriEkran('privatniChat', prethodniEkran)">←</button>
-                </div>
+                <button class="back-button" onclick="zatvoriEkran('privatniChat', prethodniEkran)"><i class="fas fa-arrow-left"></i></button>
                 <div class="chat-header-info">
                     <h2 id="chatSaKorisnikom"></h2>
                     <p id="chatPartnerStatus" class="status-text"></p>
                 </div>
                 <div id="privatniChatLog" class="chat"></div>
                 <div class="chat-input-area">
-                    <textarea id="privatniInput" placeholder="Upiši poruku..." rows="2"></textarea>
-                    <button id="posaljiPrivatnoBtn" onclick="posaljiPrivatno()">Pošalji</button>
+                    <textarea id="privatniInput" placeholder="Upiši poruku..." rows="1"></textarea>
+                    <button id="posaljiPrivatnoBtn" onclick="posaljiPrivatno()"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
 
             <div class="container" id="editProfil">
+                <button class="back-button" onclick="zatvoriEkran('editProfil', 'profilMeni')"><i class="fas fa-arrow-left"></i></button>
+                <h2 style="margin-bottom: 10px;">Uredi profil</h2>
                 </div>
         </main>
 
@@ -131,7 +133,6 @@
         </footer>
 
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
