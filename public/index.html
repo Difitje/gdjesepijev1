@@ -7,11 +7,14 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+    <!-- Splash Screen (ostaje isti) -->
     <div id="splashScreen">
         <h1>DRINKER</h1>
     </div>
 
+    <!-- Omotač za sve ekrane -->
     <div id="appWrapper">
+        <!-- AUTH EKRANI (Prijava/Registracija) -->
         <div class="container" id="intro">
             <h2>🍻 Dosadno vam je?</h2>
             <p style="text-align:center;">Pridruži se ekipi koja zna kako se loče!</p>
@@ -61,10 +64,11 @@
             <button id="registracijaSubmitBtn" onclick="registruj()">Spremi</button>
         </div>
         
+        <!-- GLAVNI EKRAN APLIKACIJE (APP SHELL) -->
         <div class="app-shell" id="mainAppView">
             <header class="main-header">
                 <div class="header-left">
-                    <a href="#" onclick="otvoriProfil(trenutniKorisnik.id, event)">
+                    <a href="#" onclick="otvoriProfil(trenutniKorisnik.id)">
                         <img src="https://placehold.co/80x80/1e1e1e/a0a0a0?text=..." alt="Profilna slika" class="header-profile-avatar" id="headerProfilePic">
                     </a>
                 </div>
@@ -83,11 +87,13 @@
             </main>
             <footer class="bottom-nav">
                 <button class="add-party-btn" aria-label="Objavi pijanku" onclick="pokaziObjavu()">
+                     <!-- SVG Ikona za kriglu -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 256 256"><path d="M239.3,71.3l-32-32a8,8,0,0,0-11.3,0l-16,16a8,8,0,0,0,0,11.3L202.7,99.3a8,8,0,0,0,11.3,0l16-16A8,8,0,0,0,239.3,71.3ZM208,116.7a8,8,0,0,0-8,8V216H48V88h85.3a8,8,0,0,0,5.7-2.3l24-24a8,8,0,0,0-11.4-11.4L128,73.9V40a8,8,0,0,0-8-8H40A16,16,0,0,0,24,48V216a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V124.7A8,8,0,0,0,208,116.7ZM96,168a8,8,0,0,1-16,0,24,24,0,0,0-48,0,8,8,0,0,1-16,0,40,40,0,0,1,80,0ZM192,168a8,8,0,0,1-16,0,24,24,0,0,0-48,0,8,8,0,0,1-16,0,40,40,0,0,1,80,0Z"></path></svg>
                 </button>
             </footer>
         </div>
         
+        <!-- OVERLAY EKRANI (koji idu preko glavnog) -->
         <div class="overlay-screen" id="overlayHost">
             <div class="overlay-header">
                 <button class="back-button" onclick="zatvoriOverlay()">
@@ -96,7 +102,8 @@
                 <h2 id="overlayNaslov"></h2>
             </div>
             <div class="overlay-content" id="overlayContent">
-                </div>
+                <!-- Sadržaj za profil, objavu, poruke, edit profila itd. -->
+            </div>
         </div>
 
         <div class="overlay-screen" id="chatOverlay">

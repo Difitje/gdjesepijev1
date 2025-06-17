@@ -1,5 +1,5 @@
 // ==================================
-// ===   FINALNA SKRIPTA v3.0     ===
+// ===   FINALNA SKRIPTA v4.0     ===
 // ==================================
 
 // --- Globalne varijable ---
@@ -51,16 +51,15 @@ function compressImage(base64Image, maxWidth = 400, quality = 0.8) {
 
 // --- Inicijalizacija aplikacije ---
 window.addEventListener('DOMContentLoaded', async function() {
-    // Listeneri za upload slika
     const slikaUploadEl = document.getElementById("slikaUpload");
     if (slikaUploadEl) {
         slikaUploadEl.addEventListener("change", handleSlikaUpload);
     }
     
-    // Inicijalna provjera tokena
     const token = localStorage.getItem("token");
     const splashScreen = document.getElementById('splashScreen');
     document.querySelectorAll('.container, .app-shell, .overlay-screen').forEach(el => el.style.display = 'none');
+    splashScreen.style.display = 'flex'; // Pobrini se da je splash vidljiv
 
     let appInitializedSuccessfully = false;
     if (token) {
@@ -98,6 +97,11 @@ window.addEventListener('DOMContentLoaded', async function() {
 
 // --- Navigacija ---
 function swap(hideId, showId) {
+    const mainAppView = document.getElementById('mainAppView');
+    if (['intro', 'odabir', 'login', 'registracija', 'pravilaEkran'].includes(showId)) {
+        if (mainAppView) mainAppView.classList.remove('active-screen');
+    }
+
     if (hideId) {
         const hideElement = document.getElementById(hideId);
         if(hideElement) hideElement.classList.remove('active-screen');
@@ -266,17 +270,19 @@ async function odjaviSe() {
     localStorage.removeItem("token");
     trenutniKorisnik = null;
     
-    document.getElementById('mainAppView').classList.remove('active-screen');
+    zatvoriOverlay();
+    const mainAppView = document.getElementById('mainAppView');
+    if (mainAppView) mainAppView.classList.remove('active-screen');
+
     setTimeout(() => {
-        document.getElementById('mainAppView').style.display = 'none';
+        if(mainAppView) mainAppView.style.display = 'none';
         swap(null, 'intro');
-    }, 300);
+    }, 350);
 }
 
 
 // --- Prikaz Sadržaja (Overlay-i) ---
-async function otvoriProfil(korisnikId, event) {
-    if (event) event.preventDefault();
+async function otvoriProfil(korisnikId) {
     if (!korisnikId) return;
 
     prikaziOverlay('overlayHost', '<p style="text-align: center; padding-top: 40px;">Učitavam profil...</p>', 'Profil');
@@ -309,7 +315,7 @@ async function otvoriProfil(korisnikId, event) {
 
 async function prikaziEditProfila() {
     if (!trenutniKorisnik) return;
-    const { id, ime, opis, instagram, tiktok, slika } = trenutniKorisnik;
+    const { ime, opis, instagram, tiktok, slika } = trenutniKorisnik;
 
     const contentHtml = `
         <div style="text-align:center;">
@@ -325,7 +331,6 @@ async function prikaziEditProfila() {
     `;
     prikaziOverlay('overlayHost', contentHtml, 'Uredi profil');
 
-    // Ponovno dodaj event listener za upload
     odabranaEditSlika = null;
     const editSlikaUploadEl = document.getElementById("editSlikaUpload");
     if (editSlikaUploadEl) {
@@ -344,6 +349,8 @@ async function prikaziInbox() {
         const sortedChats = chatKeys.sort((a, b) => {
             const lastMsgA = privatnePoruke[a].slice(-1)[0];
             const lastMsgB = privatnePoruke[b].slice(-1)[0];
+            if (!lastMsgA) return 1;
+            if (!lastMsgB) return -1;
             return new Date(lastMsgB.time) - new Date(lastMsgA.time);
         });
 
@@ -429,9 +436,7 @@ async function sacuvajProfil() {
         });
         const data = await response.json();
         if (response.ok) {
-            await globalRefreshUI();
-            // Ažuriraj lokalnog korisnika i sliku u headeru
-            trenutniKorisnik = {...trenutniKorisnik, ...updateData};
+            trenutniKorisnik = { ...trenutniKorisnik, ...data.user };
             document.getElementById('headerProfilePic').src = trenutniKorisnik.slika;
             zatvoriOverlay();
         } else {
@@ -476,13 +481,16 @@ async function objaviPijanku() {
     } catch (error) {
         alert("Došlo je do greške pri objavi.");
     } finally {
-        btn.disabled = false;
-        btn.textContent = 'Objavi';
+        if(btn){
+            btn.disabled = false;
+            btn.textContent = 'Objavi';
+        }
     }
 }
 
 async function posaljiPrivatno() {
-    const tekst = document.getElementById("privatniInput").value.trim();
+    const privatniInputEl = document.getElementById("privatniInput");
+    const tekst = privatniInputEl.value.trim();
     if (!tekst || !trenutniChatPartnerId) return;
 
     const btn = document.getElementById('posaljiPrivatnoBtn');
@@ -495,7 +503,8 @@ async function posaljiPrivatno() {
             body: JSON.stringify({ receiverId: trenutniChatPartnerId, content: tekst })
         });
         if (response.ok) {
-            document.getElementById("privatniInput").value = "";
+            privatniInputEl.value = "";
+            privatniInputEl.style.height = 'auto';
             await dohvatiSvePoruke();
             prikaziPrivatniLog();
         } else {
@@ -532,7 +541,7 @@ function prikaziPijankePregled() {
                     </div>
                     ${isMyPost ? `<button class="delete-btn" onclick="obrisiPijanku('${pijanka.id}', event)">🗑️</button>` : ""}
                 </div>
-                <div class="pijanka-opis"><p>${pijanka.opis}</p></div>
+                <div class="pijanka-opis"><p>${pijanka.opis.replace(/\n/g, '<br>')}</p></div>
             </div>`;
     }).join('');
 }
@@ -545,7 +554,7 @@ function prikaziPrivatniLog() {
     
     const logHtml = log.map(msg => `
         <div class="msg-bubble ${msg.autorId === trenutniKorisnik.id ? "moja-poruka" : "tudja-poruka"}">
-            ${msg.tekst}
+            ${msg.tekst.replace(/\n/g, '<br>')}
         </div>`).join('');
     
     div.innerHTML = `<div>${logHtml}</div>`;
@@ -596,6 +605,15 @@ function handleEditSlikaUpload(event) {
 
 function proveriPrihvatanje() {
     document.getElementById('nastaviBtn').disabled = !document.getElementById('prihvatamPravila').checked;
+}
+
+function formatirajStatus(isoTimestamp) {
+    if (!isoTimestamp) return { text: "Offline", online: false };
+    const diffSekunde = Math.round((Date.now() - new Date(isoTimestamp).getTime()) / 1000);
+    if (diffSekunde < 60) return { text: "Online", online: true };
+    if (diffSekunde < 3600) return { text: `viđen/a prije ${Math.floor(diffSekunde/60)} min`, online: false };
+    if (diffSekunde < 86400) return { text: `viđen/a prije ${Math.floor(diffSekunde/3600)} h`, online: false };
+    return { text: `viđen/a prije ${Math.floor(diffSekunde/86400)} dana`, online: false };
 }
 
 function distKM(p1, p2) {
@@ -651,6 +669,12 @@ async function obrisiPijanku(pijankaId, event) {
     }
 }
 
+function prikaziMreze(p) {
+    let s = "";
+    if (p.instagram) s += `<a href="https://instagram.com/${p.instagram}" target="_blank"><svg fill="#a0a0a0" height="28px" width="28px" version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M349.3,512c-29,0-32.9-1.2-44.6-2.6c-12-1.4-23.9-4.2-35.7-8.8c-11.8-4.6-22.4-10.4-33.1-21.1c-10.7-10.7-16.5-21.3-21.1-33.1c-4.6-11.8-7.4-23.7-8.8-35.7c-1.4-11.7-2.6-15.6-2.6-44.6s1.2-32.9,2.6-44.6c1.4-12,4.2-23.9,8.8-35.7c4.6-11.8,10.4-22.4,21.1-33.1c10.7-10.7,21.3-16.5,33.1-21.1c11.8-4.6,23.7-7.4,35.7-8.8c11.7-1.4,15.6-2.6,44.6-2.6s32.9,1.2,44.6,2.6c12,1.4,23.9,4.2,35.7,8.8c11.8,4.6,22.4,10.4,33.1,21.1c10.7,10.7,16.5,21.3,21.1,33.1c4.6,11.8,7.4,23.7,8.8,35.7c1.4,11.7,2.6,15.6,2.6,44.6s-1.2,32.9-2.6,44.6c-1.4,12-4.2-23.9-8.8-35.7c-4.6,11.8-10.4,22.4-21.1,33.1c-10.7,10.7-21.3,16.5-33.1,21.1c-11.8,4.6-23.7,7.4-35.7,8.8C382.2,510.8,378.3,512,349.3,512z M349.3,448c27.8,0,31.2-1.2,42.2-2.5c10.8-1.3,20-3.8,28.3-7.1c9.2-3.6,16.8-8.8,24.4-16.4c7.6-7.6,12.8-15.2,16.4-24.4c3.3-8.3,5.8-17.5,7.1-28.3c1.3-11,2.5-14.4,2.5-42.2s-1.2-31.2-2.5-42.2c-1.3-10.8-3.8-20-7.1-28.3c-3.6-9.2-8.8-16.8-16.4-24.4c-7.6-7.6-15.2-12.8-24.4-16.4c-8.3-3.3-17.5-5.8-28.3-7.1c-11-1.3-14.4-2.5-42.2-2.5s-31.2,1.2-42.2,2.5c-10.8,1.3-20,3.8-28.3,7.1c-9.2,3.6-16.8,8.8-24.4,16.4c-7.6,7.6-12.8,15.2-16.4,24.4c-3.3,8.3-5.8,17.5-7.1,28.3c-1.3,11-2.5,14.4-2.5,42.2s1.2,31.2,2.5,42.2c1.3,10.8,3.8,20,7.1,28.3c3.6,9.2,8.8,16.8,16.4,24.4c7.6,7.6,15.2,12.8,24.4,16.4c8.3,3.3,17.5,5.8,28.3,7.1C318.1,446.8,321.5,448,349.3,448z M349.3,384c-35.3,0-64-28.7-64-64s28.7-64,64-64s64,28.7,64,64S384.6,384,349.3,384z M349.3,288c-17.6,0-32,14.4-32,32s14.4,32,32,32s32-14.4,32-32S366.9,288,349.3,288z M418.2,128.8c-11.5,0-20.8,9.3-20.8,20.8s9.3,20.8,20.8,20.8s20.8-9.3,20.8-20.8S429.7,128.8,418.2,128.8z"/></svg></a>`;
+    if (p.tiktok) s += `<a href="https://tiktok.com/@${p.tiktok}" target="_blank"><svg fill="#a0a0a0" height="28px" width="28px" version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M349.3,0H218.7C196.5,0,178.7,17.8,178.7,40v330.7c0,82.8-67.2,150-150,150C12.8,520.7,0,507.8,0,491.9V349.3C0,333.5,12.8,320.7,28.7,320.7c12.3,0,22.8,7.9,26.9,19.3c4.2-1.1,8.5-2,13-2.6v-74c-20.5-2.2-38.3-12-51.2-26.9c-4.2-4.9-6.3-10.7-6.3-16.9c0-15.8,12.8-28.7,28.7-28.7h80c15.8,0,28.7,12.8,28.7,28.7c0,15.8-12.8,28.7-28.7,28.7h-40v64h40c35.3,0,64,28.7,64,64v85.3c0,27.6,22.4,50,50,50s50-22.4,50-50V160H218.7V64h130.7c15.8,0,28.7,12.8,28.7,28.7c0,15.8-12.8,28.7-28.7,28.7h-37.3v133.3c0,82.8-67.2,150-150,150c-12.3,0-23.7-1.5-34.7-4.2V160h106.7c15.8,0,28.7-12.8,28.7-28.7V40c0-22.2,17.8-40,40-40h130.7c15.8,0,28.7-12.8,28.7-28.7C512,12.8,499.2,0,483.3,0H349.3z"/></svg></a>`;
+    return s || '<p class="status-text">Nema društvenih mreža.</p>';
+}
 
 // --- Funkcije za Dohvaćanje Podataka s API-ja ---
 async function dohvatiSveKorisnike() {

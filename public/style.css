@@ -34,17 +34,20 @@ html, body {
     height: 100%;
     width: 100%;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* --- Ekrani za Prijavu/Registraciju --- */
 .container {
-    width: 100%;
-    height: 100%;
-    max-width: 450px;
-    margin: 0 auto;
+    width: 95%;
+    max-width: 400px;
     background: var(--surface-color);
     padding: 30px;
     border-radius: 18px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
     
     display: none; /* Inicijalno sakriveni */
     flex-direction: column;
@@ -52,17 +55,33 @@ html, body {
     align-items: center;
     
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     opacity: 0;
-    transition: opacity 0.3s ease-in-out;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    transform: scale(0.95);
 }
 
 .container.active-screen {
     display: flex;
     opacity: 1;
+    transform: scale(1);
     z-index: 50;
+}
+.container > h2 {
+    color: var(--primary-color);
+    margin-bottom: 25px;
+}
+.container .back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
 }
 
 /* --- Novi Glavni Ekran (App Shell) --- */
@@ -72,10 +91,14 @@ html, body {
     display: none; /* Inicijalno sakriven */
     flex-direction: column;
     background-color: var(--background-dark);
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .app-shell.active-screen {
     display: flex;
+    z-index: 10;
 }
 
 /* Header */
@@ -316,7 +339,7 @@ input:focus, textarea:focus {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 10px;
+    margin: 10px 0;
     justify-content: center;
 }
 .pravila-checkbox-wrapper input {
@@ -325,17 +348,9 @@ input:focus, textarea:focus {
 .pravila-checkbox-wrapper label {
      margin: 0; font-size: 14px;
 }
-.container .back-button {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 24px;
-    width: auto;
-    margin: 0;
-    padding: 0;
+.pravila-text{
+    height: 300px;
+    overflow-y: auto;
 }
 
 /* --- Pijanka Kartice --- */
@@ -379,13 +394,17 @@ input:focus, textarea:focus {
 
 /* --- Profil --- */
 .profile-view { text-align: center; }
-.profile-view .profilna-slika {
+.profilna-slika, .preview-slika {
     width: 100px;
     height: 100px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid var(--primary-color);
     margin: 0 auto 15px auto;
+}
+.preview-slika{
+    display: none;
+    border-color: var(--text-secondary);
 }
 .profile-view h3 { font-size: 22px; margin-bottom: 5px; color: var(--text-primary); }
 .profile-view .opis { font-style: italic; color: var(--text-secondary); margin-bottom: 20px; max-width: 300px; margin-left: auto; margin-right: auto; }
@@ -437,7 +456,10 @@ input:focus, textarea:focus {
 /* --- Splash Screen --- */
 #splashScreen {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #111; display: flex; justify-content: center; align-items: center; z-index: 9999;
+    background: #111; display: none; justify-content: center; align-items: center; z-index: 9999;
     transition: opacity 0.5s ease-out;
+}
+#splashScreen.active-screen {
+    display: flex;
 }
 #splashScreen h1 { font-size: 3em; color: var(--primary-color); letter-spacing: 4px; }
