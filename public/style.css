@@ -1,7 +1,3 @@
-/* ================================== */
-/* ===   FINALNI CSS (v9.0)       === */
-/* ================================== */
-
 :root {
     --primary-color: #ff4757;
     --background-dark: #121212;
@@ -25,8 +21,9 @@ html, body {
     color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
-/* Omotač za sve ekrane */
-#appWrapper, body {
+#appWrapper {
+    height: 100%;
+    width: 100%;
     position: relative;
     display: flex;
     justify-content: center;
@@ -48,39 +45,32 @@ html, body {
     opacity: 1;
     z-index: 20;
 }
-.splash {
-    background: #111;
-    z-index: 9999;
-}
-
-/* === Stari stil za AUTH ekrane === */
+/* Stilovi samo za AUTH ekrane */
 .container:not(.app-view) {
-    width: 95%;
-    max-width: 400px;
-    height: auto;
-    max-height: 90vh;
     background: #1e1e1e;
     padding: 20px;
     border-radius: 18px;
     border: 1px solid #2a2a2a;
-    box-shadow: 0 3px 20px rgba(255, 71, 87, 0.12);
+    box-shadow: 0 3px 20px rgba(0, 0, 0, 0.2);
     margin: 20px auto;
     flex-direction: column;
     justify-content: center;
     align-items: stretch;
     overflow-y: auto;
-    position: relative;
+    width: 95%;
+    max-width: 400px;
+    height: auto;
+    max-height: 90vh;
 }
 .container:not(.app-view).active-screen {
+    position: relative; /* Vraćamo na relative da bi bio u centru */
     top: auto;
     left: auto;
-    position: relative;
 }
 .container:not(.app-view) h2 {
     text-align: center;
     color: #ff4757;
     margin-bottom: 20px;
-    font-size: 22px;
 }
 .container:not(.app-view) p {
     margin-bottom: 12px;
@@ -118,12 +108,11 @@ html, body {
     font-size: 24px !important;
 }
 
-/* === Novi stil za APP ekrane === */
+/* Stilovi za APP ekrane */
 .app-view {
     flex-direction: column;
     justify-content: flex-start;
     padding: 0;
-    background-color: var(--background-dark);
 }
 .main-header {
     display: flex;
@@ -169,7 +158,7 @@ html, body {
 .pijanka-info { flex-grow: 1; }
 .pijanka-info strong { font-size: 16px; }
 .status-text { font-size: 12px; color: var(--text-secondary); margin: 0; }
-.delete-btn { background: none; border: none; font-size: 20px; padding: 5px; cursor: pointer; color: #777; transition: color 0.2s ease; }
+.delete-btn { background: none; border: none; font-size: 20px; padding: 5px; cursor: pointer; color: #777; }
 .profile-view { text-align: center; }
 .profilna-slika, .preview-slika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-color); margin: 0 auto 15px auto; }
 .preview-slika { display: none; border-color: var(--text-secondary); }

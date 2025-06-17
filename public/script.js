@@ -1,5 +1,5 @@
 // ==================================
-// ===   FINALNA SKRIPTA v6.0     ===
+// ===   FINALNA SKRIPTA v6.1     ===
 // ==================================
 
 // --- Globalne varijable ---
@@ -103,7 +103,6 @@ function swap(hideId, showId) {
         showElement.style.display = 'flex';
         setTimeout(() => showElement.classList.add('active-screen'), 10);
     }
-     // Ažuriraj prethodni ekran samo ako se ne vraćamo nazad na njega
     if (hideId && showId !== prethodniEkran) {
         prethodniEkran = hideId;
     }
@@ -238,6 +237,12 @@ async function odjaviSe() {
 
 
 // --- Prikaz Sadržaja ---
+function otvoriSvojProfil(event) {
+    if(event) event.preventDefault();
+    if(trenutniKorisnik) {
+        otvoriProfil(trenutniKorisnik.id);
+    }
+}
 async function otvoriProfil(korisnikId) {
     if (!korisnikId) return;
 
@@ -274,12 +279,7 @@ async function otvoriProfil(korisnikId) {
 async function prikaziEditProfila() {
     if (!trenutniKorisnik) return;
     const { ime, opis, instagram, tiktok, slika } = trenutniKorisnik;
-    
     const contentDiv = document.getElementById('editProfilContent');
-    if (!contentDiv) { //Fallback na genericScreen
-        prikaziEditProfilaGeneric();
-        return;
-    }
     
     contentDiv.innerHTML = `
         <div style="text-align:center;">
@@ -295,32 +295,6 @@ async function prikaziEditProfila() {
     `;
     swap('genericScreen', 'editProfil');
 
-    odabranaEditSlika = null;
-    const editSlikaUploadEl = document.getElementById("editSlikaUpload");
-    if (editSlikaUploadEl) {
-        editSlikaUploadEl.addEventListener("change", handleEditSlikaUpload);
-    }
-}
-// Fallback function ako editProfil div ne postoji
-async function prikaziEditProfilaGeneric() {
-     if (!trenutniKorisnik) return;
-    const { ime, opis, instagram, tiktok, slika } = trenutniKorisnik;
-    const contentDiv = document.getElementById('genericScreenContent');
-    document.getElementById('genericScreenTitle').innerText = 'Uredi profil';
-
-    contentDiv.innerHTML = `
-        <div style="text-align:center;">
-            <img id="previewEditSlike" src="${slika || 'https://placehold.co/100'}" class="profilna-slika" style="margin-bottom: 20px;" />
-        </div>
-        <input id="editIme" placeholder="Korisničko ime" value="${ime || ''}" />
-        <textarea id="editOpis" placeholder="O meni..." rows="3">${opis || ''}</textarea>
-        <input id="editInstagram" placeholder="Instagram korisničko ime" value="${instagram || ''}" />
-        <input id="editTiktok" placeholder="TikTok korisničko ime" value="${tiktok || ''}" />
-        <label>Promijeni profilnu sliku:</label>
-        <input type="file" id="editSlikaUpload" accept="image/*" />
-        <button id="sacuvajProfilBtn" class="form-button" onclick="sacuvajProfil()">Spremi promjene</button>
-    `;
-    
     odabranaEditSlika = null;
     const editSlikaUploadEl = document.getElementById("editSlikaUpload");
     if (editSlikaUploadEl) {
