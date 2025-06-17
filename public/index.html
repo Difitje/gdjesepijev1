@@ -3,98 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gdje se pije? (beta)</title>
+    <title>Gdje se pije? (beta) </title>
+    <link rel="stylesheet" href="/style.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            display: none; /* Svi kontejneri su sakriveni po defaultu */
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            flex-direction: column;
-            gap: 10px;
-        }
-        input, textarea, button {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        h1, h2 {
-            color: #333;
-        }
-        .back-button {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            width: auto;
-        }
-        .pravila-text { text-align: left; }
-        .preview-slika { max-width: 100px; max-height: 100px; margin-top: 10px; }
-        .controls-bottom {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 20px;
-        }
-        .action-icon {
-            font-size: 24px;
-            background: #fff;
-            border-radius: 50%;
-            border: 1px solid #ccc;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .large-action-icon {
-            width: 80px;
-            height: 80px;
-            font-size: 40px;
-        }
+        .container { display: none; }
+        #intro { display: block; } /* Prikazuje početni ekran */
     </style>
 </head>
 <body>
-
-    <div id="splashScreen" class="container">
+    <div id="splashScreen">
         <h1>DRINKER</h1>
     </div>
 
@@ -105,17 +22,16 @@
     </div>
 
     <div class="container" id="pravilaEkran">
-        <button class="back-button left-aligned" onclick="swap('pravilaEkran', 'odabir')">←</button>
-        <h2>Pravila korištenja</h2>
+        <button class="back-button left-aligned" onclick="swap('pravilaEkran', 'odabir')">←</button> <h2>Pravila korištenja</h2>
         <div class="pravila-text">
             <p>Dobrodošli! Prije nego što nastavite, molimo vas da pažljivo pročitate i prihvatite sljedeća pravila:</p>
             <p><strong>1. Punoljetnost:</strong> Morate imati najmanje 18 godina da biste koristili ovu aplikaciju.</p>
-            <p><strong>2. Poštovanje:</strong> Ponašajte se prema drugima s poštovanjem.</p>
-            <p><strong>3. Sigurnost na prvom mjestu:</strong> Kada se sastajete s drugim korisnicima, činite to na javnim i sigurnim mjestima.</p>
-            <p><strong>4. Zakonitost:</strong> Zabranjeno je organiziranje ilegalnih aktivnosti.</p>
-            <p><strong>Odricanje od odgovornosti:</strong> Koristite aplikaciju na vlastitu odgovornost.</p>
+            <p><strong>2. Poštovanje:</strong> Ponašajte se prema drugima s poštovanjem. Bilo kakav oblik uznemiravanja, govora mržnje ili nasilnog ponašanja nije dozvoljen i rezultirat će trajnom zabranom.</p>
+            <p><strong>3. Sigurnost na prvom mjestu:</strong> Kada se sastajete s drugim korisnicima, činite to na javnim i sigurnim mjestima. Obavijestite prijatelja gdje idete. Budite odgovorni.</p>
+            <p><strong>4. Zakonitost:</strong> Zabranjeno je organiziranje ili promoviranje bilo kakvih ilegalnih aktivnosti putem ove platforme.</p>
+            <p><strong>Odricanje od odgovornosti:</strong> Ova aplikacija je samo platforma za povezivanje. Mi, kao kreatori, nismo odgovorni za ponašanje korisnika, niti za bilo kakve direktne ili indirektne posljedice, štete ili povrede koje mogu nastati kao rezultat korištenja aplikacije. Koristite je na vlastitu odgovornost.</p>
         </div>
-        <div>
+        <div class="pravila-checkbox-wrapper">
             <input type="checkbox" id="prihvatamPravila" onchange="proveriPrihvatanje()">
             <label for="prihvatamPravila">Pročitao/la sam i prihvaćam pravila.</label>
         </div>
@@ -130,22 +46,19 @@
     </div>
 
     <div class="container" id="login">
-        <button class="back-button left-aligned" onclick="swap('login', 'odabir')">←</button>
-        <h2>Prijava</h2>
+        <button class="back-button left-aligned" onclick="swap('login', 'odabir')">←</button> <h2>Prijava</h2>
         <input id="loginIme" placeholder="Korisničko ime" />
         <input id="loginSifra" type="password" placeholder="Lozinka" />
         <button id="loginSubmitBtn" onclick="ulogujSe()">Prijavi se</button>
     </div>
 
     <div class="container" id="registracija">
-        <button class="back-button left-aligned" onclick="swap('registracija', 'pravilaEkran')">←</button>
-        <h2>Registracija</h2>
+        <button class="back-button left-aligned" onclick="swap('registracija', 'pravilaEkran')">←</button> <h2>Registracija</h2>
         <input id="ime" placeholder="Korisničko ime" />
         <input id="sifra" type="password" placeholder="Lozinka" />
         <label style="font-size:14px; display:block; margin-bottom:5px;">Profilna slika:</label>
         <input type="file" id="slikaUpload" accept="image/*" />
-        <img id="previewSlikes" class="preview-slika" />
-        <input id="instagram" placeholder="Instagram korisničko ime (bez @)" />
+        <img id="previewSlikes" class="preview-slika" /> <input id="instagram" placeholder="Instagram korisničko ime (bez @)" />
         <input id="tiktok" placeholder="TikTok korisničko ime (bez @)" />
         <textarea id="opis" placeholder="O meni..." rows="3"></textarea>
         <button id="registracijaSubmitBtn" onclick="registruj()">Spremi</button>
@@ -161,24 +74,21 @@
     </div>
 
     <div class="container" id="inboxPrikaz">
-        <button class="back-button left-aligned" onclick="zatvoriEkran('inboxPrikaz', 'lokacijePrikaz')">←</button>
-        <h2>Poruke</h2>
+        <button class="back-button left-aligned" onclick="zatvoriEkran('inboxPrikaz', 'lokacijePrikaz')">←</button> <h2>Poruke</h2>
         <div id="listaChatova"></div>
     </div>
 
     <div class="container" id="postavkeEkran">
-        <button class="back-button left-aligned" onclick="zatvoriEkran('postavkeEkran', 'lokacijePrikaz')">←</button>
-        <h2>Postavke</h2>
+        <button class="back-button left-aligned" onclick="zatvoriEkran('postavkeEkran', 'lokacijePrikaz')">←</button> <h2>Postavke</h2>
         <a href="#" class="btn-full" onclick="prikaziInbox(); return false;">Poruke <span id="notifikacijaPorukaSettings" class="notification-badge"></span></a>
         <a href="#" class="btn-full" onclick="prikaziEditProfila(); return false;">Moj profil</a>
-        <a href="#" class="btn-full" onclick="odjaviSe(); return false;" id="odjaviSeBtn">Odjavi se</a>
-    </div>
+        <a href="#" class="btn-full" onclick="odjaviSe(); return false;" id="odjaviSeBtn">Odjavi se</a> </div>
 
     <div class="container" id="glavniDio">
-        <button class="back-button left-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)">←</button>
+        <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">←</button> <button class="close-btn right-aligned" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">✖</button> </div>
         
-        <h2>Objavi pijanku</h2> 
-
+        <h2></h2> 
+        
         <div id="objavaForma">
             <textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea>
             <button onclick="objaviPijanku()">Objavi</button>
@@ -187,20 +97,17 @@
     </div>
 
     <div class="container" id="privatniChat">
-        <button class="back-button left-aligned" onclick="zatvoriEkran('privatniChat', prethodniEkran)">←</button>
-        <div class="chat-header-info">
-            <h2 id="chatSaKorisnikom"></h2>
-            <p id="chatPartnerStatus" class="status-text"></p>
+        <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('privatniChat', prethodniEkran)">←</button> </div>
+        <div class="chat-header-info"> <h2 id="chatSaKorisnikom"></h2> <p id="chatPartnerStatus" class="status-text"></p>
         </div>
         <div id="privatniChatLog" class="chat"></div>
-        <div class="chat-input-area">
-            <textarea id="privatniInput" placeholder="Upiši poruku..." rows="2"></textarea>
+        <div class="chat-input-area"> <textarea id="privatniInput" placeholder="Upiši poruku..." rows="2"></textarea>
             <button id="posaljiPrivatnoBtn" onclick="posaljiPrivatno()">Pošalji</button>
         </div>
     </div>
 
     <div class="container" id="editProfil">
-        <button class="back-button left-aligned" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">←</button>
+        <div class="top-nav-buttons"> <button class="back-button left-aligned" onclick="zatvoriEkran('editProfil', 'postavkeEkran')">←</button> </div>
         <h2>Uredi profil</h2>
         <div style="text-align:center;">
             <img id="previewEditSlike" class="profilna-slika" />
@@ -215,90 +122,46 @@
     </div>
 
     <script>
-        // Globalna varijabla za praćenje prethodnog ekrana
+        // Globalna varijabla za pamćenje prethodnog ekrana
         let prethodniEkran = 'lokacijePrikaz'; 
 
-        // Funkcija za prebacivanje između ekrana
+        // Osnovna funkcija za sakrivanje i prikazivanje ekrana
         function swap(hideId, showId) {
-            const hideElement = document.getElementById(hideId);
-            const showElement = document.getElementById(showId);
-
-            if (hideElement) hideElement.style.display = 'none';
-            if (showElement) showElement.style.display = 'flex'; // Koristimo flex da se sadržaj centrira
-
-            // Postavi prethodni ekran za gumb "nazad"
-            if (showId === 'glavniDio' || showId === 'privatniChat' || showId === 'postavkeEkran') {
-                prethodniEkran = hideId;
-            }
+            document.getElementById(hideId).style.display = 'none';
+            document.getElementById(showId).style.display = 'block'; // Ili 'flex' ovisno o tvom CSS-u
+            prethodniEkran = hideId;
         }
 
-        // Funkcija koja se poziva kad se klikne gumb za objavu pijanke
+        // ******** POPRAVLJENA FUNKCIJA ********
         function pokaziObjavu() {
             swap('lokacijePrikaz', 'glavniDio');
-
-            // --- RJEŠENJE TVOG PROBLEMA ---
-            // Pronalazi h2 tag unutar 'glavniDio' i postavlja mu tekst.
-            // Ovo osigurava da je naslov ispravan svaki put kad se forma otvori.
+            
+            // Ova linija pronalazi prazan H2 tag i upisuje tekst u njega
             document.querySelector('#glavniDio h2').innerText = 'Objavi pijanku';
-
-            // Prikazujemo formu za objavu, a sakrivamo prikaz profila (ako je bio otvoren)
+            
+            // Osigurava da je forma vidljiva, a ne profil korisnika
             document.getElementById('objavaForma').style.display = 'block';
             document.getElementById('profilKorisnika').style.display = 'none';
         }
-
-        function zatvoriEkran(trenutniEkranId, prethodniEkranId) {
-            swap(trenutniEkranId, prethodniEkranId);
+        
+        // --- Ostatak funkcija (da ne dobivaš 'not defined' greške) ---
+        function zatvoriEkran(trenutni, prosli) {
+            swap(trenutni, prosli);
         }
 
         function proveriPrihvatanje() {
-            const checkbox = document.getElementById('prihvatamPravila');
-            const button = document.getElementById('nastaviBtn');
-            button.disabled = !checkbox.checked;
+            document.getElementById('nastaviBtn').disabled = !document.getElementById('prihvatamPravila').checked;
         }
 
-        function pokaziPostavkeEkran() {
-            swap('lokacijePrikaz', 'postavkeEkran');
-        }
-
-        // Prikaz početnog ekrana nakon splash screena
-        window.onload = () => {
-            const splash = document.getElementById('splashScreen');
-            const intro = document.getElementById('intro');
-            
-            splash.style.display = 'flex'; // Pokaži splash na početku
-            
-            setTimeout(() => {
-                swap('splashScreen', 'intro'); // Nakon 2 sekunde, prebaci na intro
-            }, 2000);
-        };
-        
-        // --- OSTALE FUNKCIJE (Placeholderi) ---
-        // Dodaj svoju logiku unutar ovih funkcija
-        function ulogujSe() { 
-            alert('Logika za prijavu ide ovdje.');
-            swap('login', 'lokacijePrikaz'); // Primjer prebacivanja nakon prijave
-        }
-        function registruj() { 
-            alert('Logika za registraciju ide ovdje.');
-            swap('registracija', 'lokacijePrikaz'); // Primjer prebacivanja nakon registracije
-        }
-        function objaviPijanku() { 
-            alert('Logika za objavu pijanke ide ovdje.'); 
-            zatvoriEkran('glavniDio', 'lokacijePrikaz');
-        }
+        function ulogujSe() { console.log("ulogujSe pozvana"); }
+        function registruj() { console.log("registruj pozvana"); }
+        function pokaziPostavkeEkran() { swap('lokacijePrikaz', 'postavkeEkran'); }
         function prikaziInbox() { swap('postavkeEkran', 'inboxPrikaz'); }
         function prikaziEditProfila() { swap('postavkeEkran', 'editProfil'); }
-        function odjaviSe() { 
-            alert('Logika za odjavu ide ovdje.'); 
-            swap('postavkeEkran', 'odabir');
-        }
-        function posaljiPrivatno() { alert('Logika za slanje privatne poruke.'); }
-        function sacuvajProfil() { 
-            alert('Logika za spremanje profila.'); 
-            zatvoriEkran('editProfil', 'postavkeEkran');
-        }
-
+        function odjaviSe() { console.log("odjaviSe pozvana"); }
+        function objaviPijanku() { console.log("objaviPijanku pozvana"); }
+        function posaljiPrivatno() { console.log("posaljiPrivatno pozvana"); }
+        function sacuvajProfil() { console.log("sacuvajProfil pozvana"); }
     </script>
-
 </body>
 </html>
