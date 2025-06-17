@@ -14,12 +14,12 @@
     <div class="container" id="intro">
         <h2>🍻 Dosadno vam je?</h2>
         <p style="text-align:center;">Pridruži se ekipi koja zna kako se loče!</p>
-        <button onclick="swap('intro', 'odabir')">Pridruži se</button>
+        <button onclick="navigateTo('odabir')">Pridruži se</button>
     </div>
 
     <div class="container" id="pravilaEkran">
         <div class="top-nav-buttons">
-            <button class="back-button" onclick="swap('pravilaEkran', 'odabir')">←</button>
+            <button class="back-button" onclick="navigateBack()">←</button>
         </div>
         <h2>Pravila korištenja</h2>
         <div class="pravila-text">
@@ -34,19 +34,19 @@
             <input type="checkbox" id="prihvatamPravila" onchange="proveriPrihvatanje()">
             <label for="prihvatamPravila">Pročitao/la sam i prihvaćam pravila.</label>
         </div>
-        <button id="nastaviBtn" onclick="swap('pravilaEkran', 'registracija')" disabled>Prihvati i nastavi</button>
+        <button id="nastaviBtn" onclick="navigateTo('registracija')" disabled>Prihvati i nastavi</button>
     </div>
 
     <div class="container" id="odabir">
         <h2>Dobrodošli!</h2>
         <p style="text-align:center;">Imaš račun? Prijavi se. Nemaš? Registriraj se.</p>
-        <button onclick="swap('odabir', 'login')">Prijava</button>
-        <button onclick="swap('odabir', 'pravilaEkran')">Registracija</button>
+        <button onclick="navigateTo('login')">Prijava</button>
+        <button onclick="navigateTo('pravilaEkran')">Registracija</button>
     </div>
 
     <div class="container" id="login">
         <div class="top-nav-buttons">
-            <button class="back-button" onclick="swap('login', 'odabir')">←</button>
+            <button class="back-button" onclick="navigateBack()">←</button>
         </div>
         <h2>Prijava</h2>
         <input id="loginIme" placeholder="Korisničko ime" />
@@ -56,7 +56,7 @@
 
     <div class="container" id="registracija">
         <div class="top-nav-buttons">
-            <button class="back-button" onclick="swap('registracija', 'pravilaEkran')">←</button>
+            <button class="back-button" onclick="navigateBack()">←</button>
         </div>
         <h2>Registracija</h2>
         <input id="ime" placeholder="Korisničko ime" />
@@ -77,7 +77,7 @@
                 </svg>
             </button>
             <h1 class="main-logo">LOCALO</h1>
-            <button class="header-icon" onclick="otvoriInbox('lokacijePrikaz')">
+            <button class="header-icon" onclick="otvoriInbox()">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                 </svg>
@@ -97,7 +97,7 @@
 
     <div class="container" id="inboxPrikaz">
         <div class="top-nav-buttons">
-            <button class="back-button" onclick="zatvoriEkran('inboxPrikaz', inboxReturnPath)">←</button>
+            <button class="back-button" onclick="navigateBack()">←</button>
         </div>
         <h2>Poruke</h2>
         <div id="listaChatova"></div>
@@ -105,8 +105,8 @@
 
     <div class="container" id="glavniDio">
         <div class="top-nav-buttons">
-            <button class="back-button" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">←</button>
-            <button class="close-btn" onclick="zatvoriEkran('glavniDio', prethodniEkran)" style="display:none;">✖</button>
+            <button class="back-button" onclick="navigateBack()" style="display:none;">←</button>
+            <button class="close-btn" onclick="navigateBack()" style="display:none;">✖</button>
         </div>
         <h2 id="glavniNaslov"></h2>
         <div id="objavaForma">
@@ -118,7 +118,7 @@
 
     <div class="container" id="privatniChat">
         <div class="top-nav-buttons">
-            <button class="back-button" onclick="zatvoriEkran('privatniChat', prethodniEkran)">←</button>
+            <button class="back-button" onclick="navigateBack()">←</button>
         </div>
         <div class="chat-header-info">
             <h2 id="chatSaKorisnikom"></h2>
@@ -134,9 +134,10 @@
             </button>
         </div>
     </div>
+    
     <div class="container" id="editProfil">
         <div class="top-nav-buttons">
-            <button class="back-button" onclick="zatvoriEkran('editProfil', 'glavniDio')">←</button>
+            <button class="back-button" onclick="navigateBack()">←</button>
         </div>
         <h2>Uredi profil</h2>
         <div style="text-align:center;">
