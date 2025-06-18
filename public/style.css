@@ -115,12 +115,19 @@ body::before {
         padding-bottom: 70px; /* Visina nav bara + malo razmaka */
     }
     /* #lokacijePrikaz je već imao padding-top, ostali kontejneri sada također trebaju */
-    #homePrikazPijanki, #praznaTrazilica, #inboxPrikaz, #glavniDio, #privatniChat, #editProfil { /* PRILAGOĐENO ID-evima */
+    #homePrikazPijanki, #praznaTrazilica, #inboxPrikaz, #glavniDio, #editProfil { /* PRILAGOĐENO ID-evima */
         padding-top: 70px; /* Osiguraj prostor za header */
     }
     /* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
     #intro, #odabir, #login, #registracija, #pravilaEkran {
         padding-top: 20px; /* Standardni padding */
+    }
+
+    /* === PRILAGODBA ZA privatniChat CONTAINER - ZAUZIMA CIJELI EKRAN I POMAKNUT JE ZBOG CHAT HEADERA I INPUTA === */
+    #privatniChat {
+        padding-top: 60px; /* Visina chat headera */
+        padding-bottom: 60px; /* Visina chat input area */
+        height: 100vh; /* Zauzima cijelu visinu viewporta */
     }
 }
 
@@ -328,6 +335,8 @@ body::before {
     /* KLJUČNO: Sakrivanje scroll trake */
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+    padding-top: 60px; /* Dodan padding-top da sadržaj ne bude ispod headera */
+    padding-bottom: 60px; /* Dodan padding-bottom da sadržaj ne bude ispod inputa */
 }
 
 /* Za WebKit (Chrome, Safari) */
@@ -359,15 +368,19 @@ body::before {
 
 /* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
 .chat-input-area {
+    position: fixed; /* Postavi fiksno pozicioniranje */
+    bottom: 0; /* Poravnaj na dno */
+    left: 0;
+    width: 100%; /* Zauzima cijelu širinu */
     display: flex; 
     align-items: center; /* Centriramo sadržaj vertikalno */
     padding: 8px 12px; /* Padding kontejnera */
-    background-color: transparent; 
-    border-top: none; 
-    margin-top: auto; 
+    background-color: rgba(0, 0, 0, 0.95); /* Dodaj pozadinu koja prekriva sadržaj */
+    border-top: 1px solid rgba(0, 0, 0, 0.5); /* Border na vrhu */
     flex-shrink: 0; 
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
-    position: relative; /* KLJUČNO: Referenca za apsolutno pozicionirane ikone i gumb */
+    z-index: 100; /* Iznad svih ostalih elemenata */
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.4); /* Sjena iznad inputa */
 }
 
 #privatniInput {
@@ -480,9 +493,9 @@ body::before {
     justify-content: flex-start; /* Poravnaj lijevo */
     margin-bottom: 10px;
     flex-shrink: 0;
-    padding-top: 15px; /* Smanjen padding-top da bude više gore */
+    padding-top: 10px; /* Smanjen padding-top da bude više gore, na razini back tipke */
     width: 100%; /* Da zauzima cijelu širinu */
-    padding-left: 15px; /* Dodan padding s lijeve strane */
+    padding-left: 55px; /* Dodan padding s lijeve strane, uzimajući u obzir back-button */
     position: absolute; /* Postavi apsolutno pozicioniranje */
     top: 0; /* Poravnaj na vrh */
     left: 0; /* Poravnaj lijevo */

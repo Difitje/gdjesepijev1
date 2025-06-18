@@ -566,15 +566,6 @@ async function pokreniPrivatniChat(partnerId) {
     const primalac = sviKorisnici.find(u => u.id === partnerId);
     if (!primalac) return;
 
-    const chatSaKorisnikomEl = document.getElementById("chatSaKorisnikom");
-    const chatPartnerSlikaEl = document.getElementById("chatPartnerSlika"); 
-    const chatPartnerStatusEl = document.getElementById("chatPartnerStatus"); 
-
-    chatSaKorisnikomEl.innerText = primalac.ime; 
-    chatPartnerSlikaEl.src = primalac.slika || 'default_profile.png'; 
-    chatPartnerStatusEl.innerText = formatirajStatus(primalac.lastActive).text; 
-
-    // IZMJENA: Omotaj ime i status u novi div za bolju kontrolu rasporeda
     const chatHeaderInfoEl = document.querySelector('.chat-header-info');
     chatHeaderInfoEl.innerHTML = `
         <img id="chatPartnerSlika" src="${primalac.slika || 'default_profile.png'}" alt="Profilna slika" class="chat-partner-profilna">
