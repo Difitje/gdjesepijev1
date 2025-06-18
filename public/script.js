@@ -119,67 +119,11 @@ function compressImage(base64Image, maxWidth = 400, quality = 0.8) {
     });
 }
 
-window.addEventListener('DOMContentLoaded', async function() {
-    localStorage.removeItem("loggedInUserId");
-    const token = localStorage.getItem("token");
-    const splashScreen = document.getElementById('splashScreen');
+// OVO JE IZMJENA: DOMContentLoaded je sada samo u index.html script tagu
+// window.addEventListener('DOMContentLoaded', async function() {
+// ... cijeli blok je prebačen u index.html
+// });
 
-    document.querySelectorAll('.container').forEach(el => {
-        if (el.id !== 'splashScreen') {
-            el.style.display = 'none';
-            el.classList.remove('active-screen', 'fade-out-screen');
-        }
-    });
-
-    let appInitializedSuccessfully = false;
-    if (token) {
-        try {
-            const response = await authenticatedFetch('/api/auth/me');
-            if (response.ok) {
-                const data = await response.json();
-                trenutniKorisnik = data.user;
-                await Promise.all([ dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke() ]);
-                appInitializedSuccessfully = true;
-            } else {
-                localStorage.removeItem("token");
-            }
-        } catch (error) {
-            localStorage.removeItem("token");
-        }
-    }
-
-    if (splashScreen) {
-        setTimeout(() => {
-            splashScreen.style.animation = 'fadeOutSplash 0.5s ease-out forwards';
-            setTimeout(() => {
-                splashScreen.style.display = 'none';
-                splashScreen.remove();
-                if (appInitializedSuccessfully) {
-                    pokreniAplikaciju();
-                } else {
-                    swap(null, 'intro'); 
-                }
-            }, 500);
-        }, 2000);
-    }
-
-    const privatniInput = document.getElementById('privatniInput');
-    const posaljiBtn = document.getElementById('posaljiPrivatnoBtn');
-    
-    if (privatniInput && posaljiBtn) {
-        privatniInput.addEventListener('input', () => {
-            privatniInput.style.height = 'auto';
-            privatniInput.style.height = `${privatniInput.scrollHeight}px`;
-            if (privatniInput.value.trim().length > 0) {
-                posaljiBtn.disabled = false;
-                posaljiBtn.classList.add('enabled');
-            } else {
-                posaljiBtn.disabled = true;
-                posaljiBtn.classList.remove('enabled');
-            }
-        });
-    }
-});
 
 function proveriPrihvatanje() {
     const checkbox = document.getElementById('prihvatamPravila');
@@ -190,7 +134,8 @@ function proveriPrihvatanje() {
 async function globalRefreshUI() {
     if (!trenutniKorisnik) return;
     await Promise.all([ dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke() ]);
-    if (document.getElementById("lokacijePrikaz")?.classList.contains('active-screen')) { prikaziPijankePregled(); }
+    // IZMJENA: Provjerava homePrikazPijanki umjesto lokacijePrikaz
+    if (document.getElementById("homePrikazPijanki")?.classList.contains('active-screen')) { prikaziPijankePregled(); }
     if (document.getElementById("inboxPrikaz")?.classList.contains('active-screen')) { otvoriInbox(); }
     if (document.getElementById("privatniChat")?.classList.contains('active-screen') && trenutniChatPartnerId) { prikaziPrivatniLog(); }
     azurirajNotifikacije();
@@ -293,7 +238,7 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
             localStorage.setItem("token", data.token);
             trenutniKorisnik = data.user;
             await Promise.all([dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke()]);
-            pokreniAplikaciju();
+            pokreniAplikaciju(); // Ovo će sada automatski otići na homePrikazPijanki
         } else {
             alert("Greška pri prijavi: " + data.message);
         }
@@ -318,8 +263,9 @@ async function odjaviSe() {
 
 function pokreniAplikaciju() {
     navigationStack = [];
-    swap(document.querySelector('.container.active-screen')?.id || null, 'homePrazan'); // idi na home
-    ocistiPijankePregled(); // obriši stare pijanke
+    // IZMJENA: Prebacuje na novi Home ekran
+    swap(document.querySelector('.container.active-screen')?.id || null, 'homePrikazPijanki'); 
+    ocistiPijankePregled(); 
 
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
@@ -327,7 +273,7 @@ function pokreniAplikaciju() {
 
     azurirajMojuAktivnost();
     dohvatiLokaciju(() => {
-        prikaziPijankePregled(); // i dalje se dohvaća sve
+        prikaziPijankePregled(); // PRIKAZUJE PIJANKE ODMAH NAKON STARTA APLIKACIJE I LOKACIJE
         azurirajNotifikacije();
     });
 }
@@ -489,8 +435,9 @@ async function obrisiPijanku(pijankaId, event) {
     }
 }
 
+// IZMJENA: prikaziPijankePregled se sada oslanja na novi ID 'homePrikazPijanki'
 function prikaziPijankePregled() {
-    const div = document.getElementById("pijankePregled");
+    const div = document.getElementById("pijankePregled"); // Ovo je unutar homePrikazPijanki diva
     if (!div) return;
     div.innerHTML = "";
     if (svePijanke.length === 0) {
@@ -614,16 +561,14 @@ async function pokreniPrivatniChat(partnerId) {
     if (!primalac) return;
 
     const chatSaKorisnikomEl = document.getElementById("chatSaKorisnikom");
-    const chatPartnerSlikaEl = document.getElementById("chatPartnerSlika"); // Dohvaćamo element za sliku
+    const chatPartnerSlikaEl = document.getElementById("chatPartnerSlika"); 
 
-    chatSaKorisnikomEl.innerText = primalac.ime; // Postavlja ime
-    // Postavlja URL profilne slike. Koristi 'default_profile.png' ako je slika null.
+    chatSaKorisnikomEl.innerText = primalac.ime; 
     chatPartnerSlikaEl.src = primalac.slika || 'default_profile.png'; 
 
-    // Dodajemo event listener za klik na sliku i ime za otvaranje profila
     const otvoriProfilHandler = () => otvoriProfil(primalac.id);
-    chatPartnerSlikaEl.onclick = otvoriProfilHandler; // Slika je klikabilna
-    chatSaKorisnikomEl.onclick = otvoriProfilHandler; // Ime je klikabilno (opcionalno, ali lijepo)
+    chatPartnerSlikaEl.onclick = otvoriProfilHandler; 
+    chatSaKorisnikomEl.onclick = otvoriProfilHandler; 
     
     navigateTo('privatniChat');
 
@@ -649,8 +594,8 @@ async function pokreniPrivatniChat(partnerId) {
     
     if (chatStatusInterval) clearInterval(chatStatusInterval);
     chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
-    azurirajStatusSagovornika(); // Odmah ažuriraj status pri otvaranju chata
-    prikaziPrivatniLog(); // Prikazuje poruke
+    azurirajStatusSagovornika(); 
+    prikaziPrivatniLog(); 
 }
 
 async function posaljiPrivatno() {
