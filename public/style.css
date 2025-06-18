@@ -32,7 +32,7 @@ body {
     font-size: 16px; 
     position: relative; /* OVO JE KLJUČNO ZA PSEUDO-ELEMENT */
     touch-action: manipulation;
-    z-index: 0; /* Dodano za osiguranje z-indeksa ispod overlay-a */
+    z-index: 0; /* Osigurava da je body ispod overlay-a */
 }
 
 /* --- Zatamnjivanje pozadine --- */
@@ -43,7 +43,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.85); /* Crni prozirni sloj (40% neprozirnosti) */
+    background-color: rgba(0, 0, 0, 0.85); /* Prilagodi za željenu tamnoću */
     z-index: 1; /* Mora biti iznad body-ja, ali ispod sadržaja */
 }
 
@@ -108,9 +108,8 @@ body::before {
 .main-header {
     position: absolute; top: 0; left: 0; right: 0; height: 60px; padding: 0 10px;
     display: flex; justify-content: space-between; align-items: center;
-    /* Ovo će dati blagu prozirnost (80% neprozirno, 20% prozirno) */
-    background-color: rgba(26, 26, 26, 0.8); /* Prilagodi zadnju brojku (0.1 do 0.9) */
-    border-bottom: 1px solid rgba(51, 51, 51, 0.5); /* Ako želiš i border da bude proziran */
+    background-color: rgba(26, 26, 26, 0.8); /* Blaga prozirnost */
+    border-bottom: 1px solid rgba(51, 51, 51, 0.5); 
     z-index: 100;
 }
 @media (min-width: 768px) {
@@ -120,7 +119,7 @@ body::before {
         margin: -40px -40px 20px -40px; 
         padding: 0 30px; 
         height: 70px; 
-        background-color: transparent; /* PROMIJENJENO: Transparentno i za desktop */
+        background-color: rgba(34, 34, 34, 0.8); /* Prilagođeno za desktop */
     }
 }
 .header-icon {
@@ -176,14 +175,14 @@ body::before {
 /* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
 .chat-input-area {
     display: flex; 
-    align-items: flex-end; /* Poravnava sadržaj na dno, jer textarea može rasti */
-    padding: 8px 12px; 
-    background-color: transparent; 
-    border-top: none; 
+    align-items: center; /* PROMIJENJENO: Centriramo sadržaj vertikalno */
+    padding: 8px 12px; /* Početni padding kontejnera */
+    background-color: transparent; /* Uklanjamo pravokutnu pozadinu */
+    border-top: none; /* Uklanjamo gornju liniju */
     margin-top: auto; 
     flex-shrink: 0; 
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
-    position: relative; /* Bitno: Omogućuje apsolutno pozicioniranje unutar */
+    position: relative; /* Bitno: Omogućuje apsolutno pozicioniranje ikona unutar ovog diva */
 }
 
 #privatniInput {
@@ -198,12 +197,11 @@ body::before {
     overflow-y: auto; 
     resize: none;
     transition: all 0.2s ease; 
-    margin: 0;
+    margin: 0; 
     
-    /* KLJUČNO: Padding za smještaj ikona unutar textarea */
-    padding: 10px 45px 10px 45px; /* Top Right Bottom Left - Dovoljno mjesta za ikone */
-    position: relative; /* KLJUČNO: Omogućava apsolutno pozicioniranje ikona UNUTAR ovoga */
-    /* Z-index je bitan da input bude iznad ikona, ali ne mora biti eksplicitno definiran ako su ikone djeca */
+    /* KLJUČNO: Padding za smještaj ikona */
+    /* Dovoljno mjesta s lijeve i desne strane za ikone */
+    padding: 10px 45px 10px 45px; 
 }
 
 #privatniInput:focus { 
@@ -215,17 +213,17 @@ body::before {
 
 /* Stilovi za ikonicu za slanje slike */
 .image-upload-icon {
-    position: absolute; /* Apsolutno pozicioniran unutar #privatniInput */
-    left: 10px; /* PRILAGOĐENO: Pomaknuto bliže lijevom rubu inputa */
-    top: 50%; /* Centrirano vertikalno */
-    transform: translateY(-50%); /* Precizno vertikalno centriranje */
+    position: absolute; 
+    left: 20px; /* Pomak s lijeve strane .chat-input-area */
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
     width: 32px; 
     height: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    z-index: 2; /* Mora biti iznad inputa */
+    z-index: 10; /* Mora biti iznad inputa */
     background: rgba(40, 40, 40, 0.3); 
     border-radius: 50%; 
     transition: background-color 0.2s ease;
@@ -257,11 +255,11 @@ body::before {
     cursor: pointer; 
     transition: transform 0.2s ease, opacity 0.2s ease;
     
-    position: absolute; /* Apsolutno pozicioniran unutar #privatniInput */
-    right: 10px; /* PRILAGOĐENO: Pomaknuto bliže desnom rubu inputa */
-    top: 50%; /* Centrirano vertikalno */
-    transform: translateY(-50%); /* Precizno vertikalno centriranje */
-    z-index: 2; /* Mora biti iznad inputa */
+    position: absolute; 
+    right: 20px; /* Pomak s desne strane .chat-input-area */
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    z-index: 10; 
     
     transform: scale(0); 
     opacity: 0; 
@@ -324,8 +322,8 @@ img.preview-slika { display: none; }
 .pravila-checkbox-wrapper { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; justify-content: center; }
 .pravila-checkbox-wrapper input[type="checkbox"] { width: auto; margin-bottom: 0; flex-shrink: 0; }
 .pravila-checkbox-wrapper label { margin-bottom: 0; font-size: 14px; color: #f0f0f0; text-align: left; }
-.pijanka { background: #282828; padding: 15px; border-radius: 10px; margin: 0 auto 8px auto; display: flex; flex-direction: column; border-left: 3px solid #ff4757; transition: all 0.2s ease-in-out; width: 100%; max-width: 600px; box-sizing: border-box; }
-.pijanka:hover { background: #303030; border-left-color: #e03f4d; }
+.pijanka { background: rgba(40, 40, 40, 0.7); padding: 15px; border-radius: 10px; margin: 0 auto 8px auto; display: flex; flex-direction: column; border-left: 3px solid rgba(51, 51, 51, 0.5); transition: all 0.2s ease-in-out; width: 100%; max-width: 600px; box-sizing: border-box; }
+.pijanka:hover { background: rgba(48, 48, 48, 0.9); border-left-color: #ff4757; }
 .pijanka-header { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 8px; border-bottom: 1px solid #333; margin-bottom: 8px; width: 100%; }
 .pijanka-profilna-slika { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #ff4757; flex-shrink: 0; }
 
@@ -387,3 +385,4 @@ img.preview-slika { display: none; }
     transform: none;
     box-shadow: none;
 }
+/* === KRAJ CSS-a === */
