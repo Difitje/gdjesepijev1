@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gdje se pije? (beta) </title>
     <link rel="stylesheet" href="/style.css">
+    <style>
+        /* Novi CSS za centriranje teksta "Trenutno nitko ne pije" */
+        #pijankePregled.empty-message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%; /* Pobrinite se da div zauzima punu visinu */
+            text-align: center;
+            flex-direction: column; /* Ako zelis vise redova, da budu jedan ispod drugog */
+        }
+        #pijankePregled.empty-message p {
+            margin: 0; /* Ukloni defaultnu marginu od paragrafa */
+        }
+    </style>
 </head>
 <body>
     <div class="container" id="intro">
@@ -142,7 +156,7 @@
         <input id="editIme" placeholder="Korisničko ime" />
         <textarea id="editOpis" placeholder="O meni..." rows="3"></textarea>
         <input id="editInstagram" placeholder="Instagram korisničko ime" />
-        <input id="editTiktok" placeholder="TikTok korisničko ime" />
+        <input id="tiktok" placeholder="TikTok korisničko ime" />
         <label style="font-size:14px; display:block; margin-bottom:5px;">Promijeni profilnu sliku:</label>
         <input type="file" id="editSlikaUpload" accept="image/*" />
         <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
@@ -214,7 +228,7 @@
         }
 
         // NOVO: Glavna funkcija za rukovanje klikovima na navigacijske gumbe
-        function handleNavClick(targetScreenId) { // Uklonjen forceRefreshPijanke parametar jer ga više ne treba za Tražilicu
+        function handleNavClick(targetScreenId) { 
             const currentActiveNavButton = document.querySelector('.bottom-nav .nav-button.active');
             let currentTargetScreenId = '';
 

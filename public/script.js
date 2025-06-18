@@ -128,9 +128,7 @@ function proveriPrihvatanje() {
 async function globalRefreshUI() {
     if (!trenutniKorisnik) return;
     await Promise.all([ dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke() ]);
-    // IZMJENA: Provjerava homePrikazPijanki umjesto lokacijePrikaz
     if (document.getElementById("homePrikazPijanki")?.classList.contains('active-screen')) { prikaziPijankePregled(); }
-    // IZMJENA: Uklonjena provjera za praznaTrazilica jer ne treba osvježavati pijanke tamo
     if (document.getElementById("inboxPrikaz")?.classList.contains('active-screen')) { otvoriInbox(); }
     if (document.getElementById("privatniChat")?.classList.contains('active-screen') && trenutniChatPartnerId) { prikaziPrivatniLog(); }
     azurirajNotifikacije();
@@ -432,11 +430,16 @@ async function obrisiPijanku(pijankaId, event) {
 function prikaziPijankePregled() {
     const div = document.getElementById("pijankePregled"); 
     if (!div) return;
-    div.innerHTML = "";
+    
+    // Ukloni klasu ako je bila prisutna od prethodnog prikaza
+    div.classList.remove('empty-message');
+
     if (svePijanke.length === 0) {
-        div.innerHTML = '<p style="text-align:center;">Trenutno nitko ne pije. Budi prvi!</p>';
+        div.innerHTML = '<p>Trenutno nitko ne pije. Budi prvi!</p>';
+        div.classList.add('empty-message'); // Dodaj klasu za centriranje
         return;
     }
+    div.innerHTML = ""; // Očisti div prije dodavanja pijanki
     svePijanke.forEach(pijanka => {
         const autor = sviKorisnici.find(u => u.id === pijanka.korisnikId);
         if (!autor) return;
