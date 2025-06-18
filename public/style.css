@@ -16,7 +16,7 @@ html, body {
 }
 
 body {
-    font-family: -apple-system, BlinkMacMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
     /* ISPRAVAK: DODANA KOSA CRTA (/) NA POČETAK PUTANJE */
     background-image: url('/pozadina.png');
@@ -261,6 +261,7 @@ body::before {
     transition: color 0.2s ease;
     cursor: pointer;
     position: relative; /* Za badge notifikacije */
+    outline: none; /* UKLONJENO: Crveni okvir na klik */
 }
 
 .bottom-nav .nav-button svg {
@@ -274,6 +275,7 @@ body::before {
 
 .bottom-nav .nav-button.active {
     color: #ff4757; /* Crvena boja za aktivnu stavku */
+    outline: none; /* UKLONJENO: Crveni okvir na aktivnu tipku */
 }
 
 .bottom-nav .nav-button.active svg {
@@ -286,6 +288,10 @@ body::before {
 
 .bottom-nav .nav-button:hover:not(.active) svg {
     stroke: #e0e0e0; /* Svjetlija siva ikona na hoveru */
+}
+
+.bottom-nav .nav-button:focus { /* UKLONJENO: Crveni okvir na fokus */
+    outline: none;
 }
 
 /* Prilagodba notifikacijske točkice za donji nav bar */
