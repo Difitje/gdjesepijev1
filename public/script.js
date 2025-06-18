@@ -35,6 +35,14 @@ function swap(hideId, showId) {
     if (!showElement) return;
 
     const showNewElement = () => {
+        // Osiguraj da svi kontejneri koji nisu aktivni budu display:none
+        document.querySelectorAll('.container').forEach(el => {
+            if (el.id !== showId) {
+                el.style.display = 'none';
+                el.classList.remove('active-screen', 'fade-out-screen');
+            }
+        });
+
         showElement.style.display = 'flex';
         setTimeout(() => {
             showElement.classList.add('active-screen');
@@ -51,7 +59,8 @@ function swap(hideId, showId) {
             showNewElement();
         }, { once: true });
     } else {
-        if (hideElement) {
+        // Ako nema aktivnog elementa za sakriti (npr. s splash screena)
+        if (hideElement) { // Provjeri postoji li uopće hideElement
             hideElement.style.display = 'none';
             hideElement.classList.remove('active-screen', 'fade-out-screen');
         }
@@ -61,50 +70,78 @@ function swap(hideId, showId) {
 
 function navigateTo(targetScreenId) {
     const currentScreenEl = document.querySelector('.container.active-screen');
+    let currentScreenId = null;
     if (currentScreenEl) {
-        navigationStack.push(currentScreenEl.id);
-        swap(currentScreenEl.id, targetScreenId);
-    } else {
-        swap(null, targetScreenId);
-    }
-    setActiveNavIcon(targetScreenId); // Poziva se da postavi aktivnu ikonu na dnu
-    // KLJUČNO: Sakrij donju navigaciju ako idemo na ekrane prije prijave
-    if (targetScreenId === 'intro' || targetScreenId === 'odabir' || targetScreenId === 'login' || targetScreenId === 'registracija' || targetScreenId === 'pravilaEkran') {
-        toggleBottomNav(false);
-    } else {
-        // Ako idemo na ekrane unutar aplikacije, prikaži navigaciju (ako je korisnik prijavljen)
-        if (trenutniKorisnik) { // Prikazuj navigaciju samo ako je korisnik prijavljen
-            toggleBottomNav(true);
+        currentScreenId = currentScreenEl.id;
+        // Spriječiti dodavanje istog ekrana na stack više puta zaredom
+        if (navigationStack.length === 0 || navigationStack[navigationStack.length - 1] !== currentScreenId) {
+            navigationStack.push(currentScreenId);
         }
     }
+    
+    // Provjeravamo je li odredišni ekran "glavni" ekran aplikacije (poslije prijave)
+    const isAppScreen = ['lokacijePrikaz', 'inboxPrikaz', 'glavniDio', 'privatniChat', 'editProfil', 'searchScreen'].includes(targetScreenId);
+
+    // Sakrij donju navigaciju ako idemo na ekrane prije prijave
+    if (!isAppScreen) {
+        toggleBottomNav(false);
+    } else {
+        // Prikaži donju navigaciju ako idemo na ekrane unutar aplikacije (ako je korisnik prijavljen)
+        if (trenutniKorisnik) { 
+            toggleBottomNav(true);
+        } else {
+            // Ako korisnik nije prijavljen, a pokušava ići na app ekran (npr. refresh)
+            // Preusmjeri ga na intro i sakrij navigaciju
+            toggleBottomNav(false);
+            targetScreenId = 'intro'; // Preusmjeri ga na intro ako nije prijavljen
+        }
+    }
+
+    swap(currentScreenId, targetScreenId);
+    setActiveNavIcon(targetScreenId); // Poziva se da postavi aktivnu ikonu na dnu
 }
 
 function navigateBack() {
-    const lastScreenId = navigationStack.pop();
-    if (lastScreenId) {
-        const currentScreenEl = document.querySelector('.container.active-screen');
-        if (currentScreenEl && currentScreenEl.id === 'privatniChat') {
-            if (chatStatusInterval) clearInterval(chatStatusInterval);
-            trenutniChatPartnerId = null;
-            const privatniInput = document.getElementById("privatniInput");
+    const currentScreenEl = document.querySelector('.container.active-screen');
+    const currentScreenId = currentScreenEl ? currentScreenEl.id : null;
+
+    // Specijalni slučaj za privatni chat pri povratku
+    if (currentScreenId === 'privatniChat') {
+        if (chatStatusInterval) clearInterval(chatStatusInterval);
+        trenutniChatPartnerId = null;
+        const privatniInput = document.getElementById("privatniInput");
+        if (privatniInput) { // Provjeri postojanje elementa
             privatniInput.value = "";
             privatniInput.style.height = 'auto';
-            document.getElementById('posaljiPrivatnoBtn').classList.remove('enabled');
-        }
-        swap(currentScreenEl.id, lastScreenId);
-        azurirajNotifikacije();
-        setActiveNavIcon(lastScreenId); // Poziva se da postavi aktivnu ikonu na dnu
-        // KLJUČNO: Sakrij donju navigaciju ako se vraćamo na ekrane prije prijave
-        if (lastScreenId === 'intro' || lastScreenId === 'odabir' || lastScreenId === 'login' || lastScreenId === 'registracija' || lastScreenId === 'pravilaEkran') {
-            toggleBottomNav(false);
-        } else {
-            // Ako se vraćamo na ekrane unutar aplikacije, prikaži navigaciju (ako je korisnik prijavljen)
-            if (trenutniKorisnik) { // Prikazuj navigaciju samo ako je korisnik prijavljen
-                toggleBottomNav(true);
+            const posaljiBtn = document.getElementById('posaljiPrivatnoBtn');
+            if (posaljiBtn) { // Provjeri postojanje gumba
+                posaljiBtn.disabled = true;
+                posaljiBtn.classList.remove('enabled');
             }
         }
+    }
+
+    const lastScreenId = navigationStack.pop();
+    if (lastScreenId) {
+        // Provjeravamo je li odredišni ekran "glavni" ekran aplikacije (poslije prijave)
+        const isAppScreen = ['lokacijePrikaz', 'inboxPrikaz', 'glavniDio', 'privatniChat', 'editProfil', 'searchScreen'].includes(lastScreenId);
+        
+        if (!isAppScreen) {
+            toggleBottomNav(false);
+        } else {
+            if (trenutniKorisnik) { 
+                toggleBottomNav(true);
+            } else {
+                toggleBottomNav(false); // Ako se vraćamo na app ekran, a nismo prijavljeni, sakrij navigaciju
+                //lastScreenId = 'intro'; // Moguće preusmjeravanje na intro ako se vraća na app ekran, a nije prijavljen
+            }
+        }
+        swap(currentScreenId, lastScreenId);
+        azurirajNotifikacije();
+        setActiveNavIcon(lastScreenId);
     } else {
-        console.error("Navigation stack empty, can't go back.");
+        console.error("Navigation stack empty, can't go back. Redirecting to intro.");
+        navigateTo('intro'); // Ako je stack prazan, idi na intro
     }
 }
 
@@ -143,7 +180,7 @@ function setActiveNavIcon(targetScreenId) {
 function openSearch() {
     // Morate imati div s ID-em 'searchScreen' u HTML-u
     // npr. <div class="container" id="searchScreen">...</div>
-    navigateTo('searchScreen'); // Ovo će aktivirati search ikonu ako postoji
+    navigateTo('searchScreen'); 
     alert("Funkcionalnost pretraživanja će biti dodana ovdje!");
 }
 
@@ -221,7 +258,7 @@ window.addEventListener('DOMContentLoaded', async function() {
                     pokreniAplikaciju(); 
                 } else {
                     swap(null, 'intro'); 
-                    // Osiguraj da je navigacija skrivena i ako idemo na 'intro'
+                    // Osiguraj da je navigacija skrivena i ako se ide na 'intro'
                     toggleBottomNav(false); 
                 }
             }, 500);
@@ -379,7 +416,7 @@ async function odjaviSe() {
     });
     navigationStack = [];
     toggleBottomNav(false); // KLJUČNO: SKRIJ NAVIGACIJU PRI ODJAVI
-    swap(document.querySelector('.container.active-screen').id, 'intro');
+    swap(document.querySelector('.container.active-screen')?.id || null, 'intro'); // Koristi optional chaining za sigurnost
 }
 
 function pokreniAplikaciju() {
