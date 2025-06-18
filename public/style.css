@@ -201,7 +201,7 @@ body::before {
     margin: 0; 
     
     /* KLJUČNO: Padding za smještaj ikona */
-    padding: 10px 45px 10px 45px; /* PROMIJENJENO: Osigurava prostor */
+    padding: 10px 45px 10px 45px; /* Osigurava prostor */
 }
 
 #privatniInput:focus { 
@@ -234,8 +234,8 @@ body::before {
 }
 
 .image-upload-icon svg {
-    width: 18px; 
-    height: 18px;
+    width: 18px; /* SMANJENO: Bilo je 24px */
+    height: 18px; /* SMANJENO: Bilo je 24px */
     fill: #f0f0f0; 
 }
 
@@ -256,29 +256,33 @@ body::before {
     justify-content: center; 
     align-items: center;
     cursor: pointer; 
-    transition: all 0.2s ease; /* PROMIJENJENO: Uklonili smo 'transform' iz tranzicije da se ne miješa */
+    transition: opacity 0.2s ease, visibility 0.2s ease; /* Tranzicija samo za opacity i visibility */
     z-index: 10; 
     
-    /* OVE LINIJE MOGU BITI PROBLEM: */
-    transform: scale(0); /* SKRIVA GUMB */
-    opacity: 0; /* SKRIVA GUMB */
+    opacity: 0; 
+    visibility: hidden; /* Skriveno po defaultu */
+    transform: scale(0.9); /* Smanjeno na 90% da se ne vidi naglo skakanje, ali da se ne skriva potpuno */
+    transform-origin: center center; /* Osigurava da se smanji/poveća iz centra */
 }
 
-/* OVDJE JE KRITIČNA PROMJENA ZA PRIKAZ/SKRIVANJE GUMBA */
 #posaljiPrivatnoBtn.enabled { 
-    transform: scale(1); /* OVO SE AKTIVIRA JAVASCRIPTOM */
-    opacity: 1; /* I OVO */
-    /* Dodatno osiguravamo da je vidljiv kad je enabled */
-    visibility: visible;
+    opacity: 1; 
+    visibility: visible; /* Postaje vidljiv kada se klasa doda */
+    transform: scale(1); /* Povećava na normalnu veličinu kada je enabled */
 }
-/* A kada nije enabled, treba biti potpuno skriven */
-#posaljiPrivatnoBtn:not(.enabled) {
-    visibility: hidden;
+/* Kada nije enabled, želimo da se vraća na skriveno stanje */
+#posaljiPrivaljnoBtn:not(.enabled) {
     opacity: 0;
-    /* Možda i transform: scale(0); ako želite efekt smanjenja pri sakrivanju */
-    transform: scale(0); 
+    visibility: hidden;
+    transform: scale(0.9); /* Vraća se na smanjeno stanje, ali ne 0 */
 }
 
+#posaljiPrivatnoBtn svg { 
+    width: 18px; /* SMANJENO: Bilo je 24px (zbog veće ikone u SVG-u) */
+    height: 18px; /* SMANJENO: Bilo je 24px */
+    fill: #ffffff; 
+    margin-left: -1px; 
+}
 /* ========================================= */
 
 /* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
