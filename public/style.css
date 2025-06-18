@@ -175,23 +175,24 @@ body::before {
 
 /* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
 /* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
+/* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
 .chat-input-area {
     display: flex; 
-    align-items: flex-end; /* Poravnava stavke na dno flex kontejnera */
-    gap: 10px; /* Razmak između inputa i gumba (ostavljamo ga) */
-    padding: 8px 12px;
-    background-color: transparent; /* PROMIJENJENO: Uklanjamo pravokutnu pozadinu */
-    border-top: none; /* PROMIJENJENO: Uklanjamo gornju liniju */
+    align-items: center; /* PROMIJENJENO: Centriramo vertikalno */
+    gap: 10px; /* Razmak između inputa i gumba */
+    padding: 8px 12px; /* Početni padding */
+    background-color: transparent; /* Uklanjamo pravokutnu pozadinu */
+    border-top: none; /* Uklanjamo gornju liniju */
     margin-top: auto; 
     flex-shrink: 0; 
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
-    position: relative; /* Dodano za pozicioniranje gumba unutar ovog područja */
+    position: relative; /* Bitno za apsolutno pozicioniranje ikona unutar ovog diva */
 }
 
 #privatniInput {
-    flex-grow: 1; 
+    flex-grow: 1; /* Omogućuje inputu da zauzme sav dostupan prostor */
     border: none; 
-    padding: 10px 15px 10px 55px; /* PROMIJENJENO: Dodan padding-left od 55px */
+    padding: 10px 15px; /* Početni padding */
     border-radius: 20px;
     background-color: #3a3a3a; 
     color: #f0f0f0; 
@@ -201,16 +202,55 @@ body::before {
     overflow-y: auto; 
     resize: none;
     transition: all 0.2s ease; 
-    margin: 0;
-    padding-right: 45px; /* PRILAGOĐENO: Malo smanjeno zbog manjeg gumba za slanje */
+    margin: 0; /* Uklanja margine */
+    
+    /* PADDING ZA IKONE: Podesit ćemo ga ovdje */
+    padding-left: 55px; /* Dovoljno mjesta za ikonu slike lijevo */
+    padding-right: 45px; /* Dovoljno mjesta za gumb za slanje desno */
 }
 
-#privatniInput:focus { outline: none; background-color: #4a4a4a; box-shadow: none; border-color: transparent; }
+#privatniInput:focus { 
+    outline: none; 
+    background-color: #4a4a4a; 
+    box-shadow: none; 
+    border-color: transparent; 
+}
 
+/* Stilovi za ikonicu za slanje slike */
+.image-upload-icon {
+    position: absolute; /* Apsolutno pozicioniran unutar .chat-input-area */
+    left: 12px; /* PROMIJENJENO: S lijeve strane paddinga .chat-input-area */
+    /* bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); */ /* Ovo više ne treba */
+    top: 50%; /* Centriramo vertikalno */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10; 
+    background: rgba(40, 40, 40, 0.3); 
+    border-radius: 50%; 
+    transition: background-color 0.2s ease;
+}
+
+.image-upload-icon:hover {
+    background: rgba(40, 40, 40, 0.6); 
+}
+
+.image-upload-icon svg {
+    width: 18px; 
+    height: 18px;
+    fill: #f0f0f0; 
+}
+
+
+/* Stilovi za gumb za slanje poruke */
 #posaljiPrivatnoBtn {
     flex-shrink: 0; 
-    width: 32px; /* SMANJENO: Bilo je 40px */
-    height: 32px; /* SMANJENO: Bilo je 40px */
+    width: 32px; 
+    height: 32px; 
     border-radius: 50%;
     border: none; 
     padding: 0; 
@@ -222,9 +262,11 @@ body::before {
     cursor: pointer; 
     transition: transform 0.2s ease, opacity 0.2s ease;
     
-    position: absolute; 
-    right: 15px; /* PRILAGOĐENO: Malo pomaknuto zbog manje širine gumba */
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); 
+    position: absolute; /* Apsolutno pozicioniran unutar .chat-input-area */
+    right: 12px; /* PROMIJENJENO: S desne strane paddinga .chat-input-area */
+    /* bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); */ /* Ovo više ne treba */
+    top: 50%; /* Centriramo vertikalno */
+    transform: translateY(-50%); /* Precizno centriranje */
     z-index: 10; 
     
     transform: scale(0); 
@@ -235,32 +277,12 @@ body::before {
     opacity: 1; 
 } 
 #posaljiPrivatnoBtn svg { 
-    width: 18px; /* SMANJENO: Bilo je 22px */
-    height: 18px; /* SMANJENO: Bilo je 22px */
-    fill: #ffffff; 
-    margin-left: -1px; /* MALO PRILAGOĐENO */
-}
-
-/* Stilovi za ikonicu za slanje slike */
-/* Stil za SVG unutar ikonice za slanje slike */
-.image-upload-icon svg {
     width: 18px; 
-    height: 18px;
-    fill: #f0f0f0; /* PROMIJENJENO: Koristimo 'fill' umjesto 'stroke' */
-    /* stroke: none; */ /* Osiguraj da nema stroke ako je postavljen */
+    height: 18px; 
+    fill: #ffffff; 
+    margin-left: -1px; 
 }
-
-.image-upload-icon:hover {
-    background: rgba(40, 40, 40, 0.6); /* Tamnije na hoveru */
-}
-
-/* Stil za SVG unutar ikonice */
-.image-upload-icon svg {
-    width: 18px; /* Ikonica unutar gumba iste veličine kao strelica za slanje */
-    height: 18px;
-    stroke: #f0f0f0; /* Boja ikonice (svijetlo siva) */
-    stroke-width: 1.5;
-}
+/* ========================================= */
 /* ========================================= */
 /* ========================================= */
 
