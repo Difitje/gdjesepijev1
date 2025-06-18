@@ -318,16 +318,20 @@ async function odjaviSe() {
 
 function pokreniAplikaciju() {
     navigationStack = [];
-    swap(document.querySelector('.container.active-screen')?.id || null, 'lokacijePrikaz');
+    swap(document.querySelector('.container.active-screen')?.id || null, 'homePrazan'); // idi na home
+    ocistiPijankePregled(); // obriši stare pijanke
+
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
     globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
+
     azurirajMojuAktivnost();
     dohvatiLokaciju(() => {
-        prikaziPijankePregled();
+        prikaziPijankePregled(); // i dalje se dohvaća sve
         azurirajNotifikacije();
     });
 }
+
 
 function prikaziMojProfil() {
     if (trenutniKorisnik && trenutniKorisnik.id) {
@@ -695,4 +699,9 @@ async function dohvatiSvePoruke() {
     if (!localStorage.getItem("token")) return;
     try { const response = await authenticatedFetch('/api/messages'); if (response.ok) privatnePoruke = await response.json(); }
     catch (error) { console.error("Greška mreže pri dohvaćanju poruka:", error); }
+}
+
+function ocistiPijankePregled() {
+    const div = document.getElementById("pijankePregled");
+    if (div) div.innerHTML = "";
 }
