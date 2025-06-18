@@ -115,7 +115,7 @@ body::before {
         padding-bottom: 70px; /* Visina nav bara + malo razmaka */
     }
     /* #lokacijePrikaz je već imao padding-top, ostali kontejneri sada također trebaju */
-    #homePrazan, #lokacijePrikaz, #inboxPrikaz, #glavniDio, #privatniChat, #editProfil {
+    #homePrikazPijanki, #praznaTrazilica, #inboxPrikaz, #glavniDio, #privatniChat, #editProfil { /* PRILAGOĐENO ID-evima */
         padding-top: 70px; /* Osiguraj prostor za header */
     }
     /* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
@@ -191,6 +191,7 @@ body::before {
 }
 .header-icon:hover svg { stroke: #ff4757; }
 
+/* OPĆENITI STIL ZA NOTIFIKACIJSKI BEDŽ (MOŽDA VIŠE NE TREBA AKO SVE PRELAZI NA BOTTOM NAV) */
 .notification-badge-main {
     position: absolute; top: 5px; right: 5px; background-color: #e74c3c; color: white;
     border-radius: 50%; height: 18px; width: 18px; display: none;
@@ -301,9 +302,9 @@ body::before {
 
 /* Prilagodba notifikacijske točkice za donji nav bar */
 .bottom-nav .notification-badge-main {
-    top: 5px;
-    right: 15%; /* Prilagodba pozicije unutar gumba */
-    transform: translateX(50%);
+    top: 2px; /* Prilagođeno: Pomaknuto malo više gore */
+    right: 2px; /* Prilagođeno: Pomaknuto bliže desnom rubu gumba */
+    transform: none; /* UKLONJENO: Uklanja translateX(50%) koji je gurao bedž dalje */
     border: 2px solid rgba(26, 26, 26, 0.95); /* Boja ruba da odgovara pozadini nav bara */
 }
 
@@ -332,13 +333,10 @@ body::before {
 .back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
 
 .container > h2 { padding-top: 30px; }
-#lokacijePrikaz > h2 { 
-    /* Uklonjeno padding-top i margin-bottom jer se uklanja sam h2 element */
-    display: none; /* Skrivamo h2 "Trenutno pije:" */
-}
+/* Nema više #lokacijePrikaz > h2, jer je lokacijePrikaz preimenovan i sad je bez h2 elementa unutar .main-header */
 #privatniChat .chat-header-info { padding-top: 40px; }
 
-#intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil, #homePrazan { justify-content: center; align-items: center; }
+#intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil, #homePrikazPijanki, #praznaTrazilica { justify-content: center; align-items: center; } /* Dodan #praznaTrazilica */
 #objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
 #privatniChat { justify-content: flex-start; align-items: stretch; }
 
@@ -498,7 +496,7 @@ body::before {
 h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
 h2 { font-size: 20px; }
 p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
-#intro p, #odabir p, #pijankePregled p { text-align: center; }
+#intro p, #odabir p { text-align: center; } /* Uklonjen #pijankePregled p odavde */
 .profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
 .drustvene-mreze { text-align: center; margin-bottom: 15px; }
 
