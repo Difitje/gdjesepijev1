@@ -107,8 +107,6 @@ body::before {
     #privatniChatLog p { max-width: 800px; margin-left: auto; margin-right: auto; }
 }
 
-/* ... (prethodni CSS kod) ... */
-
 @media (max-width: 767px) {
     body { overflow: hidden; }
     .container { position: absolute; padding: 20px; border-radius: 0; border: none; box-shadow: none; }
@@ -117,42 +115,14 @@ body::before {
         padding-bottom: 70px; /* Visina nav bara + malo razmaka */
     }
     /* #lokacijePrikaz je već imao padding-top, ostali kontejneri sada također trebaju */
-    #homePrazan, #inboxPrikaz, #glavniDio, #privatniChat, #editProfil {
+    #homePrazan, #lokacijePrikaz, #inboxPrikaz, #glavniDio, #privatniChat, #editProfil {
         padding-top: 70px; /* Osiguraj prostor za header */
     }
     /* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
     #intro, #odabir, #login, #registracija, #pravilaEkran {
         padding-top: 20px; /* Standardni padding */
     }
-
-    /* OVDJE SU NOVI I AŽURIRANI STILOVI ZA MOBILNI PRIKAZ MAPE */
-    #lokacijePrikaz {
-        /* Osiguraj da lokacijePrikaz bude flex kontejner i zauzme prostor */
-        display: flex;
-        flex-direction: column;
-        /* Visina bi trebala biti prilagođena sadržaju, ali osiguraj da ima min. visinu */
-        min-height: calc(100vh - 60px - 70px); /* Visina ekrana minus header (60px) i nav bar (70px) */
-        padding-top: 70px; /* Header */
-        padding-bottom: 70px; /* Nav bar */
-        box-sizing: border-box; /* Uključi padding u dimenzije */
-    }
-
-    #googleMap {
-        position: absolute; /* Ili relative, probaj obje opcije. Absolute je obično bolji za "overlay" mapu */
-        top: 60px; /* Visina main-header-a */
-        bottom: 60px; /* Visina bottom-nav-a */
-        left: 0;
-        right: 0;
-        /* Važno: visina je sada calculirana da zauzme raspoloživ prostor */
-        height: calc(100% - 120px); /* Ukupna visina ekrana - (top offset + bottom offset) */
-        width: 100%;
-        background-color: darkblue; /* PRIVREMENO: Da vidiš zauzima li prostor */
-        border-radius: 10px;
-        flex-grow: 1; /* Omogući da se rastegne ako je lokacijePrikaz flex kontejner */
-    }
 }
-
-/* ... (ostatak CSS koda) ... */
 
 .main-header {
     position: absolute; top: 0; left: 0; right: 0; height: 60px; padding: 0 10px;
@@ -366,40 +336,6 @@ body::before {
     /* Uklonjeno padding-top i margin-bottom jer se uklanja sam h2 element */
     display: none; /* Skrivamo h2 "Trenutno pije:" */
 }
-
-/* NOVO: Stil za Google Mapu unutar lokacijePrikaz */
-#googleMap {
-    /* Oduzmi visinu headera i eventualnog paddinga od ukupne visine kontejnera */
-    /* Visina headera je 60px, padding-top kontejnera je 70px.
-       Također, bottom nav je 60px, padding-bottom 70px.
-       Proračunajmo efektivni raspoloživi prostor.
-    */
-    position: absolute; /* Apsolutno pozicioniranje unutar relativnog roditelja */
-    top: 60px; /* Visina main-header-a */
-    bottom: 0px; /* Da zauzme sav prostor do dna */
-    left: 0;
-    right: 0;
-    height: calc(100% - 60px); /* Ukupna visina minus visina headera */
-    width: 100%;
-    /* Dodatni padding ako ga želite unutar mape */
-    padding: 0 20px 70px 20px; /* Prilagodi gornji padding ako header ima prozirnost */
-    box-sizing: border-box; /* Uključi padding u visinu/širinu */
-}
-
-@media (min-width: 768px) {
-    #googleMap {
-        top: 70px; /* Visina main-header-a na desktopu */
-        height: calc(100% - 70px); /* Ukupna visina minus visina headera */
-        padding: 0px 0px 0px 0px; /* Na desktopu nema potrebe za ovim paddingom */
-        border-radius: 0 0 24px 24px; /* Zaobljeni rubovi dna na desktopu */
-        margin-left: -40px; /* Poništi marginu roditelja */
-        margin-right: -40px; /* Poništi marginu roditelja */
-        width: calc(100% + 80px); /* Proširi se izvan paddinga roditelja */
-    }
-}
-/* KRAJ NOVIH STILOVA ZA GOOGLE MAPS */
-
-
 #privatniChat .chat-header-info { padding-top: 40px; }
 
 #intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil, #homePrazan { justify-content: center; align-items: center; }
