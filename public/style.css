@@ -33,6 +33,7 @@ body {
     position: relative; /* OVO JE KLJUČNO ZA PSEUDO-ELEMENT */
     touch-action: manipulation;
     z-index: 0; /* Dodano za osiguranje z-indeksa ispod overlay-a */
+    padding-bottom: 70px; /* Dodajte padding na body da sadržaj ne bude ispod donje navigacije */
 }
 
 /* --- Zatamnjivanje pozadine --- */
@@ -59,6 +60,7 @@ body::before {
     flex-direction: column;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    padding-bottom: 90px; /* Dovoljno paddinga da sadržaj nije ispod bottom-nav */
 }
 .container.active-screen {
     opacity: 1;
@@ -102,78 +104,369 @@ body::before {
 @media (max-width: 767px) {
     body { overflow: hidden; }
     .container { position: absolute; padding: 20px; border-radius: 0; border: none; box-shadow: none; }
-    #lokacijePrikaz { padding-top: 70px; }
+    #lokacijePrikaz { padding-top: 70px; /* Ako je prije bio header, ovo je možda preveliko */ }
 }
 
-.main-header {
-    position: absolute; top: 0; left: 0; right: 0; height: 60px; padding: 0 10px;
-    display: flex; justify-content: space-between; align-items: center;
-    background-color: rgba(26, 26, 26, 0.8); /* Blaga prozirnost */
-    border-bottom: 1px solid rgba(51, 51, 51, 0.5); 
-    z-index: 100;
-}
-@media (min-width: 768px) {
-    .main-header { 
-        position: relative; 
-        border-radius: 24px 24px 0 0; 
-        margin: -40px -40px 20px -40px; 
-        padding: 0 30px; 
-        height: 70px; 
-        background-color: rgba(34, 34, 34, 0.8); /* Prilagođeno za desktop */
-    }
-}
-.main-logo {
-    display: flex; /* Koristimo flexbox za centriranje slike */
-    justify-content: center; /* Centriranje horizontalno */
-    align-items: center; /* Centriranje vertikalno */
-    height: 100%; /* Omogućava vertikalno centriranje unutar headera */
-    margin: 0;
-    padding: 0;
+/* STARI HEADER STILOVI SU UKLONJENI */
+/* .main-header { ... } */
+/* @media (min-width: 768px) { .main-header { ... } } */
+/* .main-logo { ... } */
+/* .header-logo-image { ... } */
+/* @media (min-width: 768px) { .header-logo-image { ... } } */
+/* .header-icon { ... } */
+/* .header-icon:hover { ... } */
+/* .header-icon svg { ... } */
+/* .header-icon:hover svg { ... } */
+
+/* --- NOVA BOTTOM NAVIGACIJA --- */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px; /* Visina navigacijske trake */
+    background-color: #1a1a1a; /* Pozadinska boja trake */
+    border-top: 1px solid #333; /* Gornji rub */
+    display: flex;
+    justify-content: space-around; /* Razmak između ikona */
+    align-items: center;
+    z-index: 1000; /* Pobrinite se da je iznad svega ostalog */
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px)); /* Za sigurno područje na novijim mobitelima */
 }
 
-.header-logo-image {
-    max-height: 65px; /* Povećana maksimalna visina za mobilni prikaz (bilo 50px) */
-    width: auto; /* Osigurava da se širina automatski prilagođava */
-    object-fit: contain; /* Osigurava da se cijela slika vidi unutar okvira */
-}
-
-/* Prilagodba za desktop verziju loga */
-@media (min-width: 768px) {
-    .main-header {
-        height: 70px; /* Ako već nije postavljeno */
-        align-items: center; /* Osigurava da su svi header elementi centrirani */
-    }
-    .main-logo {
-        height: 100%; /* Osigurava da logo zauzima punu visinu headera za centriranje */
-    }
-    .header-logo-image {
-        max-height: 75px; /* Povećana maksimalna visina za desktop (bilo 60px) */
-    }
-}
-
-.header-icon {
-    background: transparent; /* Ovo je bilo originalno, znači transparentno */
-    border: none; 
-    cursor: pointer; 
+.bottom-nav .nav-icon {
+    flex: 1; /* Svaka ikona zauzima jednak prostor */
+    display: flex;
+    flex-direction: column; /* Ikona iznad teksta */
+    justify-content: center;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #f0f0f0; /* Boja teksta i ikonice */
+    font-size: 11px; /* Veličina teksta */
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
     position: relative;
-    width: 44px; height: 44px; margin: 0; border-radius: 50%;
-    display: flex; justify-content: center; align-items: center;
-    transition: background-color 0.2s ease-in-out; /* Ostavljamo tranziciju za hover */
 }
-.header-icon:hover { 
-    background-color: rgba(255, 255, 255, 0.08); /* Suptilni glassy efekt na hoveru */
+
+.bottom-nav .nav-icon:hover {
+    color: #ff4757; /* Boja na hoveru */
 }
-.header-icon svg { 
-    stroke: #e0e0e0; /* Originalna boja ikonice */
-    width: 26px; /* Originalna veličina ikonice */
-    height: 26px; /* Originalna veličina ikonice */
-    stroke-width: 1.5; /* Originalna debljina linije */
-    transition: stroke 0.2s ease; 
+
+.bottom-nav .nav-icon.active {
+    color: #ff4757; /* Boja aktivne ikonice */
 }
-.header-icon:hover svg { stroke: #ff4757; } /* Crvena boja na hoveru */
-/* .main-logo { color: #f0f0f0; font-weight: bold; font-size: 22px; letter-spacing: 2px; text-transform: uppercase; margin: 0; padding: 0; } -> OVO JE PREMJEŠTENO GORE I MODIFICIRANO */
+
+.bottom-nav .nav-icon .nav-svg {
+    width: 28px; /* Veličina SVG ikonice */
+    height: 28px;
+    stroke: currentColor; /* Koristi boju teksta */
+    stroke-width: 1.8; /* Debljina linije */
+    margin-bottom: 4px; /* Razmak između ikonice i teksta */
+    fill: none; /* Osiguraj da SVG nema ispunu po defaultu */
+    transition: stroke 0.2s ease-in-out;
+}
+
+.bottom-nav .nav-icon:hover .nav-svg,
+.bottom-nav .nav-icon.active .nav-svg {
+    stroke: #ff4757; /* Boja SVG-a na hoveru i aktivnom stanju */
+}
+
+/* FAB button: prilagođen da bude iznad nove navigacijske trake */
+.fab {
+    bottom: 90px; /* Pomaknite FAB iznad nove navigacijske trake */
+}
+
 .notification-badge-main {
     position: absolute; top: 5px; right: 5px; background-color: #e74c3c; color: white;
+    border-radius: 50%; height: 18px; width: 18px; display: none;
+    justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
+}
+
+/* top-nav-buttons: prilagodba ako se koriste samo za back/close gumbe unutar ekrana */
+.top-nav-buttons {
+    position: absolute; top: 15px; left: 15px; right: 15px;
+    @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
+    display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
+}
+.back-button, .close-btn {
+    pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
+    cursor: pointer; padding: 5px; width: auto; height: auto; line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
+
+.container > h2 { padding-top: 30px; }
+#lokacijePrikaz > h2 { padding-top: 10px; margin-bottom: 15px; }
+/* Prilagodba padding-topa za chat header ako je gornji header uklonjen */
+#privatniChat .chat-header-info { 
+    padding-top: 20px; /* Smanjeno, jer nema gornjeg headera */
+}
+
+/* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
+.chat-header-info {
+    display: flex;
+    flex-direction: column; /* Zadržavamo vertikalni raspored za ime i status */
+    align-items: center;    /* Centriramo sadržaj */
+    margin-bottom: 10px;
+    flex-shrink: 0;
+    /* padding-top: 40px; Ovo je premješteno gore za specifični privatniChat */
+}
+
+.chat-partner-profilna {
+    width: 60px;          /* Veličina profilne slike */
+    height: 60px;
+    border-radius: 50%;   /* Okrugli oblik */
+    object-fit: cover;    /* Osigurava da se slika pravilno popuni */
+    border: 2px solid #ff4757; /* Crveni obrub kao u aplikaciji */
+    margin-bottom: 8px;   /* Razmak između slike i imena */
+    cursor: pointer;      /* Pokazuje da je klikabilna */
+    transition: transform 0.2s ease-in-out;
+}
+
+.chat-partner-profilna:hover {
+    transform: scale(1.05); /* Mali efekt na hoveru */
+}
+
+.chat-header-info h2 { 
+    margin-bottom: 2px; 
+    font-size: 20px; 
+    color: #f0f0f0; /* Osiguraj da je boja imena vidljiva */
+    cursor: pointer; /* Pokazuje da je i ime klikabilno */
+}
+.chat-header-info .status-text { 
+    margin-top: 0; 
+    font-size: 14px; /* Malo veći status tekst */
+}
+/* ========================================= */
+
+h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
+h2 { font-size: 20px; }
+p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
+#intro p, #odabir p, #pijankePregled p { text-align: center; }
+.profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
+.drustvene-mreze { text-align: center; margin-bottom: 15px; }
+
+.profil-actions { display: flex; flex-direction: column; width: 100%; max-width: 400px; margin-top: 10px; gap: 10px; }
+.profil-actions button { margin-bottom: 0; }
+.btn-danger { background: #444; }
+.btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
+
+input, textarea, button {
+    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
+    color: #f0f0f0; border-radius: 8px; font-size: 16px; font-family: inherit; transition: all 0.2s ease-in-out;
+}
+input:focus, textarea:focus { outline: none; border-color: #ff4757; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); }
+button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px; }
+button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
+button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
+img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
+.profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; }
+img.preview-slika { display: none; }
+#previewEditSlike { display: block; margin: 8px auto; }
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.status-dot.online { background-color: #2ecc71; }
+.status-dot.offline { background-color: #7f8c8d; }
+.status-text { font-size: 13px; color: #999; margin: 0; }
+/* .notification-badge-chat { width: 12px; height: 12px; background: #e74c3c; color: white;
+    border-radius: 50%; height: 18px; width: 18px; display: none;
+    justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
+} -- PREMJEŠTENO U BOTTOM NAV ZA NOTIFIKACIJE */
+.fab {
+    position: fixed; bottom: 90px; /* Pomaknite FAB iznad nove navigacijske trake */
+    right: 30px; width: 60px; height: 60px;
+    background: linear-gradient(45deg, #ff4757, #e03f4d); border-radius: 50%; border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; z-index: 1000;
+    display: flex; justify-content: center; align-items: center;
+    transition: all 0.3s ease-in-out;
+}
+.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); }
+.fab:active { transform: scale(1.05) rotate(90deg); }
+.fab svg { width: 30px; height: 30px; color: #ffffff; }
+@media (min-width: 768px) { .fab { position: absolute; bottom: 40px; right: 40px; } }
+
+#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
+#privatniChatLog { flex-grow: 1; overflow-y: auto; }
+
+/* top-nav-buttons: prilagodba ako se koriste samo za back/close gumbe unutar ekrana */
+.top-nav-buttons {
+    position: absolute; top: 15px; left: 15px; right: 15px;
+    @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
+    display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
+}
+.back-button, .close-btn {
+    pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
+    cursor: pointer; padding: 5px; width: auto; height: auto; line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
+
+.container > h2 { padding-top: 30px; }
+#lokacijePrikaz > h2 { 
+    padding-top: 20px; /* Prilagodba padding-topa jer nema gornjeg headera */
+    margin-bottom: 15px; 
+}
+#privatniChat .chat-header-info { 
+    padding-top: 20px; /* Smanjeno, jer nema gornjeg headera */
+}
+
+/* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
+.chat-input-area {
+    display: flex; 
+    align-items: center; /* Centriramo sadržaj vertikalno */
+    padding: 8px 12px; /* Padding kontejnera */
+    background-color: transparent; 
+    border-top: none; 
+    margin-top: auto; 
+    flex-shrink: 0; 
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    position: relative; /* KLJUČNO: Referenca za apsolutno pozicionirane ikone i gumb */
+}
+
+#privatniInput {
+    flex-grow: 1; /* Omogućuje textarea da zauzme sav dostupan prostor */
+    border: none; 
+    border-radius: 20px; /* Polukružni oblik */
+    background-color: #3a3a3a; 
+    color: #f0f0f0; 
+    font-size: 16px;
+    line-height: 1.4; 
+    min-height: 40px; /* Minimalna visina inputa */
+    max-height: 100px; /* Maksimalna visina prije skrolanja */
+    overflow-y: auto; 
+    resize: none;
+    transition: all 0.2s ease; 
+    margin: 0; 
+    
+    /* KLJUČNO: Padding za smještaj ikona */
+    padding: 10px 45px 10px 45px; /* Osigurava prostor */
+}
+
+#privatniInput:focus { 
+    outline: none; 
+    background-color: #4a4a4a; 
+    box-shadow: none; 
+    border-color: transparent; 
+}
+
+/* Stilovi za ikonicu za slanje slike */
+.image-upload-icon {
+    position: absolute; 
+    left: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10; /* Must be above input */
+    background: rgba(40, 40, 40, 0.3); 
+    border-radius: 50%; 
+    transition: background-color 0.2s ease;
+}
+
+.image-upload-icon:hover {
+    background: rgba(40, 40, 40, 0.6); 
+}
+
+.image-upload-icon svg {
+    width: 18px; /* Standardna veličina SVG-a */
+    height: 18px; /* Standardna veličina SVG-a */
+    fill: #f0f0f0; 
+}
+
+/* Stilovi za gumb za slanje poruke */
+#posaljiPrivatnoBtn {
+    position: absolute; 
+    right: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%;
+    border: none; 
+    padding: 0; 
+    margin: 0; 
+    background-color: #ff4757;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    cursor: pointer; 
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease; /* Vraćamo tranziciju za transform */
+    z-index: 10; 
+    
+    /* Gumb je skriven po defaultu */
+    opacity: 0; 
+    visibility: hidden; 
+    transform: scale(0.5) translateY(-50%); /* Start sa manjom skalom i centriranjem */
+    transform-origin: center center; /* Osigurava da se smanji/poveća iz centra */
+}
+
+/* OVDJE JE KRITIČNA PROMJENA ZA PRIKAZ/SKRIVANJE GUMBA */
+#posaljiPrivatnoBtn.enabled { 
+    opacity: 1; 
+    visibility: visible; /* Postaje vidljiv kada se klasa doda */
+    transform: scale(1) translateY(-50%); /* Povećava na normalnu veličinu i zadržava centriranje */
+}
+/* Kada nije enabled, želimo da se vraća na skriveno stanje */
+#posaljiPrivatnoBtn:not(.enabled) {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.5) translateY(-50%); /* Vraća se na manju skalu i centrirano stanje */
+}
+
+#posaljiPrivatnoBtn svg { 
+    width: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    height: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    fill: #ffffff; 
+    margin-left: -1px; 
+}
+/* ========================================= */
+
+/* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
+.chat-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+.chat-header-info h2 { margin-bottom: 2px; font-size: 20px; }
+.chat-header-info .status-text { margin-top: 0; }
+/* ========================================= */
+
+h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
+h2 { font-size: 20px; }
+p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
+#intro p, #odabir p, #pijankePregled p { text-align: center; }
+.profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
+.drustvene-mreze { text-align: center; margin-bottom: 15px; }
+
+.profil-actions { display: flex; flex-direction: column; width: 100%; max-width: 400px; margin-top: 10px; gap: 10px; }
+.profil-actions button { margin-bottom: 0; }
+.btn-danger { background: #444; }
+.btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
+
+input, textarea, button {
+    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
+    color: #f0f0f0; border-radius: 8px; font-size: 16px; font-family: inherit; transition: all 0.2s ease-in-out;
+}
+input:focus, textarea:focus { outline: none; border-color: #ff4757; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); }
+button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px; }
+button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
+button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
+img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
+.profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; }
+img.preview-slika { display: none; }
+#previewEditSlike { display: block; margin: 8px auto; }
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.status-dot.online { background-color: #2ecc71; }
+.status-dot.offline { background-color: #7f8c8d; }
+.status-text { font-size: 13px; color: #999; margin: 0; }
+.notification-badge-chat { width: 12px; height: 12px; background: #e74c3c; color: white;
     border-radius: 50%; height: 18px; width: 18px; display: none;
     justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
 }
@@ -263,7 +556,7 @@ body::before {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    z-index: 10; /* Mora biti iznad inputa */
+    z-index: 10; /* Must be above input */
     background: rgba(40, 40, 40, 0.3); 
     border-radius: 50%; 
     transition: background-color 0.2s ease;
@@ -330,39 +623,13 @@ body::before {
 /* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
 .chat-header-info {
     display: flex;
-    flex-direction: column; /* Zadržavamo vertikalni raspored za ime i status */
-    align-items: center;    /* Centriramo sadržaj */
+    flex-direction: column;
+    align-items: center;
     margin-bottom: 10px;
     flex-shrink: 0;
-    padding-top: 40px; /* Osiguraj dovoljno mjesta od vrha */
 }
-
-.chat-partner-profilna {
-    width: 60px;          /* Veličina profilne slike */
-    height: 60px;
-    border-radius: 50%;   /* Okrugli oblik */
-    object-fit: cover;    /* Osigurava da se slika pravilno popuni */
-    border: 2px solid #ff4757; /* Crveni obrub kao u aplikaciji */
-    margin-bottom: 8px;   /* Razmak između slike i imena */
-    cursor: pointer;      /* Pokazuje da je klikabilna */
-    transition: transform 0.2s ease-in-out;
-}
-
-.chat-partner-profilna:hover {
-    transform: scale(1.05); /* Mali efekt na hoveru */
-}
-
-.chat-header-info h2 { 
-    margin-bottom: 2px; 
-    font-size: 20px; 
-    color: #f0f0f0; /* Osiguraj da je boja imena vidljiva */
-    cursor: pointer; /* Pokazuje da je i ime klikabilno */
-}
-.chat-header-info .status-text { 
-    margin-top: 0; 
-    font-size: 14px; /* Malo veći status tekst */
-}
-/* ========================================= */
+.chat-header-info h2 { margin-bottom: 2px; font-size: 20px; }
+.chat-header-info .status-text { margin-top: 0; }
 /* ========================================= */
 
 h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
@@ -393,74 +660,1526 @@ img.preview-slika { display: none; }
 .status-dot.online { background-color: #2ecc71; }
 .status-dot.offline { background-color: #7f8c8d; }
 .status-text { font-size: 13px; color: #999; margin: 0; }
-.notification-badge-chat { width: 12px; height: 12px; background: #ff4757; border-radius: 50%; margin-left: auto; }
-.mreza-ikonica { width: 28px; height: 28px; margin: 0 10px; vertical-align: middle; transition: transform 0.2s ease; }
-.mreza-ikonica:hover { transform: scale(1.1); }
-.pravila-checkbox-wrapper { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; justify-content: center; }
-.pravila-checkbox-wrapper input[type="checkbox"] { width: auto; margin-bottom: 0; flex-shrink: 0; }
-.pravila-checkbox-wrapper label { margin-bottom: 0; font-size: 14px; color: #f0f0f0; text-align: left; }
-.pijanka { background: rgba(40, 40, 40, 0.7); padding: 15px; border-radius: 10px; margin: 0 auto 8px auto; display: flex; flex-direction: column; border-left: 3px solid rgba(51, 51, 51, 0.5); transition: all 0.2s ease-in-out; width: 100%; max-width: 600px; box-sizing: border-box; }
-.pijanka:hover { background: rgba(48, 48, 48, 0.9); border-left-color: #ff4757; }
-.pijanka-header { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 8px; border-bottom: 1px solid #333; margin-bottom: 8px; width: 100%; }
-.pijanka-profilna-slika { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #ff4757; flex-shrink: 0; }
+.notification-badge-chat { width: 12px; height: 12px; background: #e74c3c; color: white;
+    border-radius: 50%; height: 18px; width: 18px; display: none;
+    justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
+}
+.fab {
+    position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+    background: linear-gradient(45deg, #ff4757, #e03f4d); border-radius: 50%; border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; z-index: 1000;
+    display: flex; justify-content: center; align-items: center;
+    transition: all 0.3s ease-in-out;
+}
+.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); }
+.fab:active { transform: scale(1.05) rotate(90deg); }
+.fab svg { width: 30px; height: 30px; color: #ffffff; }
+@media (min-width: 768px) { .fab { position: absolute; bottom: 40px; right: 40px; } }
 
-.pijanka-info, .chat-item-info { flex-grow: 1; display: flex; align-items: center; gap: 10px; }
-.pijanka-info-text, .chat-item-info-text { display: flex; flex-direction: column; }
-.pijanka-info strong, .chat-item-info strong { line-height: 1.2; font-size: 18px; color: #f0f0f0; }
-.pijanka-info .status-text, .chat-item-info .status-text { line-height: 1.2; margin: 0; padding: 0; color: #a0a0a0; }
-.delete-btn { background: none; border: none; font-size: 14px; padding: 2px; margin-left: auto; cursor: pointer; color: #777; flex-shrink: 0; line-height: 1; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; border-radius: 50%; }
-.delete-btn:hover { color: #ff4757; background: rgba(51, 51, 51, 0.5); box-shadow: none; transform: scale(1.05); }
-.pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
-.chat-item { background: rgba(40, 40, 40, 0.7); padding: 12px; border-radius: 10px; margin: 0 auto 10px auto; display: flex; align-items: center; gap: 12px; border-left: 3px solid rgba(51, 51, 51, 0.5); transition: all 0.2s ease-in-out; width: 100%; max-width: 600px; box-sizing: border-box; }
-.chat-item:hover { background: rgba(48, 48, 48, 0.9); border-left-color: #ff4757; }
-.chat-item img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.chat-item-info { cursor: pointer; }
+#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
+#privatniChatLog { flex-grow: 1; overflow-y: auto; }
 
-#privatniChatLog p > span { display: inline-block; padding: 8px 12px; border-radius: 18px; max-width: 85%; word-wrap: break-word; font-size: 15px; }
-#privatniChatLog p.moja-poruka { text-align: right; }
-#privatniChatLog p.moja-poruka > span { background: #ff4757; color: white; }
-#privatniChatLog p.tudja-poruka { text-align: left; }
-#privatniChatLog p.tudja-poruka > span { background: #3a3a3a; color: #f0f0f0; }
-#privatniChatLog p.tudja-poruka > span { background: #3a3a3a; color: #f0f0f0; }
+.top-nav-buttons {
+    position: absolute; top: 15px; left: 15px; right: 15px;
+    @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
+    display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
+}
+.back-button, .close-btn {
+    pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
+    cursor: pointer; padding: 5px; width: auto; height: auto; line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
 
-#splashScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111111; display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 1; visibility: visible; }
-#splashScreen h1 { font-size: 4em; color: #ff4757; text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6); letter-spacing: 4px; text-transform: uppercase; animation: bounceIn 1.5s ease-out forwards; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-@keyframes bounceIn { 0% { transform: scale(0.1); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
-@keyframes fadeOutSplash { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+.container > h2 { padding-top: 30px; }
+#lokacijePrikaz > h2 { padding-top: 10px; margin-bottom: 15px; }
+#privatniChat .chat-header-info { padding-top: 40px; }
 
-#profilKorisnika button,
-#editProfil button {
-    /* Puno prozirnije za "glassy" efekt */
-    background: rgba(30, 30, 30, 0.3); /* PROMIJENJENO: Vrlo prozirno (30% neprozirnosti) */
-    box-shadow: none; /* Uklanjamo sjenu */
-    border: 1px solid rgba(51, 51, 51, 0.2); /* PROMIJENJENO: I border je prozirniji */
+#intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil { justify-content: center; align-items: center; }
+#objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
+#privatniChat { justify-content: flex-start; align-items: stretch; }
+
+/* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
+.chat-input-area {
+    display: flex; 
+    align-items: center; /* Centriramo sadržaj vertikalno */
+    padding: 8px 12px; /* Padding kontejnera */
+    background-color: transparent; 
+    border-top: none; 
+    margin-top: auto; 
+    flex-shrink: 0; 
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    position: relative; /* KLJUČNO: Referenca za apsolutno pozicionirane ikone i gumb */
 }
 
-#profilKorisnika button:hover,
-#editProfil button:hover {
-    /* Na hoveru malo manje prozirno da se istakne */
-    background: rgba(40, 40, 40, 0.6); /* PROMIJENJENO: Malo manje prozirno na hoveru */
-    transform: none;
-    box-shadow: none;
+#privatniInput {
+    flex-grow: 1; /* Omogućuje textarea da zauzme sav dostupan prostor */
+    border: none; 
+    border-radius: 20px; /* Polukružni oblik */
+    background-color: #3a3a3a; 
+    color: #f0f0f0; 
+    font-size: 16px;
+    line-height: 1.4; 
+    min-height: 40px; /* Minimalna visina inputa */
+    max-height: 100px; /* Maksimalna visina prije skrolanja */
+    overflow-y: auto; 
+    resize: none;
+    transition: all 0.2s ease; 
+    margin: 0; 
+    
+    /* KLJUČNO: Padding za smještaj ikona */
+    padding: 10px 45px 10px 45px; /* Osigurava prostor */
 }
 
-#objavaForma button {
-    /* Puno prozirnije crveno za "glassy" efekt */
-    background: rgba(255, 71, 87, 0.3); /* PROMIJENJENO: Crvena s 30% neprozirnosti */
-    border: none;
-    font-weight: bold;
-    position: relative;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    box-shadow: none;
+#privatniInput:focus { 
+    outline: none; 
+    background-color: #4a4a4a; 
+    box-shadow: none; 
+    border-color: transparent; 
 }
 
-#objavaForma button:hover {
-    /* Na hoveru malo manje prozirno da se istakne */
-    background: rgba(255, 71, 87, 0.6); /* PROMIJENJENO: Crvena s 60% neprozirnosti na hoveru */
-    transform: none;
-    box-shadow: none;
+/* Stilovi za ikonicu za slanje slike */
+.image-upload-icon {
+    position: absolute; 
+    left: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10; /* Must be above input */
+    background: rgba(40, 40, 40, 0.3); 
+    border-radius: 50%; 
+    transition: background-color 0.2s ease;
 }
-/* === KRAJ CSS-a === */
+
+.image-upload-icon:hover {
+    background: rgba(40, 40, 40, 0.6); 
+}
+
+.image-upload-icon svg {
+    width: 18px; /* Standardna veličina SVG-a */
+    height: 18px; /* Standardna veličina SVG-a */
+    fill: #f0f0f0; 
+}
+
+/* Stilovi za gumb za slanje poruke */
+#posaljiPrivatnoBtn {
+    position: absolute; 
+    right: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%;
+    border: none; 
+    padding: 0; 
+    margin: 0; 
+    background-color: #ff4757;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    cursor: pointer; 
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease; /* Vraćamo tranziciju za transform */
+    z-index: 10; 
+    
+    /* Gumb je skriven po defaultu */
+    opacity: 0; 
+    visibility: hidden; 
+    transform: scale(0.5) translateY(-50%); /* Start sa manjom skalom i centriranjem */
+    transform-origin: center center; /* Osigurava da se smanji/poveća iz centra */
+}
+
+/* OVDJE JE KRITIČNA PROMJENA ZA PRIKAZ/SKRIVANJE GUMBA */
+#posaljiPrivatnoBtn.enabled { 
+    opacity: 1; 
+    visibility: visible; /* Postaje vidljiv kada se klasa doda */
+    transform: scale(1) translateY(-50%); /* Povećava na normalnu veličinu i zadržava centriranje */
+}
+/* Kada nije enabled, želimo da se vraća na skriveno stanje */
+#posaljiPrivatnoBtn:not(.enabled) {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.5) translateY(-50%); /* Vraća se na manju skalu i centrirano stanje */
+}
+
+#posaljiPrivatnoBtn svg { 
+    width: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    height: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    fill: #ffffff; 
+    margin-left: -1px; 
+}
+/* ========================================= */
+
+/* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
+.chat-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+.chat-header-info h2 { margin-bottom: 2px; font-size: 20px; }
+.chat-header-info .status-text { margin-top: 0; }
+/* ========================================= */
+
+h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
+h2 { font-size: 20px; }
+p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
+#intro p, #odabir p, #pijankePregled p { text-align: center; }
+.profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
+.drustvene-mreze { text-align: center; margin-bottom: 15px; }
+
+.profil-actions { display: flex; flex-direction: column; width: 100%; max-width: 400px; margin-top: 10px; gap: 10px; }
+.profil-actions button { margin-bottom: 0; }
+.btn-danger { background: #444; }
+.btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
+
+input, textarea, button {
+    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
+    color: #f0f0f0; border-radius: 8px; font-size: 16px; font-family: inherit; transition: all 0.2s ease-in-out;
+}
+input:focus, textarea:focus { outline: none; border-color: #ff4757; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); }
+button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px; }
+button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
+button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
+img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
+.profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; }
+img.preview-slika { display: none; }
+#previewEditSlike { display: block; margin: 8px auto; }
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.status-dot.online { background-color: #2ecc71; }
+.status-dot.offline { background-color: #7f8c8d; }
+.status-text { font-size: 13px; color: #999; margin: 0; }
+.notification-badge-chat { width: 12px; height: 12px; background: #e74c3c; color: white;
+    border-radius: 50%; height: 18px; width: 18px; display: none;
+    justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
+}
+.fab {
+    position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+    background: linear-gradient(45deg, #ff4757, #e03f4d); border-radius: 50%; border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; z-index: 1000;
+    display: flex; justify-content: center; align-items: center;
+    transition: all 0.3s ease-in-out;
+}
+.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); }
+.fab:active { transform: scale(1.05) rotate(90deg); }
+.fab svg { width: 30px; height: 30px; color: #ffffff; }
+@media (min-width: 768px) { .fab { position: absolute; bottom: 40px; right: 40px; } }
+
+#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
+#privatniChatLog { flex-grow: 1; overflow-y: auto; }
+
+.top-nav-buttons {
+    position: absolute; top: 15px; left: 15px; right: 15px;
+    @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
+    display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
+}
+.back-button, .close-btn {
+    pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
+    cursor: pointer; padding: 5px; width: auto; height: auto; line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
+
+.container > h2 { padding-top: 30px; }
+#lokacijePrikaz > h2 { padding-top: 10px; margin-bottom: 15px; }
+#privatniChat .chat-header-info { padding-top: 40px; }
+
+#intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil { justify-content: center; align-items: center; }
+#objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
+#privatniChat { justify-content: flex-start; align-items: stretch; }
+
+/* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
+.chat-input-area {
+    display: flex; 
+    align-items: center; /* Centriramo sadržaj vertikalno */
+    padding: 8px 12px; /* Padding kontejnera */
+    background-color: transparent; 
+    border-top: none; 
+    margin-top: auto; 
+    flex-shrink: 0; 
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    position: relative; /* KLJUČNO: Referenca za apsolutno pozicionirane ikone i gumb */
+}
+
+#privatniInput {
+    flex-grow: 1; /* Omogućuje textarea da zauzme sav dostupan prostor */
+    border: none; 
+    border-radius: 20px; /* Polukružni oblik */
+    background-color: #3a3a3a; 
+    color: #f0f0f0; 
+    font-size: 16px;
+    line-height: 1.4; 
+    min-height: 40px; /* Minimalna visina inputa */
+    max-height: 100px; /* Maksimalna visina prije skrolanja */
+    overflow-y: auto; 
+    resize: none;
+    transition: all 0.2s ease; 
+    margin: 0; 
+    
+    /* KLJUČNO: Padding za smještaj ikona */
+    padding: 10px 45px 10px 45px; /* Osigurava prostor */
+}
+
+#privatniInput:focus { 
+    outline: none; 
+    background-color: #4a4a4a; 
+    box-shadow: none; 
+    border-color: transparent; 
+}
+
+/* Stilovi za ikonicu za slanje slike */
+.image-upload-icon {
+    position: absolute; 
+    left: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10; /* Must be above input */
+    background: rgba(40, 40, 40, 0.3); 
+    border-radius: 50%; 
+    transition: background-color 0.2s ease;
+}
+
+.image-upload-icon:hover {
+    background: rgba(40, 40, 40, 0.6); 
+}
+
+.image-upload-icon svg {
+    width: 18px; /* Standardna veličina SVG-a */
+    height: 18px; /* Standardna veličina SVG-a */
+    fill: #f0f0f0; 
+}
+
+/* Stilovi za gumb za slanje poruke */
+#posaljiPrivatnoBtn {
+    position: absolute; 
+    right: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%;
+    border: none; 
+    padding: 0; 
+    margin: 0; 
+    background-color: #ff4757;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    cursor: pointer; 
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease; /* Vraćamo tranziciju za transform */
+    z-index: 10; 
+    
+    /* Gumb je skriven po defaultu */
+    opacity: 0; 
+    visibility: hidden; 
+    transform: scale(0.5) translateY(-50%); /* Start sa manjom skalom i centriranjem */
+    transform-origin: center center; /* Osigurava da se smanji/poveća iz centra */
+}
+
+/* OVDJE JE KRITIČNA PROMJENA ZA PRIKAZ/SKRIVANJE GUMBA */
+#posaljiPrivatnoBtn.enabled { 
+    opacity: 1; 
+    visibility: visible; /* Postaje vidljiv kada se klasa doda */
+    transform: scale(1) translateY(-50%); /* Povećava na normalnu veličinu i zadržava centriranje */
+}
+/* Kada nije enabled, želimo da se vraća na skriveno stanje */
+#posaljiPrivatnoBtn:not(.enabled) {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.5) translateY(-50%); /* Vraća se na manju skalu i centrirano stanje */
+}
+
+#posaljiPrivatnoBtn svg { 
+    width: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    height: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    fill: #ffffff; 
+    margin-left: -1px; 
+}
+/* ========================================= */
+
+/* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
+.chat-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+.chat-header-info h2 { margin-bottom: 2px; font-size: 20px; }
+.chat-header-info .status-text { margin-top: 0; }
+/* ========================================= */
+
+h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
+h2 { font-size: 20px; }
+p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
+#intro p, #odabir p, #pijankePregled p { text-align: center; }
+.profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
+.drustvene-mreze { text-align: center; margin-bottom: 15px; }
+
+.profil-actions { display: flex; flex-direction: column; width: 100%; max-width: 400px; margin-top: 10px; gap: 10px; }
+.profil-actions button { margin-bottom: 0; }
+.btn-danger { background: #444; }
+.btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
+
+input, textarea, button {
+    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
+    color: #f0f0f0; border-radius: 8px; font-size: 16px; font-family: inherit; transition: all 0.2s ease-in-out;
+}
+input:focus, textarea:focus { outline: none; border-color: #ff4757; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); }
+button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px; }
+button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
+button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
+img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
+.profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; }
+img.preview-slika { display: none; }
+#previewEditSlike { display: block; margin: 8px auto; }
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.status-dot.online { background-color: #2ecc71; }
+.status-dot.offline { background-color: #7f8c8d; }
+.status-text { font-size: 13px; color: #999; margin: 0; }
+.notification-badge-chat { width: 12px; height: 12px; background: #e74c3c; color: white;
+    border-radius: 50%; height: 18px; width: 18px; display: none;
+    justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
+}
+.fab {
+    position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+    background: linear-gradient(45deg, #ff4757, #e03f4d); border-radius: 50%; border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; z-index: 1000;
+    display: flex; justify-content: center; align-items: center;
+    transition: all 0.3s ease-in-out;
+}
+.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); }
+.fab:active { transform: scale(1.05) rotate(90deg); }
+.fab svg { width: 30px; height: 30px; color: #ffffff; }
+@media (min-width: 768px) { .fab { position: absolute; bottom: 40px; right: 40px; } }
+
+#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
+#privatniChatLog { flex-grow: 1; overflow-y: auto; }
+
+.top-nav-buttons {
+    position: absolute; top: 15px; left: 15px; right: 15px;
+    @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
+    display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
+}
+.back-button, .close-btn {
+    pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
+    cursor: pointer; padding: 5px; width: auto; height: auto; line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
+
+.container > h2 { padding-top: 30px; }
+#lokacijePrikaz > h2 { padding-top: 10px; margin-bottom: 15px; }
+#privatniChat .chat-header-info { padding-top: 40px; }
+
+#intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil { justify-content: center; align-items: center; }
+#objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
+#privatniChat { justify-content: flex-start; align-items: stretch; }
+
+/* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
+.chat-input-area {
+    display: flex; 
+    align-items: center; /* Centriramo sadržaj vertikalno */
+    padding: 8px 12px; /* Padding kontejnera */
+    background-color: transparent; 
+    border-top: none; 
+    margin-top: auto; 
+    flex-shrink: 0; 
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    position: relative; /* KLJUČNO: Referenca za apsolutno pozicionirane ikone i gumb */
+}
+
+#privatniInput {
+    flex-grow: 1; /* Omogućuje textarea da zauzme sav dostupan prostor */
+    border: none; 
+    border-radius: 20px; /* Polukružni oblik */
+    background-color: #3a3a3a; 
+    color: #f0f0f0; 
+    font-size: 16px;
+    line-height: 1.4; 
+    min-height: 40px; /* Minimalna visina inputa */
+    max-height: 100px; /* Maksimalna visina prije skrolanja */
+    overflow-y: auto; 
+    resize: none;
+    transition: all 0.2s ease; 
+    margin: 0; 
+    
+    /* KLJUČNO: Padding za smještaj ikona */
+    padding: 10px 45px 10px 45px; /* Osigurava prostor */
+}
+
+#privatniInput:focus { 
+    outline: none; 
+    background-color: #4a4a4a; 
+    box-shadow: none; 
+    border-color: transparent; 
+}
+
+/* Stilovi za ikonicu za slanje slike */
+.image-upload-icon {
+    position: absolute; 
+    left: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10; /* Must be above input */
+    background: rgba(40, 40, 40, 0.3); 
+    border-radius: 50%; 
+    transition: background-color 0.2s ease;
+}
+
+.image-upload-icon:hover {
+    background: rgba(40, 40, 40, 0.6); 
+}
+
+.image-upload-icon svg {
+    width: 18px; /* Standardna veličina SVG-a */
+    height: 18px; /* Standardna veličina SVG-a */
+    fill: #f0f0f0; 
+}
+
+/* Stilovi za gumb za slanje poruke */
+#posaljiPrivatnoBtn {
+    position: absolute; 
+    right: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%;
+    border: none; 
+    padding: 0; 
+    margin: 0; 
+    background-color: #ff4757;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    cursor: pointer; 
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease; /* Vraćamo tranziciju za transform */
+    z-index: 10; 
+    
+    /* Gumb je skriven po defaultu */
+    opacity: 0; 
+    visibility: hidden; 
+    transform: scale(0.5) translateY(-50%); /* Start sa manjom skalom i centriranjem */
+    transform-origin: center center; /* Osigurava da se smanji/poveća iz centra */
+}
+
+/* OVDJE JE KRITIČNA PROMJENA ZA PRIKAZ/SKRIVANJE GUMBA */
+#posaljiPrivatnoBtn.enabled { 
+    opacity: 1; 
+    visibility: visible; /* Postaje vidljiv kada se klasa doda */
+    transform: scale(1) translateY(-50%); /* Povećava na normalnu veličinu i zadržava centriranje */
+}
+/* Kada nije enabled, želimo da se vraća na skriveno stanje */
+#posaljiPrivatnoBtn:not(.enabled) {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.5) translateY(-50%); /* Vraća se na manju skalu i centrirano stanje */
+}
+
+#posaljiPrivatnoBtn svg { 
+    width: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    height: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    fill: #ffffff; 
+    margin-left: -1px; 
+}
+/* ========================================= */
+
+/* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
+.chat-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+.chat-header-info h2 { margin-bottom: 2px; font-size: 20px; }
+.chat-header-info .status-text { margin-top: 0; }
+/* ========================================= */
+
+h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
+h2 { font-size: 20px; }
+p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
+#intro p, #odabir p, #pijankePregled p { text-align: center; }
+.profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
+.drustvene-mreze { text-align: center; margin-bottom: 15px; }
+
+.profil-actions { display: flex; flex-direction: column; width: 100%; max-width: 400px; margin-top: 10px; gap: 10px; }
+.profil-actions button { margin-bottom: 0; }
+.btn-danger { background: #444; }
+.btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
+
+input, textarea, button {
+    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
+    color: #f0f0f0; border-radius: 8px; font-size: 16px; font-family: inherit; transition: all 0.2s ease-in-out;
+}
+input:focus, textarea:focus { outline: none; border-color: #ff4757; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); }
+button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px; }
+button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
+button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
+img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
+.profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; }
+img.preview-slika { display: none; }
+#previewEditSlike { display: block; margin: 8px auto; }
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.status-dot.online { background-color: #2ecc71; }
+.status-dot.offline { background-color: #7f8c8d; }
+.status-text { font-size: 13px; color: #999; margin: 0; }
+.notification-badge-chat { width: 12px; height: 12px; background: #e74c3c; color: white;
+    border-radius: 50%; height: 18px; width: 18px; display: none;
+    justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
+}
+.fab {
+    position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+    background: linear-gradient(45deg, #ff4757, #e03f4d); border-radius: 50%; border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; z-index: 1000;
+    display: flex; justify-content: center; align-items: center;
+    transition: all 0.3s ease-in-out;
+}
+.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); }
+.fab:active { transform: scale(1.05) rotate(90deg); }
+.fab svg { width: 30px; height: 30px; color: #ffffff; }
+@media (min-width: 768px) { .fab { position: absolute; bottom: 40px; right: 40px; } }
+
+#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
+#privatniChatLog { flex-grow: 1; overflow-y: auto; }
+
+.top-nav-buttons {
+    position: absolute; top: 15px; left: 15px; right: 15px;
+    @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
+    display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
+}
+.back-button, .close-btn {
+    pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
+    cursor: pointer; padding: 5px; width: auto; height: auto; line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
+
+.container > h2 { padding-top: 30px; }
+#lokacijePrikaz > h2 { padding-top: 10px; margin-bottom: 15px; }
+#privatniChat .chat-header-info { padding-top: 40px; }
+
+#intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil { justify-content: center; align-items: center; }
+#objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
+#privatniChat { justify-content: flex-start; align-items: stretch; }
+
+/* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
+.chat-input-area {
+    display: flex; 
+    align-items: center; /* Centriramo sadržaj vertikalno */
+    padding: 8px 12px; /* Padding kontejnera */
+    background-color: transparent; 
+    border-top: none; 
+    margin-top: auto; 
+    flex-shrink: 0; 
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    position: relative; /* KLJUČNO: Referenca za apsolutno pozicionirane ikone i gumb */
+}
+
+#privatniInput {
+    flex-grow: 1; /* Omogućuje textarea da zauzme sav dostupan prostor */
+    border: none; 
+    border-radius: 20px; /* Polukružni oblik */
+    background-color: #3a3a3a; 
+    color: #f0f0f0; 
+    font-size: 16px;
+    line-height: 1.4; 
+    min-height: 40px; /* Minimalna visina inputa */
+    max-height: 100px; /* Maksimalna visina prije skrolanja */
+    overflow-y: auto; 
+    resize: none;
+    transition: all 0.2s ease; 
+    margin: 0; 
+    
+    /* KLJUČNO: Padding za smještaj ikona */
+    padding: 10px 45px 10px 45px; /* Osigurava prostor */
+}
+
+#privatniInput:focus { 
+    outline: none; 
+    background-color: #4a4a4a; 
+    box-shadow: none; 
+    border-color: transparent; 
+}
+
+/* Stilovi za ikonicu za slanje slike */
+.image-upload-icon {
+    position: absolute; 
+    left: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10; /* Must be above input */
+    background: rgba(40, 40, 40, 0.3); 
+    border-radius: 50%; 
+    transition: background-color 0.2s ease;
+}
+
+.image-upload-icon:hover {
+    background: rgba(40, 40, 40, 0.6); 
+}
+
+.image-upload-icon svg {
+    width: 18px; /* Standardna veličina SVG-a */
+    height: 18px; /* Standardna veličina SVG-a */
+    fill: #f0f0f0; 
+}
+
+/* Stilovi za gumb za slanje poruke */
+#posaljiPrivatnoBtn {
+    position: absolute; 
+    right: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%;
+    border: none; 
+    padding: 0; 
+    margin: 0; 
+    background-color: #ff4757;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    cursor: pointer; 
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease; /* Vraćamo tranziciju za transform */
+    z-index: 10; 
+    
+    /* Gumb je skriven po defaultu */
+    opacity: 0; 
+    visibility: hidden; 
+    transform: scale(0.5) translateY(-50%); /* Start sa manjom skalom i centriranjem */
+    transform-origin: center center; /* Osigurava da se smanji/poveća iz centra */
+}
+
+/* OVDJE JE KRITIČNA PROMJENA ZA PRIKAZ/SKRIVANJE GUMBA */
+#posaljiPrivatnoBtn.enabled { 
+    opacity: 1; 
+    visibility: visible; /* Postaje vidljiv kada se klasa doda */
+    transform: scale(1) translateY(-50%); /* Povećava na normalnu veličinu i zadržava centriranje */
+}
+/* Kada nije enabled, želimo da se vraća na skriveno stanje */
+#posaljiPrivatnoBtn:not(.enabled) {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.5) translateY(-50%); /* Vraća se na manju skalu i centrirano stanje */
+}
+
+#posaljiPrivatnoBtn svg { 
+    width: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    height: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    fill: #ffffff; 
+    margin-left: -1px; 
+}
+/* ========================================= */
+
+/* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
+.chat-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+.chat-header-info h2 { margin-bottom: 2px; font-size: 20px; }
+.chat-header-info .status-text { margin-top: 0; }
+/* ========================================= */
+
+h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
+h2 { font-size: 20px; }
+p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
+#intro p, #odabir p, #pijankePregled p { text-align: center; }
+.profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
+.drustvene-mreze { text-align: center; margin-bottom: 15px; }
+
+.profil-actions { display: flex; flex-direction: column; width: 100%; max-width: 400px; margin-top: 10px; gap: 10px; }
+.profil-actions button { margin-bottom: 0; }
+.btn-danger { background: #444; }
+.btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
+
+input, textarea, button {
+    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
+    color: #f0f0f0; border-radius: 8px; font-size: 16px; font-family: inherit; transition: all 0.2s ease-in-out;
+}
+input:focus, textarea:focus { outline: none; border-color: #ff4757; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); }
+button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px; }
+button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
+button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
+img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
+.profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; }
+img.preview-slika { display: none; }
+#previewEditSlike { display: block; margin: 8px auto; }
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.status-dot.online { background-color: #2ecc71; }
+.status-dot.offline { background-color: #7f8c8d; }
+.status-text { font-size: 13px; color: #999; margin: 0; }
+.notification-badge-chat { width: 12px; height: 12px; background: #e74c3c; color: white;
+    border-radius: 50%; height: 18px; width: 18px; display: none;
+    justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
+}
+.fab {
+    position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+    background: linear-gradient(45deg, #ff4757, #e03f4d); border-radius: 50%; border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; z-index: 1000;
+    display: flex; justify-content: center; align-items: center;
+    transition: all 0.3s ease-in-out;
+}
+.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); }
+.fab:active { transform: scale(1.05) rotate(90deg); }
+.fab svg { width: 30px; height: 30px; color: #ffffff; }
+@media (min-width: 768px) { .fab { position: absolute; bottom: 40px; right: 40px; } }
+
+#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
+#privatniChatLog { flex-grow: 1; overflow-y: auto; }
+
+.top-nav-buttons {
+    position: absolute; top: 15px; left: 15px; right: 15px;
+    @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
+    display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
+}
+.back-button, .close-btn {
+    pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
+    cursor: pointer; padding: 5px; width: auto; height: auto; line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
+
+.container > h2 { padding-top: 30px; }
+#lokacijePrikaz > h2 { padding-top: 10px; margin-bottom: 15px; }
+#privatniChat .chat-header-info { padding-top: 40px; }
+
+#intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil { justify-content: center; align-items: center; }
+#objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
+#privatniChat { justify-content: flex-start; align-items: stretch; }
+
+/* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
+.chat-input-area {
+    display: flex; 
+    align-items: center; /* Centriramo sadržaj vertikalno */
+    padding: 8px 12px; /* Padding kontejnera */
+    background-color: transparent; 
+    border-top: none; 
+    margin-top: auto; 
+    flex-shrink: 0; 
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    position: relative; /* KLJUČNO: Referenca za apsolutno pozicionirane ikone i gumb */
+}
+
+#privatniInput {
+    flex-grow: 1; /* Omogućuje textarea da zauzme sav dostupan prostor */
+    border: none; 
+    border-radius: 20px; /* Polukružni oblik */
+    background-color: #3a3a3a; 
+    color: #f0f0f0; 
+    font-size: 16px;
+    line-height: 1.4; 
+    min-height: 40px; /* Minimalna visina inputa */
+    max-height: 100px; /* Maksimalna visina prije skrolanja */
+    overflow-y: auto; 
+    resize: none;
+    transition: all 0.2s ease; 
+    margin: 0; 
+    
+    /* KLJUČNO: Padding za smještaj ikona */
+    padding: 10px 45px 10px 45px; /* Osigurava prostor */
+}
+
+#privatniInput:focus { 
+    outline: none; 
+    background-color: #4a4a4a; 
+    box-shadow: none; 
+    border-color: transparent; 
+}
+
+/* Stilovi za ikonicu za slanje slike */
+.image-upload-icon {
+    position: absolute; 
+    left: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10; /* Must be above input */
+    background: rgba(40, 40, 40, 0.3); 
+    border-radius: 50%; 
+    transition: background-color 0.2s ease;
+}
+
+.image-upload-icon:hover {
+    background: rgba(40, 40, 40, 0.6); 
+}
+
+.image-upload-icon svg {
+    width: 18px; /* Standardna veličina SVG-a */
+    height: 18px; /* Standardna veličina SVG-a */
+    fill: #f0f0f0; 
+}
+
+/* Stilovi za gumb za slanje poruke */
+#posaljiPrivatnoBtn {
+    position: absolute; 
+    right: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%;
+    border: none; 
+    padding: 0; 
+    margin: 0; 
+    background-color: #ff4757;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    cursor: pointer; 
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease; /* Vraćamo tranziciju za transform */
+    z-index: 10; 
+    
+    /* Gumb je skriven po defaultu */
+    opacity: 0; 
+    visibility: hidden; 
+    transform: scale(0.5) translateY(-50%); /* Start sa manjom skalom i centriranjem */
+    transform-origin: center center; /* Osigurava da se smanji/poveća iz centra */
+}
+
+/* OVDJE JE KRITIČNA PROMJENA ZA PRIKAZ/SKRIVANJE GUMBA */
+#posaljiPrivatnoBtn.enabled { 
+    opacity: 1; 
+    visibility: visible; /* Postaje vidljiv kada se klasa doda */
+    transform: scale(1) translateY(-50%); /* Povećava na normalnu veličinu i zadržava centriranje */
+}
+/* Kada nije enabled, želimo da se vraća na skriveno stanje */
+#posaljiPrivatnoBtn:not(.enabled) {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.5) translateY(-50%); /* Vraća se na manju skalu i centrirano stanje */
+}
+
+#posaljiPrivatnoBtn svg { 
+    width: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    height: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    fill: #ffffff; 
+    margin-left: -1px; 
+}
+/* ========================================= */
+
+/* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
+.chat-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+.chat-header-info h2 { margin-bottom: 2px; font-size: 20px; }
+.chat-header-info .status-text { margin-top: 0; }
+/* ========================================= */
+
+h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
+h2 { font-size: 20px; }
+p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
+#intro p, #odabir p, #pijankePregled p { text-align: center; }
+.profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
+.drustvene-mreze { text-align: center; margin-bottom: 15px; }
+
+.profil-actions { display: flex; flex-direction: column; width: 100%; max-width: 400px; margin-top: 10px; gap: 10px; }
+.profil-actions button { margin-bottom: 0; }
+.btn-danger { background: #444; }
+.btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
+
+input, textarea, button {
+    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
+    color: #f0f0f0; border-radius: 8px; font-size: 16px; font-family: inherit; transition: all 0.2s ease-in-out;
+}
+input:focus, textarea:focus { outline: none; border-color: #ff4757; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); }
+button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px; }
+button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
+button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
+img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
+.profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; }
+img.preview-slika { display: none; }
+#previewEditSlike { display: block; margin: 8px auto; }
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.status-dot.online { background-color: #2ecc71; }
+.status-dot.offline { background-color: #7f8c8d; }
+.status-text { font-size: 13px; color: #999; margin: 0; }
+.notification-badge-chat { width: 12px; height: 12px; background: #e74c3c; color: white;
+    border-radius: 50%; height: 18px; width: 18px; display: none;
+    justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
+}
+.fab {
+    position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+    background: linear-gradient(45deg, #ff4757, #e03f4d); border-radius: 50%; border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; z-index: 1000;
+    display: flex; justify-content: center; align-items: center;
+    transition: all 0.3s ease-in-out;
+}
+.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); }
+.fab:active { transform: scale(1.05) rotate(90deg); }
+.fab svg { width: 30px; height: 30px; color: #ffffff; }
+@media (min-width: 768px) { .fab { position: absolute; bottom: 40px; right: 40px; } }
+
+#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
+#privatniChatLog { flex-grow: 1; overflow-y: auto; }
+
+.top-nav-buttons {
+    position: absolute; top: 15px; left: 15px; right: 15px;
+    @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
+    display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
+}
+.back-button, .close-btn {
+    pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
+    cursor: pointer; padding: 5px; width: auto; height: auto; line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
+
+.container > h2 { padding-top: 30px; }
+#lokacijePrikaz > h2 { padding-top: 10px; margin-bottom: 15px; }
+#privatniChat .chat-header-info { padding-top: 40px; }
+
+#intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil { justify-content: center; align-items: center; }
+#objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
+#privatniChat { justify-content: flex-start; align-items: stretch; }
+
+/* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
+.chat-input-area {
+    display: flex; 
+    align-items: center; /* Centriramo sadržaj vertikalno */
+    padding: 8px 12px; /* Padding kontejnera */
+    background-color: transparent; 
+    border-top: none; 
+    margin-top: auto; 
+    flex-shrink: 0; 
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    position: relative; /* KLJUČNO: Referenca za apsolutno pozicionirane ikone i gumb */
+}
+
+#privatniInput {
+    flex-grow: 1; /* Omogućuje textarea da zauzme sav dostupan prostor */
+    border: none; 
+    border-radius: 20px; /* Polukružni oblik */
+    background-color: #3a3a3a; 
+    color: #f0f0f0; 
+    font-size: 16px;
+    line-height: 1.4; 
+    min-height: 40px; /* Minimalna visina inputa */
+    max-height: 100px; /* Maksimalna visina prije skrolanja */
+    overflow-y: auto; 
+    resize: none;
+    transition: all 0.2s ease; 
+    margin: 0; 
+    
+    /* KLJUČNO: Padding za smještaj ikona */
+    padding: 10px 45px 10px 45px; /* Osigurava prostor */
+}
+
+#privatniInput:focus { 
+    outline: none; 
+    background-color: #4a4a4a; 
+    box-shadow: none; 
+    border-color: transparent; 
+}
+
+/* Stilovi za ikonicu za slanje slike */
+.image-upload-icon {
+    position: absolute; 
+    left: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10; /* Must be above input */
+    background: rgba(40, 40, 40, 0.3); 
+    border-radius: 50%; 
+    transition: background-color 0.2s ease;
+}
+
+.image-upload-icon:hover {
+    background: rgba(40, 40, 40, 0.6); 
+}
+
+.image-upload-icon svg {
+    width: 18px; /* Standardna veličina SVG-a */
+    height: 18px; /* Standardna veličina SVG-a */
+    fill: #f0f0f0; 
+}
+
+/* Stilovi za gumb za slanje poruke */
+#posaljiPrivatnoBtn {
+    position: absolute; 
+    right: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%;
+    border: none; 
+    padding: 0; 
+    margin: 0; 
+    background-color: #ff4757;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    cursor: pointer; 
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease; /* Vraćamo tranziciju za transform */
+    z-index: 10; 
+    
+    /* Gumb je skriven po defaultu */
+    opacity: 0; 
+    visibility: hidden; 
+    transform: scale(0.5) translateY(-50%); /* Start sa manjom skalom i centriranjem */
+    transform-origin: center center; /* Osigurava da se smanji/poveća iz centra */
+}
+
+/* OVDJE JE KRITIČNA PROMJENA ZA PRIKAZ/SKRIVANJE GUMBA */
+#posaljiPrivatnoBtn.enabled { 
+    opacity: 1; 
+    visibility: visible; /* Postaje vidljiv kada se klasa doda */
+    transform: scale(1) translateY(-50%); /* Povećava na normalnu veličinu i zadržava centriranje */
+}
+/* Kada nije enabled, želimo da se vraća na skriveno stanje */
+#posaljiPrivatnoBtn:not(.enabled) {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.5) translateY(-50%); /* Vraća se na manju skalu i centrirano stanje */
+}
+
+#posaljiPrivatnoBtn svg { 
+    width: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    height: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    fill: #ffffff; 
+    margin-left: -1px; 
+}
+/* ========================================= */
+
+/* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
+.chat-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+.chat-header-info h2 { margin-bottom: 2px; font-size: 20px; }
+.chat-header-info .status-text { margin-top: 0; }
+/* ========================================= */
+
+h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
+h2 { font-size: 20px; }
+p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
+#intro p, #odabir p, #pijankePregled p { text-align: center; }
+.profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
+.drustvene-mreze { text-align: center; margin-bottom: 15px; }
+
+.profil-actions { display: flex; flex-direction: column; width: 100%; max-width: 400px; margin-top: 10px; gap: 10px; }
+.profil-actions button { margin-bottom: 0; }
+.btn-danger { background: #444; }
+.btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
+
+input, textarea, button {
+    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
+    color: #f0f0f0; border-radius: 8px; font-size: 16px; font-family: inherit; transition: all 0.2s ease-in-out;
+}
+input:focus, textarea:focus { outline: none; border-color: #ff4757; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); }
+button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px; }
+button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
+button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
+img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
+.profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; }
+img.preview-slika { display: none; }
+#previewEditSlike { display: block; margin: 8px auto; }
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.status-dot.online { background-color: #2ecc71; }
+.status-dot.offline { background-color: #7f8c8d; }
+.status-text { font-size: 13px; color: #999; margin: 0; }
+.notification-badge-chat { width: 12px; height: 12px; background: #e74c3c; color: white;
+    border-radius: 50%; height: 18px; width: 18px; display: none;
+    justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
+}
+.fab {
+    position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+    background: linear-gradient(45deg, #ff4757, #e03f4d); border-radius: 50%; border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; z-index: 1000;
+    display: flex; justify-content: center; align-items: center;
+    transition: all 0.3s ease-in-out;
+}
+.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); }
+.fab:active { transform: scale(1.05) rotate(90deg); }
+.fab svg { width: 30px; height: 30px; color: #ffffff; }
+@media (min-width: 768px) { .fab { position: absolute; bottom: 40px; right: 40px; } }
+
+#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
+#privatniChatLog { flex-grow: 1; overflow-y: auto; }
+
+.top-nav-buttons {
+    position: absolute; top: 15px; left: 15px; right: 15px;
+    @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
+    display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
+}
+.back-button, .close-btn {
+    pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
+    cursor: pointer; padding: 5px; width: auto; height: auto; line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
+
+.container > h2 { padding-top: 30px; }
+#lokacijePrikaz > h2 { padding-top: 10px; margin-bottom: 15px; }
+#privatniChat .chat-header-info { padding-top: 40px; }
+
+#intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil { justify-content: center; align-items: center; }
+#objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
+#privatniChat { justify-content: flex-start; align-items: stretch; }
+
+/* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
+.chat-input-area {
+    display: flex; 
+    align-items: center; /* Centriramo sadržaj vertikalno */
+    padding: 8px 12px; /* Padding kontejnera */
+    background-color: transparent; 
+    border-top: none; 
+    margin-top: auto; 
+    flex-shrink: 0; 
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    position: relative; /* KLJUČNO: Referenca za apsolutno pozicionirane ikone i gumb */
+}
+
+#privatniInput {
+    flex-grow: 1; /* Omogućuje textarea da zauzme sav dostupan prostor */
+    border: none; 
+    border-radius: 20px; /* Polukružni oblik */
+    background-color: #3a3a3a; 
+    color: #f0f0f0; 
+    font-size: 16px;
+    line-height: 1.4; 
+    min-height: 40px; /* Minimalna visina inputa */
+    max-height: 100px; /* Maksimalna visina prije skrolanja */
+    overflow-y: auto; 
+    resize: none;
+    transition: all 0.2s ease; 
+    margin: 0; 
+    
+    /* KLJUČNO: Padding za smještaj ikona */
+    padding: 10px 45px 10px 45px; /* Osigurava prostor */
+}
+
+#privatniInput:focus { 
+    outline: none; 
+    background-color: #4a4a4a; 
+    box-shadow: none; 
+    border-color: transparent; 
+}
+
+/* Stilovi za ikonicu za slanje slike */
+.image-upload-icon {
+    position: absolute; 
+    left: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10; /* Must be above input */
+    background: rgba(40, 40, 40, 0.3); 
+    border-radius: 50%; 
+    transition: background-color 0.2s ease;
+}
+
+.image-upload-icon:hover {
+    background: rgba(40, 40, 40, 0.6); 
+}
+
+.image-upload-icon svg {
+    width: 18px; /* Standardna veličina SVG-a */
+    height: 18px; /* Standardna veličina SVG-a */
+    fill: #f0f0f0; 
+}
+
+/* Stilovi za gumb za slanje poruke */
+#posaljiPrivatnoBtn {
+    position: absolute; 
+    right: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%;
+    border: none; 
+    padding: 0; 
+    margin: 0; 
+    background-color: #ff4757;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    cursor: pointer; 
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease; /* Vraćamo tranziciju za transform */
+    z-index: 10; 
+    
+    /* Gumb je skriven po defaultu */
+    opacity: 0; 
+    visibility: hidden; 
+    transform: scale(0.5) translateY(-50%); /* Start sa manjom skalom i centriranjem */
+    transform-origin: center center; /* Osigurava da se smanji/poveća iz centra */
+}
+
+/* OVDJE JE KRITIČNA PROMJENA ZA PRIKAZ/SKRIVANJE GUMBA */
+#posaljiPrivatnoBtn.enabled { 
+    opacity: 1; 
+    visibility: visible; /* Postaje vidljiv kada se klasa doda */
+    transform: scale(1) translateY(-50%); /* Povećava na normalnu veličinu i zadržava centriranje */
+}
+/* Kada nije enabled, želimo da se vraća na skriveno stanje */
+#posaljiPrivatnoBtn:not(.enabled) {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.5) translateY(-50%); /* Vraća se na manju skalu i centrirano stanje */
+}
+
+#posaljiPrivatnoBtn svg { 
+    width: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    height: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    fill: #ffffff; 
+    margin-left: -1px; 
+}
+/* ========================================= */
+
+/* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
+.chat-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+.chat-header-info h2 { margin-bottom: 2px; font-size: 20px; }
+.chat-header-info .status-text { margin-top: 0; }
+/* ========================================= */
+
+h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
+h2 { font-size: 20px; }
+p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
+#intro p, #odabir p, #pijankePregled p { text-align: center; }
+.profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
+.drustvene-mreze { text-align: center; margin-bottom: 15px; }
+
+.profil-actions { display: flex; flex-direction: column; width: 100%; max-width: 400px; margin-top: 10px; gap: 10px; }
+.profil-actions button { margin-bottom: 0; }
+.btn-danger { background: #444; }
+.btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
+
+input, textarea, button {
+    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
+    color: #f0f0f0; border-radius: 8px; font-size: 16px; font-family: inherit; transition: all 0.2s ease-in-out;
+}
+input:focus, textarea:focus { outline: none; border-color: #ff4757; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); }
+button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px; }
+button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
+button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
+img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
+.profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; }
+img.preview-slika { display: none; }
+#previewEditSlike { display: block; margin: 8px auto; }
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.status-dot.online { background-color: #2ecc71; }
+.status-dot.offline { background-color: #7f8c8d; }
+.status-text { font-size: 13px; color: #999; margin: 0; }
+.notification-badge-chat { width: 12px; height: 12px; background: #e74c3c; color: white;
+    border-radius: 50%; height: 18px; width: 18px; display: none;
+    justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
+}
+.fab {
+    position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+    background: linear-gradient(45deg, #ff4757, #e03f4d); border-radius: 50%; border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; z-index: 1000;
+    display: flex; justify-content: center; align-items: center;
+    transition: all 0.3s ease-in-out;
+}
+.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); }
+.fab:active { transform: scale(1.05) rotate(90deg); }
+.fab svg { width: 30px; height: 30px; color: #ffffff; }
+@media (min-width: 768px) { .fab { position: absolute; bottom: 40px; right: 40px; } }
+
+#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
+#privatniChatLog { flex-grow: 1; overflow-y: auto; }
+
+.top-nav-buttons {
+    position: absolute; top: 15px; left: 15px; right: 15px;
+    @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
+    display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
+}
+.back-button, .close-btn {
+    pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
+    cursor: pointer; padding: 5px; width: auto; height: auto; line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
+
+.container > h2 { padding-top: 30px; }
+#lokacijePrikaz > h2 { padding-top: 10px; margin-bottom: 15px; }
+#privatniChat .chat-header-info { padding-top: 40px; }
+
+#intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil { justify-content: center; align-items: center; }
+#objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
+#privatniChat { justify-content: flex-start; align-items: stretch; }
+
+/* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
+.chat-input-area {
+    display: flex; 
+    align-items: center; /* Centriramo sadržaj vertikalno */
+    padding: 8px 12px; /* Padding kontejnera */
+    background-color: transparent; 
+    border-top: none; 
+    margin-top: auto; 
+    flex-shrink: 0; 
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    position: relative; /* KLJUČNO: Referenca za apsolutno pozicionirane ikone i gumb */
+}
+
+#privatniInput {
+    flex-grow: 1; /* Omogućuje textarea da zauzme sav dostupan prostor */
+    border: none; 
+    border-radius: 20px; /* Polukružni oblik */
+    background-color: #3a3a3a; 
+    color: #f0f0f0; 
+    font-size: 16px;
+    line-height: 1.4; 
+    min-height: 40px; /* Minimalna visina inputa */
+    max-height: 100px; /* Maksimalna visina prije skrolanja */
+    overflow-y: auto; 
+    resize: none;
+    transition: all 0.2s ease; 
+    margin: 0; 
+    
+    /* KLJUČNO: Padding za smještaj ikona */
+    padding: 10px 45px 10px 45px; /* Osigurava prostor */
+}
+
+#privatniInput:focus { 
+    outline: none; 
+    background-color: #4a4a4a; 
+    box-shadow: none; 
+    border-color: transparent; 
+}
+
+/* Stilovi za ikonicu za slanje slike */
+.image-upload-icon {
+    position: absolute; 
+    left: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10; /* Must be above input */
+    background: rgba(40, 40, 40, 0.3); 
+    border-radius: 50%; 
+    transition: background-color 0.2s ease;
+}
+
+.image-upload-icon:hover {
+    background: rgba(40, 40, 40, 0.6); 
+}
+
+.image-upload-icon svg {
+    width: 18px; /* Standardna veličina SVG-a */
+    height: 18px; /* Standardna veličina SVG-a */
+    fill: #f0f0f0; 
+}
+
+/* Stilovi za gumb za slanje poruke */
+#posaljiPrivatnoBtn {
+    position: absolute; 
+    right: 20px; 
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
+    transform: translateY(-50%); /* Precizno centriranje */
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%;
+    border: none; 
+    padding: 0; 
+    margin: 0; 
+    background-color: #ff4757;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    cursor: pointer; 
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease; /* Vraćamo tranziciju za transform */
+    z-index: 10; 
+    
+    /* Gumb je skriven po defaultu */
+    opacity: 0; 
+    visibility: hidden; 
+    transform: scale(0.5) translateY(-50%); /* Start sa manjom skalom i centriranjem */
+    transform-origin: center center; /* Osigurava da se smanji/poveća iz centra */
+}
+
+/* OVDJE JE KRITIČNA PROMJENA ZA PRIKAZ/SKRIVANJE GUMBA */
+#posaljiPrivatnoBtn.enabled { 
+    opacity: 1; 
+    visibility: visible; /* Postaje vidljiv kada se klasa doda */
+    transform: scale(1) translateY(-50%); /* Povećava na normalnu veličinu i zadržava centriranje */
+}
+/* Kada nije enabled, želimo da se vraća na skriveno stanje */
+#posaljiPrivatnoBtn:not(.enabled) {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.5) translateY(-50%); /* Vraća se na manju skalu i centrirano stanje */
+}
+
+#posaljiPrivatnoBtn svg { 
+    width: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    height: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    fill: #ffffff; 
+    margin-left: -1px; 
+}
+/* ========================================= */
+
+/* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
+.chat-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+.chat-header-info h2 { margin-bottom: 2px; font-size: 20px; }
+.chat-header-info .status-text { margin-top: 0; }
+/* ========================================= */
