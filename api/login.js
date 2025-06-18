@@ -8,7 +8,7 @@ const cors = require('cors');
 // Dozvoljavamo samo POST metodu za prijavu
 const allowCors = cors({ methods: ['POST'], origin: '*' });
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.super_tajni_kljuc_koji_je_vrlo_dugacak_i_nasumican;
 
 module.exports = async (req, res) => {
   // Prvo, obradi CORS preflight zahtjeve (OPTIONS metoda)
