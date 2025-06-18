@@ -608,7 +608,18 @@ async function pokreniPrivatniChat(partnerId) {
     trenutniChatPartnerId = partnerId;
     const primalac = sviKorisnici.find(u => u.id === partnerId);
     if (!primalac) return;
-    document.getElementById("chatSaKorisnikom").innerText = primalac.ime;
+
+    const chatSaKorisnikomEl = document.getElementById("chatSaKorisnikom");
+    const chatPartnerSlikaEl = document.getElementById("chatPartnerSlika"); // Dohvaćamo element za sliku
+
+    chatSaKorisnikomEl.innerText = primalac.ime; // Postavlja ime
+    // Postavlja URL profilne slike. Koristi 'default_profile.png' ako je slika null.
+    chatPartnerSlikaEl.src = primalac.slika || 'default_profile.png'; 
+
+    // Dodajemo event listener za klik na sliku i ime za otvaranje profila
+    const otvoriProfilHandler = () => otvoriProfil(primalac.id);
+    chatPartnerSlikaEl.onclick = otvoriProfilHandler; // Slika je klikabilna
+    chatSaKorisnikomEl.onclick = otvoriProfilHandler; // Ime je klikabilno (opcionalno, ali lijepo)
     
     navigateTo('privatniChat');
 
@@ -621,17 +632,21 @@ async function pokreniPrivatniChat(partnerId) {
         });
         await dohvatiSvePoruke();
         azurirajNotifikacije();
-    } catch (error) { console.error("Greška kod označavanja poruka kao pročitanih:", error); }
+    } catch (error) { 
+        console.error("Greška kod označavanja poruka kao pročitanih:", error); 
+    }
+
     const azurirajStatusSagovornika = () => {
         const svezPartner = sviKorisnici.find(u => u.id === partnerId);
         if (svezPartner) {
             document.getElementById("chatPartnerStatus").innerText = formatirajStatus(svezPartner.lastActive).text;
         }
     };
+    
     if (chatStatusInterval) clearInterval(chatStatusInterval);
     chatStatusInterval = setInterval(azurirajStatusSagovornika, 5e3);
-    azurirajStatusSagovornika();
-    prikaziPrivatniLog();
+    azurirajStatusSagovornika(); // Odmah ažuriraj status pri otvaranju chata
+    prikaziPrivatniLog(); // Prikazuje poruke
 }
 
 async function posaljiPrivatno() {

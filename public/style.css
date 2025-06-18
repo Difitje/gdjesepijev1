@@ -330,13 +330,39 @@ body::before {
 /* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
 .chat-header-info {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-direction: column; /* Zadržavamo vertikalni raspored za ime i status */
+    align-items: center;    /* Centriramo sadržaj */
     margin-bottom: 10px;
     flex-shrink: 0;
+    padding-top: 40px; /* Osiguraj dovoljno mjesta od vrha */
 }
-.chat-header-info h2 { margin-bottom: 2px; font-size: 20px; }
-.chat-header-info .status-text { margin-top: 0; }
+
+.chat-partner-profilna {
+    width: 60px;          /* Veličina profilne slike */
+    height: 60px;
+    border-radius: 50%;   /* Okrugli oblik */
+    object-fit: cover;    /* Osigurava da se slika pravilno popuni */
+    border: 2px solid #ff4757; /* Crveni obrub kao u aplikaciji */
+    margin-bottom: 8px;   /* Razmak između slike i imena */
+    cursor: pointer;      /* Pokazuje da je klikabilna */
+    transition: transform 0.2s ease-in-out;
+}
+
+.chat-partner-profilna:hover {
+    transform: scale(1.05); /* Mali efekt na hoveru */
+}
+
+.chat-header-info h2 { 
+    margin-bottom: 2px; 
+    font-size: 20px; 
+    color: #f0f0f0; /* Osiguraj da je boja imena vidljiva */
+    cursor: pointer; /* Pokazuje da je i ime klikabilno */
+}
+.chat-header-info .status-text { 
+    margin-top: 0; 
+    font-size: 14px; /* Malo veći status tekst */
+}
+/* ========================================= */
 /* ========================================= */
 
 h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
