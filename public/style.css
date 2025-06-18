@@ -107,6 +107,8 @@ body::before {
     #privatniChatLog p { max-width: 800px; margin-left: auto; margin-right: auto; }
 }
 
+/* ... (prethodni CSS kod) ... */
+
 @media (max-width: 767px) {
     body { overflow: hidden; }
     .container { position: absolute; padding: 20px; border-radius: 0; border: none; box-shadow: none; }
@@ -115,14 +117,42 @@ body::before {
         padding-bottom: 70px; /* Visina nav bara + malo razmaka */
     }
     /* #lokacijePrikaz je već imao padding-top, ostali kontejneri sada također trebaju */
-    #homePrazan, #lokacijePrikaz, #inboxPrikaz, #glavniDio, #privatniChat, #editProfil {
+    #homePrazan, #inboxPrikaz, #glavniDio, #privatniChat, #editProfil {
         padding-top: 70px; /* Osiguraj prostor za header */
     }
     /* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
     #intro, #odabir, #login, #registracija, #pravilaEkran {
         padding-top: 20px; /* Standardni padding */
     }
+
+    /* OVDJE SU NOVI I AŽURIRANI STILOVI ZA MOBILNI PRIKAZ MAPE */
+    #lokacijePrikaz {
+        /* Osiguraj da lokacijePrikaz bude flex kontejner i zauzme prostor */
+        display: flex;
+        flex-direction: column;
+        /* Visina bi trebala biti prilagođena sadržaju, ali osiguraj da ima min. visinu */
+        min-height: calc(100vh - 60px - 70px); /* Visina ekrana minus header (60px) i nav bar (70px) */
+        padding-top: 70px; /* Header */
+        padding-bottom: 70px; /* Nav bar */
+        box-sizing: border-box; /* Uključi padding u dimenzije */
+    }
+
+    #googleMap {
+        position: absolute; /* Ili relative, probaj obje opcije. Absolute je obično bolji za "overlay" mapu */
+        top: 60px; /* Visina main-header-a */
+        bottom: 60px; /* Visina bottom-nav-a */
+        left: 0;
+        right: 0;
+        /* Važno: visina je sada calculirana da zauzme raspoloživ prostor */
+        height: calc(100% - 120px); /* Ukupna visina ekrana - (top offset + bottom offset) */
+        width: 100%;
+        background-color: darkblue; /* PRIVREMENO: Da vidiš zauzima li prostor */
+        border-radius: 10px;
+        flex-grow: 1; /* Omogući da se rastegne ako je lokacijePrikaz flex kontejner */
+    }
 }
+
+/* ... (ostatak CSS koda) ... */
 
 .main-header {
     position: absolute; top: 0; left: 0; right: 0; height: 60px; padding: 0 10px;
