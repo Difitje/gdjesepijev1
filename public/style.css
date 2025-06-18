@@ -256,33 +256,25 @@ body::before {
     justify-content: center; 
     align-items: center;
     cursor: pointer; 
-    transition: opacity 0.2s ease, visibility 0.2s ease; /* Tranzicija samo za opacity i visibility */
+    /* UKLANJAMO SVE TRANZICIJE ZA TRANSFORM, OPACITY, VISIBILITY */
+    /* Gumb će UVIJEK biti vidljiv i na mjestu */
     z-index: 10; 
     
-    opacity: 0; 
-    visibility: hidden; /* Skriveno po defaultu */
-    transform: scale(0.9); /* Smanjeno na 90% da se ne vidi naglo skakanje, ali da se ne skriva potpuno */
-    transform-origin: center center; /* Osigurava da se smanji/poveća iz centra */
+    /* Gumb će UVIJEK biti vidljiv i na svom mjestu */
+    opacity: 1; 
+    visibility: visible; 
+    transform: scale(1) translateY(-50%); /* Osiguraj da je scale(1) i translateY(-50%) uvijek prisutno */
 }
 
 #posaljiPrivatnoBtn.enabled { 
-    opacity: 1; 
-    visibility: visible; /* Postaje vidljiv kada se klasa doda */
-    transform: scale(1); /* Povećava na normalnu veličinu kada je enabled */
-}
-/* Kada nije enabled, želimo da se vraća na skriveno stanje */
-#posaljiPrivaljnoBtn:not(.enabled) {
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(0.9); /* Vraća se na smanjeno stanje, ali ne 0 */
+    /* Ove klase više NEĆE kontrolirati vidljivost ili transform */
+    /* One mogu kontrolirati, npr. boju gumba kad je enabled */
+    background-color: #ff4757; /* Primjer: zadrži boju */
 }
 
-#posaljiPrivatnoBtn svg { 
-    width: 18px; /* SMANJENO: Bilo je 24px (zbog veće ikone u SVG-u) */
-    height: 18px; /* SMANJENO: Bilo je 24px */
-    fill: #ffffff; 
-    margin-left: -1px; 
-}
+/* Uklanjamo sve :not(.enabled) i druge skrivajuće stilove za gumb */
+/* Jer želimo da je gumb UVIJEK vidljiv i na mjestu */
+
 /* ========================================= */
 
 /* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
