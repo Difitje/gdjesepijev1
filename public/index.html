@@ -105,9 +105,7 @@
 
     <div class="container" id="glavniDio">
         <div class="top-nav-buttons">
-            <button class="back-button" onclick="navigateBack()" style="display:none;">←</button>
-            <button class="close-btn" onclick="navigateBack()" style="display:none;">✖</button>
-        </div>
+            <button class="back-button" onclick="navigateBack()">←</button> <button class="close-btn" onclick="navigateTo('homePrikazPijanki');">✖</button> </div>
         <h2 id="glavniNaslov"></h2>
         <div id="objavaForma">
             <textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea>
@@ -175,7 +173,8 @@
             </svg>
             <span>Home</span>
         </button>
-        <button class="nav-button" id="navSearch" onclick="handleNavClick('praznaTrazilica');"> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <button class="nav-button" id="navSearch" onclick="handleNavClick('praznaTrazilica');">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
             </svg>
             <span>Tražilica</span>
@@ -229,41 +228,23 @@
 
         // NOVO: Glavna funkcija za rukovanje klikovima na navigacijske gumbe
         function handleNavClick(targetScreenId) { 
-            const currentActiveNavButton = document.querySelector('.bottom-nav .nav-button.active');
-            let currentTargetScreenId = '';
+            const currentScreenEl = document.querySelector('.container.active-screen');
+            let currentScreenId = currentScreenEl ? currentScreenEl.id : null;
 
-            if (currentActiveNavButton) {
-                if (currentActiveNavButton.id === 'navHome') currentTargetScreenId = 'homePrikazPijanki';
-                else if (currentActiveNavButton.id === 'navSearch') currentTargetScreenId = 'praznaTrazilica'; // PROMIJENJENO: Provjera za praznaTrazilica
-                else if (currentActiveNavButton.id === 'navInbox') currentTargetScreenId = 'inboxPrikaz';
-                else if (currentActiveNavButton.id === 'navProfile') {
-                    if (document.getElementById("profilKorisnika") && document.getElementById("profilKorisnika").style.display !== "none" && document.querySelector('.container.active-screen')?.id === 'glavniDio') {
-                        currentTargetScreenId = 'glavniDio';
-                    } else if (document.querySelector('.container.active-screen')?.id === 'editProfil') {
-                        currentTargetScreenId = 'editProfil';
-                    }
-                }
-            }
-            
-            // Onemogući ponovni klik na aktivni gumb
-            if (targetScreenId === currentTargetScreenId) {
-                if (targetScreenId === 'glavniDio' && currentTargetScreenId === 'editProfil') {
-                } else {
-                    return; 
-                }
+            // Ako je trenutni ekran već ciljani glavni ekran, ne radi ništa (spriječava dupliranje na stacku)
+            if (currentScreenId === targetScreenId && (targetScreenId === 'homePrikazPijanki' || targetScreenId === 'praznaTrazilica' || targetScreenId === 'inboxPrikaz' || (targetScreenId === 'glavniDio' && document.getElementById("profilKorisnika").style.display !== "none"))) {
+                return;
             }
 
-
-            // Pozovi odgovarajuću funkciju na temelju targetScreenId
+            // Posebni slučajevi navigacije
             if (targetScreenId === 'homePrikazPijanki') {
+                navigateTo(targetScreenId); // Poziva originalnu navigateTo koja će dodati trenutni na stack
+            } else if (targetScreenId === 'praznaTrazilica') {
                 navigateTo(targetScreenId);
-            } else if (targetScreenId === 'praznaTrazilica') { // NOVO: Logika za praznu tražilicu
-                navigateTo(targetScreenId);
-                // Ovdje se ne poziva dohvatiSvePijanke/prikaziPijankePregled
             } else if (targetScreenId === 'inboxPrikaz') {
-                otvoriInbox();
+                otvoriInbox(); // otvoriInbox već poziva navigateTo
             } else if (targetScreenId === 'glavniDio') {
-                prikaziMojProfil();
+                prikaziMojProfil(); // prikaziMojProfil već poziva navigateTo
             }
         }
 
@@ -337,21 +318,26 @@
         function afterSwapUpdateNavButton(targetScreenId) {
             const fabButton = document.getElementById('fabObjaviPijanku');
             if (fabButton) {
-                // FAB je vidljiv samo na Home ekranu
                 fabButton.style.display = (targetScreenId === 'homePrikazPijanki') ? 'flex' : 'none';
             }
 
             if (targetScreenId === 'homePrikazPijanki') {
                 updateActiveNavButton('navHome');
-            } else if (targetScreenId === 'praznaTrazilica') { // PROMIJENJENO: Za praznaTrazilica
+            } else if (targetScreenId === 'praznaTrazilica') {
                 updateActiveNavButton('navSearch');
             } else if (targetScreenId === 'inboxPrikaz') {
                 updateActiveNavButton('navInbox');
             } else if (targetScreenId === 'glavniDio') {
+                // Provjeravamo je li prikazan profil ili forma za objavu
                 if (document.getElementById("profilKorisnika") && document.getElementById("profilKorisnika").style.display !== "none") {
                     updateActiveNavButton('navProfile');
-                } else {
+                } else if (document.getElementById("objavaForma") && document.getElementById("objavaForma").style.display !== "none") {
+                     // Ako je objava forma, nijedan nav gumb nije aktivan
                     document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
+                        button.classList.remove('active');
+                    });
+                } else {
+                     document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                         button.classList.remove('active');
                     });
                 }
@@ -374,24 +360,35 @@
         const originalNavigateTo = navigateTo;
         navigateTo = function(targetScreenId) {
             const currentScreenEl = document.querySelector('.container.active-screen');
-            // PROMIJENJENO: Dodan praznaTrazilica u navBarTargetScreens
             const navBarTargetScreens = ['homePrikazPijanki', 'praznaTrazilica', 'inboxPrikaz', 'glavniDio', 'editProfil'];
 
-            if (currentScreenEl && !navBarTargetScreens.includes(targetScreenId)) {
-                if (!(navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId))) {
-                    navigationStack.push(currentScreenEl.id);
+            // Ovdje je ključna logika: samo ako se ne radi o prebacivanju između DVA GLAVNA ekrana nav bara,
+            // onda pushamo trenutni ekran na stack.
+            // Također, ne pushamo ako je targetScreenId već na vrhu stacka (povratak na isti ekran).
+            if (currentScreenEl) {
+                const currentScreenId = currentScreenEl.id;
+                const lastStackId = navigationStack[navigationStack.length - 1];
+
+                // Ako idemo sa glavnog ekrana na neki "sub-ekran" (npr. s Home na Profil, pa na Edit Profil)
+                // ili s nekog sub-ekrana na drugi sub-ekran (npr. s Profila na Objavi Pijanku)
+                // Uglavnom, pushaj na stack ako target nije jedan od glavnih ekrana,
+                // ILI ako je target glavni ekran, ali nismo došli s drugog glavnog ekrana,
+                // ILI ako je target isti kao zadnji na stacku, ali nije bio direktan "back" poziv
+                if (
+                    !navBarTargetScreens.includes(targetScreenId) || // Nije glavni ekran, uvijek pushaj
+                    (navBarTargetScreens.includes(targetScreenId) && !navBarTargetScreens.includes(currentScreenId)) || // Idemo na glavni ekran s pod-ekrana
+                    (currentScreenId === 'glavniDio' && targetScreenId === 'editProfil') || // Poseban slučaj: Profil -> Uredi profil
+                    (currentScreenId === 'editProfil' && targetScreenId === 'glavniDio') // Poseban slučaj: Uredi profil -> Profil
+                ) {
+                    if (currentScreenId !== lastStackId) { // Provjeri da nije duplikat na stacku
+                        navigationStack.push(currentScreenId);
+                    }
+                } else if (navBarTargetScreens.includes(currentScreenId) && navBarTargetScreens.includes(targetScreenId)) {
+                    // Ako prelazimo između dva glavna ekrana nav bara, očisti stack i postavi novi
+                    navigationStack = [];
                 }
-            } else if (currentScreenEl && targetScreenId === 'glavniDio' && document.getElementById("profilKorisnika").style.display !== "none") {
-            } else if (currentScreenEl && targetScreenId === 'glavniDio' && currentScreenEl.id === 'editProfil') {
             }
-            else if (currentScreenEl && targetScreenId === 'privatniChat' && currentScreenEl.id.includes('Chat')) {
-            }
-            else if (currentScreenEl && !navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId)) {
-            }
-            else if (currentScreenEl && targetScreenId === 'glavniDio' && document.getElementById("objavaForma").style.display !== "none") {
-            }
-            else {
-            }
+
 
             swap(currentScreenEl ? currentScreenEl.id : null, targetScreenId);
             afterSwapUpdateNavButton(targetScreenId);
@@ -400,6 +397,7 @@
         // Modificiramo navigateBack - potrebno je osigurati da se animacija završi
         const originalNavigateBack = navigateBack;
         navigateBack = function() {
+            // Dohvati ciljni ekran PRIJE poziva originalNavigateBack, jer ona mijenja stack
             const targetScreenIdAfterBack = navigationStack[navigationStack.length - 1]; 
             
             originalNavigateBack();
@@ -419,8 +417,10 @@
         // Kada se otvara profil, ažuriraj nav gumb i sakrij FAB
         const originalOtvoriProfil = otvoriProfil;
         otvoriProfil = function(korisnikId) {
-            navigateTo('glavniDio'); 
-
+            // ORIGINALNA LOKALNA FUNKCIJA, NE MIJENJAJ
+            // Sada se handleNavClick brine za navigateTo('glavniDio') i pushanje na stack
+            // Dakle, samo provjeri da je ovo ispravno
+            
             const korisnik = sviKorisnici.find(u => u.id === korisnikId);
             if (!korisnik) return;
             
@@ -445,15 +445,22 @@
                 <div class="profil-actions">${actionButtons}</div>
             `;
 
+            // Izmjena: back-button i close-btn za profil da se vraćaju na home
             document.querySelector('#glavniDio .back-button').style.display = 'flex';
-            document.querySelector('#glavniDio .close-btn').style.display = 'none';
+            document.querySelector('#glavniDio .back-button').onclick = () => navigateTo('homePrikazPijanki');
+
+            document.querySelector('#glavniDio .close-btn').style.display = 'none'; // Profil nema X tipku
+            
+            // Ovdje više ne pozivamo navigateTo('glavniDio') jer se poziva iz handleNavClick
+
         };
 
         // Kada se otvara inbox, ažuriraj nav gumb i sakrij FAB
         const originalOtvoriInbox = otvoriInbox;
         otvoriInbox = function() {
-            navigateTo('inboxPrikaz'); 
-            
+            // ORIGINALNA LOKALNA FUNKCIJA, NE MIJENJAJ
+            // Sada se handleNavClick brine za navigateTo('inboxPrikaz') i pushanje na stack
+
             const div = document.getElementById("listaChatova");
             div.innerHTML = "";
 
@@ -485,6 +492,8 @@
                 }
                 azurirajNotifikacije();
             });
+            // Back button za inbox ce voditi na home (isto kao i za profil)
+            document.querySelector('#inboxPrikaz .back-button').onclick = () => navigateTo('homePrikazPijanki');
         };
 
 
