@@ -78,40 +78,6 @@
 
         <h2>Trenutno pije:</h2>
         <div id="pijankePregled"></div>
-        
-        <button id="fabObjaviPijanku" class="fab" onclick="pokaziObjavu()">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-        </button>
-
-        <nav class="bottom-nav">
-            <button class="nav-button active" onclick="navigateTo('lokacijePrikaz')">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v4.875h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21.75h7.5" />
-                </svg>
-                <span>Home</span>
-            </button>
-            <button class="nav-button" onclick="alert('Tražilica u izradi!')">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-                <span>Tražilica</span>
-            </button>
-            <button class="nav-button" onclick="otvoriInbox()">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                </svg>
-                <span>Inbox</span>
-                <span id="notifikacijaPorukaGlavna" class="notification-badge-main"></span>
-            </button>
-            <button class="nav-button" onclick="prikaziMojProfil()">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span>Profil</span>
-            </button>
-        </nav>
     </div>
 
     <div class="container" id="inboxPrikaz">
@@ -181,6 +147,133 @@
         <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
     </div>
 
+    <button id="fabObjaviPijanku" class="fab" onclick="pokaziObjavu()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+    </button>
+
+    <nav class="bottom-nav">
+        <button class="nav-button active" id="navHome" onclick="navigateTo('lokacijePrikaz'); updateActiveNavButton(this);">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v4.875h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21.75h7.5" />
+            </svg>
+            <span>Home</span>
+        </button>
+        <button class="nav-button" id="navSearch" onclick="alert('Tražilica u izradi!'); updateActiveNavButton(this);">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <span>Tražilica</span>
+        </button>
+        <button class="nav-button" id="navInbox" onclick="otvoriInbox(); updateActiveNavButton(this);">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+            </svg>
+            <span>Inbox</span>
+            <span id="notifikacijaPorukaGlavna" class="notification-badge-main"></span>
+        </button>
+        <button class="nav-button" id="navProfile" onclick="prikaziMojProfil(); updateActiveNavButton(this);">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Profil</span>
+        </button>
+    </nav>
+
     <script src="/script.js"></script>
+    <script>
+        // Pomoćna funkcija za ažuriranje aktivnog gumba u navigaciji
+        function updateActiveNavButton(activeButton) {
+            document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            activeButton.classList.add('active');
+        }
+
+        // Dodatna logika za postavljanje aktivnog gumba prilikom pokretanja aplikacije
+        // Ova funkcija treba biti pozvana nakon što se odredi početni ekran
+        function setInitialActiveNavButton() {
+            const currentScreenId = document.querySelector('.container.active-screen')?.id;
+            if (currentScreenId === 'lokacijePrikaz') {
+                updateActiveNavButton(document.getElementById('navHome'));
+            } else if (currentScreenId === 'inboxPrikaz') {
+                updateActiveNavButton(document.getElementById('navInbox'));
+            } else if (currentScreenId === 'glavniDio' || currentScreenId === 'editProfil') {
+                updateActiveNavButton(document.getElementById('navProfile'));
+            }
+            // Za druge ekrane (login, registracija, pravila), navigacija je nebitna ili skrivena
+        }
+
+        // Modificiramo pokreniAplikaciju da postavi aktivni gumb
+        const originalPokreniAplikaciju = pokreniAplikaciju;
+        pokreniAplikaciju = function() {
+            originalPokreniAplikaciju();
+            setInitialActiveNavButton();
+        };
+
+        // Modificiramo navigateTo da ažurira aktivni gumb
+        const originalNavigateTo = navigateTo;
+        navigateTo = function(targetScreenId) {
+            originalNavigateTo(targetScreenId);
+            // Provjeri ako je targetScreenId jedan od onih s navigacijom
+            if (targetScreenId === 'lokacijePrikaz') {
+                updateActiveNavButton(document.getElementById('navHome'));
+            } else if (targetScreenId === 'inboxPrikaz') {
+                updateActiveNavButton(document.getElementById('navInbox'));
+            } else if (targetScreenId === 'glavniDio' && document.getElementById("profilKorisnika").style.display !== "none") {
+                // Provjera da li se prikazuje profil (ne objava)
+                updateActiveNavButton(document.getElementById('navProfile'));
+            } else if (targetScreenId === 'editProfil') {
+                updateActiveNavButton(document.getElementById('navProfile'));
+            } else {
+                // Ako je na nekom drugom ekranu, makni active klasu sa svih
+                document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
+                    button.classList.remove('active');
+                });
+            }
+        };
+
+        // Modificiramo navigateBack da ažurira aktivni gumb
+        const originalNavigateBack = navigateBack;
+        navigateBack = function() {
+            originalNavigateBack();
+            // Nakon povratka, provjeri ID trenutnog ekrana i ažuriraj aktivni gumb
+            setTimeout(() => { // Daj malo vremena za tranziciju
+                setInitialActiveNavButton();
+            }, 300); // 300ms je trajanje tranzicije
+        };
+
+        // Kada se otvara profil iz pijanki, također treba ažurirati nav gumb
+        const originalOtvoriProfil = otvoriProfil;
+        otvoriProfil = function(korisnikId) {
+            originalOtvoriProfil(korisnikId);
+            updateActiveNavButton(document.getElementById('navProfile'));
+        };
+
+        // Kada se otvara inbox, ažuriraj nav gumb
+        const originalOtvoriInbox = otvoriInbox;
+        otvoriInbox = function() {
+            originalOtvoriInbox();
+            updateActiveNavButton(document.getElementById('navInbox'));
+        };
+
+        // Kada se pokaže objava, navigacija ostaje, ali niti jedan gumb nije "aktivan"
+        const originalPokaziObjavu = pokaziObjavu;
+        pokaziObjavu = function() {
+            originalPokaziObjavu();
+            document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
+                button.classList.remove('active');
+            });
+        };
+
+        // Ažuriraj active gumb kada se prvi put učita lokacijePrikaz
+        document.addEventListener('DOMContentLoaded', () => {
+            if (document.getElementById('lokacijePrikaz')?.classList.contains('active-screen')) {
+                updateActiveNavButton(document.getElementById('navHome'));
+            }
+        });
+
+    </script>
 </body>
 </html>

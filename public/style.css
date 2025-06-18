@@ -102,9 +102,17 @@ body::before {
 @media (max-width: 767px) {
     body { overflow: hidden; }
     .container { position: absolute; padding: 20px; border-radius: 0; border: none; box-shadow: none; }
-    #lokacijePrikaz { 
-        padding-top: 70px; /* Dodan padding za header */
-        padding-bottom: 70px; /* Dodan padding za novi navigacijski bar */
+    /* Povećan padding-bottom za sve kontejnere zbog fiksne navigacije */
+    .container {
+        padding-bottom: 70px; /* Visina nav bara + malo razmaka */
+    }
+    /* #lokacijePrikaz je već imao padding-top, ostali kontejneri sada također trebaju */
+    #lokacijePrikaz, #inboxPrikaz, #glavniDio, #privatniChat, #editProfil {
+        padding-top: 70px; /* Osiguraj prostor za header */
+    }
+    /* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
+    #intro, #odabir, #login, #registracija, #pravilaEkran {
+        padding-top: 20px; /* Standardni padding */
     }
 }
 
@@ -183,17 +191,40 @@ body::before {
     justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
 }
 .fab {
-    position: fixed; bottom: 90px; right: 30px; /* Povećan bottom da bude iznad nav bara */
-    width: 60px; height: 60px;
-    background: linear-gradient(45deg, #ff4757, #e03f4d); border-radius: 50%; border: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; z-index: 1000;
-    display: flex; justify-content: center; align-items: center;
+    position: fixed; 
+    bottom: 90px; 
+    right: 30px; /* Povećan bottom da bude iznad nav bara */
+    width: 60px; 
+    height: 60px;
+    background: linear-gradient(45deg, #ff4757, #e03f4d); 
+    border-radius: 50%; 
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); 
+    cursor: pointer; 
+    z-index: 1000;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
     transition: all 0.3s ease-in-out;
 }
 .fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); }
 .fab:active { transform: scale(1.05) rotate(90deg); }
 .fab svg { width: 30px; height: 30px; color: #ffffff; }
-@media (min-width: 768px) { .fab { position: absolute; bottom: 40px; right: 40px; } } /* Na desktopu ostaje isto */
+
+/* Skrivanje FAB gumba na ekranima gdje nije relevantan (samo na mobilnim uređajima) */
+@media (max-width: 767px) {
+    body:not(.show-fab) .fab {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) { 
+    .fab { 
+        position: absolute; 
+        bottom: 40px; 
+        right: 40px; 
+    } 
+}
 
 
 /* NOVI STILOVI ZA BOTTOM NAVIGACIJU */
