@@ -329,14 +329,13 @@ body::before {
 #pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
 
 /* === PROMJENE ZA CHAT LOG SKROLLANJE I ZAGLAVLJE === */
-#privatniChatLog { 
-    flex-grow: 1; 
-    overflow-y: auto; 
-    /* KLJUČNO: Sakrivanje scroll trake */
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-    padding-top: 60px; /* Dodan padding-top da sadržaj ne bude ispod headera */
-    padding-bottom: 60px; /* Dodan padding-bottom da sadržaj ne bude ispod inputa */
+#privatniChatLog {
+    flex-grow: 1;
+    overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    padding-top: 70px; /* Increase this to move content below the top-nav-buttons and chat-header-info */
+    padding-bottom: 60px;
 }
 
 /* Za WebKit (Chrome, Safari) */
@@ -345,9 +344,16 @@ body::before {
 }
 
 .top-nav-buttons {
-    position: absolute; top: 15px; left: 15px; right: 15px;
+    position: absolute;
+    top: 0px; /* Adjust this value as needed to move it higher */
+    left: 15px;
+    right: 15px;
     @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
-    display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
+    display: flex;
+    justify-content: flex-start; /* Changed to flex-start to align back button left */
+    align-items: center;
+    z-index: 51; /* Make it higher than chat-header-info's z-index (50) */
+    pointer-events: none;
 }
 .back-button, .close-btn {
     pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
@@ -488,21 +494,21 @@ body::before {
 /* === ISPRAVAK ZA CHAT HEADER INFO (PROFILNA, IME, STATUS) === */
 .chat-header-info {
     display: flex;
-    flex-direction: row; /* Promijenjeno na red (horizontalni raspored) */
-    align-items: center;    /* Centriramo sadržaj vertikalno */
-    justify-content: flex-start; /* Poravnaj lijevo */
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
     margin-bottom: 10px;
     flex-shrink: 0;
-    padding-top: 10px; /* Smanjen padding-top da bude više gore, na razini back tipke */
-    width: 100%; /* Da zauzima cijelu širinu */
-    padding-left: 55px; /* Dodan padding s lijeve strane, uzimajući u obzir back-button */
-    position: absolute; /* Postavi apsolutno pozicioniranje */
-    top: 0; /* Poravnaj na vrh */
-    left: 0; /* Poravnaj lijevo */
-    background-color: rgba(0, 0, 0, 0.95); /* Dodaj pozadinu da prekrije sadržaj ispod */
-    height: 60px; /* Visina headera */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Lagana sjena na dnu */
-    z-index: 50; /* Osiguraj da je iznad chat loga */
+    padding-top: 10px; /* Keep this to align with the rest of the header content */
+    width: 100%;
+    padding-left: 55px; /* Keep this for the user info text */
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.95);
+    height: 60px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    z-index: 50; /* Keep this as is */
 }
 
 .chat-partner-profilna {
