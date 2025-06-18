@@ -115,7 +115,7 @@ body::before {
         padding-bottom: 70px; /* Visina nav bara + malo razmaka */
     }
     /* #lokacijePrikaz je već imao padding-top, ostali kontejneri sada također trebaju */
-    #lokacijePrikaz, #inboxPrikaz, #glavniDio, #privatniChat, #editProfil {
+    #homePrazan, #lokacijePrikaz, #inboxPrikaz, #glavniDio, #privatniChat, #editProfil {
         padding-top: 70px; /* Osiguraj prostor za header */
     }
     /* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
@@ -258,7 +258,7 @@ body::before {
     color: #b0b0b0; /* Siva boja za neaktivne ikone/tekst */
     font-size: 10px; /* Manji font za tekst ispod ikone */
     font-weight: 500;
-    /* transition: none;  // UKLONJENO: Omogućuje instant promjenu boje */
+    transition: none !important; /* UKLONJENO: Omogućuje instant promjenu boje */
     cursor: pointer;
     position: relative; /* Za badge notifikacije */
     outline: none !important; /* UKLONJENO: Crveni okvir na klik/fokus, s !important */
@@ -271,7 +271,7 @@ body::before {
     stroke: #b0b0b0; /* Siva boja za ikone */
     stroke-width: 1.8;
     margin-bottom: 2px;
-    /* transition: none; // UKLONJENO: Omogućuje instant promjenu boje */
+    transition: none !important; /* UKLONJENO: Omogućuje instant promjenu boje */
 }
 
 .bottom-nav .nav-button.active {
@@ -329,20 +329,18 @@ body::before {
     pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
     cursor: pointer; padding: 5px; width: auto; height: auto; line-height: 1;
     transition: color 0.2s ease, transform 0.2s ease;
+    outline: none !important; /* Dodano za back/close gumbe */
 }
 .back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
 
 .container > h2 { padding-top: 30px; }
 #lokacijePrikaz > h2 { 
-    padding-top: 10px; 
-    margin-bottom: 15px; 
-    /* Dodatni stil ako želiš da se "Trenutno pije" pomakne s headerom */
-    position: relative; /* Može biti useful za z-index */
-    z-index: 5; /* Da bude iznad pijanki, ali ispod headera */
+    /* Uklonjeno padding-top i margin-bottom jer se uklanja sam h2 element */
+    display: none; /* Skrivamo h2 "Trenutno pije:" */
 }
 #privatniChat .chat-header-info { padding-top: 40px; }
 
-#intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil { justify-content: center; align-items: center; }
+#intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil, #homePrazan { justify-content: center; align-items: center; }
 #objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
 #privatniChat { justify-content: flex-start; align-items: stretch; }
 
@@ -514,8 +512,10 @@ p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
 input, textarea, button {
     width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
     color: #f0f0f0; border-radius: 8px; font-size: 16px; font-family: inherit; transition: all 0.2s ease-in-out;
+    outline: none !important; /* Globalno za sve inpute, textarea, button */
+    box-shadow: none !important; /* Globalno za sve inpute, textarea, button */
 }
-input:focus, textarea:focus { outline: none; border-color: #ff4757; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); }
+input:focus, textarea:focus { outline: none !important; border-color: #ff4757; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); }
 button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px; }
 button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
 button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
@@ -556,8 +556,12 @@ img.preview-slika { display: none; }
 #privatniChatLog p.tudja-poruka { text-align: left; }
 #privatniChatLog p.tudja-poruka > span { background: #3a3a3a; color: #f0f0f0; }
 
-#splashScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111111; display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 1; visibility: visible; }
-#splashScreen h1 { font-size: 4em; color: #ff4757; text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6); letter-spacing: 4px; text-transform: uppercase; animation: bounceIn 1.5s ease-out forwards; }
+#splashScreen { /* Zadržavamo definiciju u CSS-u iako je element uklonjen iz HTML-a */
+    display: none; /* Potpuno sakrij splash screen */
+}
+#splashScreen h1 { /* Slično, ostavljamo ako se nekad vrati, ali neće biti vidljivo */
+    display: none;
+}
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 @keyframes bounceIn { 0% { transform: scale(0.1); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
@@ -567,8 +571,9 @@ img.preview-slika { display: none; }
 #editProfil button {
     /* Puno prozirnije za "glassy" efekt */
     background: rgba(30, 30, 30, 0.3); /* PROMIJENJENO: Vrlo prozirno (30% neprozirnosti) */
-    box-shadow: none; /* Uklanjamo sjenu */
+    box-shadow: none !important; /* Uklanjamo sjenu */
     border: 1px solid rgba(51, 51, 51, 0.2); /* PROMIJENJENO: I border je prozirniji */
+    outline: none !important;
 }
 
 #profilKorisnika button:hover,
@@ -576,7 +581,8 @@ img.preview-slika { display: none; }
     /* Na hoveru malo manje prozirno da se istakne */
     background: rgba(40, 40, 40, 0.6); /* PROMIJENJENO: Malo manje prozirno na hoveru */
     transform: none;
-    box-shadow: none;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 #objavaForma button {
@@ -587,13 +593,15 @@ img.preview-slika { display: none; }
     position: relative;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    box-shadow: none;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 #objavaForma button:hover {
     /* Na hoveru malo manje prozirno da se istakne */
     background: rgba(255, 71, 87, 0.6); /* PROMIJENJENO: Crvena s 60% neprozirnosti na hoveru */
     transform: none;
-    box-shadow: none;
+    box-shadow: none !important;
+    outline: none !important;
 }
 /* === KRAJ CSS-a === */
