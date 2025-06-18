@@ -167,7 +167,7 @@ function handleEditSlikaUploadChange() {
         const reader = new FileReader();
         reader.onload = e => {
             odabranaEditSlika = e.target.result;
-            const previewElement = document.getElementById("previewEditSlikes");
+            const previewElement = document.getElementById("previewEditSlike");
             if (previewElement) {
                 previewElement.src = odabranaEditSlika;
                 if (previewElement.style.display === "none") {
@@ -375,11 +375,15 @@ function pokaziObjavu() {
     document.getElementById("objavaForma").style.display = "flex";
     document.getElementById("profilKorisnika").style.display = "none";
     document.getElementById("opisPijanke").value = "";
+    document.querySelector('#glavniDio .back-button').style.display = 'none';
     
     // IZMJENA: "X" tipka sada direktno prebacuje na homePrikazPijanki
-    const closeBtn = document.querySelector('#glavniDioTopNav .close-btn');
+    const closeBtn = document.querySelector('#glavniDio .close-btn');
+    closeBtn.style.display = 'flex';
     closeBtn.onclick = () => {
         navigateTo('homePrikazPijanki');
+        // Vratite onclick na originalnu funkciju nakon klika, ako je potrebno da se ne duplicira
+        // closeBtn.onclick = null; // ili postavite na originalnu navigateBack ako ce X imati i tu ulogu na drugim mjestima
     };
 
     navigateTo('glavniDio');
@@ -391,7 +395,7 @@ async function objaviPijanku() {
     if (!mojPoz) return dohvatiLokaciju(() => objaviPijanku());
 
     const objaviBtn = document.querySelector('#objavaForma button');
-    objaviBtn.disabled = true; objabiBtn.textContent = 'Objavljujem...';
+    objaviBtn.disabled = true; objaviBtn.textContent = 'Objavljujem...';
     try {
         const response = await authenticatedFetch('/api/posts', {
             method: 'POST',
@@ -481,10 +485,10 @@ async function otvoriProfil(korisnikId) {
     
     let actionButtons = '';
     if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
-        document.querySelector('#glavniNaslov').innerText = "Moj profil";
+        document.querySelector('#glavniDio h2').innerText = "Moj profil";
         actionButtons = `<button onclick="prikaziEditProfila()">Uredi profil</button><button class="btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
     } else {
-        document.querySelector('#glavniNaslov').innerText = "Profil korisnika";
+        document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
         actionButtons = `<button onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
     }
 
@@ -496,6 +500,8 @@ async function otvoriProfil(korisnikId) {
         <div class="profil-actions">${actionButtons}</div>
     `;
 
+    document.querySelector('#glavniDio .back-button').style.display = 'flex';
+    document.querySelector('#glavniDio .close-btn').style.display = 'none';
     navigateTo('glavniDio');
 }
 
@@ -561,43 +567,17 @@ async function pokreniPrivatniChat(partnerId) {
     if (!primalac) return;
 
     const chatHeaderInfoEl = document.querySelector('.chat-header-info');
+    chatHeaderInfoEl.innerHTML = `
+        <img id="chatPartnerSlika" src="${primalac.slika || 'default_profile.png'}" alt="Profilna slika" class="chat-partner-profilna">
+        <div class="chat-info-text-wrapper">
+            <h2 id="chatSaKorisnikom">${primalac.ime}</h2>
+            <p id="chatPartnerStatus" class="status-text">${formatirajStatus(primalac.lastActive).text}</p>
+        </div>
+    `;
 
-    // Stvaramo back-button element
-    const backButton = document.createElement('button');
-    backButton.className = 'back-button';
-    backButton.innerHTML = '&#8592;'; // Strelice ←
-    backButton.onclick = navigateBack;
-
-    // Postavljamo sadržaj chat headera, uključujući back-button
-    chatHeaderInfoEl.innerHTML = ''; // Prvo očisti sadržaj
-    chatHeaderInfoEl.appendChild(backButton); // Dodaj back-button
-    
-    // Dodaj ostale elemente
-    const imgEl = document.createElement('img');
-    imgEl.id = 'chatPartnerSlika';
-    imgEl.src = primalac.slika || 'default_profile.png';
-    imgEl.alt = 'Profilna slika';
-    imgEl.className = 'chat-partner-profilna';
-    imgEl.onclick = () => otvoriProfil(primalac.id);
-    chatHeaderInfoEl.appendChild(imgEl);
-
-    const textWrapperDiv = document.createElement('div');
-    textWrapperDiv.className = 'chat-info-text-wrapper';
-    
-    const h2El = document.createElement('h2');
-    h2El.id = 'chatSaKorisnikom';
-    h2El.innerText = primalac.ime;
-    h2El.onclick = () => otvoriProfil(primalac.id);
-    textWrapperDiv.appendChild(h2El);
-
-    const pEl = document.createElement('p');
-    pEl.id = 'chatPartnerStatus';
-    pEl.className = 'status-text';
-    pEl.innerText = formatirajStatus(primalac.lastActive).text;
-    textWrapperDiv.appendChild(pEl);
-
-    chatHeaderInfoEl.appendChild(textWrapperDiv);
-
+    // Ponovno dodaj event listenere jer je HTML rekreiran
+    document.getElementById("chatPartnerSlika").onclick = () => otvoriProfil(primalac.id);
+    document.getElementById("chatSaKorisnikom").onclick = () => otvoriProfil(primalac.id);
 
     navigateTo('privatniChat');
     toggleAppUI(false); // Sakrij nav bar kada uđeš u chat
