@@ -321,7 +321,17 @@ body::before {
 /* KRAJ NOVIH STILOVA ZA BOTTOM NAVIGACIJU */
 
 
-#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
+#pijankePregled {
+    flex-grow: 1; /* Neka zauzme preostali prostor */
+    overflow-y: auto; /* Omogući skrolanje samo unutar ovog diva */
+    min-height: 100px; /* Minimalna visina */
+    padding-bottom: 20px; /* Dodatni padding na dnu liste pijanki */
+    /* Vraćene specifične stilove za izgled liste */
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Razmak između pijanki */
+}
+#listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
 #privatniChatLog { flex-grow: 1; overflow-y: auto; }
 
 .top-nav-buttons {
@@ -341,8 +351,8 @@ body::before {
 #lokacijePrikaz > h2 { 
     /* Vraćen prikaz h2 naslova za "Trenutno pije:" */
     display: block; /* Osigurava da se naslov prikazuje */
-    padding-top: 10px; 
-    margin-bottom: 15px; 
+    padding-top: 10px; /* Ostavljen padding */
+    margin-bottom: 15px; /* Ostavljen margin */
 }
 #privatniChat .chat-header-info { padding-top: 40px; }
 

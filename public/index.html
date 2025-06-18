@@ -177,8 +177,7 @@
             <span>Inbox</span>
             <span id="notifikacijaPorukaGlavna" class="notification-badge-main"></span>
         </button>
-        <button class="nav-button" id="navProfile" onclick="handleNavClick('glavniDio');">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <button class="nav-button" id="navProfile" onclick="handleNavClick('profile');"> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             <span>Profil</span>
@@ -218,41 +217,37 @@
         }
 
         // Glavna funkcija za rukovanje klikovima na navigacijske gumbe
-        function handleNavClick(targetScreenId) {
+        function handleNavClick(navTarget) { // navTarget može biti screenId ili posebna akcija
             const currentActiveNavButton = document.querySelector('.bottom-nav .nav-button.active');
-            let currentTargetScreenId = '';
+            let currentScreenId = document.querySelector('.container.active-screen')?.id;
 
-            if (currentActiveNavButton) {
-                if (currentActiveNavButton.id === 'navHome') currentTargetScreenId = 'homePrazan';
-                else if (currentActiveNavButton.id === 'navSearch') currentTargetScreenId = 'lokacijePrikaz';
-                else if (currentActiveNavButton.id === 'navInbox') currentTargetScreenId = 'inboxPrikaz';
-                else if (currentActiveNavButton.id === 'navProfile') {
-                    if (document.getElementById("profilKorisnika") && document.getElementById("profilKorisnika").style.display !== "none" && document.querySelector('.container.active-screen')?.id === 'glavniDio') {
-                        currentTargetScreenId = 'glavniDio';
-                    } else if (document.querySelector('.container.active-screen')?.id === 'editProfil') {
-                        currentTargetScreenId = 'editProfil';
+            // Logika za sprječavanje ponovnog klika na isti gumb
+            if (navTarget === 'homePrazan' && currentActiveNavButton?.id === 'navHome') return;
+            if (navTarget === 'lokacijePrikaz' && currentActiveNavButton?.id === 'navSearch') return;
+            if (navTarget === 'inboxPrikaz' && currentActiveNavButton?.id === 'navInbox') return;
+            // Posebna provjera za profil (može biti glavniDio ili editProfil)
+            if (navTarget === 'profile') {
+                if (currentActiveNavButton?.id === 'navProfile') {
+                    // Ako je već na profilu, ali na podstranici (npr. editProfil), vrati na glavni profil
+                    if (currentScreenId === 'editProfil' || (currentScreenId === 'glavniDio' && document.getElementById("objavaForma").style.display !== "none")) {
+                         prikaziMojProfil(); // Ponovno učitaj moj profil
+                         return;
+                    }
+                    // Ako je već na glavnom profilu, ne radi ništa
+                    if (currentScreenId === 'glavniDio' && document.getElementById("profilKorisnika").style.display !== "none") {
+                         return;
                     }
                 }
             }
             
-            // Onemogući ponovni klik na aktivni gumb
-            if (targetScreenId === currentTargetScreenId) {
-                if (targetScreenId === 'glavniDio' && currentTargetScreenId === 'editProfil') {
-                    // Dopusti prelazak s "Uredi Profil" na "Moj Profil"
-                    prikaziMojProfil(); 
-                    return; 
-                }
-                return; 
-            }
-
-            // Pozovi odgovarajuću funkciju na temelju targetScreenId
-            if (targetScreenId === 'homePrazan') {
-                navigateTo(targetScreenId);
-            } else if (targetScreenId === 'lokacijePrikaz') { 
-                navigateTo(targetScreenId);
-            } else if (targetScreenId === 'inboxPrikaz') {
+            // Izvrši navigaciju ili akciju
+            if (navTarget === 'homePrazan') {
+                navigateTo('homePrazan');
+            } else if (navTarget === 'lokacijePrikaz') { 
+                navigateTo('lokacijePrikaz');
+            } else if (navTarget === 'inboxPrikaz') {
                 otvoriInbox(); 
-            } else if (targetScreenId === 'glavniDio') {
+            } else if (navTarget === 'profile') { // Sada 'profile' je akcija za otvaranje vlastitog profila
                 prikaziMojProfil(); 
             }
         }
@@ -274,7 +269,7 @@
                     if (response.ok) {
                         const data = await response.json();
                         trenutniKorisnik = data.user;
-                        await Promise.all([ dohvatiSveKorisnike(), dohvatiSvePijanke() ]); // Dohvati sve odmah
+                        await Promise.all([ dohvatiSveKorisnike(), dohvatiSvePijanke() ]); 
                         appInitializedSuccessfully = true;
                     } else {
                         localStorage.removeItem("token");
@@ -335,26 +330,19 @@
                 updateActiveNavButton('navHome');
             } else if (targetScreenId === 'lokacijePrikaz') { 
                 updateActiveNavButton('navSearch');
-                prikaziPijankePregled(); // Osvježi prikaz pijanki kad se vratiš na "Tražilicu"
+                prikaziPijankePregled(); 
             } else if (targetScreenId === 'inboxPrikaz') {
                 updateActiveNavButton('navInbox');
-            } else if (targetScreenId === 'glavniDio') {
-                if (document.getElementById("profilKorisnika") && document.getElementById("profilKorisnika").style.display !== "none") {
-                    updateActiveNavButton('navProfile');
-                } else {
-                    document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
-                        button.classList.remove('active');
-                    });
-                }
-            } else if (targetScreenId === 'editProfil') { 
+            } else if (targetScreenId === 'glavniDio' || targetScreenId === 'editProfil') { // Oboje spadaju pod profil nav gumb
                 updateActiveNavButton('navProfile');
             }
-            else if (targetScreenId === 'privatniChat') { 
+            else if (targetScreenId === 'privatniChat' || targetScreenId === 'objavaForma') { // Ekran bez aktivnog nav gumba
                 document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                     button.classList.remove('active');
                 });
             }
             else {
+                // Za ostale ekrane (intro, login, registracija, pravilaEkran), ukloni active
                 document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                     button.classList.remove('active');
                 });
@@ -366,27 +354,28 @@
         navigateTo = function(targetScreenId) {
             const currentScreenEl = document.querySelector('.container.active-screen');
             
-            const navBarTargetScreens = ['homePrazan', 'lokacijePrikaz', 'inboxPrikaz', 'glavniDio', 'editProfil'];
-            if (currentScreenEl && !navBarTargetScreens.includes(targetScreenId)) {
-                 if (!(navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId))) {
+            const navBarRootScreens = ['homePrazan', 'lokacijePrikaz', 'inboxPrikaz', 'glavniDio']; // Glavni ekrani navigacije
+            const isTargetANavBarRoot = navBarRootScreens.includes(targetScreenId);
+            const isCurrentANavBarRoot = currentScreenEl && navBarRootScreens.includes(currentScreenEl.id);
+
+            // Logic for push/pop on navigationStack
+            if (currentScreenEl && !isTargetANavBarRoot && currentScreenEl.id !== 'splashScreen') {
+                // Only push if not navigating FROM a root nav screen TO another root nav screen,
+                // and not already on the target screen in the stack (to prevent duplicates)
+                if (!navigationStack.includes(currentScreenEl.id) && currentScreenEl.id !== targetScreenId) {
                     navigationStack.push(currentScreenEl.id);
                 }
-            } else if (currentScreenEl && targetScreenId === 'glavniDio' && currentScreenEl.id === 'editProfil') {
-                 // Ne pushaj ako ideš s editProfila na glavniDio
-            } else if (currentScreenEl && targetScreenId === 'privatniChat' && currentScreenEl.id.includes('Chat')) {
-                // Ne pushaj ako si već u chatu i ideš u drugi chat
-            } else if (currentScreenEl && !navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId)) {
-                // Ako se vraćaš na glavni nav ekran iz podstranice, ne pushaj glavni na stack
-            } else if (currentScreenEl && targetScreenId === 'glavniDio' && document.getElementById("objavaForma").style.display !== "none") {
-                // Ne pushaj ako ideš na objavu formu
-            } else if (currentScreenEl && currentScreenEl.id === targetScreenId) {
-                // Ako je isti ekran, ne pushaj
             }
-            else {
-                 if (currentScreenEl && !navigationStack.includes(currentScreenEl.id)) { 
-                    navigationStack.push(currentScreenEl.id);
+            // Special case for editing profile (editProfil) returning to main profile (glavniDio)
+            if (currentScreenEl?.id === 'editProfil' && targetScreenId === 'glavniDio') {
+                 // Do not push 'editProfil' onto stack if just coming back from it to its parent profile
+                 if (navigationStack[navigationStack.length - 1] === 'editProfil') {
+                     navigationStack.pop();
                  }
+            } else if (currentScreenEl?.id === 'glavniDio' && document.getElementById("objavaForma").style.display !== "none" && targetScreenId === 'glavniDio') {
+                // If submitting a post, and navigating back to glavnIDio (profile view) do not push
             }
+
 
             swap(currentScreenEl ? currentScreenEl.id : null, targetScreenId);
             afterSwapUpdateNavButton(targetScreenId);
@@ -395,33 +384,53 @@
         // Modificiramo navigateBack
         const originalNavigateBack = navigateBack;
         navigateBack = function() {
-            const targetScreenIdAfterBack = navigationStack[navigationStack.length - 1]; 
-            
-            originalNavigateBack(); 
+            const currentScreenEl = document.querySelector('.container.active-screen');
+            if (currentScreenEl && currentScreenEl.id === 'privatniChat') {
+                if (chatStatusInterval) clearInterval(chatStatusInterval);
+                trenutniChatPartnerId = null;
+                const privatniInput = document.getElementById("privatniInput");
+                privatniInput.value = "";
+                privatniInput.style.height = 'auto';
+                document.getElementById('posaljiPrivatnoBtn').classList.remove('enabled');
+            }
 
-            setTimeout(() => {
-                const newActiveScreenEl = document.querySelector('.container.active-screen');
-                if (newActiveScreenEl) {
-                    afterSwapUpdateNavButton(newActiveScreenEl.id);
-                } else {
-                    document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
-                        button.classList.remove('active');
-                    });
-                }
-            }, 300); 
+            const lastScreenId = navigationStack.pop();
+            if (lastScreenId) {
+                 swap(currentScreenEl.id, lastScreenId);
+                 azurirajNotifikacije();
+                 setTimeout(() => {
+                     const newActiveScreenEl = document.querySelector('.container.active-screen');
+                     if (newActiveScreenEl) {
+                         afterSwapUpdateNavButton(newActiveScreenEl.id);
+                     } else {
+                         document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
+                             button.classList.remove('active');
+                         });
+                     }
+                 }, 300); 
+            } else {
+                 console.error("Navigation stack empty, can't go back.");
+                 // Ako je stack prazan, a back je pozvan (npr. na glavnom ekranu),
+                 // možemo se vratiti na 'homePrazan' kao fallback.
+                 navigateTo('homePrazan');
+            }
         };
 
         // Kada se otvara profil
         const originalOtvoriProfil = otvoriProfil;
         otvoriProfil = function(korisnikId) {
-            navigateTo('glavniDio'); 
+            // Nemoj zvati navigateTo ovdje direktno jer handleNavClick to već radi.
+            // Ova funkcija treba samo postaviti sadržaj profila unutar 'glavniDio'
+            // i pobrinuti se za prikaživanje/skrivanje gumba za nazad.
 
             const korisnik = sviKorisnici.find(u => u.id === korisnikId);
             if (!korisnik) return;
             
             const profilKorisnikaDiv = document.getElementById("profilKorisnika");
-            document.getElementById("objavaForma").style.display = "none";
-            profilKorisnikaDiv.style.display = "flex";
+            const objavaFormaDiv = document.getElementById("objavaForma");
+
+            objavaFormaDiv.style.display = "none"; // Sakrij formu za objavu
+            profilKorisnikaDiv.style.display = "flex"; // Prikaži profil div
             
             let actionButtons = '';
             if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
@@ -440,14 +449,26 @@
                 <div class="profil-actions">${actionButtons}</div>
             `;
 
-            document.querySelector('#glavniDio .back-button').style.display = 'flex';
-            document.querySelector('#glavniDio .close-btn').style.display = 'none';
+            // Prikaz back/close gumba samo ako nije glavni profil (za povratak s tuđeg profila)
+            const backButtonGlavniDio = document.querySelector('#glavniDio .back-button');
+            const closeButtonGlavniDio = document.querySelector('#glavniDio .close-btn');
+
+            if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
+                // Ako je vlastiti profil, back/close gumbi nisu relevantni
+                backButtonGlavniDio.style.display = 'none';
+                closeButtonGlavniDio.style.display = 'none';
+            } else {
+                // Ako je tuđi profil, prikaži back gumb
+                backButtonGlavniDio.style.display = 'flex';
+                closeButtonGlavniDio.style.display = 'none';
+            }
+            // afterSwapUpdateNavButton se poziva iz handleNavClick / navigateTo
         };
 
         // Kada se otvara inbox
         const originalOtvoriInbox = otvoriInbox;
         otvoriInbox = function() {
-            navigateTo('inboxPrikaz'); 
+            // Ne pozivamo navigateTo direktno, nego ga handleNavClick poziva
             
             const div = document.getElementById("listaChatova");
             div.innerHTML = ""; 
@@ -491,11 +512,15 @@
         // Kada se pokaže objava
         const originalPokaziObjavu = pokaziObjavu;
         pokaziObjavu = function() {
-            originalPokaziObjavu();
-            document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
-                button.classList.remove('active');
-            });
-            document.getElementById('fabObjaviPijanku').style.display = 'none'; 
+            // handleNavClick će pozvati navigateTo('glavniDio') za objavu forme
+            // Ova funkcija treba samo postaviti display za objavaForma
+            document.querySelector('#glavniNaslov').innerText = "Objavi pijanku";
+            document.getElementById("objavaForma").style.display = "flex";
+            document.getElementById("profilKorisnika").style.display = "none";
+            document.getElementById("opisPijanke").value = "";
+            document.querySelector('#glavniDio .back-button').style.display = 'none';
+            document.querySelector('#glavniDio .close-btn').style.display = 'flex';
+            // afterSwapUpdateNavButton se poziva iz navigateTo
         };
 
     </script>
