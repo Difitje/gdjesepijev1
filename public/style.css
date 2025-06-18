@@ -302,9 +302,12 @@ body::before {
 
 /* Prilagodba notifikacijske točkice za donji nav bar */
 .bottom-nav .notification-badge-main {
-    top: 2px; /* Prilagođeno: Pomaknuto malo više gore */
-    right: 2px; /* Prilagođeno: Pomaknuto bliže desnom rubu gumba */
-    transform: none; /* UKLONJENO: Uklanja translateX(50%) koji je gurao bedž dalje */
+    /* PROMIJENJENO: Nova pozicija, prilagođena za blizinu ikoni */
+    top: 5px; /* Manja vrijednost da bude bliže vrhu ikone */
+    right: calc(50% - 12px); /* Centrirano horizontalno unutar SVG-a (+/- malo pomaka) */
+    transform: translateX(100%); /* Pomakni bedž za 100% svoje širine udesno */
+    /* Eksperimentiranje s transformom za bolju preciznost */
+    
     border: 2px solid rgba(26, 26, 26, 0.95); /* Boja ruba da odgovara pozadini nav bara */
 }
 
