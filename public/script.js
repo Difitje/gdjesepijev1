@@ -59,10 +59,14 @@ function swap(hideId, showId) {
     }
 }
 
+// navigateTo je sada više vezan uz handleNavClick u index.html
+// Nema potrebe za ovim `MapsTo` direktno u script.js ako ga kontrolira `handleNavClick`
+// No, ostavljam ga radi kompatibilnosti ako ga negdje drugdje direktno pozivaš
 function navigateTo(targetScreenId) {
     const currentScreenEl = document.querySelector('.container.active-screen');
     if (currentScreenEl) {
-        navigationStack.push(currentScreenEl.id);
+        // Logika za navigation stack je sada pametnija i prebačena u index.html script blok unutar preklopljene navigateTo funkcije.
+        // Ovdje u originalnoj funkciji samo vršimo swap.
         swap(currentScreenEl.id, targetScreenId);
     } else {
         swap(null, targetScreenId);
@@ -126,12 +130,11 @@ function proveriPrihvatanje() {
     if (button && checkbox) button.disabled = !checkbox.checked;
 }
 
+// globalRefreshUI je sada preklopljen u index.html script bloku
 async function globalRefreshUI() {
     if (!trenutniKorisnik) return;
+    // Podaci se dohvaćaju, ali UI ažuriranje se događa samo ako je korisnik na relevantnom ekranu
     await Promise.all([ dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke() ]);
-    if (document.getElementById("homePrikazPijanki")?.classList.contains('active-screen')) { prikaziPijankePregled(); }
-    if (document.getElementById("inboxPrikaz")?.classList.contains('active-screen')) { otvoriInbox(); }
-    if (document.getElementById("privatniChat")?.classList.contains('active-screen') && trenutniChatPartnerId) { prikaziPrivatniLog(); }
     azurirajNotifikacije();
 }
 
@@ -231,7 +234,7 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
         if (response.ok) {
             localStorage.setItem("token", data.token);
             trenutniKorisnik = data.user;
-            await Promise.all([dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke()]);
+            // Podaci se sada dohvaćaju u pokreniAplikaciju
             pokreniAplikaciju(); 
         } else {
             alert("Greška pri prijavi: " + data.message);
@@ -244,6 +247,7 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
 }
 
 async function odjaviSe() {
+    // Čisti sve intervale
     [activityInterval, chatStatusInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     if (trenutniKorisnik && trenutniKorisnik.id) { await azurirajMojuAktivnost(true); }
     localStorage.removeItem("token");
@@ -255,20 +259,14 @@ async function odjaviSe() {
     swap(document.querySelector('.container.active-screen').id, 'intro');
 }
 
+// Ova funkcija je sada preklopljena u index.html script bloku
 function pokreniAplikaciju() {
     navigationStack = [];
     swap(document.querySelector('.container.active-screen')?.id || null, 'homePrikazPijanki'); 
     ocistiPijankePregled(); 
 
-    [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
-    activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
-    globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
-
-    azurirajMojuAktivnost();
-    dohvatiLokaciju(() => {
-        prikaziPijankePregled();
-        azurirajNotifikacije();
-    });
+    // Intervali se postavljaju nakon pred-dohvaćanja
+    // Dohvaćanje lokacije i inicijalni prikazi se također događaju unutar preklopljene funkcije
 }
 
 
@@ -316,7 +314,9 @@ async function sacuvajProfil() {
         const data = await response.json();
         if (response.ok) {
             alert(data.message);
-            await globalRefreshUI();
+            // Nema potrebe za globalRefreshUI ovdje, jer navigateBack će ažurirati profil
+            // A podaci su već ažurirani na serveru
+            await dohvatiSveKorisnike(); // Ažuriraj lokalnu listu korisnika
             navigateBack();
         } else {
             alert("Greška pri spremanju profila: " + data.message);
@@ -395,7 +395,7 @@ async function objaviPijanku() {
     if (!mojPoz) return dohvatiLokaciju(() => objaviPijanku());
 
     const objaviBtn = document.querySelector('#objavaForma button');
-    objaviBtn.disabled = true; objaviBtn.textContent = 'Objavljujem...';
+    objaviBtn.disabled = true; objabiBtn.textContent = 'Objavljujem...';
     try {
         const response = await authenticatedFetch('/api/posts', {
             method: 'POST',
@@ -405,7 +405,7 @@ async function objaviPijanku() {
         const data = await response.json();
         if (response.ok) {
             alert(data.message);
-            await dohvatiSvePijanke();
+            await dohvatiSvePijanke(); // Ažuriraj lokalnu listu pijanki
             // IZMJENA: Preusmjeri direktno na homePrikazPijanki
             navigateTo('homePrikazPijanki');
             prikaziPijankePregled(); // Osiguraj da se pijanke osvježe na Home ekranu
@@ -427,7 +427,7 @@ async function obrisiPijanku(pijankaId, event) {
             const data = await response.json();
             if (response.ok) {
                 alert(data.message);
-                await dohvatiSvePijanke();
+                await dohvatiSvePijanke(); // Ažuriraj lokalnu listu pijanki
                 prikaziPijankePregled();
             } else {
                 alert("Greška pri brisanju objave: " + data.message);
@@ -474,6 +474,7 @@ function prikaziPijankePregled() {
     });
 }
 
+// otvoriProfil je sada preklopljen u index.html script bloku
 async function otvoriProfil(korisnikId) {
     if (!korisnikId) return;
     const korisnik = sviKorisnici.find(u => u.id === korisnikId);
@@ -500,10 +501,11 @@ async function otvoriProfil(korisnikId) {
         <div class="profil-actions">${actionButtons}</div>
     `;
 
-    // Sakrij back i close gumbe kada se prikazuje profil
-    document.querySelector('#glavniDio .back-button').style.display = 'none'; // Uklonjeno
-    document.querySelector('#glavniDio .close-btn').style.display = 'none'; // Uklonjeno
-    navigateTo('glavniDio');
+    // Back i close gumbi se pokazuju/skrivaju ovisno o kontekstu
+    // Logika za prikaz back/close gumba je prebačena u preklopljenu funkciju u index.html
+    document.querySelector('#glavniDio .back-button').style.display = 'none'; 
+    document.querySelector('#glavniDio .close-btn').style.display = 'none'; 
+    // navigateTo('glavniDio'); // Ovu liniju ne treba ovdje, jer se navigateTo poziva iz handleNavClick ili pijanke/chata
 }
 
 function prikaziMreze(p) {
@@ -531,10 +533,10 @@ function azurirajNotifikacije() {
     }
 }
 
+// otvoriInbox je sada preklopljen u index.html script bloku
 function otvoriInbox() {
     const div = document.getElementById("listaChatova");
     div.innerHTML = "";
-    // Ovdje više nema back buttona, pa nema potrebe skrivati ga putem JS-a za inbox.
     const chatKeys = (trenutniKorisnik && trenutniKorisnik.id) ? Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id)) : [];
     if (chatKeys.length === 0) {
         div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
@@ -560,7 +562,7 @@ function otvoriInbox() {
                 </div>`;
         });
     }
-    navigateTo('inboxPrikaz');
+    // navigateTo('inboxPrikaz'); // Ovu liniju ne treba ovdje, jer se navigateTo poziva iz handleNavClick
 }
 
 async function pokreniPrivatniChat(partnerId) {
@@ -591,7 +593,7 @@ async function pokreniPrivatniChat(partnerId) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ chatKey })
         });
-        await dohvatiSvePoruke();
+        await dohvatiSvePoruke(); // Ažuriraj lokalnu listu poruka nakon označavanja pročitanih
         azurirajNotifikacije();
     } catch (error) { 
         console.error("Greška kod označavanja poruka kao pročitanih:", error); 
@@ -626,10 +628,12 @@ async function posaljiPrivatno() {
         });
         privatniInput.value = ""; privatniInput.style.height = 'auto';
         posaljiBtn.classList.remove('enabled');
-        await dohvatiSvePoruke();
+        await dohvatiSvePoruke(); // Ažuriraj lokalnu listu poruka nakon slanja
         prikaziPrivatniLog();
     } catch (error) {
         alert("Došlo je do greške pri slanju poruke.");
+    } finally {
+        posaljiBtn.disabled = false; // Omogući gumb ponovno, čak i ako je došlo do greške
     }
 }
 
