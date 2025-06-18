@@ -119,12 +119,6 @@ function compressImage(base64Image, maxWidth = 400, quality = 0.8) {
     });
 }
 
-// OVO JE IZMJENA: DOMContentLoaded je sada samo u index.html script tagu
-// window.addEventListener('DOMContentLoaded', async function() {
-// ... cijeli blok je prebačen u index.html
-// });
-
-
 function proveriPrihvatanje() {
     const checkbox = document.getElementById('prihvatamPravila');
     const button = document.getElementById('nastaviBtn');
@@ -238,7 +232,7 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
             localStorage.setItem("token", data.token);
             trenutniKorisnik = data.user;
             await Promise.all([dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke()]);
-            pokreniAplikaciju(); // Ovo će sada automatski otići na homePrikazPijanki
+            pokreniAplikaciju(); 
         } else {
             alert("Greška pri prijavi: " + data.message);
         }
@@ -273,7 +267,7 @@ function pokreniAplikaciju() {
 
     azurirajMojuAktivnost();
     dohvatiLokaciju(() => {
-        prikaziPijankePregled(); // PRIKAZUJE PIJANKE ODMAH NAKON STARTA APLIKACIJE I LOKACIJE
+        prikaziPijankePregled();
         azurirajNotifikacije();
     });
 }
@@ -435,9 +429,8 @@ async function obrisiPijanku(pijankaId, event) {
     }
 }
 
-// IZMJENA: prikaziPijankePregled se sada oslanja na novi ID 'homePrikazPijanki'
 function prikaziPijankePregled() {
-    const div = document.getElementById("pijankePregled"); // Ovo je unutar homePrikazPijanki diva
+    const div = document.getElementById("pijankePregled");
     if (!div) return;
     div.innerHTML = "";
     if (svePijanke.length === 0) {
