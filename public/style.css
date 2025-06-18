@@ -202,7 +202,7 @@ body::before {
     
     /* KLJUČNO: Padding za smještaj ikona, PROMIJENJENO! */
     /* Lijevo: za ikonu slike, Desno: za gumb za slanje */
-    padding: 10px 45px 10px 45px; 
+    padding: 10px 45px 10px 45px; /* PROMIJENJENO: Osigurava prostor */
 }
 
 #privatniInput:focus { 
@@ -251,7 +251,7 @@ body::before {
     border-radius: 50%;
     border: none; 
     padding: 0; 
-    margin: 0; 
+    margin: 0; /* Uklanja margine koje bi mogle gurati gumb van */
     background-color: #ff4757;
     display: flex; 
     justify-content: center; 
