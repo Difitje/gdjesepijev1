@@ -266,6 +266,13 @@ body::before {
     transform: scale(1) translateY(-50%); /* Osiguraj da je scale(1) i translateY(-50%) uvijek prisutno */
 }
 
+#posaljiPrivatnoBtn svg { 
+    width: 16px; /* Postavlja širinu SVG ikonice */
+    height: 16px; /* Postavlja visinu SVG ikonice */
+    fill: #ffffff; /* Osigurava da je boja ikonice bijela */
+    margin-left: -1px; /* Mali pomak ulijevo ako je potrebno za vizualno centriranje */
+}
+
 #posaljiPrivatnoBtn.enabled { 
     /* Ove klase više NEĆE kontrolirati vidljivost ili transform */
     /* One mogu kontrolirati, npr. boju gumba kad je enabled */
