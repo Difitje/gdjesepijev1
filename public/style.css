@@ -114,9 +114,13 @@ body::before {
     .container {
         padding-bottom: 70px; /* Visina nav bara + malo razmaka */
     }
-    /* #lokacijePrikaz je već imao padding-top, ostali kontejneri sada također trebaju */
-    #homePrazan, #lokacijePrikaz, #inboxPrikaz, #glavniDio, #privatniChat, #editProfil {
+    /* Standardni padding-top za većinu ekrana */
+    #homePrazan, #inboxPrikaz, #glavniDio, #privatniChat, #editProfil {
         padding-top: 70px; /* Osiguraj prostor za header */
+    }
+    /* Poseban padding-top za lokacijePrikaz jer ima header unutra */
+    #lokacijePrikaz {
+        padding-top: 60px; /* Visina main-header-a + malo razmaka */ 
     }
     /* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
     #intro, #odabir, #login, #registracija, #pravilaEkran {
@@ -335,8 +339,10 @@ body::before {
 
 .container > h2 { padding-top: 30px; }
 #lokacijePrikaz > h2 { 
-    /* Uklonjeno padding-top i margin-bottom jer se uklanja sam h2 element */
-    display: none; /* Skrivamo h2 "Trenutno pije:" */
+    /* Vraćen prikaz h2 naslova za "Trenutno pije:" */
+    display: block; /* Osigurava da se naslov prikazuje */
+    padding-top: 10px; 
+    margin-bottom: 15px; 
 }
 #privatniChat .chat-header-info { padding-top: 40px; }
 
