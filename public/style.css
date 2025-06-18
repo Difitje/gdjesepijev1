@@ -480,7 +480,7 @@ body::before {
     justify-content: center; /* Centriramo sadržaj vertikalno */
     margin-bottom: 10px;
     flex-shrink: 0;
-    padding-top: 20px; /* Prilagođen padding-top da bude više u sredini */
+    padding-top: 5px; /* Promijenjeno na manju vrijednost za "više gore" */
     width: 100%; /* Da zauzima cijelu širinu */
 }
 
