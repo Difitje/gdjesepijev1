@@ -94,15 +94,10 @@ function navigateBack() {
 async function authenticatedFetch(url, options = {}) {
     const token = localStorage.getItem('token');
     if (token) {
-        options.headers = {
-            ...(options.headers || {}),
-            Authorization: `Bearer ${token}`,
-        };
+        options.headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
     }
     return fetch(url, options);
 }
-
-
 
 function compressImage(base64Image, maxWidth = 400, quality = 0.8) {
     return new Promise((resolve) => {
@@ -660,12 +655,3 @@ function ocistiPijankePregled() {
     const div = document.getElementById("pijankePregled");
     if (div) div.innerHTML = "";
 }
-
-window.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        showMainScreen(); // već postoji ova funkcija kod tebe
-    } else {
-        navigateTo('intro'); // prikaži login/register ako nije ulogiran
-    }
-});
