@@ -533,24 +533,23 @@ img.preview-slika { display: none; }
 .pravila-checkbox-wrapper input[type="checkbox"] { width: auto; margin-bottom: 0; flex-shrink: 0; }
 .pravila-checkbox-wrapper label { margin-bottom: 0; font-size: 14px; color: #f0f0f0; text-align: left; }
 .pijanka { 
-    /* ISPRAVLJENO: Crvena boja s prozirnošću */
-    background: rgba(255, 71, 87, 0.2); /* Crvena boja (#ff4757) s 20% neprozirnosti */
+    /* PROMIJENJENO: Crvena boja (#ff4757) s 10% neprozirnosti (još prozirnije) */
+    background: rgba(255, 71, 87, 0.1); 
     padding: 15px; 
     border-radius: 10px; 
     margin: 0 auto 8px auto; 
     display: flex; 
     flex-direction: column; 
-    
-    /* DODANO/ISPRAVLJENO: Vraćanje originalne širine i box-sizinga, te border-left */
-    border-left: 3px solid rgba(255, 71, 87, 0.5); /* Malo tamnija crvena za rub */
+    /* Prilagođen border-left-color da se slaže s prozirnijom pozadinom */
+    border-left: 3px solid rgba(255, 71, 87, 0.3); /* Nešto tamnija crvena za rub */
+    transition: all 0.2s ease-in-out; 
     width: 100%; 
     max-width: 600px; 
     box-sizing: border-box; 
-} /* ZATVORENA ZAGRADA KOJA JE NEDOSTAJALA */
-
+}
 .pijanka:hover { 
-    /* ISPRAVLJENO: Pozadina na hoveru je malo manje prozirna crvena */
-    background: rgba(255, 71, 87, 0.4); /* Crvena boja s 40% neprozirnosti na hoveru */
+    /* PROMIJENJENO: Pozadina na hoveru je malo manje prozirna crvena */
+    background: rgba(255, 71, 87, 0.2); /* Crvena boja s 20% neprozirnosti na hoveru */
     border-left-color: #ff4757; /* Puna crvena boja na hoveru za rub */
 }
 .pijanka-header { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 8px; border-bottom: 1px solid #333; margin-bottom: 8px; width: 100%; }
