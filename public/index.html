@@ -26,7 +26,7 @@
             <p>Dobrodošli! Prije nego što nastavite, molimo vas da pažljivo pročitate i prihvatite sljedeća pravila:</p>
             <p><strong>1. Punoljetnost:</strong> Morate imati najmanje 18 godina da biste koristili ovu aplikaciju.</p>
             <p><strong>2. Poštovanje:</strong> Ponašajte se prema drugima s poštovanjem. Bilo kakav oblik uznemiravanja, govora mržnje ili nasilnog ponašanja nije dozvoljen i rezultirat će trajnom zabranom.</p>
-            <p><strong>3. Sigurnost na prvom mjestu:</strong> Kada se sastajete s drugim korisnicima, činite to na javnim i sigurnim mjestima. Obavijestite prijatelja gdje idete. Budite odgovorni.</p>
+            <p><strong>3. Sigurnost na prvom mjestu:</strong> Kada se sastajete s drugim korisnicima, činite to na javnim i sigurnim mjestom. Obavijestite prijatelja gdje idete. Budite odgovorni.</p>
             <p><strong>4. Zakonitost:</strong> Zabranjeno je organiziranje ili promoviranje bilo kakvih ilegalnih aktivnosti putem ove platforme.</p>
             <p><strong>Odricanje od odgovornosti:</strong> Ova aplikacija je samo platforma za povezivanje. Mi, kao kreatori, nismo odgovorni za ponašanje korisnika, niti za bilo kakve direktne ili indirektne posljedice, štete ili povrede koje mogu nastati kao rezultat korištenja aplikacije. Koristite je na vlastitu odgovornost.</p>
         </div>
@@ -154,26 +154,26 @@
     </button>
 
     <nav class="bottom-nav hidden-initially">
-        <button class="nav-button active" id="navHome" onclick="navigateTo('lokacijePrikaz');">
+        <button class="nav-button active" id="navHome" onclick="handleNavClick('lokacijePrikaz', this);">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v4.875h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21.75h7.5" />
             </svg>
             <span>Home</span>
         </button>
-        <button class="nav-button" id="navSearch" onclick="alert('Tražilica u izradi!');">
+        <button class="nav-button" id="navSearch" onclick="handleNavClick('searchPlaceholder', this);">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
             </svg>
             <span>Tražilica</span>
         </button>
-        <button class="nav-button" id="navInbox" onclick="otvoriInbox();">
+        <button class="nav-button" id="navInbox" onclick="handleNavClick('inboxPrikaz', this);">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
             </svg>
             <span>Inbox</span>
             <span id="notifikacijaPorukaGlavna" class="notification-badge-main"></span>
         </button>
-        <button class="nav-button" id="navProfile" onclick="prikaziMojProfil();">
+        <button class="nav-button" id="navProfile" onclick="handleNavClick('glavniDio', this);">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -209,6 +209,42 @@
             }
         }
 
+        // NOVO: Glavna funkcija za rukovanje klikovima na navigacijske gumbe
+        function handleNavClick(targetScreenId, clickedButton) {
+            // Dohvati trenutno aktivni ekran
+            const currentScreenEl = document.querySelector('.container.active-screen');
+            let currentScreenId = null;
+            if (currentScreenEl) {
+                currentScreenId = currentScreenEl.id;
+            }
+
+            // Provjera da li je kliknuti gumb već aktivan za trenutni ekran
+            if (clickedButton.classList.contains('active')) {
+                // Ako je već aktivan, ne radi ništa
+                return; 
+            }
+
+            // Posebna logika za profil i tražilicu, jer 'glavniDio' može biti i 'objavaForma'
+            let finalTargetScreenId = targetScreenId;
+            if (targetScreenId === 'glavniDio') {
+                prikaziMojProfil(); // Ovo će automatski postaviti glavniDio na prikaz profila
+                // Ne navigiramo odmah ovdje, već otvoriProfil to radi
+                // updateActiveNavButton će biti pozvan iz otvoriProfil
+            } else if (targetScreenId === 'searchPlaceholder') {
+                alert('Tražilica u izradi!');
+                // Ako je tražilica samo placeholder, ne mijenjaj ekran
+                return;
+            } else {
+                // Za ostale slučajeve, navigiraj direktno
+                navigateTo(finalTargetScreenId);
+            }
+            
+            // Ažuriraj aktivni navigacijski gumb
+            // Ova linija će se izbaciti ili prilagoditi ovisno o tome kako handleNavClick i navigateTo surađuju
+            // updateActiveNavButton(clickedButton.id); // Ovo više nije idealno zbog asinkronosti
+        }
+
+
         // --- Modificirane funkcije za kontrolu UI elemenata ---
 
         // Modificiramo pokreniAplikaciju da prikaže UI i postavi aktivni gumb
@@ -226,27 +262,20 @@
             originalOdjaviSe();
             toggleAppUI(false); // Sakriva navigaciju i FAB
         };
-
-        // Modificiramo navigateTo da ažurira aktivni gumb i kontrolira FAB
-        const originalNavigateTo = navigateTo;
-        navigateTo = function(targetScreenId) {
-            // Prvo pozovi originalnu navigateTo funkciju
-            originalNavigateTo(targetScreenId);
-            
-            // Kontrola FAB gumba
+        
+        // Funkcija koja se poziva nakon što se swap završi, da ažurira aktivni nav gumb
+        function afterSwapUpdateNavButton(targetScreenId) {
             const fabButton = document.getElementById('fabObjaviPijanku');
             if (fabButton) {
-                // Prikazuje FAB samo na lokacijePrikaz, inače ga sakriva
                 fabButton.style.display = (targetScreenId === 'lokacijePrikaz') ? 'flex' : 'none';
             }
 
-            // Ažuriranje aktivnog navigacijskog gumba
             if (targetScreenId === 'lokacijePrikaz') {
                 updateActiveNavButton('navHome');
             } else if (targetScreenId === 'inboxPrikaz') {
                 updateActiveNavButton('navInbox');
-            } else if (targetScreenId === 'glavniDio') { // 'glavniDio' može biti profil ili objava
-                // Provjeravamo je li profil prikazan unutar 'glavniDio'
+            } else if (targetScreenId === 'glavniDio') {
+                // Posebna provjera za profil unutar glavnogDio
                 if (document.getElementById("profilKorisnika").style.display !== "none") {
                     updateActiveNavButton('navProfile');
                 } else {
@@ -263,45 +292,24 @@
                     button.classList.remove('active');
                 });
             }
+        }
+
+        // Modificiramo navigateTo
+        const originalNavigateTo = navigateTo;
+        navigateTo = function(targetScreenId) {
+            originalNavigateTo(targetScreenId);
+            // Pozovi ažuriranje odmah, ali i osiguraj da se ponovi nakon tranzicije ako treba
+            afterSwapUpdateNavButton(targetScreenId);
         };
 
-        // Modificiramo navigateBack da ažurira aktivni gumb i kontrolira FAB
+        // Modificiramo navigateBack
         const originalNavigateBack = navigateBack;
         navigateBack = function() {
-            // Prije nego što se originalna funkcija izvrši, dohvati ciljni ekran
-            const targetScreenIdAfterBack = navigationStack[navigationStack.length - 1]; 
-            
-            originalNavigateBack(); // Izvrši originalnu navigateBack logiku
-
-            // Daj malo vremena za tranziciju animacije
+            const lastScreenId = navigationStack[navigationStack.length - 1]; // Ciljni ekran nakon povratka
+            originalNavigateBack(); 
+            // Ažuriraj stanje nav gumba nakon što se animacija završi
             setTimeout(() => {
-                // Kontrola FAB gumba
-                const fabButton = document.getElementById('fabObjaviPijanku');
-                if (fabButton) {
-                    fabButton.style.display = (targetScreenIdAfterBack === 'lokacijePrikaz') ? 'flex' : 'none';
-                }
-
-                // Ažuriraj aktivni gumb na temelju novog aktivnog ekrana
-                if (targetScreenIdAfterBack === 'lokacijePrikaz') {
-                    updateActiveNavButton('navHome');
-                } else if (targetScreenIdAfterBack === 'inboxPrikaz') {
-                    updateActiveNavButton('navInbox');
-                } else if (targetScreenIdAfterBack === 'glavniDio') {
-                    // Provjeri je li profil prikazan unutar 'glavniDio' nakon povratka
-                    if (document.getElementById("profilKorisnika").style.display !== "none") {
-                        updateActiveNavButton('navProfile');
-                    } else {
-                        document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
-                            button.classList.remove('active');
-                        });
-                    }
-                } else if (targetScreenIdAfterBack === 'editProfil') {
-                    updateActiveNavButton('navProfile');
-                } else {
-                    document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
-                        button.classList.remove('active');
-                    });
-                }
+                afterSwapUpdateNavButton(lastScreenId);
             }, 300); // 300ms je trajanje tranzicije
         };
 
@@ -313,7 +321,7 @@
             document.getElementById('fabObjaviPijanku').style.display = 'none'; // Sakrij FAB
         };
 
-        // Kada se otvara inbox, ažuriraj nav gumb i sakrij FAB
+        // Kada se otvori inbox, ažuriraj nav gumb i sakrij FAB
         const originalOtvoriInbox = otvoriInbox;
         otvoriInbox = function() {
             originalOtvoriInbox();
