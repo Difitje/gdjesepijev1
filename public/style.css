@@ -511,6 +511,16 @@ body::before {
     font-size: 24px; /* Veličina strelice */
     /* NOVO: Lagano pomakni prema dolje za bolje vertikalno centriranje */
     transform: translateY(1px); /* Eksperimentirajte s ovom vrijednosti (npr. 0px, 1px, 2px) */
+    pointer-events: auto; /* Osiguraj da je klikabilan */
+    color: #f0f0f0; /* Boja strelice */
+    background: none;
+    border: none;
+    padding: 0; /* Ukloni padding da bude bliže rubu */
+    width: auto;
+    height: auto;
+    display: flex; /* Koristi flexbox za centriranje unutar samog gumba ako je potrebno */
+    justify-content: center;
+    align-items: center;
 }
 
 .chat-partner-profilna {

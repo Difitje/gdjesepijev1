@@ -81,6 +81,12 @@ function navigateBack() {
             privatniInput.style.height = 'auto';
             document.getElementById('posaljiPrivatnoBtn').classList.remove('enabled');
             toggleAppUI(true); // Prikazi nav bar kada se vratis iz chata
+
+            // NOVI KOD: Prikaz originalnog top-nav-buttons diva pri povratku iz chata
+            const topNavButtons = document.querySelector('.top-nav-buttons');
+            if (topNavButtons) {
+                topNavButtons.style.display = 'flex'; 
+            }
         }
         swap(currentScreenEl.id, lastScreenId);
         azurirajNotifikacije();
@@ -167,7 +173,7 @@ function handleEditSlikaUploadChange() {
         const reader = new FileReader();
         reader.onload = e => {
             odabranaEditSlika = e.target.result;
-            const previewElement = document.getElementById("previewEditSlike");
+            const previewElement = document.getElementById("previewEditSlikes");
             if (previewElement) {
                 previewElement.src = odabranaEditSlika;
                 if (previewElement.style.display === "none") {
@@ -395,7 +401,7 @@ async function objaviPijanku() {
     if (!mojPoz) return dohvatiLokaciju(() => objaviPijanku());
 
     const objaviBtn = document.querySelector('#objavaForma button');
-    objaviBtn.disabled = true; objaviBtn.textContent = 'Objavljujem...';
+    objaviBtn.disabled = true; objabiBtn.textContent = 'Objavljujem...';
     try {
         const response = await authenticatedFetch('/api/posts', {
             method: 'POST',
@@ -566,15 +572,15 @@ async function pokreniPrivatniChat(partnerId) {
     const primalac = sviKorisnici.find(u => u.id === partnerId);
     if (!primalac) return;
 
-    // script.js (unutar funkcije pokreniPrivatniChat)
-        const chatHeaderInfoEl = document.querySelector('.chat-header-info');
-        const topNavButtons = document.querySelector('.top-nav-buttons');
-        
-        // Kopiraj HTML back-buttona iz originalnog top-nav-buttons diva
-        const backButtonHtml = topNavButtons.querySelector('.back-button').outerHTML;
+    const chatHeaderInfoEl = document.querySelector('.chat-header-info');
+    // Ukloni postojeće back/close buttone iz top-nav-buttons ako su tamo
+    const topNavButtons = document.querySelector('.top-nav-buttons');
+    const backButtonHtml = topNavButtons.querySelector('.back-button').outerHTML;
 
-        // Sakrij originalne top-nav-buttons diva
-        topNavButtons.style.display = 'none'; 
+    // Sakrij originalne top-nav-buttons diva
+    // Ova linija je premještena ovdje kako bi se odmah sakrio originalni div
+    // prije nego što se backButtonHtml kopira u chatHeaderInfoEl
+    topNavButtons.style.display = 'none';
 
     chatHeaderInfoEl.innerHTML = `
         ${backButtonHtml} <img id="chatPartnerSlika" src="${primalac.slika || 'default_profile.png'}" alt="Profilna slika" class="chat-partner-profilna">
@@ -583,9 +589,6 @@ async function pokreniPrivatniChat(partnerId) {
             <p id="chatPartnerStatus" class="status-text">${formatirajStatus(primalac.lastActive).text}</p>
         </div>
     `;
-
-    // Sakrij originalne top-nav-buttons diva
-    topNavButtons.style.display = 'none';
 
     // Ponovno dodaj event listenere jer je HTML rekreiran
     document.getElementById("chatPartnerSlika").onclick = () => otvoriProfil(primalac.id);
