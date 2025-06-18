@@ -345,14 +345,14 @@ body::before {
 
 .top-nav-buttons {
     position: absolute;
-    top: 0px; /* Adjust this value as needed to move it higher */
+    top: 15px; /* Revert to original or adjust as needed for other pages */
     left: 15px;
     right: 15px;
     @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
     display: flex;
-    justify-content: flex-start; /* Changed to flex-start to align back button left */
+    justify-content: space-between; /* Keep this for general use or revert to original behavior */
     align-items: center;
-    z-index: 51; /* Make it higher than chat-header-info's z-index (50) */
+    z-index: 10; /* Keep this for general use or revert to original behavior */
     pointer-events: none;
 }
 .back-button, .close-btn {
