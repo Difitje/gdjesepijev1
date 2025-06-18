@@ -269,7 +269,6 @@
 
         // Modificiramo DOMContentLoaded da se aplikacija odmah pokrene
         window.addEventListener('DOMContentLoaded', async function() {
-            // REMOVED: localStorage.removeItem("loggedInUserId"); // This line was causing the logout issue.
             const token = localStorage.getItem("token");
 
             document.querySelectorAll('.container').forEach(el => {
