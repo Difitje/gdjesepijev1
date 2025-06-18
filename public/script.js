@@ -38,7 +38,10 @@ function swap(hideId, showId) {
         showElement.style.display = 'flex';
         setTimeout(() => {
             showElement.classList.add('active-screen');
-            // Uklonjeno: prikaziPijankePregled() se sada poziva u navigateTo
+            // DODANO: Ako se prelazi na lokacijePrikaz, osvježi pijanke
+            if (showId === 'lokacijePrikaz') {
+                prikaziPijankePregled();
+            }
         }, 10);
     };
 
@@ -62,13 +65,6 @@ function swap(hideId, showId) {
 
 function navigateTo(targetScreenId) {
     const currentScreenEl = document.querySelector('.container.active-screen');
-
-    // KLJUČNA PROMJENA: Pozivamo prikaziPijankePregled() prije nego što se ekran zamijeni
-    // Ovo osigurava da su podaci spremni čim se lokacijePrikaz pojavi.
-    if (targetScreenId === 'lokacijePrikaz') {
-        prikaziPijankePregled();
-    }
-
     if (currentScreenEl) {
         navigationStack.push(currentScreenEl.id);
         swap(currentScreenEl.id, targetScreenId);
@@ -199,7 +195,7 @@ async function globalRefreshUI() {
     if (!trenutniKorisnik) return;
     await Promise.all([ dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke() ]);
 
-    // Provjera aktivnog ekrana prije osvježavanja prikaza
+    // Dodana provjera aktivnog ekrana prije osvježavanja prikaza
     if (document.getElementById("lokacijePrikaz")?.classList.contains('active-screen')) {
         prikaziPijankePregled();
     }
@@ -330,13 +326,14 @@ async function odjaviSe() {
 
 function pokreniAplikaciju() {
     navigationStack = [];
-    // Prebacuje na homePrazan umjesto lokacijePrikaz nakon prijave
+    // PROMIJENJENO: Prebaci na homePrazan umjesto lokacijePrikaz
     swap(document.querySelector('.container.active-screen')?.id || null, 'homePrazan');
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
     globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
     azurirajMojuAktivnost();
     dohvatiLokaciju(() => {
+        // Uklonjen direktan poziv prikaziPijankePregled() ovdje
         azurirajNotifikacije();
     });
 }
@@ -460,13 +457,15 @@ async function objaviPijanku() {
             alert(data.message);
             await dohvatiSvePijanke();
             navigateBack();
+            // Nema potrebe za prikaziPijankePregled() ovdje ako se homePrazan ne prikazuje
+            // prikaziPijankePregled();
         } else {
             alert("Greška pri objavi pijanke: " + data.message);
         }
     } catch (error) {
-        alert("Došlo je do greške pri objave pijanke.");
+        alert("Došlo je do greške pri objavi pijanke.");
     } finally {
-        objaviBtn.disabled = false; objabiBtn.textContent = 'Objavi';
+        objaviBtn.disabled = false; objaviBtn.textContent = 'Objavi';
     }
 }
 
