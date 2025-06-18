@@ -38,7 +38,7 @@ function swap(hideId, showId) {
         showElement.style.display = 'flex';
         setTimeout(() => {
             showElement.classList.add('active-screen');
-            // DODANO: Ako se prelazi na lokacijePrikaz, osvježi pijanke
+            // OVDJE JE KLJUČNA PROMJENA: Pozivamo prikaziPijankePregled() kada se prebaci na lokacijePrikaz
             if (showId === 'lokacijePrikaz') {
                 prikaziPijankePregled();
             }
@@ -195,7 +195,8 @@ async function globalRefreshUI() {
     if (!trenutniKorisnik) return;
     await Promise.all([ dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke() ]);
 
-    // Dodana provjera aktivnog ekrana prije osvježavanja prikaza
+    // Provjera aktivnog ekrana prije osvježavanja prikaza
+    // Ovdje se prikaziPijankePregled() poziva samo ako je lokacijePrikaz aktivan
     if (document.getElementById("lokacijePrikaz")?.classList.contains('active-screen')) {
         prikaziPijankePregled();
     }
@@ -236,7 +237,7 @@ function handleEditSlikaUploadChange() {
         const reader = new FileReader();
         reader.onload = e => {
             odabranaEditSlika = e.target.result;
-            const previewElement = document.getElementById("previewEditSlike");
+            const previewElement = document.getElementById("previewEditSlikes");
             if (previewElement) {
                 previewElement.src = odabranaEditSlika;
                 if (previewElement.style.display === "none") {
@@ -458,7 +459,6 @@ async function objaviPijanku() {
             await dohvatiSvePijanke();
             navigateBack();
             // Nema potrebe za prikaziPijankePregled() ovdje ako se homePrazan ne prikazuje
-            // prikaziPijankePregled();
         } else {
             alert("Greška pri objavi pijanke: " + data.message);
         }
