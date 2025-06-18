@@ -174,26 +174,22 @@ body::before {
 #privatniChat { justify-content: flex-start; align-items: stretch; }
 
 /* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
-/* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
-/* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
 .chat-input-area {
     display: flex; 
-    align-items: center; /* PROMIJENJENO: Centriramo vertikalno */
-    gap: 10px; /* Razmak između inputa i gumba */
-    padding: 8px 12px; /* Početni padding */
-    background-color: transparent; /* Uklanjamo pravokutnu pozadinu */
-    border-top: none; /* Uklanjamo gornju liniju */
+    align-items: flex-end; /* Poravnava sadržaj na dno, jer textarea može rasti */
+    padding: 8px 12px; 
+    background-color: transparent; 
+    border-top: none; 
     margin-top: auto; 
     flex-shrink: 0; 
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
-    position: relative; /* Bitno za apsolutno pozicioniranje ikona unutar ovog diva */
+    position: relative; /* Bitno: Omogućuje apsolutno pozicioniranje unutar */
 }
 
 #privatniInput {
-    flex-grow: 1; /* Omogućuje inputu da zauzme sav dostupan prostor */
+    flex-grow: 1; /* Omogućuje textarea da zauzme sav dostupan prostor */
     border: none; 
-    padding: 10px 15px; /* Početni padding */
-    border-radius: 20px;
+    border-radius: 20px; /* Polukružni oblik */
     background-color: #3a3a3a; 
     color: #f0f0f0; 
     font-size: 16px;
@@ -202,11 +198,12 @@ body::before {
     overflow-y: auto; 
     resize: none;
     transition: all 0.2s ease; 
-    margin: 0; /* Uklanja margine */
+    margin: 0;
     
-    /* PADDING ZA IKONE: Podesit ćemo ga ovdje */
-    padding-left: 55px; /* Dovoljno mjesta za ikonu slike lijevo */
-    padding-right: 45px; /* Dovoljno mjesta za gumb za slanje desno */
+    /* KLJUČNO: Padding za smještaj ikona unutar textarea */
+    padding: 10px 45px 10px 45px; /* Top Right Bottom Left - Dovoljno mjesta za ikone */
+    position: relative; /* KLJUČNO: Omogućava apsolutno pozicioniranje ikona UNUTAR ovoga */
+    /* Z-index je bitan da input bude iznad ikona, ali ne mora biti eksplicitno definiran ako su ikone djeca */
 }
 
 #privatniInput:focus { 
@@ -218,18 +215,17 @@ body::before {
 
 /* Stilovi za ikonicu za slanje slike */
 .image-upload-icon {
-    position: absolute; /* Apsolutno pozicioniran unutar .chat-input-area */
-    left: 12px; /* PROMIJENJENO: S lijeve strane paddinga .chat-input-area */
-    /* bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); */ /* Ovo više ne treba */
-    top: 50%; /* Centriramo vertikalno */
-    transform: translateY(-50%); /* Precizno centriranje */
+    position: absolute; /* Apsolutno pozicioniran unutar #privatniInput */
+    left: 10px; /* PRILAGOĐENO: Pomaknuto bliže lijevom rubu inputa */
+    top: 50%; /* Centrirano vertikalno */
+    transform: translateY(-50%); /* Precizno vertikalno centriranje */
     width: 32px; 
     height: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    z-index: 10; 
+    z-index: 2; /* Mora biti iznad inputa */
     background: rgba(40, 40, 40, 0.3); 
     border-radius: 50%; 
     transition: background-color 0.2s ease;
@@ -244,7 +240,6 @@ body::before {
     height: 18px;
     fill: #f0f0f0; 
 }
-
 
 /* Stilovi za gumb za slanje poruke */
 #posaljiPrivatnoBtn {
@@ -262,12 +257,11 @@ body::before {
     cursor: pointer; 
     transition: transform 0.2s ease, opacity 0.2s ease;
     
-    position: absolute; /* Apsolutno pozicioniran unutar .chat-input-area */
-    right: 12px; /* PROMIJENJENO: S desne strane paddinga .chat-input-area */
-    /* bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); */ /* Ovo više ne treba */
-    top: 50%; /* Centriramo vertikalno */
-    transform: translateY(-50%); /* Precizno centriranje */
-    z-index: 10; 
+    position: absolute; /* Apsolutno pozicioniran unutar #privatniInput */
+    right: 10px; /* PRILAGOĐENO: Pomaknuto bliže desnom rubu inputa */
+    top: 50%; /* Centrirano vertikalno */
+    transform: translateY(-50%); /* Precizno vertikalno centriranje */
+    z-index: 2; /* Mora biti iznad inputa */
     
     transform: scale(0); 
     opacity: 0; 
@@ -282,8 +276,6 @@ body::before {
     fill: #ffffff; 
     margin-left: -1px; 
 }
-/* ========================================= */
-/* ========================================= */
 /* ========================================= */
 
 /* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
