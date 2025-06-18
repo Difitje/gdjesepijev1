@@ -38,7 +38,7 @@ function swap(hideId, showId) {
         showElement.style.display = 'flex';
         setTimeout(() => {
             showElement.classList.add('active-screen');
-            // Uklonjeno prikaziPijankePregled() odavde, sada se poziva u navigateTo
+            // Uklonjeno: prikaziPijankePregled() se sada poziva u navigateTo
         }, 10);
     };
 
@@ -63,8 +63,8 @@ function swap(hideId, showId) {
 function navigateTo(targetScreenId) {
     const currentScreenEl = document.querySelector('.container.active-screen');
 
-    // KLJUČNA PROMJENA: Pozivamo prikaziPijankePregled() prije nego što se ekran zamijeni,
-    // osiguravajući da su podaci spremni kad se lokacijePrikaz pojavi.
+    // KLJUČNA PROMJENA: Pozivamo prikaziPijankePregled() prije nego što se ekran zamijeni
+    // Ovo osigurava da su podaci spremni čim se lokacijePrikaz pojavi.
     if (targetScreenId === 'lokacijePrikaz') {
         prikaziPijankePregled();
     }
@@ -466,7 +466,7 @@ async function objaviPijanku() {
     } catch (error) {
         alert("Došlo je do greške pri objave pijanke.");
     } finally {
-        objaviBtn.disabled = false; objaviBtn.textContent = 'Objavi';
+        objaviBtn.disabled = false; objabiBtn.textContent = 'Objavi';
     }
 }
 
