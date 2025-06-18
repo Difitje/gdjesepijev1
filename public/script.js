@@ -286,7 +286,7 @@ async function prikaziEditProfila() {
     document.getElementById("editIme").value = user.ime || '';
     document.getElementById("editOpis").value = user.opis || '';
     document.getElementById("editInstagram").value = user.instagram || '';
-    document.getElementById("editTiktok").value = user.tiktok || '';
+    document.getElementById("tiktok").value = user.tiktok || '';
     document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
     document.getElementById("previewEditSlike").style.display = "block";
     odabranaEditSlika = null;
@@ -375,7 +375,16 @@ function pokaziObjavu() {
     document.getElementById("profilKorisnika").style.display = "none";
     document.getElementById("opisPijanke").value = "";
     document.querySelector('#glavniDio .back-button').style.display = 'none';
-    document.querySelector('#glavniDio .close-btn').style.display = 'flex';
+    
+    // IZMJENA: "X" tipka sada direktno prebacuje na homePrikazPijanki
+    const closeBtn = document.querySelector('#glavniDio .close-btn');
+    closeBtn.style.display = 'flex';
+    closeBtn.onclick = () => {
+        navigateTo('homePrikazPijanki');
+        // Vratite onclick na originalnu funkciju nakon klika, ako je potrebno da se ne duplicira
+        // closeBtn.onclick = null; // ili postavite na originalnu navigateBack ako ce X imati i tu ulogu na drugim mjestima
+    };
+
     navigateTo('glavniDio');
 }
 
@@ -396,8 +405,9 @@ async function objaviPijanku() {
         if (response.ok) {
             alert(data.message);
             await dohvatiSvePijanke();
-            navigateBack();
-            prikaziPijankePregled();
+            // IZMJENA: Preusmjeri direktno na homePrikazPijanki
+            navigateTo('homePrikazPijanki');
+            prikaziPijankePregled(); // Osiguraj da se pijanke osvježe na Home ekranu
         } else {
             alert("Greška pri objavi pijanke: " + data.message);
         }
@@ -431,15 +441,14 @@ function prikaziPijankePregled() {
     const div = document.getElementById("pijankePregled"); 
     if (!div) return;
     
-    // Ukloni klasu ako je bila prisutna od prethodnog prikaza
     div.classList.remove('empty-message');
 
     if (svePijanke.length === 0) {
         div.innerHTML = '<p>Trenutno nitko ne pije. Budi prvi!</p>';
-        div.classList.add('empty-message'); // Dodaj klasu za centriranje
+        div.classList.add('empty-message'); 
         return;
     }
-    div.innerHTML = ""; // Očisti div prije dodavanja pijanki
+    div.innerHTML = ""; 
     svePijanke.forEach(pijanka => {
         const autor = sviKorisnici.find(u => u.id === pijanka.korisnikId);
         if (!autor) return;
