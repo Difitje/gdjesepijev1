@@ -132,7 +132,7 @@ body::before {
 }
 
 .header-logo-image {
-    max-height: 50px; /* POVEĆANO: Povećana maksimalna visina za mobilni prikaz (bilo 40px) */
+    max-height: 70px; /* POVEĆANO: Povećana maksimalna visina za mobilni prikaz (bilo 40px) */
     width: auto; /* Osigurava da se širina automatski prilagođava */
     object-fit: contain; /* Osigurava da se cijela slika vidi unutar okvira */
 }
@@ -147,7 +147,7 @@ body::before {
         height: 100%; /* Osigurava da logo zauzima punu visinu headera za centriranje */
     }
     .header-logo-image {
-        max-height: 60px; /* POVEĆANO: Možda još veći logo na desktopu (bilo 50px) */
+        max-height: 90px; /* POVEĆANO: Možda još veći logo na desktopu (bilo 50px) */
     }
 }
 
@@ -157,8 +157,24 @@ body::before {
     display: flex; justify-content: center; align-items: center;
     transition: background-color 0.2s ease-in-out;
 }
-.header-icon:hover { background-color: rgba(255, 255, 255, 0.08); }
-.header-icon svg { stroke: #e0e0e0; width: 26px; height: 26px; stroke-width: 1.5; transition: stroke 0.2s ease; }
+.header-icon {
+    background: transparent; /* Ostaje transparentno da se vidi pozadina headera */
+    border: none; 
+    cursor: pointer; 
+    position: relative;
+    width: 44px; 
+    height: 44px; 
+    margin: 0; 
+    border-radius: 50%;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    transition: background-color 0.2s ease-in-out;
+}
+.header-icon:hover { 
+    background-color: rgba(255, 255, 255, 0.08); /* Možda želite zadržati suptilan hover efekt */
+    /* Ako želite potpuno ukloniti i hover efekt, postavite ovo na background-color: transparent; */
+}
 .header-icon:hover svg { stroke: #ff4757; }
 /* .main-logo { color: #f0f0f0; font-weight: bold; font-size: 22px; letter-spacing: 2px; text-transform: uppercase; margin: 0; padding: 0; } -> OVO JE PREMJEŠTENO GORE I MODIFICIRANO */
 .notification-badge-main {
