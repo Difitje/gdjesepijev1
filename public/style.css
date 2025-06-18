@@ -200,8 +200,7 @@ body::before {
     transition: all 0.2s ease; 
     margin: 0; 
     
-    /* KLJUČNO: Padding za smještaj ikona, PROMIJENJENO! */
-    /* Lijevo: za ikonu slike, Desno: za gumb za slanje */
+    /* KLJUČNO: Padding za smještaj ikona */
     padding: 10px 45px 10px 45px; /* PROMIJENJENO: Osigurava prostor */
 }
 
@@ -214,8 +213,8 @@ body::before {
 
 /* Stilovi za ikonicu za slanje slike */
 .image-upload-icon {
-    position: absolute; /* Apsolutno pozicioniran unutar chat-input-area */
-    left: 20px; /* Pomak s lijeve strane .chat-input-area */
+    position: absolute; 
+    left: 20px; 
     top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
     transform: translateY(-50%); /* Precizno centriranje */
     width: 32px; 
@@ -242,8 +241,8 @@ body::before {
 
 /* Stilovi za gumb za slanje poruke */
 #posaljiPrivatnoBtn {
-    position: absolute; /* Apsolutno pozicioniran unutar chat-input-area */
-    right: 20px; /* Pomak s desne strane .chat-input-area */
+    position: absolute; 
+    right: 20px; 
     top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
     transform: translateY(-50%); /* Precizno centriranje */
     width: 32px; 
@@ -257,22 +256,29 @@ body::before {
     justify-content: center; 
     align-items: center;
     cursor: pointer; 
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    transition: all 0.2s ease; /* PROMIJENJENO: Uklonili smo 'transform' iz tranzicije da se ne miješa */
     z-index: 10; 
     
-    transform: scale(0); 
-    opacity: 0; 
+    /* OVE LINIJE MOGU BITI PROBLEM: */
+    transform: scale(0); /* SKRIVA GUMB */
+    opacity: 0; /* SKRIVA GUMB */
 }
+
+/* OVDJE JE KRITIČNA PROMJENA ZA PRIKAZ/SKRIVANJE GUMBA */
 #posaljiPrivatnoBtn.enabled { 
-    transform: scale(1); 
-    opacity: 1; 
-} 
-#posaljiPrivatnoBtn svg { 
-    width: 18px; 
-    height: 18px; 
-    fill: #ffffff; 
-    margin-left: -1px; 
+    transform: scale(1); /* OVO SE AKTIVIRA JAVASCRIPTOM */
+    opacity: 1; /* I OVO */
+    /* Dodatno osiguravamo da je vidljiv kad je enabled */
+    visibility: visible;
 }
+/* A kada nije enabled, treba biti potpuno skriven */
+#posaljiPrivatnoBtn:not(.enabled) {
+    visibility: hidden;
+    opacity: 0;
+    /* Možda i transform: scale(0); ako želite efekt smanjenja pri sakrivanju */
+    transform: scale(0); 
+}
+
 /* ========================================= */
 
 /* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
