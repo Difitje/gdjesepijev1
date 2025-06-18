@@ -320,7 +320,20 @@ body::before {
 
 
 #pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
-#privatniChatLog { flex-grow: 1; overflow-y: auto; }
+
+/* === PROMJENE ZA CHAT LOG SKROLLANJE I ZAGLAVLJE === */
+#privatniChatLog { 
+    flex-grow: 1; 
+    overflow-y: auto; 
+    /* KLJUČNO: Sakrivanje scroll trake */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Za WebKit (Chrome, Safari) */
+#privatniChatLog::-webkit-scrollbar {
+    display: none;
+}
 
 .top-nav-buttons {
     position: absolute; top: 15px; left: 15px; right: 15px;
@@ -337,7 +350,8 @@ body::before {
 
 .container > h2 { padding-top: 30px; }
 /* Nema više #lokacijePrikaz > h2, jer je lokacijePrikaz preimenovan i sad je bez h2 elementa unutar .main-header */
-#privatniChat .chat-header-info { padding-top: 40px; }
+/* Uklonjen padding-top iz #privatniChat .chat-header-info jer ga sada definira .container padding-top */
+
 
 #intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil, #homePrikazPijanki, #praznaTrazilica { justify-content: center; align-items: center; } /* Dodan #praznaTrazilica */
 #objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
@@ -462,10 +476,12 @@ body::before {
 .chat-header-info {
     display: flex;
     flex-direction: column; /* Zadržavamo vertikalni raspored za ime i status */
-    align-items: center;    /* Centriramo sadržaj */
+    align-items: center;    /* Centriramo sadržaj horizontalno */
+    justify-content: center; /* Centriramo sadržaj vertikalno */
     margin-bottom: 10px;
     flex-shrink: 0;
-    padding-top: 40px; /* Osiguraj dovoljno mjesta od vrha */
+    padding-top: 20px; /* Prilagođen padding-top da bude više u sredini */
+    width: 100%; /* Da zauzima cijelu širinu */
 }
 
 .chat-partner-profilna {
@@ -488,10 +504,12 @@ body::before {
     font-size: 20px; 
     color: #f0f0f0; /* Osiguraj da je boja imena vidljiva */
     cursor: pointer; /* Pokazuje da je i ime klikabilno */
+    padding-top: 0; /* Ukloni dodatni padding-top koji je h2 mogao imati */
 }
 .chat-header-info .status-text { 
     margin-top: 0; 
     font-size: 14px; /* Malo veći status tekst */
+    text-align: center; /* Centriraj status tekst */
 }
 /* ========================================= */
 /* ========================================= */
@@ -580,7 +598,7 @@ img.preview-slika { display: none; }
     display: none;
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
 @keyframes bounceIn { 0% { transform: scale(0.1); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
 @keyframes fadeOutSplash { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
 

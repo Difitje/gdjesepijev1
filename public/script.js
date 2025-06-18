@@ -343,7 +343,7 @@ function formatirajStatus(isoTimestamp) {
     if (!isoTimestamp) return { text: "Offline", online: false };
     const diffSekunde = Math.round((Date.now() - new Date(isoTimestamp).getTime()) / 1e3);
     if (diffSekunde < 30) return { text: "Online", online: true };
-    if (diffSekunde < 60) return { text: "viđen/a prije minutu", online: false };
+    if (diffSekunde < 60) return { text: `viđen/a prije minutu`, online: false }; // Promenjeno: "minuta" -> "minutu"
     const diffMinute = Math.round(diffSekunde / 60);
     if (diffMinute < 60) return { text: `viđen/a prije ${diffMinute} min`, online: false };
     const diffSati = Math.round(diffMinute / 60);
@@ -567,9 +567,11 @@ async function pokreniPrivatniChat(partnerId) {
 
     const chatSaKorisnikomEl = document.getElementById("chatSaKorisnikom");
     const chatPartnerSlikaEl = document.getElementById("chatPartnerSlika"); 
+    const chatPartnerStatusEl = document.getElementById("chatPartnerStatus"); // Dodano za status
 
     chatSaKorisnikomEl.innerText = primalac.ime; 
     chatPartnerSlikaEl.src = primalac.slika || 'default_profile.png'; 
+    chatPartnerStatusEl.innerText = formatirajStatus(primalac.lastActive).text; // Postavi status odmah
 
     const otvoriProfilHandler = () => otvoriProfil(primalac.id);
     chatPartnerSlikaEl.onclick = otvoriProfilHandler; 
