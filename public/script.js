@@ -80,6 +80,7 @@ function navigateBack() {
             privatniInput.value = "";
             privatniInput.style.height = 'auto';
             document.getElementById('posaljiPrivatnoBtn').classList.remove('enabled');
+            toggleAppUI(true); // Prikazi nav bar kada se vratis iz chata
         }
         swap(currentScreenEl.id, lastScreenId);
         azurirajNotifikacije();
@@ -343,7 +344,7 @@ function formatirajStatus(isoTimestamp) {
     if (!isoTimestamp) return { text: "Offline", online: false };
     const diffSekunde = Math.round((Date.now() - new Date(isoTimestamp).getTime()) / 1e3);
     if (diffSekunde < 30) return { text: "Online", online: true };
-    if (diffSekunde < 60) return { text: `viđen/a prije minutu`, online: false }; // Promenjeno: "minuta" -> "minutu"
+    if (diffSekunde < 60) return { text: `viđen/a prije minutu`, online: false }; 
     const diffMinute = Math.round(diffSekunde / 60);
     if (diffMinute < 60) return { text: `viđen/a prije ${diffMinute} min`, online: false };
     const diffSati = Math.round(diffMinute / 60);
@@ -414,7 +415,7 @@ async function objaviPijanku() {
     } catch (error) {
         alert("Došlo je do greške pri objavi pijanke.");
     } finally {
-        objaviBtn.disabled = false; objaviBtn.textContent = 'Objavi';
+        objaviBtn.disabled = false; objabiBtn.textContent = 'Objavi';
     }
 }
 
@@ -567,17 +568,28 @@ async function pokreniPrivatniChat(partnerId) {
 
     const chatSaKorisnikomEl = document.getElementById("chatSaKorisnikom");
     const chatPartnerSlikaEl = document.getElementById("chatPartnerSlika"); 
-    const chatPartnerStatusEl = document.getElementById("chatPartnerStatus"); // Dodano za status
+    const chatPartnerStatusEl = document.getElementById("chatPartnerStatus"); 
 
     chatSaKorisnikomEl.innerText = primalac.ime; 
     chatPartnerSlikaEl.src = primalac.slika || 'default_profile.png'; 
-    chatPartnerStatusEl.innerText = formatirajStatus(primalac.lastActive).text; // Postavi status odmah
+    chatPartnerStatusEl.innerText = formatirajStatus(primalac.lastActive).text; 
 
-    const otvoriProfilHandler = () => otvoriProfil(primalac.id);
-    chatPartnerSlikaEl.onclick = otvoriProfilHandler; 
-    chatSaKorisnikomEl.onclick = otvoriProfilHandler; 
-    
+    // IZMJENA: Omotaj ime i status u novi div za bolju kontrolu rasporeda
+    const chatHeaderInfoEl = document.querySelector('.chat-header-info');
+    chatHeaderInfoEl.innerHTML = `
+        <img id="chatPartnerSlika" src="${primalac.slika || 'default_profile.png'}" alt="Profilna slika" class="chat-partner-profilna">
+        <div class="chat-info-text-wrapper">
+            <h2 id="chatSaKorisnikom">${primalac.ime}</h2>
+            <p id="chatPartnerStatus" class="status-text">${formatirajStatus(primalac.lastActive).text}</p>
+        </div>
+    `;
+
+    // Ponovno dodaj event listenere jer je HTML rekreiran
+    document.getElementById("chatPartnerSlika").onclick = () => otvoriProfil(primalac.id);
+    document.getElementById("chatSaKorisnikom").onclick = () => otvoriProfil(primalac.id);
+
     navigateTo('privatniChat');
+    toggleAppUI(false); // Sakrij nav bar kada uđeš u chat
 
     const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
     try {
