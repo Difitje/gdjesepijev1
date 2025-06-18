@@ -215,7 +215,7 @@ body::before {
     align-items: center;
     transition: all 0.3s ease-in-out;
 }
-.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); }
+.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(0,0,0,0.5); /* Sjena pri hoveru */ }
 .fab:active { transform: scale(1.05) rotate(90deg); }
 .fab svg { width: 30px; height: 30px; color: #ffffff; }
 
@@ -246,8 +246,8 @@ body::before {
 }
 
 .bottom-nav .nav-button {
-    background: none; /* Uklanja pozadinsku boju */
-    border: none;
+    background: none !important; /* Uklanja pozadinsku boju i nadjačava */
+    border: none !important;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -258,10 +258,11 @@ body::before {
     color: #b0b0b0; /* Siva boja za neaktivne ikone/tekst */
     font-size: 10px; /* Manji font za tekst ispod ikone */
     font-weight: 500;
-    /* transition: color 0.2s ease;  UKLONJENO: Omogućuje instant promjenu boje */
+    /* transition: none;  // UKLONJENO: Omogućuje instant promjenu boje */
     cursor: pointer;
     position: relative; /* Za badge notifikacije */
-    outline: none; /* UKLONJENO: Crveni okvir na klik/fokus */
+    outline: none !important; /* UKLONJENO: Crveni okvir na klik/fokus, s !important */
+    box-shadow: none !important; /* Uklanja sjenu s !important */
 }
 
 .bottom-nav .nav-button svg {
@@ -270,12 +271,14 @@ body::before {
     stroke: #b0b0b0; /* Siva boja za ikone */
     stroke-width: 1.8;
     margin-bottom: 2px;
-    /* transition: stroke 0.2s ease; UKLONJENO: Omogućuje instant promjenu boje */
+    /* transition: none; // UKLONJENO: Omogućuje instant promjenu boje */
 }
 
 .bottom-nav .nav-button.active {
     color: #ff4757; /* Crvena boja za aktivnu stavku */
-    outline: none; /* Osigurava da nema okvira ni na aktivnu tipku */
+    outline: none !important; /* Osigurava da nema okvira ni na aktivnu tipku */
+    background: none !important; /* Osigurava da nema pozadinske boje ni na aktivnu tipku */
+    box-shadow: none !important; /* Uklanja sjenu s aktivne tipke */
 }
 
 .bottom-nav .nav-button.active svg {
@@ -284,7 +287,8 @@ body::before {
 
 .bottom-nav .nav-button:hover:not(.active) {
     color: #e0e0e0; /* Svjetlija siva na hoveru */
-    background: none; /* Osigurava da nema pozadinske boje ni na hoveru */
+    background: none !important; /* Osigurava da nema pozadinske boje ni na hoveru */
+    box-shadow: none !important; /* Uklanja sjenu s hovera */
 }
 
 .bottom-nav .nav-button:hover:not(.active) svg {
@@ -292,8 +296,9 @@ body::before {
 }
 
 .bottom-nav .nav-button:focus { /* UKLONJENO: Crveni okvir na fokus */
-    outline: none;
-    background: none; /* Osigurava da nema pozadinske boje ni na fokusu */
+    outline: none !important;
+    background: none !important; /* Osigurava da nema pozadinske boje ni na fokusu */
+    box-shadow: none !important; /* Uklanja sjenu s fokusa */
 }
 
 /* Prilagodba notifikacijske točkice za donji nav bar */
