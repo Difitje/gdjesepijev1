@@ -500,8 +500,9 @@ async function otvoriProfil(korisnikId) {
         <div class="profil-actions">${actionButtons}</div>
     `;
 
-    document.querySelector('#glavniDio .back-button').style.display = 'flex';
-    document.querySelector('#glavniDio .close-btn').style.display = 'none';
+    // Sakrij back i close gumbe kada se prikazuje profil
+    document.querySelector('#glavniDio .back-button').style.display = 'none'; // Uklonjeno
+    document.querySelector('#glavniDio .close-btn').style.display = 'none'; // Uklonjeno
     navigateTo('glavniDio');
 }
 
@@ -533,6 +534,7 @@ function azurirajNotifikacije() {
 function otvoriInbox() {
     const div = document.getElementById("listaChatova");
     div.innerHTML = "";
+    // Ovdje više nema back buttona, pa nema potrebe skrivati ga putem JS-a za inbox.
     const chatKeys = (trenutniKorisnik && trenutniKorisnik.id) ? Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id)) : [];
     if (chatKeys.length === 0) {
         div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
@@ -558,7 +560,7 @@ function otvoriInbox() {
                 </div>`;
         });
     }
-    navigateTo('inboxPrikaz'); 
+    navigateTo('inboxPrikaz');
 }
 
 async function pokreniPrivatniChat(partnerId) {
