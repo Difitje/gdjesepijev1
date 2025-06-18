@@ -43,7 +43,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.85); /* Prilagodi za željenu tamnoću */
+    background-color: rgba(0, 0, 0, 0.92); /* Prilagodi za željenu tamnoću */
     z-index: 1; /* Mora biti iznad body-ja, ali ispod sadržaja */
 }
 
@@ -152,7 +152,7 @@ body::before {
 }
 
 .header-icon {
-    background-color: transparent; /* PROMIJENJENO: Uklonjen glassy efekt */
+    background-color: transparent !important; /* VAŽNO: Dodano !important da se osigura transparentnost */
     border: none; 
     cursor: pointer; 
     position: relative;
@@ -165,13 +165,17 @@ body::before {
     align-items: center;
     /* UKLANJAMO background-color tranziciju jer nema glassy efekta */
 }
+/* Osiguraj da nema pozadine ni na hoveru */
+.header-icon:hover { 
+    background-color: transparent !important; 
+}
 .header-icon:hover { 
     background-color: transparent; /* PROMIJENJENO: Bez glassy efekta na hoveru */
 }
 .header-icon svg { 
     stroke: #ffffff; /* PROMIJENJENO: Bijela boja za bolju vidljivost */
-    width: 30px; /* Povećano s 26px */
-    height: 30px; /* Povećano s 26px */
+    width: 40px; /* Povećano s 26px */
+    height: 40px; /* Povećano s 26px */
     stroke-width: 2; /* Podebljana linija za bolju vidljivost */
     transition: stroke 0.2s ease; 
 }
