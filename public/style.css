@@ -10,9 +10,9 @@
 html, body {
     height: 100%;
     width: 100%;
-    overflow: hidden;      /* NOVO */
-    position: fixed;       /* NOVO */
-    touch-action: none;    /* NOVO I AGRESIVNIJE */
+    overflow: hidden;        /* NOVO */
+    position: fixed;         /* NOVO */
+    touch-action: none;      /* NOVO I AGRESIVNIJE */
 }
 
 body {
@@ -102,12 +102,15 @@ body::before {
 @media (max-width: 767px) {
     body { overflow: hidden; }
     .container { position: absolute; padding: 20px; border-radius: 0; border: none; box-shadow: none; }
-    #lokacijePrikaz { padding-top: 70px; }
+    #lokacijePrikaz { 
+        padding-top: 70px; /* Dodan padding za header */
+        padding-bottom: 70px; /* Dodan padding za novi navigacijski bar */
+    }
 }
 
 .main-header {
     position: absolute; top: 0; left: 0; right: 0; height: 60px; padding: 0 10px;
-    display: flex; justify-content: space-between; align-items: center;
+    display: flex; justify-content: center; align-items: center; /* Centriranje loga */
     background-color: rgba(26, 26, 26, 0.8); /* Blaga prozirnost */
     border-bottom: 1px solid rgba(51, 51, 51, 0.5); 
     z-index: 100;
@@ -120,6 +123,7 @@ body::before {
         padding: 0 30px; 
         height: 70px; 
         background-color: rgba(34, 34, 34, 0.8); /* Prilagođeno za desktop */
+        justify-content: center; /* Centriranje loga i na desktopu */
     }
 }
 .main-logo {
@@ -151,34 +155,36 @@ body::before {
     }
 }
 
+/* Header iconi su uklonjene iz main-header-a, zadržavamo stilove samo ako se koriste negdje drugdje */
 .header-icon {
-    background: transparent; /* Ovo je bilo originalno, znači transparentno */
+    background: transparent;
     border: none; 
     cursor: pointer; 
     position: relative;
     width: 44px; height: 44px; margin: 0; border-radius: 50%;
     display: flex; justify-content: center; align-items: center;
-    transition: background-color 0.2s ease-in-out; /* Ostavljamo tranziciju za hover */
+    transition: background-color 0.2s ease-in-out;
 }
 .header-icon:hover { 
-    background-color: rgba(255, 255, 255, 0.08); /* Suptilni glassy efekt na hoveru */
+    background-color: rgba(255, 255, 255, 0.08); 
 }
 .header-icon svg { 
-    stroke: #e0e0e0; /* Originalna boja ikonice */
-    width: 26px; /* Originalna veličina ikonice */
-    height: 26px; /* Originalna veličina ikonice */
-    stroke-width: 1.5; /* Originalna debljina linije */
+    stroke: #e0e0e0;
+    width: 26px;
+    height: 26px;
+    stroke-width: 1.5;
     transition: stroke 0.2s ease; 
 }
-.header-icon:hover svg { stroke: #ff4757; } /* Crvena boja na hoveru */
-/* .main-logo { color: #f0f0f0; font-weight: bold; font-size: 22px; letter-spacing: 2px; text-transform: uppercase; margin: 0; padding: 0; } -> OVO JE PREMJEŠTENO GORE I MODIFICIRANO */
+.header-icon:hover svg { stroke: #ff4757; }
+
 .notification-badge-main {
     position: absolute; top: 5px; right: 5px; background-color: #e74c3c; color: white;
     border-radius: 50%; height: 18px; width: 18px; display: none;
     justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
 }
 .fab {
-    position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+    position: fixed; bottom: 90px; right: 30px; /* Povećan bottom da bude iznad nav bara */
+    width: 60px; height: 60px;
     background: linear-gradient(45deg, #ff4757, #e03f4d); border-radius: 50%; border: none;
     box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; z-index: 1000;
     display: flex; justify-content: center; align-items: center;
@@ -187,7 +193,84 @@ body::before {
 .fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); }
 .fab:active { transform: scale(1.05) rotate(90deg); }
 .fab svg { width: 30px; height: 30px; color: #ffffff; }
-@media (min-width: 768px) { .fab { position: absolute; bottom: 40px; right: 40px; } }
+@media (min-width: 768px) { .fab { position: absolute; bottom: 40px; right: 40px; } } /* Na desktopu ostaje isto */
+
+
+/* NOVI STILOVI ZA BOTTOM NAVIGACIJU */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px; /* Visina navigacijskog bara */
+    background-color: rgba(26, 26, 26, 0.95); /* Tamna, blago prozirna pozadina */
+    border-top: 1px solid rgba(51, 51, 51, 0.5);
+    display: flex;
+    justify-content: space-around; /* Ravnomjerno rasporedi gumbe */
+    align-items: center;
+    z-index: 100; /* Iznad svih ostalih elemenata, ali ispod splash screena */
+    padding-bottom: env(safe-area-inset-bottom, 0px); /* Za iPhone X notch */
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
+}
+
+.bottom-nav .nav-button {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 0;
+    width: 25%; /* Svaki gumb zauzima 25% širine */
+    height: 100%;
+    color: #b0b0b0; /* Siva boja za neaktivne ikone/tekst */
+    font-size: 10px; /* Manji font za tekst ispod ikone */
+    font-weight: 500;
+    transition: color 0.2s ease;
+    cursor: pointer;
+    position: relative; /* Za badge notifikacije */
+}
+
+.bottom-nav .nav-button svg {
+    width: 24px; /* Veličina ikona */
+    height: 24px;
+    stroke: #b0b0b0; /* Siva boja za ikone */
+    stroke-width: 1.8;
+    margin-bottom: 2px;
+    transition: stroke 0.2s ease;
+}
+
+.bottom-nav .nav-button.active {
+    color: #ff4757; /* Crvena boja za aktivnu stavku */
+}
+
+.bottom-nav .nav-button.active svg {
+    stroke: #ff4757; /* Crvena boja za aktivnu ikonu */
+}
+
+.bottom-nav .nav-button:hover:not(.active) {
+    color: #e0e0e0; /* Svjetlija siva na hoveru */
+}
+
+.bottom-nav .nav-button:hover:not(.active) svg {
+    stroke: #e0e0e0; /* Svjetlija siva ikona na hoveru */
+}
+
+/* Prilagodba notifikacijske točkice za donji nav bar */
+.bottom-nav .notification-badge-main {
+    top: 5px;
+    right: 15%; /* Prilagodba pozicije unutar gumba */
+    transform: translateX(50%);
+    border: 2px solid rgba(26, 26, 26, 0.95); /* Boja ruba da odgovara pozadini nav bara */
+}
+
+@media (min-width: 768px) { /* Na desktopu skrivamo donji nav bar */
+    .bottom-nav {
+        display: none;
+    }
+}
+/* KRAJ NOVIH STILOVA ZA BOTTOM NAVIGACIJU */
+
 
 #pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
 #privatniChatLog { flex-grow: 1; overflow-y: auto; }
@@ -205,7 +288,13 @@ body::before {
 .back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
 
 .container > h2 { padding-top: 30px; }
-#lokacijePrikaz > h2 { padding-top: 10px; margin-bottom: 15px; }
+#lokacijePrikaz > h2 { 
+    padding-top: 10px; 
+    margin-bottom: 15px; 
+    /* Dodatni stil ako želiš da se "Trenutno pije" pomakne s headerom */
+    position: relative; /* Može biti useful za z-index */
+    z-index: 5; /* Da bude iznad pijanki, ali ispod headera */
+}
 #privatniChat .chat-header-info { padding-top: 40px; }
 
 #intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil { justify-content: center; align-items: center; }
@@ -338,7 +427,7 @@ body::before {
 }
 
 .chat-partner-profilna {
-    width: 60px;          /* Veličina profilne slike */
+    width: 60px;            /* Veličina profilne slike */
     height: 60px;
     border-radius: 50%;   /* Okrugli oblik */
     object-fit: cover;    /* Osigurava da se slika pravilno popuni */
