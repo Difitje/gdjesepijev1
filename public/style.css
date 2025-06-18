@@ -250,38 +250,41 @@ body::before {
     border-radius: 50%;
     border: none; 
     padding: 0; 
-    margin: 0; /* Uklanja margine koje bi mogle gurati gumb van */
+    margin: 0; 
     background-color: #ff4757;
     display: flex; 
     justify-content: center; 
     align-items: center;
     cursor: pointer; 
-    /* UKLANJAMO SVE TRANZICIJE ZA TRANSFORM, OPACITY, VISIBILITY */
-    /* Gumb će UVIJEK biti vidljiv i na mjestu */
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease; /* Vraćamo tranziciju za transform */
     z-index: 10; 
     
-    /* Gumb će UVIJEK biti vidljiv i na svom mjestu */
+    /* Gumb je skriven po defaultu */
+    opacity: 0; 
+    visibility: hidden; 
+    transform: scale(0.5) translateY(-50%); /* Start sa manjom skalom i centriranjem */
+    transform-origin: center center; /* Osigurava da se smanji/poveća iz centra */
+}
+
+/* OVDJE JE KRITIČNA PROMJENA ZA PRIKAZ/SKRIVANJE GUMBA */
+#posaljiPrivatnoBtn.enabled { 
     opacity: 1; 
-    visibility: visible; 
-    transform: scale(1) translateY(-50%); /* Osiguraj da je scale(1) i translateY(-50%) uvijek prisutno */
+    visibility: visible; /* Postaje vidljiv kada se klasa doda */
+    transform: scale(1) translateY(-50%); /* Povećava na normalnu veličinu i zadržava centriranje */
+}
+/* Kada nije enabled, želimo da se vraća na skriveno stanje */
+#posaljiPrivatnoBtn:not(.enabled) {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.5) translateY(-50%); /* Vraća se na manju skalu i centrirano stanje */
 }
 
 #posaljiPrivatnoBtn svg { 
-    width: 16px; /* Postavlja širinu SVG ikonice */
-    height: 16px; /* Postavlja visinu SVG ikonice */
-    fill: #ffffff; /* Osigurava da je boja ikonice bijela */
-    margin-left: -1px; /* Mali pomak ulijevo ako je potrebno za vizualno centriranje */
+    width: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    height: 16px; /* SMANJENO: Bilo je 18px, smanjeno je na 16px */
+    fill: #ffffff; 
+    margin-left: -1px; 
 }
-
-#posaljiPrivatnoBtn.enabled { 
-    /* Ove klase više NEĆE kontrolirati vidljivost ili transform */
-    /* One mogu kontrolirati, npr. boju gumba kad je enabled */
-    background-color: #ff4757; /* Primjer: zadrži boju */
-}
-
-/* Uklanjamo sve :not(.enabled) i druge skrivajuće stilove za gumb */
-/* Jer želimo da je gumb UVIJEK vidljiv i na mjestu */
-
 /* ========================================= */
 
 /* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
@@ -339,7 +342,7 @@ img.preview-slika { display: none; }
 .pijanka-info-text, .chat-item-info-text { display: flex; flex-direction: column; }
 .pijanka-info strong, .chat-item-info strong { line-height: 1.2; font-size: 18px; color: #f0f0f0; }
 .pijanka-info .status-text, .chat-item-info .status-text { line-height: 1.2; margin: 0; padding: 0; color: #a0a0a0; }
-.delete-btn { background: none; border: none; font-size: 14px; padding: 2px; margin-left: auto; cursor: pointer; color: #777; flex-shrink: 0; line-height: 1; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; border-radius: 50%; }
+.delete-btn { background: none; border: none; font-size: 14px; padding: 2px; margin-left: auto; cursor: pointer; color: #777; flex-shrink: 0; line-height: 1; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; inter-radius: 50%; }
 .delete-btn:hover { color: #ff4757; background: rgba(51, 51, 51, 0.5); box-shadow: none; transform: scale(1.05); }
 .pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
 .chat-item { background: rgba(40, 40, 40, 0.7); padding: 12px; border-radius: 10px; margin: 0 auto 10px auto; display: flex; align-items: center; gap: 12px; border-left: 3px solid rgba(51, 51, 51, 0.5); transition: all 0.2s ease-in-out; width: 100%; max-width: 600px; box-sizing: border-box; }
