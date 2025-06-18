@@ -152,34 +152,25 @@ body::before {
 }
 
 .header-icon {
-    background-color: transparent !important; /* VAŽNO: Dodano !important da se osigura transparentnost */
+    background: transparent; /* Ovo je bilo originalno, znači transparentno */
     border: none; 
     cursor: pointer; 
     position: relative;
-    width: 44px; 
-    height: 44px; 
-    margin: 0; 
-    border-radius: 50%;
-    display: flex; 
-    justify-content: center; 
-    align-items: center;
-    /* UKLANJAMO background-color tranziciju jer nema glassy efekta */
-}
-/* Osiguraj da nema pozadine ni na hoveru */
-.header-icon:hover { 
-    background-color: transparent !important; 
+    width: 44px; height: 44px; margin: 0; border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    transition: background-color 0.2s ease-in-out; /* Ostavljamo tranziciju za hover */
 }
 .header-icon:hover { 
-    background-color: transparent; /* PROMIJENJENO: Bez glassy efekta na hoveru */
+    background-color: rgba(255, 255, 255, 0.08); /* Suptilni glassy efekt na hoveru */
 }
 .header-icon svg { 
-    stroke: #ffffff; /* PROMIJENJENO: Bijela boja za bolju vidljivost */
-    width: 40px; /* Povećano s 26px */
-    height: 40px; /* Povećano s 26px */
-    stroke-width: 2; /* Podebljana linija za bolju vidljivost */
+    stroke: #e0e0e0; /* Originalna boja ikonice */
+    width: 26px; /* Originalna veličina ikonice */
+    height: 26px; /* Originalna veličina ikonice */
+    stroke-width: 1.5; /* Originalna debljina linije */
     transition: stroke 0.2s ease; 
 }
-.header-icon:hover svg { stroke: #ff4757; } /* Zadržavamo crvenu boju na hoveru */
+.header-icon:hover svg { stroke: #ff4757; } /* Crvena boja na hoveru */
 /* .main-logo { color: #f0f0f0; font-weight: bold; font-size: 22px; letter-spacing: 2px; text-transform: uppercase; margin: 0; padding: 0; } -> OVO JE PREMJEŠTENO GORE I MODIFICIRANO */
 .notification-badge-main {
     position: absolute; top: 5px; right: 5px; background-color: #e74c3c; color: white;
