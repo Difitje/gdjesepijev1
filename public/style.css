@@ -186,9 +186,9 @@ body::before {
 }
 
 #privatniInput {
-    flex-grow: 1; /* Omogućuje textarea da zauzme sav dostupan prostor */
+    flex-grow: 1; 
     border: none; 
-    border-radius: 20px; /* Polukružni oblik */
+    border-radius: 20px; 
     background-color: #3a3a3a; 
     color: #f0f0f0; 
     font-size: 16px;
@@ -199,9 +199,9 @@ body::before {
     transition: all 0.2s ease; 
     margin: 0; 
     
-    /* KLJUČNO: Padding za smještaj ikona */
-    /* Dovoljno mjesta s lijeve i desne strane za ikone */
-    padding: 10px 45px 10px 45px; 
+    /* KLJUČNO: Podesi padding da ostavi dovoljno mjesta za ikone */
+    /* Lijevo: za ikonu slike, Desno: za gumb za slanje */
+    padding: 10px 45px 10px 45px; /* PROMIJENJENO: Osigurava prostor */
 }
 
 #privatniInput:focus { 
@@ -257,7 +257,8 @@ body::before {
     
     position: absolute; 
     right: 20px; /* Pomak s desne strane .chat-input-area */
-    bottom: 16px; /* PROMIJENJENO: Vraćamo bottom pozicioniranje, optimizirano */
+    top: 50%; /* PROMIJENJENO: Vertikalno centriranje */
+    transform: translateY(-50%); /* PROMIJENJENO: Precizno vertikalno centriranje */
     z-index: 10; 
     
     transform: scale(0); 
