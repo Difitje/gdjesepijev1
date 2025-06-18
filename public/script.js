@@ -130,6 +130,7 @@ async function globalRefreshUI() {
     await Promise.all([ dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke() ]);
     // IZMJENA: Provjerava homePrikazPijanki umjesto lokacijePrikaz
     if (document.getElementById("homePrikazPijanki")?.classList.contains('active-screen')) { prikaziPijankePregled(); }
+    // IZMJENA: Uklonjena provjera za praznaTrazilica jer ne treba osvježavati pijanke tamo
     if (document.getElementById("inboxPrikaz")?.classList.contains('active-screen')) { otvoriInbox(); }
     if (document.getElementById("privatniChat")?.classList.contains('active-screen') && trenutniChatPartnerId) { prikaziPrivatniLog(); }
     azurirajNotifikacije();
@@ -257,7 +258,6 @@ async function odjaviSe() {
 
 function pokreniAplikaciju() {
     navigationStack = [];
-    // IZMJENA: Prebacuje na novi Home ekran
     swap(document.querySelector('.container.active-screen')?.id || null, 'homePrikazPijanki'); 
     ocistiPijankePregled(); 
 
@@ -430,7 +430,7 @@ async function obrisiPijanku(pijankaId, event) {
 }
 
 function prikaziPijankePregled() {
-    const div = document.getElementById("pijankePregled");
+    const div = document.getElementById("pijankePregled"); 
     if (!div) return;
     div.innerHTML = "";
     if (svePijanke.length === 0) {

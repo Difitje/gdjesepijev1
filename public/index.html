@@ -68,11 +68,18 @@
     <div class="container" id="homePrikazPijanki">
         <div class="main-header">
             <h1 class="main-logo">
-                Gdje se pije?
-            </h1>
+                </h1>
         </div>
         <div id="pijankePregled"></div>
     </div>
+
+    <div class="container" id="praznaTrazilica">
+        <div class="main-header">
+            <h1 class="main-logo">
+                </h1>
+        </div>
+        <p style="text-align:center; padding-top: 50px;">Ovo je nova stranica za tražilicu!</p>
+        </div>
 
     <div class="container" id="inboxPrikaz">
         <div class="top-nav-buttons">
@@ -154,7 +161,7 @@
             </svg>
             <span>Home</span>
         </button>
-        <button class="nav-button" id="navSearch" onclick="handleNavClick('homePrikazPijanki', true);"> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <button class="nav-button" id="navSearch" onclick="handleNavClick('praznaTrazilica');"> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
             </svg>
             <span>Tražilica</span>
@@ -207,14 +214,13 @@
         }
 
         // NOVO: Glavna funkcija za rukovanje klikovima na navigacijske gumbe
-        // Dodan 'forceRefreshPijanke' parametar
-        function handleNavClick(targetScreenId, forceRefreshPijanke = false) {
+        function handleNavClick(targetScreenId) { // Uklonjen forceRefreshPijanke parametar jer ga više ne treba za Tražilicu
             const currentActiveNavButton = document.querySelector('.bottom-nav .nav-button.active');
             let currentTargetScreenId = '';
 
             if (currentActiveNavButton) {
                 if (currentActiveNavButton.id === 'navHome') currentTargetScreenId = 'homePrikazPijanki';
-                else if (currentActiveNavButton.id === 'navSearch') currentTargetScreenId = 'homePrikazPijanki';
+                else if (currentActiveNavButton.id === 'navSearch') currentTargetScreenId = 'praznaTrazilica'; // PROMIJENJENO: Provjera za praznaTrazilica
                 else if (currentActiveNavButton.id === 'navInbox') currentTargetScreenId = 'inboxPrikaz';
                 else if (currentActiveNavButton.id === 'navProfile') {
                     if (document.getElementById("profilKorisnika") && document.getElementById("profilKorisnika").style.display !== "none" && document.querySelector('.container.active-screen')?.id === 'glavniDio') {
@@ -225,8 +231,8 @@
                 }
             }
             
-            // Onemogući ponovni klik na aktivni gumb, osim ako je forceRefreshPijanke true za Tražilicu
-            if (targetScreenId === currentTargetScreenId && !forceRefreshPijanke) {
+            // Onemogući ponovni klik na aktivni gumb
+            if (targetScreenId === currentTargetScreenId) {
                 if (targetScreenId === 'glavniDio' && currentTargetScreenId === 'editProfil') {
                 } else {
                     return; 
@@ -237,9 +243,9 @@
             // Pozovi odgovarajuću funkciju na temelju targetScreenId
             if (targetScreenId === 'homePrikazPijanki') {
                 navigateTo(targetScreenId);
-                if (forceRefreshPijanke) { // Ako je kliknuto na Tražilicu, ponovno dohvati i prikaži pijanke
-                    dohvatiSvePijanke().then(prikaziPijankePregled);
-                }
+            } else if (targetScreenId === 'praznaTrazilica') { // NOVO: Logika za praznu tražilicu
+                navigateTo(targetScreenId);
+                // Ovdje se ne poziva dohvatiSvePijanke/prikaziPijankePregled
             } else if (targetScreenId === 'inboxPrikaz') {
                 otvoriInbox();
             } else if (targetScreenId === 'glavniDio') {
@@ -317,15 +323,14 @@
         function afterSwapUpdateNavButton(targetScreenId) {
             const fabButton = document.getElementById('fabObjaviPijanku');
             if (fabButton) {
+                // FAB je vidljiv samo na Home ekranu
                 fabButton.style.display = (targetScreenId === 'homePrikazPijanki') ? 'flex' : 'none';
             }
 
             if (targetScreenId === 'homePrikazPijanki') {
                 updateActiveNavButton('navHome');
-                // Ako je trenutni aktivni gumb "Tražilica", prebaci na "Home" vizualno
-                if (document.getElementById('navSearch').classList.contains('active')) {
-                     updateActiveNavButton('navHome');
-                }
+            } else if (targetScreenId === 'praznaTrazilica') { // PROMIJENJENO: Za praznaTrazilica
+                updateActiveNavButton('navSearch');
             } else if (targetScreenId === 'inboxPrikaz') {
                 updateActiveNavButton('navInbox');
             } else if (targetScreenId === 'glavniDio') {
@@ -355,7 +360,8 @@
         const originalNavigateTo = navigateTo;
         navigateTo = function(targetScreenId) {
             const currentScreenEl = document.querySelector('.container.active-screen');
-            const navBarTargetScreens = ['homePrikazPijanki', 'inboxPrikaz', 'glavniDio', 'editProfil'];
+            // PROMIJENJENO: Dodan praznaTrazilica u navBarTargetScreens
+            const navBarTargetScreens = ['homePrikazPijanki', 'praznaTrazilica', 'inboxPrikaz', 'glavniDio', 'editProfil'];
 
             if (currentScreenEl && !navBarTargetScreens.includes(targetScreenId)) {
                 if (!(navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId))) {
