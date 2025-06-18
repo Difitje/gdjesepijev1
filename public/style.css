@@ -127,7 +127,6 @@ body::before {
 .main-header {
     position: absolute; top: 0; left: 0; right: 0; height: 60px; padding: 0 10px;
     display: flex; justify-content: center; align-items: center; /* Centriranje loga */
-    background-color: rgba(26, 26, 26, 0.8); /* Blaga prozirnost */
     border-bottom: 1px solid rgba(51, 51, 51, 0.5); 
     z-index: 100;
 }
