@@ -566,10 +566,15 @@ async function pokreniPrivatniChat(partnerId) {
     const primalac = sviKorisnici.find(u => u.id === partnerId);
     if (!primalac) return;
 
-    const chatHeaderInfoEl = document.querySelector('.chat-header-info');
-    // Ukloni postojeće back/close buttone iz top-nav-buttons ako su tamo
-    const topNavButtons = document.querySelector('.top-nav-buttons');
-    const backButtonHtml = topNavButtons.querySelector('.back-button').outerHTML;
+    // script.js (unutar funkcije pokreniPrivatniChat)
+        const chatHeaderInfoEl = document.querySelector('.chat-header-info');
+        const topNavButtons = document.querySelector('.top-nav-buttons');
+        
+        // Kopiraj HTML back-buttona iz originalnog top-nav-buttons diva
+        const backButtonHtml = topNavButtons.querySelector('.back-button').outerHTML;
+
+        // Sakrij originalne top-nav-buttons diva
+        topNavButtons.style.display = 'none'; 
 
     chatHeaderInfoEl.innerHTML = `
         ${backButtonHtml} <img id="chatPartnerSlika" src="${primalac.slika || 'default_profile.png'}" alt="Profilna slika" class="chat-partner-profilna">
