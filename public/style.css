@@ -256,9 +256,9 @@ body::before {
     transition: transform 0.2s ease, opacity 0.2s ease;
     
     position: absolute; 
-    right: 20px; /* Pomak s desne strane .chat-input-area */
-    top: 50%; /* PROMIJENJENO: Vertikalno centriranje */
-    transform: translateY(-50%); /* PROMIJENJENO: Precizno vertikalno centriranje */
+    right: 20px; /* OVO JE ISTA VRIJEDNOST KAO 'left' na ikonici za slanje slike */
+    top: 50%; 
+    transform: translateY(-50%); 
     z-index: 10; 
     
     transform: scale(0); 
