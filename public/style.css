@@ -132,7 +132,7 @@ body::before {
 }
 
 .header-logo-image {
-    max-height: 70px; /* POVEĆANO: Povećana maksimalna visina za mobilni prikaz (bilo 40px) */
+    max-height: 65px; /* Povećana maksimalna visina za mobilni prikaz (bilo 50px) */
     width: auto; /* Osigurava da se širina automatski prilagođava */
     object-fit: contain; /* Osigurava da se cijela slika vidi unutar okvira */
 }
@@ -147,18 +147,12 @@ body::before {
         height: 100%; /* Osigurava da logo zauzima punu visinu headera za centriranje */
     }
     .header-logo-image {
-        max-height: 90px; /* POVEĆANO: Možda još veći logo na desktopu (bilo 50px) */
+        max-height: 75px; /* Povećana maksimalna visina za desktop (bilo 60px) */
     }
 }
 
 .header-icon {
-    background: transparent; border: none; cursor: pointer; position: relative;
-    width: 44px; height: 44px; margin: 0; border-radius: 50%;
-    display: flex; justify-content: center; align-items: center;
-    transition: background-color 0.2s ease-in-out;
-}
-.header-icon {
-    background: transparent; /* Ostaje transparentno da se vidi pozadina headera */
+    background-color: transparent; /* PROMIJENJENO: Uklonjen glassy efekt */
     border: none; 
     cursor: pointer; 
     position: relative;
@@ -169,13 +163,19 @@ body::before {
     display: flex; 
     justify-content: center; 
     align-items: center;
-    transition: background-color 0.2s ease-in-out;
+    /* UKLANJAMO background-color tranziciju jer nema glassy efekta */
 }
 .header-icon:hover { 
-    background-color: rgba(255, 255, 255, 0.08); /* Možda želite zadržati suptilan hover efekt */
-    /* Ako želite potpuno ukloniti i hover efekt, postavite ovo na background-color: transparent; */
+    background-color: transparent; /* PROMIJENJENO: Bez glassy efekta na hoveru */
 }
-.header-icon:hover svg { stroke: #ff4757; }
+.header-icon svg { 
+    stroke: #ffffff; /* PROMIJENJENO: Bijela boja za bolju vidljivost */
+    width: 30px; /* Povećano s 26px */
+    height: 30px; /* Povećano s 26px */
+    stroke-width: 2; /* Podebljana linija za bolju vidljivost */
+    transition: stroke 0.2s ease; 
+}
+.header-icon:hover svg { stroke: #ff4757; } /* Zadržavamo crvenu boju na hoveru */
 /* .main-logo { color: #f0f0f0; font-weight: bold; font-size: 22px; letter-spacing: 2px; text-transform: uppercase; margin: 0; padding: 0; } -> OVO JE PREMJEŠTENO GORE I MODIFICIRANO */
 .notification-badge-main {
     position: absolute; top: 5px; right: 5px; background-color: #e74c3c; color: white;
