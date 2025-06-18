@@ -32,7 +32,7 @@ body {
     font-size: 16px; 
     position: relative; /* OVO JE KLJUČNO ZA PSEUDO-ELEMENT */
     touch-action: manipulation;
-    z-index: 0; /* Osigurava da je body ispod overlay-a */
+    z-index: 0; /* Dodano za osiguranje z-indeksa ispod overlay-a */
 }
 
 /* --- Zatamnjivanje pozadine --- */
@@ -175,14 +175,14 @@ body::before {
 /* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
 .chat-input-area {
     display: flex; 
-    align-items: flex-end; /* Poravnava sadržaj na dno, jer textarea može rasti */
-    padding: 8px 12px; /* Padding oko cijelog područja */
+    align-items: center; /* Centriramo sadržaj vertikalno */
+    padding: 8px 12px; /* Padding kontejnera */
     background-color: transparent; 
     border-top: none; 
     margin-top: auto; 
     flex-shrink: 0; 
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
-    /* NEMA 'position: relative;' ovdje jer ga sada ima textarea */
+    position: relative; /* KLJUČNO: Referenca za apsolutno pozicionirane ikone i gumb */
 }
 
 #privatniInput {
@@ -200,12 +200,9 @@ body::before {
     transition: all 0.2s ease; 
     margin: 0; 
     
-    /* KLJUČNO: Padding za smještaj ikona unutar textarea */
-    /* Dovoljno mjesta s lijeve i desne strane za ikone. */
-    /* Lijevi padding (npr. 45px) za ikonu slike, Desni (npr. 45px) za gumb za slanje */
-    padding: 10px 45px 10px 45px; /* Top Right Bottom Left */
-    
-    position: relative; /* KLJUČNO: Omogućava apsolutno pozicioniranje ikona UNUTAR ovoga */
+    /* KLJUČNO: Padding za smještaj ikona, PROMIJENJENO! */
+    /* Lijevo: za ikonu slike, Desno: za gumb za slanje */
+    padding: 10px 45px 10px 45px; 
 }
 
 #privatniInput:focus { 
@@ -217,9 +214,9 @@ body::before {
 
 /* Stilovi za ikonicu za slanje slike */
 .image-upload-icon {
-    position: absolute; /* Apsolutno pozicioniran unutar #privatniInput */
-    left: 10px; /* PRILAGOĐENO: Pomaknuto 10px od lijevog ruba textarea */
-    top: 50%; /* Centrirano vertikalno u odnosu na textarea */
+    position: absolute; /* Apsolutno pozicioniran unutar chat-input-area */
+    left: 20px; /* Pomak s lijeve strane .chat-input-area */
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
     transform: translateY(-50%); /* Precizno centriranje */
     width: 32px; 
     height: 32px;
@@ -227,7 +224,7 @@ body::before {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    z-index: 2; /* Mora biti iznad textarea */
+    z-index: 10; /* Mora biti iznad inputa */
     background: rgba(40, 40, 40, 0.3); 
     border-radius: 50%; 
     transition: background-color 0.2s ease;
@@ -245,9 +242,9 @@ body::before {
 
 /* Stilovi za gumb za slanje poruke */
 #posaljiPrivatnoBtn {
-    position: absolute; /* Apsolutno pozicioniran unutar #privatniInput */
-    right: 10px; /* PRILAGOĐENO: Pomaknuto 10px od desnog ruba textarea */
-    top: 50%; /* Centrirano vertikalno u odnosu na textarea */
+    position: absolute; /* Apsolutno pozicioniran unutar chat-input-area */
+    right: 20px; /* Pomak s desne strane .chat-input-area */
+    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
     transform: translateY(-50%); /* Precizno centriranje */
     width: 32px; 
     height: 32px; 
@@ -261,7 +258,7 @@ body::before {
     align-items: center;
     cursor: pointer; 
     transition: transform 0.2s ease, opacity 0.2s ease;
-    z-index: 2; /* Mora biti iznad textarea */
+    z-index: 10; 
     
     transform: scale(0); 
     opacity: 0; 
