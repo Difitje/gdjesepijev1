@@ -257,8 +257,7 @@ body::before {
     
     position: absolute; 
     right: 20px; /* Pomak s desne strane .chat-input-area */
-    top: 50%; /* Centrirano vertikalno u odnosu na chat-input-area */
-    transform: translateY(-50%); /* Precizno centriranje */
+    bottom: 16px; /* PROMIJENJENO: Vraćamo bottom pozicioniranje, optimizirano */
     z-index: 10; 
     
     transform: scale(0); 
