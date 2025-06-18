@@ -491,18 +491,24 @@ body::before {
     flex-direction: row; /* Promijenjeno na red (horizontalni raspored) */
     align-items: center;    /* Centriramo sadržaj vertikalno */
     justify-content: flex-start; /* Poravnaj lijevo */
-    margin-bottom: 10px;
+    margin-bottom: 0; /* Uklonjena margina dna */
     flex-shrink: 0;
-    padding-top: 10px; /* Smanjen padding-top da bude više gore, na razini back tipke */
+    padding: 0 15px; /* Smanjen padding, lijevo i desno na 15px */
     width: 100%; /* Da zauzima cijelu širinu */
-    padding-left: 55px; /* Dodan padding s lijeve strane, uzimajući u obzir back-button */
-    position: absolute; /* Postavi apsolutno pozicioniranje */
+    position: fixed; /* Promijenjeno na fixed */
     top: 0; /* Poravnaj na vrh */
     left: 0; /* Poravnaj lijevo */
     background-color: rgba(0, 0, 0, 0.95); /* Dodaj pozadinu da prekrije sadržaj ispod */
     height: 60px; /* Visina headera */
     box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Lagana sjena na dnu */
     z-index: 50; /* Osiguraj da je iznad chat loga */
+}
+
+/* Novi stil za back-button unutar chat-header-info */
+.chat-header-info .back-button {
+    position: static; /* Vraćamo na statičnu poziciju unutar flex kontejnera */
+    margin-right: 10px; /* Razmak između gumba i profilne slike */
+    font-size: 24px; /* Veličina strelice */
 }
 
 .chat-partner-profilna {

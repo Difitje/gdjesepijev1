@@ -567,17 +567,26 @@ async function pokreniPrivatniChat(partnerId) {
     if (!primalac) return;
 
     const chatHeaderInfoEl = document.querySelector('.chat-header-info');
+    // Ukloni postojeće back/close buttone iz top-nav-buttons ako su tamo
+    const topNavButtons = document.querySelector('.top-nav-buttons');
+    const backButtonHtml = topNavButtons.querySelector('.back-button').outerHTML;
+
     chatHeaderInfoEl.innerHTML = `
-        <img id="chatPartnerSlika" src="${primalac.slika || 'default_profile.png'}" alt="Profilna slika" class="chat-partner-profilna">
+        ${backButtonHtml} <img id="chatPartnerSlika" src="${primalac.slika || 'default_profile.png'}" alt="Profilna slika" class="chat-partner-profilna">
         <div class="chat-info-text-wrapper">
             <h2 id="chatSaKorisnikom">${primalac.ime}</h2>
             <p id="chatPartnerStatus" class="status-text">${formatirajStatus(primalac.lastActive).text}</p>
         </div>
     `;
 
+    // Sakrij originalne top-nav-buttons diva
+    topNavButtons.style.display = 'none';
+
     // Ponovno dodaj event listenere jer je HTML rekreiran
     document.getElementById("chatPartnerSlika").onclick = () => otvoriProfil(primalac.id);
     document.getElementById("chatSaKorisnikom").onclick = () => otvoriProfil(primalac.id);
+    // Dodaj event listener za novu "Nazad" tipku
+    chatHeaderInfoEl.querySelector('.back-button').onclick = navigateBack;
 
     navigateTo('privatniChat');
     toggleAppUI(false); // Sakrij nav bar kada uđeš u chat
