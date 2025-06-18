@@ -16,7 +16,7 @@ html, body {
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
     /* ISPRAVAK: DODANA KOSA CRTA (/) NA POČETAK PUTANJE */
     background-image: url('/pozadina.png');
@@ -43,7 +43,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.85); /* Prilagodi za željenu tamnoću */
+    background-color: rgba(0, 0, 0, 0.85); /* Crni prozirni sloj (85% neprozirnosti) */
     z-index: 1; /* Mora biti iznad body-ja, ali ispod sadržaja */
 }
 
@@ -122,6 +122,36 @@ body::before {
         background-color: rgba(34, 34, 34, 0.8); /* Prilagođeno za desktop */
     }
 }
+.main-logo {
+    display: flex; /* Koristimo flexbox za centriranje slike */
+    justify-content: center; /* Centriranje horizontalno */
+    align-items: center; /* Centriranje vertikalno */
+    height: 100%; /* Omogućava vertikalno centriranje unutar headera */
+    margin: 0;
+    padding: 0;
+    /* Uklonili smo color, font-size, itd. jer sada imamo sliku */
+}
+
+.header-logo-image {
+    max-height: 40px; /* Postavlja maksimalnu visinu logotipa (prilagodi po potrebi) */
+    width: auto; /* Osigurava da se širina automatski prilagođava */
+    object-fit: contain; /* Osigurava da se cijela slika vidi unutar okvira */
+}
+
+/* Prilagodba za desktop verziju ako se main-logo drugačije ponaša */
+@media (min-width: 768px) {
+    .main-header {
+        height: 70px; /* Ako već nije postavljeno */
+        align-items: center; /* Osigurava da su svi header elementi centrirani */
+    }
+    .main-logo {
+        height: 100%; /* Osigurava da logo zauzima punu visinu headera za centriranje */
+    }
+    .header-logo-image {
+        max-height: 50px; /* Možda malo veći logo na desktopu */
+    }
+}
+
 .header-icon {
     background: transparent; border: none; cursor: pointer; position: relative;
     width: 44px; height: 44px; margin: 0; border-radius: 50%;
@@ -131,7 +161,7 @@ body::before {
 .header-icon:hover { background-color: rgba(255, 255, 255, 0.08); }
 .header-icon svg { stroke: #e0e0e0; width: 26px; height: 26px; stroke-width: 1.5; transition: stroke 0.2s ease; }
 .header-icon:hover svg { stroke: #ff4757; }
-.main-logo { color: #f0f0f0; font-weight: bold; font-size: 22px; letter-spacing: 2px; text-transform: uppercase; margin: 0; padding: 0; }
+/* .main-logo { color: #f0f0f0; font-weight: bold; font-size: 22px; letter-spacing: 2px; text-transform: uppercase; margin: 0; padding: 0; } -> OVO JE PREMJEŠTENO GORE I MODIFICIRANO */
 .notification-badge-main {
     position: absolute; top: 5px; right: 5px; background-color: #e74c3c; color: white;
     border-radius: 50%; height: 18px; width: 18px; display: none;
@@ -234,8 +264,8 @@ body::before {
 }
 
 .image-upload-icon svg {
-    width: 18px; /* SMANJENO: Bilo je 24px */
-    height: 18px; /* SMANJENO: Bilo je 24px */
+    width: 18px; /* Standardna veličina SVG-a */
+    height: 18px; /* Standardna veličina SVG-a */
     fill: #f0f0f0; 
 }
 
@@ -342,7 +372,7 @@ img.preview-slika { display: none; }
 .pijanka-info-text, .chat-item-info-text { display: flex; flex-direction: column; }
 .pijanka-info strong, .chat-item-info strong { line-height: 1.2; font-size: 18px; color: #f0f0f0; }
 .pijanka-info .status-text, .chat-item-info .status-text { line-height: 1.2; margin: 0; padding: 0; color: #a0a0a0; }
-.delete-btn { background: none; border: none; font-size: 14px; padding: 2px; margin-left: auto; cursor: pointer; color: #777; flex-shrink: 0; line-height: 1; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; inter-radius: 50%; }
+.delete-btn { background: none; border: none; font-size: 14px; padding: 2px; margin-left: auto; cursor: pointer; color: #777; flex-shrink: 0; line-height: 1; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; border-radius: 50%; }
 .delete-btn:hover { color: #ff4757; background: rgba(51, 51, 51, 0.5); box-shadow: none; transform: scale(1.05); }
 .pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
 .chat-item { background: rgba(40, 40, 40, 0.7); padding: 12px; border-radius: 10px; margin: 0 auto 10px auto; display: flex; align-items: center; gap: 12px; border-left: 3px solid rgba(51, 51, 51, 0.5); transition: all 0.2s ease-in-out; width: 100%; max-width: 600px; box-sizing: border-box; }
@@ -352,7 +382,6 @@ img.preview-slika { display: none; }
 
 #privatniChatLog p > span { display: inline-block; padding: 8px 12px; border-radius: 18px; max-width: 85%; word-wrap: break-word; font-size: 15px; }
 #privatniChatLog p.moja-poruka { text-align: right; }
-#privatniChatLog p.moja-poruka > span { background: #ff4757; color: white; }
 #privatniChatLog p.tudja-poruka { text-align: left; }
 #privatniChatLog p.tudja-poruka > span { background: #3a3a3a; color: #f0f0f0; }
 
