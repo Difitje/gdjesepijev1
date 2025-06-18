@@ -190,7 +190,18 @@ function proveriPrihvatanje() {
 async function globalRefreshUI() {
     if (!trenutniKorisnik) return;
     await Promise.all([ dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke() ]);
-    if (document.getElementById("lokacijePrikaz")?.classList.contains('active-screen')) { prikaziPijankePregled(); }
+    
+    // Provjeri aktivni ekran i prikaži pijanke samo ako je tražilica aktivna
+    // Pretpostavka: 'trazilicaScreen' je ID kontejnera za tražilicu
+    // i 'trazilicaPijankePregled' je ID div-a unutar tražilice za prikaz rezultata.
+    if (document.getElementById("trazilicaScreen")?.classList.contains('active-screen')) { 
+        prikaziPijanke('trazilicaPijankePregled'); 
+    }
+    // Ako home screen (lokacijePrikaz) NE treba prikazivati pijanke, onda ovu liniju treba ukloniti:
+    // else if (document.getElementById("lokacijePrikaz")?.classList.contains('active-screen')) { 
+    //     prikaziPijanke('pijankePregled'); 
+    // }
+
     if (document.getElementById("inboxPrikaz")?.classList.contains('active-screen')) { otvoriInbox(); }
     if (document.getElementById("privatniChat")?.classList.contains('active-screen') && trenutniChatPartnerId) { prikaziPrivatniLog(); }
     azurirajNotifikacije();
@@ -318,14 +329,23 @@ async function odjaviSe() {
 
 function pokreniAplikaciju() {
     navigationStack = [];
-    swap(document.querySelector('.container.active-screen')?.id || null, 'lokacijePrikaz');
+    // Prebaci na home screen (lokacijePrikaz)
+    swap(document.querySelector('.container.active-screen')?.id || null, 'lokacijePrikaz'); 
+    
+    // Očisti prethodne intervale ako postoje
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
+    
+    // Postavi nove intervale
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
     globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
+    
+    // Ažuriraj aktivnost odmah
     azurirajMojuAktivnost();
+    
+    // Dohvati lokaciju i ažuriraj notifikacije (prikazivanje pijanki se ne događa ovdje automatski na home screenu)
     dohvatiLokaciju(() => {
-        prikaziPijankePregled();
         azurirajNotifikacije();
+        // Ovdje NE pozivaj prikaziPijanke() za 'pijankePregled' ako ne želiš da se pijanke vide na home screenu
     });
 }
 
@@ -455,7 +475,7 @@ async function objaviPijanku() {
             alert(data.message);
             await dohvatiSvePijanke();
             navigateBack();
-            prikaziPijankePregled();
+            // Nema poziva prikaziPijankePregled() ovdje nakon objave, jer se prikazuje samo u tražilici
         } else {
             alert("Greška pri objavi pijanke: " + data.message);
         }
@@ -475,7 +495,7 @@ async function obrisiPijanku(pijankaId, event) {
             if (response.ok) {
                 alert(data.message);
                 await dohvatiSvePijanke();
-                prikaziPijankePregled();
+                // Nema poziva prikaziPijankePregled() ovdje nakon brisanja, jer se prikazuje samo u tražilici
             } else {
                 alert("Greška pri brisanju objave: " + data.message);
             }
@@ -485,10 +505,12 @@ async function obrisiPijanku(pijankaId, event) {
     }
 }
 
-function prikaziPijankePregled() {
-    const div = document.getElementById("pijankePregled");
+// === PREIMENOVANA I UNIVERZALNA FUNKCIJA ZA PRIKAZIVANJE PIJANKI ===
+function prikaziPijanke(targetElementId) { 
+    const div = document.getElementById(targetElementId);
     if (!div) return;
-    div.innerHTML = "";
+    div.innerHTML = ""; // Briši prethodni sadržaj
+
     if (svePijanke.length === 0) {
         div.innerHTML = '<p style="text-align:center;">Trenutno nitko ne pije. Budi prvi!</p>';
         return;
@@ -516,6 +538,7 @@ function prikaziPijankePregled() {
             </div>`;
     });
 }
+// ===================================================================
 
 async function otvoriProfil(korisnikId) {
     if (!korisnikId) return;
@@ -695,4 +718,16 @@ async function dohvatiSvePoruke() {
     if (!localStorage.getItem("token")) return;
     try { const response = await authenticatedFetch('/api/messages'); if (response.ok) privatnePoruke = await response.json(); }
     catch (error) { console.error("Greška mreže pri dohvaćanju poruka:", error); }
+}
+
+
+// === NOVE FUNKCIJE ZA TRAŽILICU ===
+function otvoriTrazilicu() {
+    navigateTo('trazilicaScreen'); // Prebaci se na ekran tražilice
+    prikaziPijanke('trazilicaPijankePregled'); // Prikaz pijanki unutar tražilice
+    // Ovdje možeš dodati i logiku za filtriranje ako imaš input polje za pretraživanje
+}
+
+function zatvoriTrazilicu() {
+    navigateBack(); // Koristi postojeću navigateBack funkciju za povratak
 }
