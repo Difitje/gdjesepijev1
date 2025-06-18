@@ -16,7 +16,7 @@ html, body {
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
     /* ISPRAVAK: DODANA KOSA CRTA (/) NA POČETAK PUTANJE */
     background-image: url('/pozadina.png');
@@ -33,7 +33,7 @@ body {
     position: relative; /* OVO JE KLJUČNO ZA PSEUDO-ELEMENT */
     touch-action: manipulation;
     z-index: 0; /* Dodano za osiguranje z-indeksa ispod overlay-a */
-    padding-bottom: 70px; /* Dodajte padding na body da sadržaj ne bude ispod donje navigacije */
+    /* Uklonili smo padding-bottom, jer će se koristiti samo na lokacijePrikaz */
 }
 
 /* --- Zatamnjivanje pozadine --- */
@@ -60,7 +60,7 @@ body::before {
     flex-direction: column;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 90px; /* Dovoljno paddinga da sadržaj nije ispod bottom-nav */
+    /* Uklonili smo padding-bottom, jer će se koristiti samo na lokacijePrikaz */
 }
 .container.active-screen {
     opacity: 1;
@@ -104,22 +104,79 @@ body::before {
 @media (max-width: 767px) {
     body { overflow: hidden; }
     .container { position: absolute; padding: 20px; border-radius: 0; border: none; box-shadow: none; }
-    /* #lokacijePrikaz { padding-top: 70px; } - OVO JE SADA PRILAGOĐENO U #lokacijePrikaz > h2 */
+    /* #lokacijePrikaz { padding-top: 70px; } - OVO JE SADA ISPOD U #lokacijePrikaz > h2 */
 }
 
-/* STARI HEADER STILOVI SU UKLONJENI */
-/* .main-header { ... } */
-/* @media (min-width: 768px) { .main-header { ... } } */
-/* .main-logo { ... } */
-/* .header-logo-image { ... } */
-/* @media (min-width: 768px) { .header-logo-image { ... } } */
-/* .header-icon { ... } */
-/* .header-icon:hover { ... } */
-/* .header-icon svg { ... } */
-/* .header-icon:hover svg { ... } */
+/* VRAĆENI STILOVI ZA STARI HEADER */
+.main-header {
+    position: absolute; top: 0; left: 0; right: 0; height: 60px; padding: 0 10px;
+    display: flex; justify-content: space-between; align-items: center;
+    background-color: rgba(26, 26, 26, 0.8); /* Blaga prozirnost */
+    border-bottom: 1px solid rgba(51, 51, 51, 0.5); 
+    z-index: 100;
+}
+@media (min-width: 768px) {
+    .main-header { 
+        position: relative; 
+        border-radius: 24px 24px 0 0; 
+        margin: -40px -40px 20px -40px; 
+        padding: 0 30px; 
+        height: 70px; 
+        background-color: rgba(34, 34, 34, 0.8); /* Prilagođeno za desktop */
+    }
+}
+.main-logo {
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100%; 
+    margin: 0;
+    padding: 0;
+}
 
-/* --- NOVA BOTTOM NAVIGACIJA --- */
-.bottom-nav {
+.header-logo-image {
+    max-height: 65px; /* Povećana visina za mobilni */
+    width: auto; 
+    object-fit: contain; 
+}
+
+@media (min-width: 768px) {
+    .main-header {
+        height: 70px; 
+        align-items: center; 
+    }
+    .main-logo {
+        height: 100%; 
+    }
+    .header-logo-image {
+        max-height: 75px; /* Povećana visina za desktop */
+    }
+}
+
+.header-icon {
+    background: transparent; /* Vraćeno na transparent */
+    border: none; 
+    cursor: pointer; 
+    position: relative;
+    width: 44px; height: 44px; margin: 0; border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    transition: background-color 0.2s ease-in-out; 
+}
+.header-icon:hover { 
+    background-color: rgba(255, 255, 255, 0.08); /* Vraćen suptilni glassy efekt na hoveru */
+}
+.header-icon svg { 
+    stroke: #e0e0e0; /* Vraćena originalna boja ikonice */
+    width: 26px; /* Vraćena originalna veličina ikonice */
+    height: 26px; /* Vraćena originalna veličina ikonice */
+    stroke-width: 1.5; /* Vraćena originalna debljina linije */
+    transition: stroke 0.2s ease; 
+}
+.header-icon:hover svg { stroke: #ff4757; } 
+
+
+/* --- NOVA BOTTOM NAVIGACIJA (samo za lokacijePrikaz) --- */
+.bottom-nav-lokacije { /* KLJUČNA PROMJENA KLASE */
     position: fixed;
     bottom: 0;
     left: 0;
@@ -132,22 +189,9 @@ body::before {
     align-items: center;
     z-index: 1000; /* Pobrinite se da je iznad svega ostalog */
     padding-bottom: calc(env(safe-area-inset-bottom, 0px)); /* Za sigurno područje na novijim mobitelima */
-
-    /* KLJUČNO: SKRIVENO PO DEFAULTU */
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none; /* Ne reagira na klikove kad je skriven */
-    transition: opacity 0.3s ease-out, visibility 0.3s ease-out; /* Animacija pojavljivanja */
 }
 
-/* KLJUČNO: PRIKAZUJE SE KADA SE DODA 'active-nav' KLASA */
-.bottom-nav.active-nav {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto; /* Reagira na klikove kad je vidljiv */
-}
-
-.bottom-nav .nav-icon {
+.bottom-nav-lokacije .nav-icon {
     flex: 1; /* Svaka ikona zauzima jednak prostor */
     display: flex;
     flex-direction: column; /* Ikona iznad teksta */
@@ -163,15 +207,15 @@ body::before {
     position: relative;
 }
 
-.bottom-nav .nav-icon:hover {
+.bottom-nav-lokacije .nav-icon:hover {
     color: #ff4757; /* Boja na hoveru */
 }
 
-.bottom-nav .nav-icon.active {
+.bottom-nav-lokacije .nav-icon.active {
     color: #ff4757; /* Boja aktivne ikonice */
 }
 
-.bottom-nav .nav-icon .nav-svg {
+.bottom-nav-lokacije .nav-icon .nav-svg {
     width: 28px; /* Veličina SVG ikonice */
     height: 28px;
     stroke: currentColor; /* Koristi boju teksta */
@@ -181,8 +225,8 @@ body::before {
     transition: stroke 0.2s ease-in-out;
 }
 
-.bottom-nav .nav-icon:hover .nav-svg,
-.bottom-nav .nav-icon.active .nav-svg {
+.bottom-nav-lokacije .nav-icon:hover .nav-svg,
+.bottom-nav-lokacije .nav-icon.active .nav-svg {
     stroke: #ff4757; /* Boja SVG-a na hoveru i aktivnom stanju */
 }
 
@@ -197,7 +241,7 @@ body::before {
     justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
 }
 
-/* top-nav-buttons: prilagodba ako se koriste samo za back/close gumbe unutar ekrana */
+/* top-nav-buttons: ostaje za back/close gumbe unutar ekrana */
 .top-nav-buttons {
     position: absolute; top: 15px; left: 15px; right: 15px;
     @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
@@ -212,12 +256,115 @@ body::before {
 
 .container > h2 { padding-top: 30px; }
 #lokacijePrikaz > h2 { 
-    padding-top: 20px; /* Prilagodba padding-topa jer nema gornjeg headera */
+    padding-top: 10px; /* Vraćeno na staro */
     margin-bottom: 15px; 
 }
 #privatniChat .chat-header-info { 
-    padding-top: 20px; /* Smanjeno, jer nema gornjeg headera */
+    padding-top: 40px; /* Vraćeno na staro */
 }
+
+/* === ISPRAVAK ZA CENTRIRANJE U ZAGLAVLJU CHATA === */
+.chat-header-info {
+    display: flex;
+    flex-direction: column; /* Zadržavamo vertikalni raspored za ime i status */
+    align-items: center;    /* Centriramo sadržaj */
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.chat-partner-profilna {
+    width: 60px;          /* Veličina profilne slike */
+    height: 60px;
+    border-radius: 50%;   /* Okrugli oblik */
+    object-fit: cover;    /* Osigurava da se slika pravilno popuni */
+    border: 2px solid #ff4757; /* Crveni obrub kao u aplikaciji */
+    margin-bottom: 8px;   /* Razmak između slike i imena */
+    cursor: pointer;      /* Pokazuje da je klikabilna */
+    transition: transform 0.2s ease-in-out;
+}
+
+.chat-partner-profilna:hover {
+    transform: scale(1.05); /* Mali efekt na hoveru */
+}
+
+.chat-header-info h2 { 
+    margin-bottom: 2px; 
+    font-size: 20px; 
+    color: #f0f0f0; /* Osiguraj da je boja imena vidljiva */
+    cursor: pointer; /* Pokazuje da je i ime klikabilno */
+}
+.chat-header-info .status-text { 
+    margin-top: 0; 
+    font-size: 14px; /* Malo veći status tekst */
+}
+/* ========================================= */
+
+h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
+h2 { font-size: 20px; }
+p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
+#intro p, #odabir p, #pijankePregled p { text-align: center; }
+.profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
+.drustvene-mreze { text-align: center; margin-bottom: 15px; }
+
+.profil-actions { display: flex; flex-direction: column; width: 100%; max-width: 400px; margin-top: 10px; gap: 10px; }
+.profil-actions button { margin-bottom: 0; }
+.btn-danger { background: #444; }
+.btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
+
+input, textarea, button {
+    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
+    color: #f0f0f0; border-radius: 8px; font-size: 16px; font-family: inherit; transition: all 0.2s ease-in-out;
+}
+input:focus, textarea:focus { outline: none; border-color: #ff4757; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); }
+button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px; }
+button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
+button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
+img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
+.profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; }
+img.preview-slika { display: none; }
+#previewEditSlike { display: block; margin: 8px auto; }
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.status-dot.online { background-color: #2ecc71; }
+.status-dot.offline { background-color: #7f8c8d; }
+.status-text { font-size: 13px; color: #999; margin: 0; }
+.notification-badge-chat { width: 12px; height: 12px; background: #e74c3c; color: white;
+    border-radius: 50%; height: 18px; width: 18px; display: none;
+    justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
+}
+.fab {
+    position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+    background: linear-gradient(45deg, #ff4757, #e03f4d); border-radius: 50%; border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; z-index: 1000;
+    display: flex; justify-content: center; align-items: center;
+    transition: all 0.3s ease-in-out;
+}
+.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); }
+.fab:active { transform: scale(1.05) rotate(90deg); }
+.fab svg { width: 30px; height: 30px; color: #ffffff; }
+@media (min-width: 768px) { .fab { position: absolute; bottom: 40px; right: 40px; } }
+
+#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
+#privatniChatLog { flex-grow: 1; overflow-y: auto; }
+
+.top-nav-buttons {
+    position: absolute; top: 15px; left: 15px; right: 15px;
+    @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
+    display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
+}
+.back-button, .close-btn {
+    pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
+    cursor: pointer; padding: 5px; width: auto; height: auto; line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
+
+.container > h2 { padding-top: 30px; }
+#lokacijePrikaz > h2 { padding-top: 10px; margin-bottom: 15px; }
+#privatniChat .chat-header-info { padding-top: 40px; }
+
+#intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil { justify-content: center; align-items: center; }
+#objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
+#privatniChat { justify-content: flex-start; align-items: stretch; }
 
 /* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
 .chat-input-area {
