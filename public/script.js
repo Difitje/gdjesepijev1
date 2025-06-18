@@ -81,12 +81,6 @@ function navigateBack() {
             privatniInput.style.height = 'auto';
             document.getElementById('posaljiPrivatnoBtn').classList.remove('enabled');
             toggleAppUI(true); // Prikazi nav bar kada se vratis iz chata
-
-            // NOVI KOD: Prikaz originalnog top-nav-buttons diva pri povratku iz chata
-            const topNavButtons = document.querySelector('.top-nav-buttons');
-            if (topNavButtons) {
-                topNavButtons.style.display = 'flex'; 
-            }
         }
         swap(currentScreenEl.id, lastScreenId);
         azurirajNotifikacije();
@@ -381,15 +375,11 @@ function pokaziObjavu() {
     document.getElementById("objavaForma").style.display = "flex";
     document.getElementById("profilKorisnika").style.display = "none";
     document.getElementById("opisPijanke").value = "";
-    document.querySelector('#glavniDio .back-button').style.display = 'none';
     
     // IZMJENA: "X" tipka sada direktno prebacuje na homePrikazPijanki
-    const closeBtn = document.querySelector('#glavniDio .close-btn');
-    closeBtn.style.display = 'flex';
+    const closeBtn = document.querySelector('#glavniDioTopNav .close-btn'); // Promijenjen selektor
     closeBtn.onclick = () => {
         navigateTo('homePrikazPijanki');
-        // Vratite onclick na originalnu funkciju nakon klika, ako je potrebno da se ne duplicira
-        // closeBtn.onclick = null; // ili postavite na originalnu navigateBack ako ce X imati i tu ulogu na drugim mjestima
     };
 
     navigateTo('glavniDio');
@@ -491,10 +481,10 @@ async function otvoriProfil(korisnikId) {
     
     let actionButtons = '';
     if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
-        document.querySelector('#glavniDio h2').innerText = "Moj profil";
+        document.querySelector('#glavniNaslov').innerText = "Moj profil"; // Ažurirano
         actionButtons = `<button onclick="prikaziEditProfila()">Uredi profil</button><button class="btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
     } else {
-        document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
+        document.querySelector('#glavniNaslov').innerText = "Profil korisnika"; // Ažurirano
         actionButtons = `<button onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
     }
 
@@ -506,8 +496,6 @@ async function otvoriProfil(korisnikId) {
         <div class="profil-actions">${actionButtons}</div>
     `;
 
-    document.querySelector('#glavniDio .back-button').style.display = 'flex';
-    document.querySelector('#glavniDio .close-btn').style.display = 'none';
     navigateTo('glavniDio');
 }
 
@@ -573,31 +561,23 @@ async function pokreniPrivatniChat(partnerId) {
     if (!primalac) return;
 
     const chatHeaderInfoEl = document.querySelector('.chat-header-info');
-    // Ukloni postojeće back/close buttone iz top-nav-buttons ako su tamo
-    const topNavButtons = document.querySelector('.top-nav-buttons');
-    const backButtonHtml = topNavButtons.querySelector('.back-button').outerHTML;
+    const privatniChatTopNav = document.getElementById('privatniChatTopNav'); // Dohvati specifičan top-nav-buttons za chat
 
-    // Sakrij originalne top-nav-buttons diva
-    // Ova linija je premještena ovdje kako bi se odmah sakrio originalni div
-    // prije nego što se backButtonHtml kopira u chatHeaderInfoEl
-    topNavButtons.style.display = 'none';
-
+    // Postavi sadržaj chat headera (slika i ime/status, bez back buttona ovdje)
     chatHeaderInfoEl.innerHTML = `
-        ${backButtonHtml} <img id="chatPartnerSlika" src="${primalac.slika || 'default_profile.png'}" alt="Profilna slika" class="chat-partner-profilna">
+        <img id="chatPartnerSlika" src="${primalac.slika || 'default_profile.png'}" alt="Profilna slika" class="chat-partner-profilna">
         <div class="chat-info-text-wrapper">
             <h2 id="chatSaKorisnikom">${primalac.ime}</h2>
             <p id="chatPartnerStatus" class="status-text">${formatirajStatus(primalac.lastActive).text}</p>
         </div>
     `;
 
-    // Ponovno dodaj event listenere jer je HTML rekreiran
+    // Postavi event listenere za profilnu sliku i ime/status
     document.getElementById("chatPartnerSlika").onclick = () => otvoriProfil(primalac.id);
     document.getElementById("chatSaKorisnikom").onclick = () => otvoriProfil(primalac.id);
-    // Dodaj event listener za novu "Nazad" tipku
-    chatHeaderInfoEl.querySelector('.back-button').onclick = navigateBack;
-
+    
     navigateTo('privatniChat');
-    toggleAppUI(false); // Sakrij nav bar kada uđeš u chat
+    toggleAppUI(false); // Sakrij bottom nav bar kada uđeš u chat
 
     const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
     try {

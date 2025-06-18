@@ -1,5 +1,5 @@
 /* === POCETAK CSS-a (Konačna verzija) === */
-/* public/style.css - VERZIJA 11 - Finalno centriranje */
+/* public/style.css - VERZIJA 12 - Finalno rješenje duplih gumba */
 
 * {
     box-sizing: border-box;
@@ -347,7 +347,8 @@ body::before {
 .top-nav-buttons {
     position: absolute; top: 15px; left: 15px; right: 15px;
     @media (min-width: 768px) { top: 25px; left: 25px; right: 25px; }
-    display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
+    display: flex; justify-content: space-between; align-items: center; z-index: 10;
+    /* pointer-events: none; - UKLONJENO, SADA KONTROLIRAMO U JS */
 }
 .back-button, .close-btn {
     pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
@@ -356,6 +357,41 @@ body::before {
     outline: none !important; /* Dodano za back/close gumbe */
 }
 .back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
+
+/* NOVO: Stil za back-button unutar privatniChatTopNav */
+#privatniChatTopNav .back-button {
+    position: static; /* Vraćamo na statičnu poziciju unutar flex kontejnera */
+    margin-right: 10px; /* Razmak između gumba i profilne slike */
+    font-size: 24px; /* Veličina strelice */
+    transform: translateY(1px); /* Lagano pomakni prema dolje za bolje vertikalno centriranje */
+    pointer-events: auto; /* Osiguraj da je klikabilan */
+    color: #f0f0f0; /* Boja strelice */
+    background: none;
+    border: none;
+    padding: 0; /* Ukloni padding da bude bliže rubu */
+    width: auto;
+    height: auto;
+    display: flex; /* Koristi flexbox za centriranje unutar samog gumba ako je potrebno */
+    justify-content: center;
+    align-items: center;
+}
+
+/* NOVO: Osiguraj da je top-nav-buttons unutar privatnog chata fiksiran i iznad ostalih */
+#privatniChatTopNav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px; /* Ista visina kao .chat-header-info */
+    padding: 0 15px; /* Slaže se s paddingom .chat-header-info */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    z-index: 60; /* Iznad .chat-header-info (50) */
+    background-color: transparent; /* Da ne prekriva .chat-header-info */
+    pointer-events: none; /* Da bi klikovi prolazili do gumba */
+}
+
 
 .container > h2 { padding-top: 30px; }
 /* Nema više #lokacijePrikaz > h2, jer je lokacijePrikaz preimenovan i sad je bez h2 elementa unutar .main-header */
@@ -504,24 +540,8 @@ body::before {
     z-index: 50; /* Osiguraj da je iznad chat loga */
 }
 
-/* Novi stil za back-button unutar chat-header-info */
-.chat-header-info .back-button {
-    position: static; /* Vraćamo na statičnu poziciju unutar flex kontejnera */
-    margin-right: 10px; /* Razmak između gumba i profilne slike */
-    font-size: 24px; /* Veličina strelice */
-    /* NOVO: Lagano pomakni prema dolje za bolje vertikalno centriranje */
-    transform: translateY(1px); /* Eksperimentirajte s ovom vrijednosti (npr. 0px, 1px, 2px) */
-    pointer-events: auto; /* Osiguraj da je klikabilan */
-    color: #f0f0f0; /* Boja strelice */
-    background: none;
-    border: none;
-    padding: 0; /* Ukloni padding da bude bliže rubu */
-    width: auto;
-    height: auto;
-    display: flex; /* Koristi flexbox za centriranje unutar samog gumba ako je potrebno */
-    justify-content: center;
-    align-items: center;
-}
+/* Uklonjeno pravilo: .chat-header-info .back-button jer je gumb sada dio #privatniChatTopNav */
+
 
 .chat-partner-profilna {
     width: 40px;            /* Smanjena veličina profilne slike */
