@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gdje se pije? (beta) </title>
     <link rel="stylesheet" href="/style.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAHpADZpHhFiuKd7Av3AZfj7c7vx_AI1OI&libraries=places&callback=initMap" async defer></script>
 </head>
 <body>
     <div class="container" id="intro">
@@ -80,8 +81,7 @@
                 <img src="/logo.png" alt="Tvoj logo" class="header-logo-image">
             </h1>
         </div>
-
-        <div id="pijankePregled"></div>
+        <div id="googleMap" style="width: 100%; height: 100%; border-radius: 10px;"></div>
     </div>
 
     <div class="container" id="inboxPrikaz">

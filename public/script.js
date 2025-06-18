@@ -28,6 +28,11 @@ let odabranaEditSlika = null;
 // Nova navigacijska logika
 let navigationStack = [];
 
+// NOVO: Google Maps varijable
+let googleMap = null;
+let userMarker = null;
+let pijankaMarkers = [];
+
 // --- NAVIGACIJSKE FUNKCIJE ---
 function swap(hideId, showId) {
     const hideElement = document.getElementById(hideId);
@@ -119,16 +124,22 @@ function compressImage(base64Image, maxWidth = 400, quality = 0.8) {
     });
 }
 
+// Globalna funkcija koju poziva Google Maps API kada se učita
+function initMap() {
+    console.log("Google Maps API učitan.");
+    // Inicijalizacija mape će se dogoditi tek kada korisnik dođe na ekran "lokacijePrikaz"
+    // i kada se dohvati njegova lokacija.
+}
+
+
 window.addEventListener('DOMContentLoaded', async function() {
     localStorage.removeItem("loggedInUserId");
     const token = localStorage.getItem("token");
-    const splashScreen = document.getElementById('splashScreen');
+    // Uklonjen splashScreen element i logika za njega
 
     document.querySelectorAll('.container').forEach(el => {
-        if (el.id !== 'splashScreen') {
-            el.style.display = 'none';
-            el.classList.remove('active-screen', 'fade-out-screen');
-        }
+        el.style.display = 'none';
+        el.classList.remove('active-screen', 'fade-out-screen');
     });
 
     let appInitializedSuccessfully = false;
@@ -148,19 +159,11 @@ window.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    if (splashScreen) {
-        setTimeout(() => {
-            splashScreen.style.animation = 'fadeOutSplash 0.5s ease-out forwards';
-            setTimeout(() => {
-                splashScreen.style.display = 'none';
-                splashScreen.remove();
-                if (appInitializedSuccessfully) {
-                    pokreniAplikaciju();
-                } else {
-                    swap(null, 'intro'); 
-                }
-            }, 500);
-        }, 2000);
+    // Uklonjena splashScreen logika
+    if (appInitializedSuccessfully) {
+        pokreniAplikaciju();
+    } else {
+        swap(null, 'intro'); 
     }
 
     const privatniInput = document.getElementById('privatniInput');
@@ -190,7 +193,7 @@ function proveriPrihvatanje() {
 async function globalRefreshUI() {
     if (!trenutniKorisnik) return;
     await Promise.all([ dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke() ]);
-    if (document.getElementById("lokacijePrikaz")?.classList.contains('active-screen')) { prikaziPijankePregled(); }
+    // Uklonjen poziv prikaziPijankePregled() iz globalRefreshUI, jer se sada karta inicijalizira samo jednom
     if (document.getElementById("inboxPrikaz")?.classList.contains('active-screen')) { otvoriInbox(); }
     if (document.getElementById("privatniChat")?.classList.contains('active-screen') && trenutniChatPartnerId) { prikaziPrivatniLog(); }
     azurirajNotifikacije();
@@ -319,17 +322,14 @@ async function odjaviSe() {
 function pokreniAplikaciju() {
     navigationStack = [];
     swap(document.querySelector('.container.active-screen')?.id || null, 'homePrazan'); // idi na home
-    ocistiPijankePregled(); // obriši stare pijanke
 
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
     globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
 
     azurirajMojuAktivnost();
-    dohvatiLokaciju(() => {
-        prikaziPijankePregled(); // i dalje se dohvaća sve
-        azurirajNotifikacije();
-    });
+    // Dohvaćanje lokacije se sada inicira kada se pokuša prikazati mapa
+    azurirajNotifikacije();
 }
 
 
@@ -414,13 +414,18 @@ function formatirajStatus(isoTimestamp) {
 }
 
 function dohvatiLokaciju(callback) {
-    if (!navigator.geolocation) return callback && callback();
+    if (!navigator.geolocation) {
+        alert("Vaš preglednik ne podržava geolokaciju.");
+        return callback && callback(false); // Proslijedi false ako geolokacija nije podržana
+    }
     navigator.geolocation.getCurrentPosition(pos => {
         mojPoz = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-        callback && callback();
+        callback && callback(true); // Proslijedi true ako je lokacija uspješno dobivena
     }, (error) => {
-        alert("Pristup lokaciji je odbijen. Aplikacija ne može ispravno raditi bez lokacije.");
-        callback && callback();
+        console.error("Greška pri dohvaćanju lokacije:", error);
+        alert("Pristup lokaciji je odbijen ili nije dostupan. Nećemo moći prikazati pijanke oko vas.");
+        mojPoz = null; // Osiguraj da mojPoz bude null ako dođe do greške
+        callback && callback(false); // Proslijedi false ako lokacija nije dobivena
     }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
 }
 
@@ -444,7 +449,13 @@ function pokaziObjavu() {
 async function objaviPijanku() {
     const opis = document.getElementById("opisPijanke").value.trim();
     if (!opis) return alert("Molimo popunite opis pijanke!");
-    if (!mojPoz) return dohvatiLokaciju(() => objaviPijanku());
+    
+    // NOVO: Provjeri lokaciju prije objave
+    if (!mojPoz) {
+        alert("Lokacija nije dostupna. Molimo omogućite pristup lokaciji da biste objavili pijanku.");
+        dohvatiLokaciju(); // Pokušaj ponovo dohvatiti lokaciju
+        return;
+    }
 
     const objaviBtn = document.querySelector('#objavaForma button');
     objaviBtn.disabled = true; objaviBtn.textContent = 'Objavljujem...';
@@ -459,14 +470,14 @@ async function objaviPijanku() {
             alert(data.message);
             await dohvatiSvePijanke();
             navigateBack();
-            prikaziPijankePregled();
+            // Nema potrebe za prikaziPijankePregled() ovdje, jer karta ima vlastitu logiku osvježavanja
         } else {
             alert("Greška pri objavi pijanke: " + data.message);
         }
     } catch (error) {
-        alert("Došlo je do greške pri objavi pijanke.");
+        alert("Došlo je do greške pri objave pijanke.");
     } finally {
-        objaviBtn.disabled = false; objaviBtn.textContent = 'Objavi';
+        objaviBtn.disabled = false; objabiBtn.textContent = 'Objavi';
     }
 }
 
@@ -479,7 +490,11 @@ async function obrisiPijanku(pijankaId, event) {
             if (response.ok) {
                 alert(data.message);
                 await dohvatiSvePijanke();
-                prikaziPijankePregled();
+                // Osvježi mapu nakon brisanja
+                if (googleMap) {
+                    clearPijankaMarkers();
+                    addPijankaMarkers();
+                }
             } else {
                 alert("Greška pri brisanju objave: " + data.message);
             }
@@ -489,37 +504,207 @@ async function obrisiPijanku(pijankaId, event) {
     }
 }
 
-function prikaziPijankePregled() {
-    const div = document.getElementById("pijankePregled");
-    if (!div) return;
-    div.innerHTML = "";
-    if (svePijanke.length === 0) {
-        div.innerHTML = '<p style="text-align:center;">Trenutno nitko ne pije. Budi prvi!</p>';
-        return;
+// === NOVO: FUNKCIJE ZA GOOGLE MAPS ===
+
+function initializeGoogleMap() {
+    if (googleMap) return; // Mapa je već inicijalizirana
+
+    dohvatiLokaciju((locationAvailable) => {
+        let initialLat = 43.3444; // Default lat ako lokacija nije dostupna (npr. Mostar)
+        let initialLon = 17.8078; // Default lon
+        let initialZoom = 12;
+
+        if (locationAvailable && mojPoz) {
+            initialLat = mojPoz.lat;
+            initialLon = mojPoz.lon;
+            initialZoom = 15; // Veći zum ako imamo točnu lokaciju
+        }
+
+        const mapOptions = {
+            center: { lat: initialLat, lng: initialLon },
+            zoom: initialZoom,
+            disableDefaultUI: true, // Sakrij sve defaultne UI elemente
+            mapTypeControl: false, // Sakrij kontrolu za odabir tipa karte (satelit/roadmap)
+            streetViewControl: false, // Sakrij Street View ikonicu
+            fullscreenControl: false, // Sakrij full screen dugme
+            zoomControl: true, // Ostavi kontrolu za zumiranje
+            gestureHandling: "greedy", // Omogućava skrolanje i zumiranje jednom prstom na mobilnom
+            styles: [ // Tamna tema za kartu
+                { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+                { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+                { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+                {
+                    featureType: "administrative.locality",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#d59563" }],
+                },
+                {
+                    featureType: "poi",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#d59563" }],
+                },
+                {
+                    featureType: "poi.park",
+                    elementType: "geometry",
+                    stylers: [{ color: "#263c3f" }],
+                },
+                {
+                    featureType: "poi.park",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#6b9a76" }],
+                },
+                {
+                    featureType: "road",
+                    elementType: "geometry",
+                    stylers: [{ color: "#38414e" }],
+                },
+                {
+                    featureType: "road",
+                    elementType: "geometry.stroke",
+                    stylers: [{ color: "#212a37" }],
+                },
+                {
+                    featureType: "road",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#9ca5b3" }],
+                },
+                {
+                    featureType: "road.highway",
+                    elementType: "geometry",
+                    stylers: [{ color: "#746855" }],
+                },
+                {
+                    featureType: "road.highway",
+                    elementType: "geometry.stroke",
+                    stylers: [{ color: "#1f2835" }],
+                },
+                {
+                    featureType: "road.highway",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#f3d19c" }],
+                },
+                {
+                    featureType: "transit",
+                    elementType: "geometry",
+                    stylers: [{ color: "#2f3948" }],
+                },
+                {
+                    featureType: "transit.station",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#d59563" }],
+                },
+                {
+                    featureType: "water",
+                    elementType: "geometry",
+                    stylers: [{ color: "#17263c" }],
+                },
+                {
+                    featureType: "water",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#515c6d" }],
+                },
+                {
+                    featureType: "water",
+                    elementType: "labels.text.stroke",
+                    stylers: [{ color: "#17263c" }],
+                },
+            ],
+        };
+
+        const mapDiv = document.getElementById('googleMap');
+        if (mapDiv) {
+            googleMap = new google.maps.Map(mapDiv, mapOptions);
+
+            // Dodaj marker za korisnika (plava točka)
+            if (mojPoz) {
+                userMarker = new google.maps.Marker({
+                    position: { lat: mojPoz.lat, lng: mojPoz.lon },
+                    map: googleMap,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 8,
+                        fillColor: '#4285F4', // Plava boja
+                        fillOpacity: 1,
+                        strokeWeight: 0
+                    },
+                    title: 'Vaša lokacija'
+                });
+            }
+
+            // Dodaj markere za pijanke
+            addPijankaMarkers();
+
+            // Slušaj promjene lokacije (opcionalno, za real-time ažuriranje)
+            // navigator.geolocation.watchPosition((pos) => {
+            //     mojPoz = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+            //     if (userMarker) {
+            //         userMarker.setPosition({ lat: mojPoz.lat, lng: mojPoz.lon });
+            //     }
+            //     // Možda centrirati kartu ponovno ili samo ažurirati markere pijanki
+            //     // googleMap.setCenter({ lat: mojPoz.lat, lng: mojPoz.lon });
+            //     clearPijankaMarkers();
+            //     addPijankaMarkers();
+            // });
+        }
+    });
+}
+
+function clearPijankaMarkers() {
+    for (let i = 0; i < pijankaMarkers.length; i++) {
+        pijankaMarkers[i].setMap(null);
     }
+    pijankaMarkers = [];
+}
+
+function addPijankaMarkers() {
+    clearPijankaMarkers(); // Ukloni stare markere prije dodavanja novih
+
     svePijanke.forEach(pijanka => {
         const autor = sviKorisnici.find(u => u.id === pijanka.korisnikId);
         if (!autor) return;
-        const status = formatirajStatus(autor.lastActive);
-        div.innerHTML += `
-            <div class="pijanka" onclick="otvoriProfil('${autor.id}')">
-                <div class="pijanka-header">
-                    <img src="${autor.slika || 'default_profile.png'}" alt="Profilna slika" class="pijanka-profilna-slika">
-                    <div class="pijanka-info">
-                        <span class="status-dot ${status.online ? "online" : "offline"}"></span>
-                        <div class="pijanka-info-text">
-                            <strong>${autor.ime}</strong>
-                            <p class="status-text">pije ${distKM(mojPoz, pijanka)}km od tebe</p>
-                        </div>
-                    </div>
-                    ${trenutniKorisnik && autor.id === trenutniKorisnik.id ? `<button class="delete-btn" onclick="obrisiPijanku('${pijanka.id}', event)">🗑️</button>` : ""}
-                </div>
-                <div class="pijanka-opis">
-                    <p>${pijanka.opis}</p>
-                </div>
-            </div>`;
+
+        const marker = new google.maps.Marker({
+            position: { lat: pijanka.lat, lng: pijanka.lon },
+            map: googleMap,
+            icon: {
+                url: autor.slika || 'default_profile.png', // Koristi profilnu sliku kao ikonu
+                scaledSize: new google.maps.Size(40, 40), // Veličina ikone
+                origin: new google.maps.Point(0, 0),
+                anchor: new google.maps.Point(20, 20) // Centriraj ikonu
+            },
+            title: autor.ime + ": " + pijanka.opis
+        });
+
+        // Dodaj event listener za otvaranje profila kada se klikne na marker
+        marker.addListener('click', () => {
+            otvoriProfil(autor.id);
+        });
+
+        pijankaMarkers.push(marker);
     });
 }
+
+// Funkcija koja se poziva kada se navigira na ekran "lokacijePrikaz"
+function prikaziPijankePregled() {
+    // Ukloni tekstualni prikaz pijanki
+    const div = document.getElementById("pijankePregled");
+    if (div) div.innerHTML = ""; 
+
+    // Inicijaliziraj mapu ako već nije
+    initializeGoogleMap();
+
+    // Ažuriraj markere na mapi
+    if (googleMap) {
+        // Ponovno centriraj mapu na trenutnu lokaciju, ako je dostupna
+        if (mojPoz) {
+            googleMap.setCenter({ lat: mojPoz.lat, lng: mojPoz.lon });
+        }
+        addPijankaMarkers(); // Osvježi markere pijanki
+    }
+}
+
+// === KRAJ NOVIH FUNKCIJA ZA GOOGLE MAPS ===
+
 
 async function otvoriProfil(korisnikId) {
     if (!korisnikId) return;
@@ -555,7 +740,7 @@ async function otvoriProfil(korisnikId) {
 function prikaziMreze(p) {
     let s = "";
     if (p.instagram) s += `<a href="https://instagram.com/${p.instagram}" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" class="mreza-ikonica" alt="instagram"></a>`;
-    if (p.tiktok) s += `<a href="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" class="mreza-ikonica" alt="tiktok"></a>`;
+    if (p.tiktok) s += `<a href="https://www.tiktok.com/@${p.tiktok}" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" class="mreza-ikonica" alt="tiktok"></a>`;
     return s || '<span style="font-size:13px; color:#888;">Nema društvenih mreža.</span>';
 }
 
@@ -701,7 +886,8 @@ async function dohvatiSvePoruke() {
     catch (error) { console.error("Greška mreže pri dohvaćanju poruka:", error); }
 }
 
-function ocistiPijankePregled() {
-    const div = document.getElementById("pijankePregled");
-    if (div) div.innerHTML = "";
-}
+// Uklanjamo ocistiPijankePregled() jer više ne koristimo taj div za prikaz popisa
+// function ocistiPijankePregled() {
+//     const div = document.getElementById("pijankePregled");
+//     if (div) div.innerHTML = "";
+// }
