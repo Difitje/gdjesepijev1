@@ -119,10 +119,8 @@
         </div>
     <div class="chat-header-info">
         <img id="chatPartnerSlika" src="default_profile.png" alt="Profilna slika" class="chat-partner-profilna">
-        <div class="chat-info-text-wrapper">
-            <h2 id="chatSaKorisnikom"></h2>
-            <p id="chatPartnerStatus" class="status-text"></p>
-        </div>
+        <h2 id="chatSaKorisnikom"></h2>
+        <p id="chatPartnerStatus" class="status-text"></p>
     </div>
         <div id="privatniChatLog" class="chat"></div>
         <div class="chat-input-area">
@@ -226,18 +224,6 @@
             }
         }
 
-        // Debounce za globalRefreshUI
-        let globalRefreshUITimer;
-        const debouncedGlobalRefreshUI = () => {
-            clearTimeout(globalRefreshUITimer);
-            globalRefreshUITimer = setTimeout(() => {
-                if (window.globalRefreshUI) { // Check if the function exists
-                    window.globalRefreshUI();
-                }
-            }, 100); // Adjust debounce time as needed
-        };
-
-
         // NOVO: Glavna funkcija za rukovanje klikovima na navigacijske gumbe
         function handleNavClick(targetScreenId) { 
             const currentActiveNavButton = document.querySelector('.bottom-nav .nav-button.active');
@@ -295,7 +281,7 @@
                     const response = await authenticatedFetch('/api/auth/me'); 
                     if (response.ok) {
                         const data = await response.json();
-                        window.trenutniKorisnik = data.user; // Use window. for global access
+                        trenutniKorisnik = data.user;
                         appInitializedSuccessfully = true;
                     } else {
                         // Ako token nije validan, ukloni ga
@@ -311,10 +297,10 @@
 
             if (appInitializedSuccessfully) {
                 // Ako je korisnik uspješno provjeren, pokreni aplikaciju
-                window.pokreniAplikaciju(); // Use window.
+                pokreniAplikaciju();
             } else {
                 // Inače, prikaži intro ekran i sakrij UI elemente
-                window.navigateTo('intro'); // Use window.
+                navigateTo('intro'); 
                 toggleAppUI(false); 
             }
 
@@ -338,18 +324,18 @@
         });
 
         // Modificiramo pokreniAplikaciju da prikaže UI i postavi aktivni gumb
-        const originalPokreniAplikaciju = window.pokreniAplikaciju;
-        window.pokreniAplikaciju = function() {
+        const originalPokreniAplikaciju = pokreniAplikaciju;
+        pokreniAplikaciju = function() {
             originalPokreniAplikaciju();
             toggleAppUI(true); 
-            window.navigateTo('homePrikazPijanki'); 
+            navigateTo('homePrikazPijanki'); 
             // Ovdje također osiguraj da se podaci ponovno dohvate pri pokretanju aplikacije nakon prijave
-            debouncedGlobalRefreshUI(); 
+            globalRefreshUI(); 
         };
 
         // Modificiramo odjaviSe da sakrije UI
-        const originalOdjaviSe = window.odjaviSe;
-        window.odjaviSe = function() {
+        const originalOdjaviSe = odjaviSe;
+        odjaviSe = function() {
             originalOdjaviSe();
             toggleAppUI(false); 
         };
@@ -392,15 +378,15 @@
         }
 
         // Modificiramo navigateTo da odmah prikaže novi ekran i ažurira nav gumb
-        const originalNavigateTo = window.navigateTo;
-        window.navigateTo = function(targetScreenId) {
+        const originalNavigateTo = navigateTo;
+        navigateTo = function(targetScreenId) {
             const currentScreenEl = document.querySelector('.container.active-screen');
             // Dodan praznaTrazilica u navBarTargetScreens
             const navBarTargetScreens = ['homePrikazPijanki', 'praznaTrazilica', 'inboxPrikaz', 'glavniDio', 'editProfil'];
 
             if (currentScreenEl && !navBarTargetScreens.includes(targetScreenId)) {
                 if (!(navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId))) {
-                    window.navigationStack.push(currentScreenEl.id); // Use window.
+                    navigationStack.push(currentScreenEl.id);
                 }
             } else if (currentScreenEl && targetScreenId === 'glavniDio' && document.getElementById("profilKorisnika").style.display !== "none") {
             } else if (currentScreenEl && targetScreenId === 'glavniDio' && currentScreenEl.id === 'editProfil') {
@@ -414,14 +400,14 @@
             else {
             }
 
-            window.swap(currentScreenEl ? currentScreenEl.id : null, targetScreenId); // Use window.
+            swap(currentScreenEl ? currentScreenEl.id : null, targetScreenId);
             afterSwapUpdateNavButton(targetScreenId);
         };
 
         // Modificiramo navigateBack - potrebno je osigurati da se animacija završi
-        const originalNavigateBack = window.navigateBack;
-        window.navigateBack = function() {
-            const targetScreenIdAfterBack = window.navigationStack[window.navigationStack.length - 1]; // Use window.
+        const originalNavigateBack = navigateBack;
+        navigateBack = function() {
+            const targetScreenIdAfterBack = navigationStack[navigationStack.length - 1]; 
             
             originalNavigateBack();
 
@@ -438,11 +424,11 @@
         };
 
         // Kada se otvara profil, ažuriraj nav gumb i sakrij FAB
-        const originalOtvoriProfil = window.otvoriProfil;
-        window.otvoriProfil = function(korisnikId) {
-            window.navigateTo('glavniDio'); // Use window.
+        const originalOtvoriProfil = otvoriProfil;
+        otvoriProfil = function(korisnikId) {
+            navigateTo('glavniDio'); 
 
-            const korisnik = window.sviKorisnici.find(u => u.id === korisnikId); // Use window.
+            const korisnik = sviKorisnici.find(u => u.id === korisnikId);
             if (!korisnik) return;
             
             const profilKorisnikaDiv = document.getElementById("profilKorisnika");
@@ -450,19 +436,20 @@
             profilKorisnikaDiv.style.display = "flex";
             
             let actionButtons = '';
-            if (window.trenutniKorisnik && korisnik.id === window.trenutniKorisnik.id) { // Use window.
+            if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
                 document.querySelector('#glavniDio h2').innerText = "Moj profil";
-                actionButtons = `<button onclick="window.prikaziEditProfila()">Uredi profil</button><button class="btn-danger" onclick="window.odjaviSe()">Odjavi se</button>`; // Use window.
+                actionButtons = `<button onclick="prikaziEditProfila()">Uredi profil</button><button class="btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
             } else {
                 document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
-                actionButtons = `<button onclick="window.pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`; // Use window.
+                actionButtons = `<button onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
             }
 
             profilKorisnikaDiv.innerHTML = `
                 <img src="${korisnik.slika || 'default_profile.png'}" class="profilna-slika-velika">
                 <h2 style="padding-top:0; margin-bottom: 5px;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
                 <p class="profil-opis">${korisnik.opis || "Nema opisa."}</p>
-                <div class="drustvene-mreze">${window.prikaziMreze(korisnik)}</div> <div class="profil-actions">${actionButtons}</div>
+                <div class="drustvene-mreze">${prikaziMreze(korisnik)}</div>
+                <div class="profil-actions">${actionButtons}</div>
             `;
 
             // Sakrij back i close gumbe kada se prikazuje profil
@@ -471,27 +458,28 @@
         };
 
         // Kada se otvara inbox, ažuriraj nav gumb i sakrij FAB
-        const originalOtvoriInbox = window.otvoriInbox;
-        window.otvoriInbox = function() {
-            window.navigateTo('inboxPrikaz'); // Use window.
+        const originalOtvoriInbox = otvoriInbox;
+        otvoriInbox = function() {
+            navigateTo('inboxPrikaz'); 
             
             const div = document.getElementById("listaChatova");
-            div.innerHTML = ""; // Clear existing content before populating
+            div.innerHTML = "";
 
-            window.dohvatiSvePoruke().then(() => { // Use window.
-                const chatKeys = (window.trenutniKorisnik && window.trenutniKorisnik.id) ? Object.keys(window.privatnePoruke).filter(key => key.includes(window.trenutniKorisnik.id)) : []; // Use window.
+            dohvatiSvePoruke().then(() => {
+                const chatKeys = (trenutniKorisnik && trenutniKorisnik.id) ? Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id)) : [];
                 if (chatKeys.length === 0) {
                     div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
                 } else {
-                    chatKeys.sort((a, b) => new Date(window.privatnePoruke[b].slice(-1)[0]?.time) - new Date(window.privatnePoruke[a].slice(-1)[0]?.time)) // Use window.
+                    chatKeys.sort((a, b) => new Date(privatnePoruke[b].slice(-1)[0]?.time) - new Date(privatnePoruke[a].slice(-1)[0]?.time))
                     .forEach(chatKey => {
-                        const partnerId = chatKey.split("-").find(id => id !== window.trenutniKorisnik.id); // Use window.
-                        const partner = window.sviKorisnici.find(u => u.id == partnerId); // Use window.
+                        const partnerId = chatKey.split("-").find(id => id !== trenutniKorisnik.id);
+                        const partner = sviKorisnici.find(u => u.id == partnerId);
                         if (!partner) return;
-                        const neprocitane = window.privatnePoruke[chatKey].some(m => !m.isRead && m.autorId == partner.id); // Use window.
-                        const status = window.formatirajStatus(partner.lastActive); // Use window.
+                        const neprocitane = privatnePoruke[chatKey].some(m => !m.isRead && m.autorId == partner.id);
+                        const status = formatirajStatus(partner.lastActive);
                         div.innerHTML += `
-                            <div class="chat-item" onclick="window.pokreniPrivatniChat('${partner.id}')"> <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
+                            <div class="chat-item" onclick="pokreniPrivatniChat('${partner.id}')">
+                                <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
                                 <div class="chat-item-info">
                                     <span class="status-dot ${status.online ? "online" : "offline"}"></span>
                                     <div class="chat-item-info-text">
@@ -503,14 +491,14 @@
                             </div>`;
                     });
                 }
-                window.azurirajNotifikacije(); // Use window.
+                azurirajNotifikacije();
             });
         };
 
 
         // Kada se pokaže objava, navigacija ostaje, ali niti jedan gumb nije "aktivan" i FAB se skriva
-        const originalPokaziObjavu = window.pokaziObjavu;
-        window.pokaziObjavu = function() {
+        const originalPokaziObjavu = pokaziObjavu;
+        pokaziObjavu = function() {
             originalPokaziObjavu();
             document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                 button.classList.remove('active');
