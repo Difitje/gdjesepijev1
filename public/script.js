@@ -38,10 +38,7 @@ function swap(hideId, showId) {
         showElement.style.display = 'flex';
         setTimeout(() => {
             showElement.classList.add('active-screen');
-            // OVDJE JE KLJUČNA PROMJENA: Pozivamo prikaziPijankePregled() kada se prebaci na lokacijePrikaz
-            if (showId === 'lokacijePrikaz') {
-                prikaziPijankePregled();
-            }
+            // Uklonjeno prikaziPijankePregled() odavde, sada se poziva u navigateTo
         }, 10);
     };
 
@@ -65,6 +62,13 @@ function swap(hideId, showId) {
 
 function navigateTo(targetScreenId) {
     const currentScreenEl = document.querySelector('.container.active-screen');
+
+    // KLJUČNA PROMJENA: Pozivamo prikaziPijankePregled() prije nego što se ekran zamijeni,
+    // osiguravajući da su podaci spremni kad se lokacijePrikaz pojavi.
+    if (targetScreenId === 'lokacijePrikaz') {
+        prikaziPijankePregled();
+    }
+
     if (currentScreenEl) {
         navigationStack.push(currentScreenEl.id);
         swap(currentScreenEl.id, targetScreenId);
@@ -196,7 +200,6 @@ async function globalRefreshUI() {
     await Promise.all([ dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke() ]);
 
     // Provjera aktivnog ekrana prije osvježavanja prikaza
-    // Ovdje se prikaziPijankePregled() poziva samo ako je lokacijePrikaz aktivan
     if (document.getElementById("lokacijePrikaz")?.classList.contains('active-screen')) {
         prikaziPijankePregled();
     }
@@ -237,7 +240,7 @@ function handleEditSlikaUploadChange() {
         const reader = new FileReader();
         reader.onload = e => {
             odabranaEditSlika = e.target.result;
-            const previewElement = document.getElementById("previewEditSlikes");
+            const previewElement = document.getElementById("previewEditSlike");
             if (previewElement) {
                 previewElement.src = odabranaEditSlika;
                 if (previewElement.style.display === "none") {
@@ -327,14 +330,13 @@ async function odjaviSe() {
 
 function pokreniAplikaciju() {
     navigationStack = [];
-    // PROMIJENJENO: Prebaci na homePrazan umjesto lokacijePrikaz
+    // Prebacuje na homePrazan umjesto lokacijePrikaz nakon prijave
     swap(document.querySelector('.container.active-screen')?.id || null, 'homePrazan');
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
     globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
     azurirajMojuAktivnost();
     dohvatiLokaciju(() => {
-        // Uklonjen direktan poziv prikaziPijankePregled() ovdje
         azurirajNotifikacije();
     });
 }
@@ -458,12 +460,11 @@ async function objaviPijanku() {
             alert(data.message);
             await dohvatiSvePijanke();
             navigateBack();
-            // Nema potrebe za prikaziPijankePregled() ovdje ako se homePrazan ne prikazuje
         } else {
             alert("Greška pri objavi pijanke: " + data.message);
         }
     } catch (error) {
-        alert("Došlo je do greške pri objavi pijanke.");
+        alert("Došlo je do greške pri objave pijanke.");
     } finally {
         objaviBtn.disabled = false; objaviBtn.textContent = 'Objavi';
     }
