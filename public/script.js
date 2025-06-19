@@ -155,13 +155,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const editSlikaUploadEl = document.getElementById("editSlikaUpload");
-    if (editSlikaUploadEl) {
-        editSlikaUploadEl.addEventListener("change", handleEditSlikaUploadChange);
-    }
+    // Removed direct listener for #editSlikaUpload, now handled via image click
 });
 
-function handleEditSlikaUploadChange() {
+// New function to handle file input change for edit profile
+function handleHiddenEditSlikaUploadChange() {
     const file = this.files[0];
     if (file) {
         const reader = new FileReader();
@@ -291,6 +289,19 @@ async function prikaziEditProfila() {
     document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
     document.getElementById("previewEditSlike").style.display = "block";
     odabranaEditSlika = null;
+
+    // Attach click listener to the profile image to trigger file input
+    const previewEditSlike = document.getElementById("previewEditSlike");
+    const hiddenEditSlikaUpload = document.getElementById("hiddenEditSlikaUpload");
+
+    // Remove any existing listeners to prevent duplicates
+    previewEditSlike.removeEventListener("click", () => hiddenEditSlikaUpload.click());
+    hiddenEditSlikaUpload.removeEventListener("change", handleHiddenEditSlikaUploadChange);
+
+    // Add new listeners
+    previewEditSlike.addEventListener("click", () => hiddenEditSlikaUpload.click());
+    hiddenEditSlikaUpload.addEventListener("change", handleHiddenEditSlikaUploadChange);
+
     navigateTo('editProfil');
 }
 
@@ -502,15 +513,15 @@ async function otvoriProfil(korisnikId) {
     let actionButtons = '';
     if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
         document.querySelector('#glavniDio h2').innerText = "Moj profil";
-        actionButtons = `<button onclick="prikaziEditProfila()">Uredi profil</button><button class="btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
+        actionButtons = `<button class="profil-action-button" onclick="prikaziEditProfila()">Uredi profil</button><button class="profil-action-button btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
     } else {
         document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
-        actionButtons = `<button onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
+        actionButtons = `<button class="profil-action-button" onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
     }
 
     profilKorisnikaDiv.innerHTML = `
         <img src="${korisnik.slika || 'default_profile.png'}" class="profilna-slika-velika">
-        <h2 style="padding-top:0; margin-bottom: 5px;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
+        <h2 class="profil-ime">${korisnik.ime || 'Nepoznat korisnik'}</h2>
         <p class="profil-opis">${korisnik.opis || "Nema opisa."}</p>
         <div class="drustvene-mreze">${prikaziMreze(korisnik)}</div>
         <div class="profil-actions">${actionButtons}</div>
@@ -525,7 +536,7 @@ async function otvoriProfil(korisnikId) {
 function prikaziMreze(p) {
     let s = "";
     if (p.instagram) s += `<a href="https://instagram.com/${p.instagram}" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" class="mreza-ikonica" alt="instagram"></a>`;
-    if (p.tiktok) s += `<a href="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" class="mreza-ikonica" alt="tiktok"></a>`;
+    if (p.tiktok) s += `<a href="https://www.tiktok.com/@${p.tiktok}" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" class="mreza-ikonica" alt="tiktok"></a>`;
     return s || '<span style="font-size:13px; color:#888;">Nema društvenih mreža.</span>';
 }
 
