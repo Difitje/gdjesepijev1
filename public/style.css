@@ -1,5 +1,5 @@
 /* === POCETAK CSS-a (Konačna verzija) === */
-/* public/style.css - VERZIJA 11 - Finalno centriranje - Izmjene za Inbox Search */
+/* public/style.css - VERZIJA 12 - Dizajn Inboxa (Moderno/Luksuzno) - Tamno Sive Boje */
 
 * {
     box-sizing: border-box;
@@ -10,32 +10,29 @@
 html, body {
     height: 100%;
     width: 100%;
-    overflow: hidden;        /* NOVO */
-    position: fixed;         /* NOVO */
-    touch-action: none;      /* NOVO I AGRESIVNIJE */
+    overflow: hidden;
+    position: fixed;
+    touch-action: none;
 }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-
-    /* ISPRAVAK: DODANA KOSA CRTA (/) NA POČETAK PUTANJE */
     background-image: url('/pozadina.png');
-    
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    background-color: #111111;
+    background-color: #111111; /* Održano kao bazna pozadina, ali će biti prekriveno overlayem */
 
     color: #f0f0f0;
     line-height: 1.5;
     font-size: 16px; 
-    position: relative; /* OVO JE KLJUČNO ZA PSEUDO-ELEMENT */
+    position: relative;
     touch-action: manipulation;
-    z-index: 0; /* Dodano za osiguranje z-indeksa ispod overlay-a */
+    z-index: 0;
 }
 
-/* --- Zatamnjivanje pozadine --- */
+/* --- Zatamnjivanje pozadine i osnovna tamno siva pozadina aplikacije --- */
 body::before {
     content: "";
     position: absolute;
@@ -43,14 +40,14 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.92); /* Prilagodi za željenu tamnoću */
-    z-index: 1; /* Mora biti iznad body-ja, ali ispod sadržaja */
+    background-color: rgba(0, 0, 0, 0.92); /* Blago prozirna crna za zatamnjenje pozadinske slike */
+    z-index: 1;
 }
 
 .container {
     width: 100%;
     height: 100%;
-    background: transparent; /* <- KLJUČNA IZMJENA */
+    background: transparent;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -64,14 +61,13 @@ body::before {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    z-index: 2; /* PROMIJENJENO: Povećano da bude iznad body::before overlay-a */
+    z-index: 2;
 }
 
 .container.fade-out-screen {
     animation: fadeOut 0.3s ease-out forwards;
 }
 
-/* Nova klasa za skrivanje elemenata na početku */
 .hidden-initially {
     opacity: 0;
     visibility: hidden;
@@ -92,140 +88,289 @@ body::before {
         min-height: 80vh;
         margin: 0 auto;
         padding: 40px;
-        background: #1e1e1e;
-        border: 1px solid #2a2a2a;
+        background: #222222; /* Tamno siva pozadina za desktop kontejner */
+        border: 1px solid #333333; /* Tamno siva ivica */
         border-radius: 24px;
-        box-shadow: 0 10px 40px rgba(0,0,0, 0.5);
+        box-shadow: 0 10px 40px rgba(0,0,0, 0.6); /* Izražajnija sjena */
     }
     .chat-input-area { max-width: 1200px; margin: 0 auto; }
     #objavaForma, #profilKorisnika, #login > input, #login > button,
     #registracija > input, #registracija > textarea, #registracija > button, #registracija > label, #registracija > img {
         width: 100%; max-width: 600px; margin-left: auto; margin-right: auto;
     }
-    #login, #registracija, #editProfil { align-items: center; } /* Adjusted alignment for editProfil here */
+    #login, #registracija, #editProfil { align-items: center; }
     #privatniChatLog .poruka-wrapper { max-width: 800px; margin-left: auto; margin-right: auto; }
 }
 
 @media (max-width: 767px) {
     body { overflow: hidden; }
-    .container { position: absolute; padding: 20px; border-radius: 0; border: none; box-shadow: none; }
-    /* Povećan padding-bottom za sve kontejnere zbog fiksne navigacije */
+    .container { 
+        position: absolute; 
+        padding: 20px; 
+        border-radius: 0; 
+        border: none; 
+        box-shadow: none; 
+        background-color: #222222; /* Mobilna pozadina kontejnera je tamno siva */
+    }
     .container {
-        padding-bottom: 70px; /* Visina nav bara + malo razmaka */
+        padding-bottom: 70px;
     }
-    /* #lokacijePrikaz je već imao padding-top, ostali kontejneri sada također trebaju */
-    #homePrikazPijanki, #praznaTrazilica, #glavniDio, #editProfil, #inboxPrikaz { /* PRILAGOĐENO ID-evima */
-        padding-top: 70px; /* Osiguraj prostor za header */
+    #homePrikazPijanki, #praznaTrazilica, #glavniDio, #editProfil, #inboxPrikaz {
+        padding-top: 70px;
     }
-    /* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
     #intro, #odabir, #login, #registracija, #pravilaEkran {
-        padding-top: 20px; /* Standardni padding */
+        padding-top: 20px;
     }
 
-    /* === PRILAGODBA ZA privatniChat CONTAINER - ZAUZIMA CIJELI EKRAN I POMAKNUT JE ZBOG CHAT HEADERA I INPUTA === */
     #privatniChat {
-        padding-top: 50px; /* PROMIJENJENO: Smanjeno zbog manjeg headera */
-        padding-bottom: 60px; /* Visina chat input area */
-        height: 100vh; /* Zauzima cijelu visinu viewporta */
+        padding-top: 50px;
+        padding-bottom: 60px;
+        height: 100vh;
     }
 }
 
-/* === NOVI STIL ZA INBOX DA BUDE PREKO CIJELOG EKRANA === */
+/* === INBOX STILOVI === */
 #inboxPrikaz.container {
     padding-left: 0;
     padding-right: 0;
-    /* Dodatni padding-top za mobilni prikaz zbog novog search bara */
-    padding-top: 10px; /* Smanjeno jer je h2 sada position: absolute */
+    padding-top: 0; /* Resetujemo padding-top jer h2 i search bar imaju fiksnu poziciju */
+    background-color: #222222; /* Tamno siva pozadina cijelog inbox kontejnera */
 }
 
-/* === IZMJENA: Pozicioniranje h2 unutar inboxPrikaz === */
 #inboxPrikaz h2 {
     padding-left: 12px;
     padding-right: 12px;
     text-align: center; 
-    /* NOVO: Podigni h2 na vrh i omogući pozicioniranje search bara ispod njega */
-    position: absolute;
-    top: 20px; /* Prilagodi po potrebi da bude na samom vrhu */
+    position: fixed; /* Fiksna pozicija za naslov */
+    top: 0; /* Na samom vrhu */
     left: 0;
     right: 0;
-    z-index: 5; /* Da bude iznad liste chatova */
-    background-color: rgba(0, 0, 0, 0.95); /* Pozadina koja pokriva ispod da se ne vidi skrolanje */
-    padding-top: 0; /* Resetiraj padding-top ako je bio postavljen iz container > h2 */
-    margin-bottom: 0; /* Ukloni donju marginu */
-    height: 50px; /* Postavi fiksnu visinu za zaglavlje */
+    z-index: 10; /* Visok z-index da bude iznad svega */
+    background-color: #282828; /* Malo svjetlija siva od pozadine */
+    padding-top: 0;
+    margin-bottom: 0;
+    height: 60px; /* Standardna visina headera */
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px; /* Osiguraj da je veličina fonta konzistentna s ostalim h2 */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Lagana sjena */
+    font-size: 22px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4); /* Luksuznija sjena */
+    border-bottom: 1px solid #3a3a3a; /* Linija ispod naslova */
 }
 
-@media (max-width: 767px) {
+@media (min-width: 768px) {
     #inboxPrikaz h2 {
-        top: 0; /* Na mobilnom skroz gore */
-        height: 60px; /* Visina za mobilni header */
+        position: relative; /* Na desktopu može biti relativan unutar kontejnera */
+        top: auto;
+        margin: -40px -40px 20px -40px; /* Prilagodba margine unutar desktop kontejnera */
+        border-radius: 24px 24px 0 0;
+        background-color: #282828; /* Ista boja kao za mobilni header */
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Manja sjena */
     }
 }
 
-/* === NOVO: Stilovi za Search Bar u Inboxu === */
 .inbox-search-bar {
     width: 100%;
-    padding: 10px 12px; /* Vertikalni padding 10px, horizontalni 12px da odgovara chat-item-u */
-    background-color: rgba(0, 0, 0, 0.9); /* Pozadina koja odgovara headeru */
-    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    padding: 10px 12px;
+    background-color: #282828; /* Ista boja kao naslov */
+    border-bottom: 1px solid #3a3a3a;
     display: flex;
     align-items: center;
-    position: sticky; /* Sticky pozicija da ostane na vrhu prilikom skrolanja */
-    top: 70px; /* Ispod main-header-a na mobilnom, ili ispod h2 na mobilnom */
-    z-index: 4; /* Ispod h2 ali iznad liste chatova */
-    box-sizing: border-box; /* Da padding ne poveća širinu */
+    position: fixed; /* Fiksna pozicija search bara */
+    top: 60px; /* Odmah ispod fiksnog naslova */
+    left: 0;
+    right: 0;
+    z-index: 9; /* Ispod naslova, iznad liste chatova */
+    box-sizing: border-box;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Suptilna sjena */
 }
 
 @media (min-width: 768px) {
     .inbox-search-bar {
-        position: relative; /* Na desktopu može biti relativan */
+        position: relative; /* Na desktopu relativan */
         top: auto;
-        border-radius: 24px; /* Za desktop da prati container */
-        margin: -20px auto 20px auto; /* Prilagodi marginu za desktop, centriraj */
-        background-color: #1e1e1e; /* Prilagodi pozadinu za desktop */
-        border: 1px solid #2a2a2a;
-        max-width: 600px; /* Ograniči širinu na desktopu */
-        padding: 12px 20px; /* Veći padding za desktop */
+        border-radius: 12px; /* Manji radius za search bar */
+        margin: 0 auto 20px auto; /* Centriraj i dodaj donju marginu */
+        background-color: #2e2e2e; /* Malo tamnija siva za desktop search bar */
+        border: 1px solid #3a3a3a;
+        max-width: 600px;
+        padding: 12px 20px;
+        box-shadow: none; /* Bez sjene, sjenu ima kontejner */
     }
 }
 
 .inbox-search-bar input {
     flex-grow: 1;
     border: none;
-    background-color: #3a3a3a;
+    background-color: #383838; /* Tamnija siva za input pozadinu */
     color: #f0f0f0;
-    padding: 10px 15px;
-    border-radius: 20px;
+    padding: 12px 18px; /* Povećan padding za bolji osjećaj */
+    border-radius: 25px; /* Okrugliji input */
     font-size: 16px;
     outline: none !important;
-    box-shadow: none !important;
-    margin-bottom: 0; /* Ukloni defaultnu marginu */
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); /* Unutarnja sjena za dubinu */
+    transition: all 0.3s ease;
+    margin-bottom: 0;
 }
 
 .inbox-search-bar input:focus {
-    background-color: #4a4a4a;
+    background-color: #444444; /* Još svjetlija siva na fokusu */
     border-color: #ff4757;
-    box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
+    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.3), inset 0 1px 3px rgba(0,0,0,0.3); /* Poboljšana sjena */
 }
 
 .inbox-search-bar .search-icon {
     margin-left: 10px;
-    width: 20px;
-    height: 20px;
-    fill: #b0b0b0;
-    flex-shrink: 0; /* Spriječi da se ikona smanji */
+    width: 22px; /* Malo veća ikona */
+    height: 22px;
+    fill: none; /* SVG će biti stroke umjesto fill */
+    stroke: #b0b0b0; /* Boja ikone */
+    stroke-width: 2; /* Deblji stroke */
+    flex-shrink: 0;
 }
-/* === KRAJ: Stilovi za Search Bar u Inboxu === */
+
+#listaChatova {
+    padding: 0;
+    margin: 0;
+    /* Prilagođen padding-top da lista počne ispod fiksnog headera i search bara */
+    padding-top: calc(60px + 60px); /* Visina h2 (60px) + visina search bara (60px) */
+    position: relative;
+    z-index: 2;
+    padding-bottom: 70px; /* Donji padding zbog bottom navigaicje */
+}
+
+@media (min-width: 768px) {
+    #listaChatova {
+        padding-top: 0; /* Na desktopu, padding je već na containeru */
+        padding-bottom: 0;
+    }
+}
+
+.chat-item {
+    background: transparent;
+    padding: 10px 15px; /* Povećan padding */
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Veći razmak */
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-out; /* Dodan transform za hover */
+    width: 100%;
+    border-left: 4px solid transparent;
+    cursor: pointer;
+    border-radius: 0;
+    box-sizing: border-box;
+    border-bottom: 1px solid #333333; /* Separator između chatova */
+}
+.chat-item:last-child {
+    border-bottom: none; /* Bez separatora na zadnjem elementu */
+}
+
+.chat-item:hover {
+    background: #2e2e2e; /* Tamnija siva na hoveru */
+    transform: translateX(5px); /* Mali pomak udesno */
+    border-left-color: #ff6b6b; /* Malo svjetlija crvena za hover */
+}
+
+.chat-item.active {
+    background: #333333; /* Još tamnija siva za aktivni chat */
+    border-left-color: #ff4757;
+}
+
+.chat-profilna-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.chat-item img {
+    width: 50px; /* Malo veća profilna slika */
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ff4757; /* Crveni obrub */
+    flex-shrink: 0;
+}
+
+.chat-profilna-wrapper .status-dot {
+    position: absolute;
+    bottom: 2px; /* Pomaknuto malo gore */
+    right: 2px; /* Pomaknuto malo unutra */
+    width: 14px; /* Veća status točka */
+    height: 14px;
+    border: 3px solid #222222; /* Rub točke iste boje kao pozadina */
+    border-radius: 50%;
+}
+
+.chat-item-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column; /* stacked name and message */
+    justify-content: center;
+    align-items: flex-start;
+    overflow: hidden;
+    cursor: pointer;
+    gap: 4px; /* Razmak između imena i poruke */
+}
+
+.chat-item-info strong {
+    font-size: 16px; /* Normalna veličina fonta za ime */
+    font-weight: 600; /* Deblji font za ime */
+    color: #f0f0f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* ... ako je predugačko */
+    line-height: 1.2;
+}
+
+.chat-item-info .status-text {
+    font-size: 14px; /* Malo veći font za preview poruke */
+    color: #a0a0a0; /* Svjetlija siva za tekst poruke */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    margin: 0;
+    padding: 0;
+}
+
+.chat-meta-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 5px;
+    flex-shrink: 0;
+    padding-top: 2px;
+}
+
+.chat-vrijeme {
+    font-size: 11px; /* Malo manji font za vrijeme */
+    color: #888888;
+    white-space: nowrap;
+}
+
+.notification-badge-chat {
+    background-color: #ff4757;
+    color: white;
+    min-width: 20px; /* Malo veći badge */
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px; /* Malo veći font u badgeu */
+    font-weight: 700;
+    padding: 0 6px; /* Više paddinga */
+}
+
+.notification-badge-chat:empty {
+    display: none;
+}
+/* === KRAJ: REDIZAJN INBOXA (LISTA CHATOVA) === */
 
 
 .main-header {
     position: absolute; top: 0; left: 0; right: 0; height: 60px; padding: 0 10px;
-    display: flex; justify-content: center; align-items: center; /* Centriranje loga */
+    display: flex; justify-content: center; align-items: center;
     z-index: 100;
 }
 @media (min-width: 768px) {
@@ -235,40 +380,38 @@ body::before {
         margin: -40px -40px 20px -40px; 
         padding: 0 30px; 
         height: 70px; 
-        background-color: rgba(34, 34, 34, 0.8); /* Prilagođeno za desktop */
-        justify-content: center; /* Centriranje loga i na desktopu */
+        background-color: #282828; /* Tamno siva za desktop header */
+        justify-content: center;
     }
 }
 .main-logo {
-    display: flex; /* Koristimo flexbox za centriranje slike */
-    justify-content: center; /* Centriranje horizontalno */
-    align-items: center; /* Centriranje vertikalno */
-    height: 100%; /* Omogućava vertikalno centriranje unutar headera */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
     margin: 0;
     padding: 0;
 }
 
 .header-logo-image {
-    max-height: 65px; /* Povećana maksimalna visina za mobilni prikaz (bilo 50px) */
-    width: auto; /* Osigurava da se širina automatski prilagođava */
-    object-fit: contain; /* Osigurava da se cijela slika vidi unutar okvira */
+    max-height: 65px;
+    width: auto;
+    object-fit: contain;
 }
 
-/* Prilagodba za desktop verziju loga */
 @media (min-width: 768px) {
     .main-header {
-        height: 70px; /* Ako već nije postavljeno */
-        align-items: center; /* Osigurava da su svi header elementi centrirani */
+        height: 70px;
+        align-items: center;
     }
     .main-logo {
-        height: 100%; /* Osigurava da logo zauzima punu visinu headera za centriranje */
+        height: 100%;
     }
     .header-logo-image {
-        max-height: 75px; /* Povećana maksimalna visina za desktop (bilo 60px) */
+        max-height: 75px;
     }
 }
 
-/* Header iconi su uklonjene iz main-header-a, zadržavamo stilove samo ako se koriste negdje drugdje */
 .header-icon {
     background: transparent;
     border: none; 
@@ -290,16 +433,15 @@ body::before {
 }
 .header-icon:hover svg { stroke: #ff4757; }
 
-/* OPĆENITI STIL ZA NOTIFIKACIJSKI BEDŽ (MOŽDA VIŠE NE TREBA AKO SVE PRELAZI NA BOTTOM NAV) */
 .notification-badge-main {
     position: absolute; top: 5px; right: 5px; background-color: #e74c3c; color: white;
     border-radius: 50%; height: 18px; width: 18px; display: none;
-    justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
+    justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #222222; /* Prilagođeno novoj pozadini */
 }
 .fab {
     position: fixed; 
     bottom: 90px; 
-    right: 30px; /* Povećan bottom da bude iznad nav bara */
+    right: 30px;
     width: 60px; 
     height: 60px;
     background: linear-gradient(45deg, #ff4757, #e03f4d); 
@@ -313,7 +455,7 @@ body::before {
     align-items: center;
     transition: all 0.3s ease-in-out;
 }
-.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(0,0,0,0.5); /* Sjena pri hoveru */ }
+.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 6px 16px rgba(0,0,0,0.5); }
 .fab:active { transform: scale(1.05) rotate(90deg); }
 .fab svg { width: 30px; height: 30px; color: #ffffff; }
 
@@ -332,85 +474,81 @@ body::before {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 60px; /* Visina navigacijskog bara */
-    background-color: rgba(0, 0, 0, 0.95); /* Tamna, blago prozirna pozadina */
-    border-top: 1px solid rgba(0, 0, 0, 0.5);
+    height: 60px;
+    background-color: #282828; /* Tamno siva za navigaciju */
+    border-top: 1px solid #333333;
     display: flex;
-    justify-content: space-around; /* Ravnomjerno rasporedi gumbe */
+    justify-content: space-around;
     align-items: center;
-    z-index: 100; /* Iznad svih ostalih elemenata, ali ispod splash screena */
-    padding-bottom: env(safe-area-inset-bottom, 0px); /* Za iPhone X notch */
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
 }
 
 .bottom-nav .nav-button {
-    background: none !important; /* Uklanja pozadinsku boju i nadjačava */
+    background: none !important;
     border: none !important;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 5px 0;
-    width: 25%; /* Svaki gumb zauzima 25% širine */
+    width: 25%;
     height: 100%;
-    color: #b0b0b0; /* Siva boja za neaktivne ikone/tekst */
-    font-size: 10px; /* Manji font za tekst ispod ikone */
+    color: #b0b0b0;
+    font-size: 10px;
     font-weight: 500;
-    transition: none !important; /* UKLONJENO: Omogućuje instant promjenu boje */
+    transition: none !important;
     cursor: pointer;
-    position: relative; /* Za badge notifikacije */
-    outline: none !important; /* UKLONJENO: Crveni okvir na klik/fokus, s !important */
-    box-shadow: none !important; /* Uklanja sjenu s !important */
+    position: relative;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .bottom-nav .nav-button svg {
-    width: 24px; /* Veličina ikona */
+    width: 24px;
     height: 24px;
-    stroke: #b0b0b0; /* Siva boja za ikone */
+    stroke: #b0b0b0;
     stroke-width: 1.8;
     margin-bottom: 2px;
-    transition: none !important; /* UKLONJENO: Omogućuje instant promjenu boje */
+    transition: none !important;
 }
 
 .bottom-nav .nav-button.active {
-    color: #ff4757; /* Crvena boja za aktivnu stavku */
-    outline: none !important; /* Osigurava da nema okvira ni na aktivnu tipku */
-    background: none !important; /* Osigurava da nema pozadinske boje ni na aktivnu tipku */
-    box-shadow: none !important; /* Uklanja sjenu s aktivne tipke */
+    color: #ff4757;
+    outline: none !important;
+    background: none !important;
+    box-shadow: none !important;
 }
 
 .bottom-nav .nav-button.active svg {
-    stroke: #ff4757; /* Crvena boja za aktivnu ikonu */
+    stroke: #ff4757;
 }
 
 .bottom-nav .nav-button:hover:not(.active) {
-    color: #e0e0e0; /* Svjetlija siva na hoveru */
-    background: none !important; /* Osigurava da nema pozadinske boje ni na hoveru */
-    box-shadow: none !important; /* Uklanja sjenu s hovera */
+    color: #e0e0e0;
+    background: none !important;
+    box-shadow: none !important;
 }
 
 .bottom-nav .nav-button:hover:not(.active) svg {
-    stroke: #e0e0e0; /* Svjetlija siva ikona na hoveru */
+    stroke: #e0e0e0;
 }
 
-.bottom-nav .nav-button:focus { /* UKLONJENO: Crveni okvir na fokus */
+.bottom-nav .nav-button:focus {
     outline: none !important;
-    background: none !important; /* Osigurava da nema pozadinske boje ni na fokusu */
-    box-shadow: none !important; /* Uklanja sjenu s fokusa */
+    background: none !important;
+    box-shadow: none !important;
 }
 
-/* Prilagodba notifikacijske točkice za donji nav bar */
 .bottom-nav .notification-badge-main {
-    /* PROMIJENJENO: Nova pozicija, prilagođena za blizinu ikoni */
-    top: 5px; /* Manja vrijednost da bude bliže vrhu ikone */
-    right: calc(50% - 12px); /* Centrirano horizontalno unutar SVG-a (+/- malo pomaka) */
-    transform: translateX(100%); /* Pomakni bedž za 100% svoje širine udesno */
-    /* Eksperimentiranje s transformom za bolju preciznost */
-    
-    border: 2px solid rgba(26, 26, 26, 0.95); /* Boja ruba da odgovara pozadini nav bara */
+    top: 5px;
+    right: calc(50% - 12px);
+    transform: translateX(100%);
+    border: 2px solid #282828; /* Boja ruba da odgovara pozadini nav bara */
 }
 
-@media (min-width: 768px) { /* Na desktopu skrivamo donji nav bar */
+@media (min-width: 768px) {
     .bottom-nav {
         display: none;
     }
@@ -430,7 +568,6 @@ body::before {
     display: flex;
     flex-direction: column-reverse;
 }
-
 
 /* Za WebKit (Chrome, Safari) */
 #privatniChatLog::-webkit-scrollbar {
@@ -453,16 +590,16 @@ body::before {
 
 /* Posebno pravilo SAMO za chat ekran */
 #privatniChat .top-nav-buttons {
-    height: 50px; /* Mora odgovarati visini .chat-header-info */
+    height: 50px;
     top: 0;
     left: 0;
-    width: 50px; /* Ograničavamo širinu kontejnera tipke */
+    width: 50px;
 }
 #privatniChat .top-nav-buttons .back-button {
     position: absolute;
     left: 5px;
     top: 50%;
-    transform: translateY(-50%); /* Trik za savršeno vertikalno centriranje */
+    transform: translateY(-50%);
 }
 
 
@@ -490,8 +627,8 @@ body::before {
     display: flex; 
     align-items: center;
     padding: 8px 12px;
-    background-color: rgba(0, 0, 0, 0.95);
-    border-top: 1px solid rgba(0, 0, 0, 0.5);
+    background-color: #282828; /* Tamno siva za chat input */
+    border-top: 1px solid #333333;
     flex-shrink: 0; 
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
     z-index: 100;
@@ -502,7 +639,7 @@ body::before {
     flex-grow: 1;
     border: none; 
     border-radius: 20px;
-    background-color: #3a3a3a; 
+    background-color: #383838; /* Tamnija siva */
     color: #f0f0f0; 
     font-size: 16px;
     line-height: 1.4; 
@@ -517,7 +654,7 @@ body::before {
 
 #privatniInput:focus { 
     outline: none; 
-    background-color: #4a4a4a; 
+    background-color: #444444; /* Još svjetlija siva */
     box-shadow: none; 
     border-color: transparent; 
 }
@@ -605,7 +742,7 @@ body::before {
     position: absolute;
     top: 0;
     left: 0;
-    background-color: rgba(0, 0, 0, 0.95);
+    background-color: #282828; /* Tamno siva za chat header */
     height: 50px; 
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     z-index: 50;
@@ -666,7 +803,8 @@ p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
 .btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
 
 input, textarea, button {
-    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
+    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333333; /* Tamno siva granica */
+    background: #252525; /* Tamno siva pozadina inputa */
     color: #f0f0f0; border-radius: 8px; font-size: 16px; font-family: inherit; transition: all 0.2s ease-in-out;
     outline: none !important;
     box-shadow: none !important;
@@ -675,7 +813,7 @@ input:focus, textarea:focus { outline: none !important; border-color: #ff4757; b
 button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px; }
 button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
 button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
-img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
+img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
 .profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; }
 img.preview-slika { display: none; }
 #previewEditSlike { display: block; margin: 8px auto; }
@@ -689,23 +827,26 @@ img.preview-slika { display: none; }
 .pravila-checkbox-wrapper input[type="checkbox"] { width: auto; margin-bottom: 0; flex-shrink: 0; }
 .pravila-checkbox-wrapper label { margin-bottom: 0; font-size: 14px; color: #f0f0f0; text-align: left; }
 .pijanka { 
-    background: rgba(255, 71, 87, 0.1); 
+    background: rgba(255, 71, 87, 0.08); /* Suptilnija crvena pozadina */
     padding: 15px; 
     border-radius: 10px; 
     margin: 0 auto 8px auto; 
     display: flex; 
     flex-direction: column; 
-    border-left: 3px solid rgba(255, 71, 87, 0.3);
+    border-left: 3px solid rgba(255, 71, 87, 0.2); /* Suptilniji crveni border */
     transition: all 0.2s ease-in-out; 
     width: 100%; 
     max-width: 600px; 
     box-sizing: border-box; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2); /* Dodana suptilna sjena */
 }
 .pijanka:hover { 
-    background: rgba(255, 71, 87, 0.2);
+    background: rgba(255, 71, 87, 0.15); /* Tamnija crvena na hoveru */
     border-left-color: #ff4757;
+    transform: translateY(-2px); /* Mali pomak */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* Jača sjena na hoveru */
 }
-.pijanka-header { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 8px; border-bottom: 1px solid #333; margin-bottom: 8px; width: 100%; }
+.pijanka-header { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 8px; border-bottom: 1px solid #333333; margin-bottom: 8px; width: 100%; }
 .pijanka-profilna-slika { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #ff4757; flex-shrink: 0; }
 
 .pijanka-info { flex-grow: 1; display: flex; align-items: center; gap: 10px; }
@@ -714,153 +855,15 @@ img.preview-slika { display: none; }
 .pijanka-info .status-text { line-height: 1.2; margin: 0; padding: 0; color: #a0a0a0; }
 
 .delete-btn { background: none; border: none; font-size: 14px; padding: 2px; margin-left: auto; cursor: pointer; color: #777; flex-shrink: 0; line-height: 1; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; border-radius: 50%; }
-.delete-btn:hover { color: #ff4757; background: rgba(51, 51, 51, 0.5); box-shadow: none; transform: scale(1.05); }
+.delete-btn:hover { color: #ff4757; background: #333333; box-shadow: none; transform: scale(1.05); } /* Prilagođeno novoj boji */
 .pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
-
-
-/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) === */
-/* #inboxPrikaz h2 je pomaknut gore, stilovi prilagođeni iznad */
-
-#listaChatova {
-    padding: 0;
-    margin: 0;
-    /* NOVO: Dodatni padding-top da lista počne ispod search bara */
-    padding-top: calc(50px + 60px); /* Visina h2 (50px) + visina search bara (oko 40px input + 2*10 padding = 60px) */
-    position: relative; /* Potrebno za z-index i da se lista skroluje ispod stickynih elemenata */
-    z-index: 2; /* Mora biti ispod search bara i h2 */
-}
-
-@media (min-width: 768px) {
-    #listaChatova {
-        padding-top: 0; /* Na desktopu lista može početi odmah ispod search bara */
-    }
-}
-
-
-.chat-item {
-    background: transparent;
-    padding: 8px 12px;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: background-color 0.2s ease-in-out;
-    width: 100%;
-    border-left: 4px solid transparent;
-    cursor: pointer;
-    border-radius: 0;
-    box-sizing: border-box;
-}
-
-.chat-item:hover {
-    background: rgba(255, 255, 255, 0.04);
-}
-
-.chat-item.active {
-    background: rgba(255, 71, 87, 0.08);
-    border-left-color: #ff4757;
-}
-
-.chat-profilna-wrapper {
-    position: relative;
-    flex-shrink: 0;
-}
-
-.chat-item img {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-}
-
-.chat-profilna-wrapper .status-dot {
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    width: 12px;
-    height: 12px;
-    border: 2px solid #1e1e1e;
-}
-
-.chat-item-info {
-    flex-grow: 1;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 10px;
-    overflow: hidden;
-    cursor: pointer;
-    padding-top: 1px;
-}
-
-.chat-item-info-text {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    gap: 2px;
-    overflow: hidden;
-}
-
-.chat-item-info strong {
-    font-size: 15px;
-    font-weight: 500;
-    color: #f0f0f0;
-    white-space: nowrap;
-    line-height: 1.3;
-}
-
-.chat-item-info .status-text {
-    font-size: 13px;
-    color: #888;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.3;
-    margin: 0;
-    padding: 0;
-}
-
-.chat-meta-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 5px;
-    flex-shrink: 0;
-    padding-top: 1px;
-}
-
-.chat-vrijeme {
-    font-size: 12px;
-    color: #888;
-    white-space: nowrap;
-}
-
-.notification-badge-chat {
-    background-color: #ff4757;
-    color: white;
-    min-width: 18px;
-    height: 18px;
-    border-radius: 9px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 0 4px;
-}
-
-.notification-badge-chat:empty {
-    display: none;
-}
-/* === KRAJ: REDIZAJN INBOXA (LISTA CHATOVA) === */
 
 
 /* === NOVO: Stilovi za timestampove i wrappere poruka === */
 .poruka-wrapper {
     display: flex;
     flex-direction: column;
-    margin-bottom: 12px; /* Povećan razmak između poruka */
+    margin-bottom: 12px;
     width: 100%;
 }
 
@@ -920,14 +923,14 @@ img.preview-slika { display: none; }
 @keyframes fadeOutSplash { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
 
 #profilKorisnika button {
-    background: rgba(30, 30, 30, 0.3);
+    background: #333333; /* Tamno siva */
     box-shadow: none !important;
-    border: 1px solid rgba(51, 51, 51, 0.2);
+    border: 1px solid #444444; /* Malo svjetlija siva */
     outline: none !important;
 }
 
 #profilKorisnika button:hover {
-    background: rgba(40, 40, 40, 0.6);
+    background: #444444; /* Još svjetlija siva na hoveru */
     transform: none;
     box-shadow: none !important;
     outline: none !important;
@@ -952,8 +955,8 @@ img.preview-slika { display: none; }
 }
 
 #editProfil input[type="file"] {
-    background: rgba(30, 30, 30, 0.3);
-    border: 1px solid rgba(51, 51, 51, 0.2);
+    background: #333333; /* Tamno siva */
+    border: 1px solid #444444;
     padding: 10px;
     margin-bottom: 20px;
     cursor: pointer;
@@ -973,8 +976,8 @@ img.preview-slika { display: none; }
     width: 100%;
     max-width: 400px;
     margin-bottom: 18px;
-    background: #1e1e1e;
-    border: 1px solid #2a2a2a;
+    background: #2e2e2e; /* Tamnija siva */
+    border: 1px solid #3a3a3a; /* Malo svjetlija siva */
     border-radius: 12px;
     padding: 14px;
     color: #f0f0f0;
@@ -989,9 +992,9 @@ img.preview-slika { display: none; }
 }
 
 #editProfil button {
-    background: rgba(30, 30, 30, 0.3);
+    background: #333333; /* Tamno siva */
     box-shadow: none !important;
-    border: 1px solid rgba(51, 51, 51, 0.2);
+    border: 1px solid #444444;
     outline: none !important;
     max-width: 400px;
     margin-top: 10px;
@@ -1004,26 +1007,26 @@ img.preview-slika { display: none; }
 }
 
 #editProfil button:hover {
-    background: rgba(40, 40, 40, 0.6);
+    background: #444444;
     transform: translateY(-1px);
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
 }
 
 #objavaForma button {
-    background: rgba(255, 71, 87, 0.3);
+    background: linear-gradient(45deg, #ff4757, #e03f4d); /* Zadržana crvena boja za primarne akcije */
     border: none;
     font-weight: bold;
     position: relative;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    box-shadow: none !important;
+    box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25) !important; /* Dodana sjena */
     outline: none !important;
 }
 
 #objavaForma button:hover {
-    background: rgba(255, 71, 87, 0.6);
-    transform: none;
-    box-shadow: none !important;
+    background: linear-gradient(45deg, #e03f4d, #ff4757); /* Obrnuti gradijent na hoveru */
+    transform: translateY(-2px); /* Mali pomak */
+    box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4) !important; /* Jača sjena */
     outline: none !important;
 }
 /* === KRAJ CSS-a === */
