@@ -555,14 +555,90 @@ body::before {
 h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
 h2 { font-size: 20px; }
 p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
-#intro p, #odabir p { text-align: center; } /* Uklonjen #pijankePregled p odavde */
+#intro p, #odabir p { text-align: center; } /* Uklonjen #pijankePregled p odavdje */
 .profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
 .drustvene-mreze { text-align: center; margin-bottom: 15px; }
 
-.profil-actions { display: flex; flex-direction: column; width: 100%; max-width: 400px; margin-top: 10px; gap: 10px; }
-.profil-actions button { margin-bottom: 0; }
-.btn-danger { background: #444; }
-.btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
+/* === REDIZAJNIRANI STILOVI ZA #profilKorisnika - AKCIJSKI GUMBI (Luksuzan Izgled) === */
+#profilKorisnika .profil-actions {
+    display: flex;
+    flex-direction: row; /* Gumbe postavimo jedan pored drugog */
+    gap: 20px; /* Veći razmak između gumba */
+    width: 100%;
+    max-width: 500px; /* Još malo šira maksimalna širina za bolji izgled na desktopu */
+    margin-top: 35px; /* Povećan razmak iznad gumba */
+    justify-content: center; /* Centriraj gumbe horizontalno */
+    align-items: center; /* Centriraj vertikalno ako gumbi imaju različite visine */
+    flex-wrap: wrap; /* Omogući prelamanje na manjim ekranima */
+    padding: 10px; /* Mali unutarnji padding za bolji razmak unutar kontejnera */
+    box-sizing: border-box; /* Važno za padding da ne prelazi max-width */
+}
+
+#profilKorisnika .profil-actions button {
+    flex-grow: 1; /* Neka se gumbi šire */
+    flex-basis: 200px; /* Minimalna širina gumba, omogućuje im da budu veći */
+    
+    padding: 18px 25px; /* Povećan padding za deblji gumb */
+    font-size: 17px; /* Veći font */
+    font-weight: 700; /* Još deblji font za premium osjećaj */
+    letter-spacing: 1px; /* Povećan razmak između slova */
+    text-transform: uppercase;
+    
+    border-radius: 15px; /* Veći border-radius za moderniji, mekši izgled */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Vrlo suptilan bijeli rub za "svjetlucavi" efekt */
+    
+    background: linear-gradient(145deg, rgba(35, 35, 35, 0.7), rgba(25, 25, 25, 0.7)); /* Tamniji, bogatiji gradijent */
+    backdrop-filter: blur(12px) brightness(1.1); /* Jači blur i malo svjetlije pozadine */
+    -webkit-backdrop-filter: blur(12px) brightness(1.1); /* Za Safari */
+    
+    color: #e0e0e0; /* Svjetlija siva boja teksta */
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Lagana sjena na tekstu za dubinu */
+    
+    box-shadow: 
+        0 8px 30px rgba(0, 0, 0, 0.6), /* Glavna, duboka sjena */
+        inset 0 1px 0 rgba(255, 255, 255, 0.15), /* Svjetliji unutarnji sjaj na vrhu */
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2); /* Tamniji unutarnji sjaj na dnu */
+    
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Sofisticiranija tranzicija */
+    outline: none !important;
+}
+
+#profilKorisnika .profil-actions button:hover {
+    transform: translateY(-3px) scale(1.02); /* Izraženiji pomak i lagano povećanje */
+    background: linear-gradient(145deg, rgba(45, 45, 45, 0.8), rgba(35, 35, 35, 0.8)); /* Svjetliji gradijent na hoveru */
+    border-color: rgba(255, 255, 255, 0.2); /* Rub malo izraženiji */
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.7), /* Jača sjena */
+        inset /* Svjetliji unutarnji sjaj na vrhu */ 0 1.5px 0 rgba(255, 255, 255, 0.2), 
+        inset 0 -1.5px 0 rgba(0, 0, 0, 0.3);
+}
+
+#profilKorisnika .profil-actions button:active {
+    transform: translateY(0) scale(1); /* Vrati se na početnu poziciju */
+    box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.5), /* Manja sjena pri aktivaciji */
+        inset 0 0 5px rgba(0, 0, 0, 0.5); /* Lagana unutarnja sjena za pritisnut efekt */
+    background: linear-gradient(145deg, rgba(20, 20, 20, 0.7), rgba(10, 10, 10, 0.7)); /* Još tamniji gradijent */
+    border-color: rgba(255, 255, 255, 0.05); /* Skoro nevidljiv rub */
+}
+
+/* Poseban stil za "Odjavi se" gumb */
+#profilKorisnika .profil-actions .btn-danger {
+    /* Održavamo crvenu boju, ali s istim "luksuznim" efektima */
+    background: linear-gradient(145deg, rgba(220, 50, 50, 0.7), rgba(180, 40, 40, 0.7)); /* Crveni gradijent */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Bijeli rub, ali na crvenoj pozadini */
+}
+
+#profilKorisnika .profil-actions .btn-danger:hover {
+    background: linear-gradient(145deg, rgba(240, 60, 60, 0.8), rgba(200, 50, 50, 0.8)); /* Svjetliji crveni gradijent na hoveru */
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+#profilKorisnika .profil-actions .btn-danger:active {
+    background: linear-gradient(145deg, rgba(180, 40, 40, 0.7), rgba(140, 30, 30, 0.7)); /* Tamniji crveni gradijent */
+}
+/* === KRAJ REDIZAJNIRANIH STILOVA ZA #profilKorisnika === */
 
 input, textarea, button {
     width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
@@ -639,22 +715,6 @@ img.preview-slika { display: none; }
 @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
 @keyframes bounceIn { 0% { transform: scale(0.1); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
 @keyframes fadeOutSplash { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
-
-#profilKorisnika button {
-    /* Puno prozirnije za "glassy" efekt */
-    background: rgba(30, 30, 30, 0.3); /* PROMIJENJENO: Vrlo prozirno (30% neprozirnosti) */
-    box-shadow: none !important; /* Uklanjamo sjenu */
-    border: 1px solid rgba(51, 51, 51, 0.2); /* PROMIJENJENO: I border je prozirniji */
-    outline: none !important;
-}
-
-#profilKorisnika button:hover {
-    /* Na hoveru malo manje prozirno da se istakne */
-    background: rgba(40, 40, 40, 0.6); /* PROMIJENJENO: Malo manje prozirno na hoveru */
-    transform: none;
-    box-shadow: none !important;
-    outline: none !important;
-}
 
 /* === NOVI STILOVI ZA #editProfil - Redizajn === */
 #editProfil {
