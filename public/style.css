@@ -753,16 +753,16 @@ img.preview-slika { display: none; }
     border: 1px solid rgba(255, 255, 255, 0.18);
     width: 100%;
     max-width: 400px; /* Dodatno smanjena maksimalna širina boxa */
-    margin: 10px auto; /* Smanjen vertikalni margin za više prostora */
+    margin: 10px auto; /* Centriranje CIJELOG boxa na sredinu ekrana */
     display: flex;
     flex-direction: column;
-    align-items: center; /* Osigurava da su svi izravni child elementi centrirani horizontalno */
+    align-items: center; /* Centriranje SVIH DIREKTNIH DJECA unutar #editProfil horizontalno */
     justify-content: flex-start;
     height: auto;
     min-height: unset;
-    max-height: calc(100vh - 140px); /* Povećana vrijednost da stane više sadržaja */
-    overflow-y: auto; /* Omogućava skrolanje samo ako je sadržaj veći od max-height */
-    -webkit-overflow-scrolling: touch; /* Bolje skrolanje na iOS-u */
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Prilagodba back/close gumba unutar .top-nav-buttons na editProfil */
@@ -784,9 +784,9 @@ img.preview-slika { display: none; }
     background: rgba(51, 51, 51, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: #f0f0f0;
-    font-size: 20px; /* Malo smanjen font za ikonu */
+    font-size: 20px;
     cursor: pointer;
-    padding: 8px 12px; /* Dovoljno paddinga za klik */
+    padding: 8px 12px;
     width: auto;
     height: auto;
     line-height: 1;
@@ -841,7 +841,7 @@ img.preview-slika { display: none; }
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid rgba(30, 30, 30, 0.6); /* Boja ruba da se stopi s pozadinom boxa */
+    border: 2px solid rgba(30, 30, 30, 0.6);
     box-shadow: 0 2px 5px rgba(0,0,0,0.4);
     transition: transform 0.2s ease;
 }
@@ -856,20 +856,12 @@ img.preview-slika { display: none; }
     fill: #ffffff;
 }
 
-#editProfil label {
-    margin-bottom: 2px;
-    font-size: 13px;
-    width: 100%; /* Postavljeno na 100% da zauzme širinu i omogući text-align */
-    max-width: 320px; /* Ista maksimalna širina kao i inputi */
-    text-align: left; /* Tekst unutar labele neka bude lijevo poravnat */
-}
-
 /* Prilagodba inputa i textarea da budu uže i da stanu svi zajedno */
 #editProfil input[type="text"],
 #editProfil input[type="password"],
 #editProfil textarea {
-    width: 100%;
-    max-width: 320px;
+    width: 100%; /* Da zauzme cijelu širinu kontejnera (max-width) */
+    max-width: 320px; /* Ključno za centriranje unutar align-items: center */
     margin-bottom: 10px;
     padding: 8px;
     border-radius: 6px;
@@ -880,9 +872,10 @@ img.preview-slika { display: none; }
     padding: 10px 18px;
     font-size: 15px;
     border-radius: 8px;
-    max-width: 280px;
+    max-width: 280px; /* Prilagođeno širini inputa za konzistentnost */
     margin-top: 10px;
     box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
+    width: 100%; /* Omogućava gumbu da se centrira */
 }
 
 /* === KRAJ NOVIH STILOVA ZA #editProfil === */
