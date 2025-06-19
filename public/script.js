@@ -510,12 +510,17 @@ async function otvoriProfil(korisnikId) {
     document.getElementById("objavaForma").style.display = "none";
     profilKorisnikaDiv.style.display = "flex";
     
+    // Uklanjamo postavljanje teksta za #glavniNaslov.
+    // document.querySelector('#glavniDio h2').innerText = "Moj profil";
+    // document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
+
     let actionButtons = '';
-    if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
-        document.querySelector('#glavniDio h2').innerText = "Moj profil";
+    // Provjerite je li korisnik svoj profil
+    const isMyProfile = trenutniKorisnik && korisnik.id === trenutniKorisnik.id;
+
+    if (isMyProfile) {
         actionButtons = `<button class="profil-action-button" onclick="prikaziEditProfila()">Uredi profil</button><button class="profil-action-button btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
     } else {
-        document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
         actionButtons = `<button class="profil-action-button" onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
     }
 
@@ -528,8 +533,9 @@ async function otvoriProfil(korisnikId) {
     `;
 
     // Sakrij back i close gumbe kada se prikazuje profil
-    document.querySelector('#glavniDio .back-button').style.display = 'none'; // Uklonjeno
-    document.querySelector('#glavniDio .close-btn').style.display = 'none'; // Uklonjeno
+    document.querySelector('#glavniDio .back-button').style.display = 'none';
+    document.querySelector('#glavniDio .close-btn').style.display = 'none';
+    
     navigateTo('glavniDio');
 }
 

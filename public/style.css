@@ -654,173 +654,178 @@ img.preview-slika { display: none; }
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-radius: 20px;
-    padding: 30px 20px; /* Smanjen horizontalni padding */
+    padding: 30px 20px;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     border: 1px solid rgba(255, 255, 255, 0.18);
     width: 100%;
-    max-width: 450px; /* Smanjena maksimalna širina */
+    max-width: 450px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* Ovo osigurava horizontalno centriranje unutar flexboxa */
     margin: 20px auto; /* Centriranje boxa na sredinu */
-    gap: 12px; /* Smanjen razmak između elemenata */
+    gap: 12px;
 }
 
+/* Uklanjamo h2 iz #profilKorisnika, pa ga više ne treba posebno stilizirati */
+/* #profilKorisnika h2 {
+    display: none;
+} */
+
 #profilKorisnika .profilna-slika-velika {
-    width: 100px; /* Smanjena veličina profilne slike */
-    height: 100px; /* Smanjena veličina profilne slike */
+    width: 100px;
+    height: 100px;
     border: 4px solid #ff4757;
-    margin-bottom: 10px; /* Smanjen razmak */
+    margin-bottom: 10px;
     box-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
 }
 
 #profilKorisnika .profil-ime {
-    font-size: 24px; /* Malo smanjen font */
+    font-size: 24px;
     color: #fff;
     margin-bottom: 5px;
     font-weight: 700;
     letter-spacing: 0.5px;
+    text-align: center; /* Dodano za centriranje imena */
+    width: 100%; /* Osigurava da zauzme cijelu širinu za centriranje */
 }
 
 #profilKorisnika .profil-opis {
-    font-size: 15px; /* Malo smanjen font */
+    font-size: 15px;
     color: #e0e0e0;
-    line-height: 1.5; /* Prilagođen line-height */
-    margin-bottom: 15px; /* Smanjen razmak */
-    max-width: 90%; /* Povećan max-width da zauzme više prostora */
-    text-align: center; /* Centriranje teksta opisa */
+    line-height: 1.5;
+    margin-bottom: 15px;
+    max-width: 90%;
+    text-align: center;
 }
 
 #profilKorisnika .drustvene-mreze {
-    margin-bottom: 20px; /* Smanjen razmak */
+    margin-bottom: 20px;
+    text-align: center; /* Centriranje ikonica društvenih mreža */
+    width: 100%; /* Omogućava centriranje */
 }
 
-#profilKorisnika .mreza-ikonica {
-    width: 35px; /* Malo smanjena veličina ikonica */
-    height: 35px; /* Malo smanjena veličina ikonica */
-    margin: 0 8px; /* Smanjen razmak između ikonica */
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+#profilKorisnika .profil-actions {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px; /* Smanjena max-width za gumbe */
+    margin-top: 10px;
+    gap: 8px; /* Smanjen razmak između gumba */
+    align-items: center; /* KLJUČNO: Centriranje gumba unutar .profil-actions */
 }
 
 .profil-action-button {
-    padding: 12px 20px; /* Smanjen padding */
-    font-size: 16px; /* Malo smanjen font */
-    border-radius: 8px; /* Malo smanjen border-radius */
-    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3); /* Smanjena sjena */
-    width: 90%; /* Povećana širina gumba */
-    max-width: 280px; /* Smanjena maksimalna širina */
-    margin-bottom: 8px; /* Smanjen razmak između gumba */
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+    width: 100%; /* Gumbovi zauzimaju cijelu širinu svog roditelja (.profil-actions) */
+    max-width: 280px; /* Nije neophodno ako je width 100% i roditelj ima max-width */
+    margin-bottom: 0; /* Uklonite margin-bottom jer gap radi razmak */
 }
 
-.profil-action-button:hover {
-    transform: translateY(-2px) scale(1.01); /* Smanjen transform efekt */
-    box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); /* Smanjena sjena */
-}
 
-/* === NOVI STILOVI ZA #editProfil - Redizajn === */
+/* === STILOVI ZA #editProfil - Redizajn i optimizacija visine === */
 #editProfil {
     background: rgba(30, 30, 30, 0.6);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-radius: 20px;
-    padding: 25px 20px; /* Smanjen padding */
+    padding: 20px 20px; /* Smanjen padding za više prostora */
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     border: 1px solid rgba(255, 255, 255, 0.18);
     width: 100%;
-    max-width: 450px; /* Smanjena maksimalna širina */
-    margin: 20px auto; /* Centriranje boxa na sredinu */
+    max-width: 420px; /* Dodatno smanjena maksimalna širina */
+    margin: 15px auto; /* Centriranje boxa i smanjen vertikalni margin */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    /* Dodano za kontrolu skrolanja, da stane na jednu stranicu */
-    height: auto;
+    height: auto; /* Važno za prilagodbu sadržaju */
     min-height: unset;
-    overflow-y: auto; /* Omogućuje skrolanje unutar kontejnera ako je potrebno */
+    overflow-y: auto; /* Omogućuje skrolanje, ali cilj je da ne bude potrebno */
+    /* Ako je potrebno da zauzima većinu ekrana na mobilnom uređaju: */
+    /* min-height: calc(100vh - 120px); */ /* Npr. 100vh - header - nav */
+    /* max-height: calc(100vh - 100px); */ /* Ovisno o konačnim dimenzijama headera i navbara */
 }
 
 /* Prilagodba back/close gumba unutar .top-nav-buttons na editProfil */
 #editProfil .top-nav-buttons {
     position: absolute;
-    top: 15px; /* Držite ga visoko */
-    left: 15px;
-    right: auto; /* Uklonite right da se ne rasteže */
-    width: auto; /* Širina se prilagođava sadržaju */
+    top: 10px; /* Još malo podignuto */
+    left: 10px; /* Malo bliže rubu */
+    right: auto;
+    width: auto;
     z-index: 51;
     pointer-events: none;
-    display: flex; /* Osigurajte flexbox */
-    justify-content: flex-start; /* Poravnajte lijevo */
+    display: flex;
+    justify-content: flex-start;
     align-items: center;
 }
 
-#editProfil .back-button, #editProfil .close-btn {
+#editProfil .back-button {
     pointer-events: auto;
-    background: rgba(51, 51, 51, 0.5); /* Pozadina za gumb */
-    border: 1px solid rgba(255, 255, 255, 0.1); /* Suptilan rub */
+    background: rgba(51, 51, 51, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: #f0f0f0;
-    font-size: 24px; /* Smanjen font */
+    font-size: 22px; /* Malo smanjen font */
     cursor: pointer;
-    padding: 8px 12px; /* Prilagođen padding */
-    width: auto;
-    height: auto;
+    padding: 6px 10px; /* Smanjen padding */
+    width: auto; /* Da se ne izduži */
+    height: auto; /* Da se ne izduži */
     line-height: 1;
-    border-radius: 8px; /* Zaobljeniji kutovi */
-    display: flex; /* Osigurava da je box centriran */
+    border-radius: 6px; /* Malo manji border-radius */
+    display: flex;
     justify-content: center;
     align-items: center;
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
     outline: none !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3); /* Dodana sjena */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3); /* Smanjena sjena */
 }
 
-#editProfil .back-button:hover, #editProfil .close-btn:hover {
-    background-color: rgba(255, 71, 87, 0.2); /* Crvena prozirna pozadina na hoveru */
-    color: #ff4757; /* Crveni tekst/ikona na hoveru */
-    transform: scale(1.05); /* Manji efekt skaliranja */
-    box-shadow: 0 3px 10px rgba(255, 71, 87, 0.4);
+#editProfil .back-button:hover {
+    background-color: rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+    transform: scale(1.03); /* Manji efekt skaliranja */
+    box-shadow: 0 3px 8px rgba(255, 71, 87, 0.4);
 }
 
 
 #editProfil h2 {
-    margin-bottom: 20px; /* Smanjen razmak */
-    font-size: 26px; /* Malo smanjen font */
+    margin-bottom: 15px; /* Dodatno smanjen razmak */
+    font-size: 24px; /* Malo smanjen font */
 }
 
 #editProfil .profilna-slika {
-    width: 100px; /* Smanjena veličina */
-    height: 100px; /* Smanjena veličina */
-    margin-bottom: 20px; /* Smanjen razmak */
+    width: 90px; /* Još malo smanjena veličina */
+    height: 90px; /* Još malo smanjena veličina */
+    margin-bottom: 15px; /* Smanjen razmak */
     border: 3px solid #ff4757;
-    box-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
+    box-shadow: 0 0 8px rgba(255, 71, 87, 0.3);
 }
 
 #editProfil label {
-    margin-bottom: 5px; /* Smanjen razmak */
-    font-size: 14px; /* Malo smanjen font */
+    margin-bottom: 3px; /* Smanjen razmak između labela i inputa */
+    font-size: 13px; /* Malo smanjen font */
 }
 
 #editProfil input[type="text"],
 #editProfil input[type="password"],
 #editProfil textarea {
-    max-width: 350px; /* Dodatno smanjena maksimalna širina inputa/textarea */
-    margin-bottom: 15px; /* Smanjen razmak */
-    padding: 12px; /* Smanjen padding */
-    border-radius: 10px; /* Malo smanjen border-radius */
-    font-size: 15px; /* Malo smanjen font */
+    max-width: 320px; /* Dodatno smanjena maksimalna širina inputa/textarea */
+    margin-bottom: 12px; /* Smanjen razmak */
+    padding: 10px; /* Smanjen padding */
+    border-radius: 8px; /* Malo smanjen border-radius */
+    font-size: 14px; /* Malo smanjen font */
 }
 
 #editProfil button {
-    padding: 12px 20px; /* Smanjen padding */
-    font-size: 16px; /* Malo smanjen font */
-    border-radius: 10px; /* Smanjen border-radius */
-    max-width: 300px; /* Smanjena maksimalna širina */
-    margin-top: 15px; /* Smanjen razmak */
-    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3); /* Smanjena sjena */
-}
-
-#editProfil button:hover {
-    transform: translateY(-2px) scale(1.01); /* Smanjen transform efekt */
-    box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); /* Smanjena sjena */
+    padding: 10px 18px; /* Smanjen padding */
+    font-size: 15px; /* Malo smanjen font */
+    border-radius: 8px; /* Smanjen border-radius */
+    max-width: 280px; /* Smanjena maksimalna širina */
+    margin-top: 10px; /* Smanjen razmak */
+    box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3); /* Smanjena sjena */
 }
 /* === NOVI STILOVI ZA #editProfil - Redizajn === */
 #editProfil {
