@@ -82,7 +82,8 @@
     <div class="container" id="homePrikazPijanki">
         <div class="main-header">
             <h1 class="main-logo">
-                </h1>
+                <img src="/logo.png" alt="Logo" class="header-logo-image">
+            </h1>
         </div>
         <div id="pijankePregled"></div>
     </div>
@@ -90,7 +91,8 @@
     <div class="container" id="praznaTrazilica">
         <div class="main-header">
             <h1 class="main-logo">
-                </h1>
+                <img src="/logo.png" alt="Logo" class="header-logo-image">
+            </h1>
         </div>
         <p style="text-align:center; padding-top: 50px;">Ovo je nova stranica za tražilicu!</p>
         </div>
@@ -150,7 +152,7 @@
         </div>
         <h2>Uredi profil</h2>
         <img id="previewEditSlike" class="profilna-slika" />
-        <label for="editIme">Korisničko ime:</label>
+        <input type="file" id="hiddenEditSlikaUpload" accept="image/*" style="display: none;" /> <label for="editIme">Korisničko ime:</label>
         <input id="editIme" placeholder="Korisničko ime" />
         <label for="editOpis">O meni:</label>
         <textarea id="editOpis" placeholder="O meni..." rows="3"></textarea>
@@ -158,8 +160,6 @@
         <input id="editInstagram" placeholder="Instagram korisničko ime" />
         <label for="editTiktok">TikTok korisničko ime:</label>
         <input id="editTiktok" placeholder="TikTok korisničko ime" />
-        <label for="editSlikaUpload">Promijeni profilnu sliku:</label>
-        <input type="file" id="editSlikaUpload" accept="image/*" />
         <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
     </div>
 
@@ -442,15 +442,15 @@
             let actionButtons = '';
             if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
                 document.querySelector('#glavniDio h2').innerText = "Moj profil";
-                actionButtons = `<button onclick="prikaziEditProfila()">Uredi profil</button><button class="btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
+                actionButtons = `<button class="profil-action-button" onclick="prikaziEditProfila()">Uredi profil</button><button class="profil-action-button btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
             } else {
                 document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
-                actionButtons = `<button onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
+                actionButtons = `<button class="profil-action-button" onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
             }
 
             profilKorisnikaDiv.innerHTML = `
                 <img src="${korisnik.slika || 'default_profile.png'}" class="profilna-slika-velika">
-                <h2 style="padding-top:0; margin-bottom: 5px;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
+                <h2 class="profil-ime">${korisnik.ime || 'Nepoznat korisnik'}</h2>
                 <p class="profil-opis">${korisnik.opis || "Nema opisa."}</p>
                 <div class="drustvene-mreze">${prikaziMreze(korisnik)}</div>
                 <div class="profil-actions">${actionButtons}</div>
