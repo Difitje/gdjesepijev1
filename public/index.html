@@ -82,8 +82,7 @@
     <div class="container" id="homePrikazPijanki">
         <div class="main-header">
             <h1 class="main-logo">
-                <img src="/logo.png" alt="Logo" class="header-logo-image">
-            </h1>
+                </h1>
         </div>
         <div id="pijankePregled"></div>
     </div>
@@ -91,8 +90,7 @@
     <div class="container" id="praznaTrazilica">
         <div class="main-header">
             <h1 class="main-logo">
-                <img src="/logo.png" alt="Logo" class="header-logo-image">
-            </h1>
+                </h1>
         </div>
         <p style="text-align:center; padding-top: 50px;">Ovo je nova stranica za tražilicu!</p>
         </div>
@@ -151,15 +149,7 @@
             <button class="back-button" onclick="navigateBack()">←</button>
         </div>
         <h2>Uredi profil</h2>
-        <div class="edit-profil-slika-wrapper">
-            <img id="previewEditSlike" class="profilna-slika" />
-            <div class="edit-camera-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                    <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
-                </svg>
-            </div>
-        </div>
-        <input type="file" id="hiddenEditSlikaUpload" accept="image/*" style="display: none;" /> 
+        <img id="previewEditSlike" class="profilna-slika" />
         <label for="editIme">Korisničko ime:</label>
         <input id="editIme" placeholder="Korisničko ime" />
         <label for="editOpis">O meni:</label>
@@ -168,6 +158,8 @@
         <input id="editInstagram" placeholder="Instagram korisničko ime" />
         <label for="editTiktok">TikTok korisničko ime:</label>
         <input id="editTiktok" placeholder="TikTok korisničko ime" />
+        <label for="editSlikaUpload">Promijeni profilnu sliku:</label>
+        <input type="file" id="editSlikaUpload" accept="image/*" />
         <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
     </div>
 
@@ -198,7 +190,7 @@
         </button>
         <button class="nav-button" id="navProfile" onclick="handleNavClick('glavniDio');">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 9 010-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             <span>Profil</span>
         </button>
@@ -444,24 +436,21 @@
             if (!korisnik) return;
             
             const profilKorisnikaDiv = document.getElementById("profilKorisnika");
-            document.getElementById("objavaForma").style.display = "none"; // Sakrij formu za objavu
+            document.getElementById("objavaForma").style.display = "none";
             profilKorisnikaDiv.style.display = "flex";
             
             let actionButtons = '';
             if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
-                // UKLONJEN "Moj profil" tekst iz glavnog naslova.
-                document.querySelector('#glavniNaslov').innerText = ""; // Postavi prazan string za vlastiti profil
-                actionButtons = `<button class="profil-action-button" onclick="prikaziEditProfila()">Uredi profil</button><button class="profil-action-button btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
+                document.querySelector('#glavniDio h2').innerText = "Moj profil";
+                actionButtons = `<button onclick="prikaziEditProfila()">Uredi profil</button><button class="btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
             } else {
-                // Ako je tuđi profil, i dalje želimo naslov
-                document.querySelector('#glavniNaslov').innerText = "Profil korisnika"; 
-                actionButtons = `<button class="profil-action-button" onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
+                document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
+                actionButtons = `<button onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
             }
 
-            // ISPRAVAK: Koristi backtickove (template literal) za cijeli innerHTML string
             profilKorisnikaDiv.innerHTML = `
                 <img src="${korisnik.slika || 'default_profile.png'}" class="profilna-slika-velika">
-                <h2 class="profil-ime">${korisnik.ime || 'Nepoznat korisnik'}</h2>
+                <h2 style="padding-top:0; margin-bottom: 5px;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
                 <p class="profil-opis">${korisnik.opis || "Nema opisa."}</p>
                 <div class="drustvene-mreze">${prikaziMreze(korisnik)}</div>
                 <div class="profil-actions">${actionButtons}</div>
@@ -492,7 +481,6 @@
                         if (!partner) return;
                         const neprocitane = privatnePoruke[chatKey].some(m => !m.isRead && m.autorId == partner.id);
                         const status = formatirajStatus(partner.lastActive);
-                        // ISPRAVAK: Koristi backtickove (template literal) za cijeli innerHTML string
                         div.innerHTML += `
                             <div class="chat-item" onclick="pokreniPrivatniChat('${partner.id}')">
                                 <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
@@ -515,22 +503,7 @@
         // Kada se pokaže objava, navigacija ostaje, ali niti jedan gumb nije "aktivan" i FAB se skriva
         const originalPokaziObjavu = pokaziObjavu;
         pokaziObjavu = function() {
-            document.querySelector('#glavniNaslov').innerText = "Objavi pijanku"; // Postavi naslov
-            document.getElementById("objavaForma").style.display = "flex"; // Prikaži formu za objavu
-            document.getElementById("profilKorisnika").style.display = "none"; // Sakrij profil
-            document.getElementById("opisPijanke").value = "";
-            document.querySelector('#glavniDio .back-button').style.display = 'none';
-            
-            // IZMJENA: "X" tipka sada direktno prebacuje na homePrikazPijanki
-            const closeBtn = document.querySelector('#glavniDio .close-btn');
-            closeBtn.style.display = 'flex';
-            closeBtn.onclick = () => {
-                navigateTo('homePrikazPijanki');
-                // Vratite onclick na originalnu funkciju nakon klika, ako je potrebno da se ne duplicira
-                // closeBtn.onclick = null; // ili postavite na originalnu navigateBack ako ce X imati i tu ulogu na drugim mjestima
-            };
-
-            navigateTo('glavniDio');
+            originalPokaziObjavu();
             document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                 button.classList.remove('active');
             });

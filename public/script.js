@@ -155,27 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // IZMIJENJENO: Uklonjen direktan listener za #editSlikaUpload
-    // Dodan je listener za klik na wrapper element koji sadrži sliku i ikonu
-    const editProfilSlikaWrapper = document.querySelector('.edit-profil-slika-wrapper');
-    if (editProfilSlikaWrapper) {
-        editProfilSlikaWrapper.addEventListener('click', () => {
-            const hiddenEditSlikaUpload = document.getElementById('hiddenEditSlikaUpload');
-            if (hiddenEditSlikaUpload) {
-                hiddenEditSlikaUpload.click(); // Programatski okidanje klika na skriveni input file
-            }
-        });
-    }
-
-    // Listener za promjenu na hidden inputu za sliku
-    const hiddenEditSlikaUpload = document.getElementById('hiddenEditSlikaUpload');
-    if (hiddenEditSlikaUpload) {
-        hiddenEditSlikaUpload.addEventListener('change', handleHiddenEditSlikaUploadChange);
+    const editSlikaUploadEl = document.getElementById("editSlikaUpload");
+    if (editSlikaUploadEl) {
+        editSlikaUploadEl.addEventListener("change", handleEditSlikaUploadChange);
     }
 });
 
-// New function to handle file input change for edit profile
-function handleHiddenEditSlikaUploadChange() {
+function handleEditSlikaUploadChange() {
     const file = this.files[0];
     if (file) {
         const reader = new FileReader();
@@ -305,27 +291,6 @@ async function prikaziEditProfila() {
     document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
     document.getElementById("previewEditSlike").style.display = "block";
     odabranaEditSlika = null;
-
-    // Ponovno postavljanje listenera za klik na wrapper
-    const editProfilSlikaWrapper = document.querySelector('.edit-profil-slika-wrapper');
-    if (editProfilSlikaWrapper) {
-        editProfilSlikaWrapper.removeEventListener('click', () => { // Ukloni stari listener ako postoji
-            const hiddenEditSlikaUpload = document.getElementById('hiddenEditSlikaUpload');
-            if (hiddenEditSlikaUpload) hiddenEditSlikaUpload.click();
-        });
-        editProfilSlikaWrapper.addEventListener('click', () => { // Dodaj novi listener
-            const hiddenEditSlikaUpload = document.getElementById('hiddenEditSlikaUpload');
-            if (hiddenEditSlikaUpload) hiddenEditSlikaUpload.click();
-        });
-    }
-
-    // Listener za promjenu na hidden inputu za sliku
-    const hiddenEditSlikaUpload = document.getElementById('hiddenEditSlikaUpload');
-    if (hiddenEditSlikaUpload) {
-        hiddenEditSlikaUpload.removeEventListener('change', handleHiddenEditSlikaUploadChange); // Ukloni stari listener
-        hiddenEditSlikaUpload.addEventListener('change', handleHiddenEditSlikaUploadChange); // Dodaj novi listener
-    }
-
     navigateTo('editProfil');
 }
 
@@ -446,7 +411,7 @@ async function objaviPijanku() {
     if (!mojPoz) return dohvatiLokaciju(() => objaviPijanku());
 
     const objaviBtn = document.querySelector('#objavaForma button');
-    objaviBtn.disabled = true; objabiBtn.textContent = 'Objavljujem...';
+    objaviBtn.disabled = true; objaviBtn.textContent = 'Objavljujem...';
     try {
         const response = await authenticatedFetch('/api/posts', {
             method: 'POST',
@@ -535,31 +500,25 @@ async function otvoriProfil(korisnikId) {
     profilKorisnikaDiv.style.display = "flex";
     
     let actionButtons = '';
-    const isMyProfile = trenutniKorisnik && korisnik.id === trenutniKorisnik.id;
-
-    if (isMyProfile) {
-        // Kada je tvoj profil, ne prikazujemo "Moj profil" u h2 #glavniNaslov
-        document.querySelector('#glavniNaslov').innerText = ""; 
-        actionButtons = `<button class="profil-action-button" onclick="prikaziEditProfila()">Uredi profil</button><button class="profil-action-button btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
+    if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
+        document.querySelector('#glavniDio h2').innerText = "Moj profil";
+        actionButtons = `<button onclick="prikaziEditProfila()">Uredi profil</button><button class="btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
     } else {
-        // Kada nije tvoj profil, prikazujemo naslov "Profil korisnika" u glavnom dijelu
-        document.querySelector('#glavniNaslov').innerText = "Profil korisnika"; 
-        actionButtons = `<button class="profil-action-button" onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
+        document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
+        actionButtons = `<button onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
     }
-    
-    // Ključno: Koristiti backtickove (template literal) za cijeli innerHTML string
+
     profilKorisnikaDiv.innerHTML = `
         <img src="${korisnik.slika || 'default_profile.png'}" class="profilna-slika-velika">
-        <h2 class="profil-ime">${korisnik.ime || 'Nepoznat korisnik'}</h2>
+        <h2 style="padding-top:0; margin-bottom: 5px;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
         <p class="profil-opis">${korisnik.opis || "Nema opisa."}</p>
         <div class="drustvene-mreze">${prikaziMreze(korisnik)}</div>
         <div class="profil-actions">${actionButtons}</div>
     `;
 
     // Sakrij back i close gumbe kada se prikazuje profil
-    document.querySelector('#glavniDio .back-button').style.display = 'none';
-    document.querySelector('#glavniDio .close-btn').style.display = 'none';
-    
+    document.querySelector('#glavniDio .back-button').style.display = 'none'; // Uklonjeno
+    document.querySelector('#glavniDio .close-btn').style.display = 'none'; // Uklonjeno
     navigateTo('glavniDio');
 }
 
@@ -603,7 +562,6 @@ function otvoriInbox() {
             if (!partner) return;
             const neprocitane = privatnePoruke[chatKey].some(m => !m.isRead && m.autorId == partner.id);
             const status = formatirajStatus(partner.lastActive);
-            // Ključno: Koristiti backtickove (template literal) za cijeli innerHTML string
             div.innerHTML += `
                 <div class="chat-item" onclick="pokreniPrivatniChat('${partner.id}')">
                     <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
@@ -627,7 +585,6 @@ async function pokreniPrivatniChat(partnerId) {
     if (!primalac) return;
 
     const chatHeaderInfoEl = document.querySelector('.chat-header-info');
-    // Ključno: Koristiti backtickove (template literal) za cijeli innerHTML string
     chatHeaderInfoEl.innerHTML = `
         <img id="chatPartnerSlika" src="${primalac.slika || 'default_profile.png'}" alt="Profilna slika" class="chat-partner-profilna">
         <div class="chat-info-text-wrapper">
