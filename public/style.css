@@ -620,16 +620,16 @@ img.preview-slika { display: none; }
 .pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
 
 
-/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) - Ažurirano sa većom širinom === */
+/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) - Instagram Stil === */
 #listaChatova {
-    padding: 0; /* Uklanjamo padding da bi se itemi protezali od ruba do ruba */
-    max-width: 720px; /* PROMIJENJENO: Povećana maksimalna širina sa 600px na 720px za širi izgled */
-    margin: 0 auto; /* Centriranje liste */
+    padding: 0;
+    /* UKLONJENO: max-width je uklonjen kako bi lista bila preko cijele širine */
+    margin: 0 auto;
 }
 
 .chat-item {
     background: transparent;
-    padding: 14px 16px; /* VRAĆENO: Vraćen kompaktniji vertikalni padding */
+    padding: 10px 16px; /* PROMIJENJENO: Značajno smanjen vertikalni padding za kompaktniji izgled */
     margin: 0;
     display: flex;
     align-items: center;
@@ -639,7 +639,6 @@ img.preview-slika { display: none; }
     width: 100%;
     border-left: 4px solid transparent; /* Nevidljivi border za aktivno stanje */
     cursor: pointer;
-    /* Reset starih stilova */
     border-radius: 0;
     box-sizing: border-box;
 }
@@ -657,21 +656,14 @@ img.preview-slika { display: none; }
     border-bottom: none;
 }
 
-/* NAPOMENA: Za idealan prikaz statusa (online/offline),
-  preporučuje se zamotati <img> i .status-dot u jedan div u HTML-u:
-  <div class="chat-profilna-wrapper">
-    <img src="..." class="chat-item-profilna">
-    <span class="status-dot online"></span>
-  </div>
-*/
 .chat-profilna-wrapper {
     position: relative;
     flex-shrink: 0;
 }
 
-.chat-item img { /* Stilovi se sada primjenjuju direktno na img unutar .chat-item */
-    width: 52px;
-    height: 52px;
+.chat-item img {
+    width: 48px;  /* PROMIJENJENO: Smanjena veličina slike za kompaktniji izgled */
+    height: 48px; /* PROMIJENJENO: Smanjena veličina slike za kompaktniji izgled */
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
@@ -679,18 +671,18 @@ img.preview-slika { display: none; }
 
 .chat-profilna-wrapper .status-dot {
     position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 12px;
-    height: 12px;
-    border: 2px solid #1e1e1e; /* Rub koji se stapa s pozadinom */
+    bottom: 1px;  /* Prilagođeno za manju sliku */
+    right: 1px;   /* Prilagođeno za manju sliku */
+    width: 11px;  /* Prilagođeno za manju sliku */
+    height: 11px; /* Prilagođeno za manju sliku */
+    border: 2px solid #1e1e1e;
 }
 
 .chat-item-info {
     flex-grow: 1;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start; /* Poravnanje na vrh */
+    align-items: center; /* Vraćeno na center za bolji vertikalni balans */
     gap: 10px;
     overflow: hidden;
     cursor: pointer;
@@ -700,61 +692,55 @@ img.preview-slika { display: none; }
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 4px; /* VRAĆENO: Vraćen manji razmak između imena i poruke */
+    gap: 2px; /* PROMIJENJENO: Dodatno smanjen razmak između imena i poruke */
     overflow: hidden;
 }
 
 .chat-item-info strong {
-    font-size: 17px;
+    font-size: 16px; /* PROMIJENJENO: Smanjen font za kompaktniji izgled */
     font-weight: 600;
     color: #f0f0f0;
     white-space: nowrap;
-    line-height: 1.3;
+    line-height: 1.4; /* Prilagođen line-height */
 }
 
-/* NAPOMENA: Preporučuje se u HTML-u promijeniti klasu sa .status-text na .chat-zadnja-poruka */
 .chat-item-info .status-text {
     font-size: 14px;
     color: #999;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* Dodaje "..." za preduge poruke */
-    line-height: 1.3;
+    text-overflow: ellipsis;
+    line-height: 1.4; /* Prilagođen line-height */
     margin: 0;
     padding: 0;
 }
 
-/* Wrapper za desnu stranu (vrijeme i notifikacija) */
 .chat-meta-info {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 6px;
     flex-shrink: 0;
-    padding-top: 2px;
 }
 
-/* Vrijeme poruke (novi element, potrebno ga je dodati u HTML) */
 .chat-vrijeme {
     font-size: 12px;
     color: #888;
     white-space: nowrap;
 }
 
-/* Redizajnirani badge za nepročitane poruke */
 .notification-badge-chat {
     background-color: #ff4757;
     color: white;
-    min-width: 22px;
-    height: 22px;
-    border-radius: 11px;
+    min-width: 20px;  /* Prilagođeno */
+    height: 20px;     /* Prilagođeno */
+    border-radius: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 12px;
+    font-size: 11px;  /* Prilagođeno */
     font-weight: 600;
-    padding: 0 5px;
-    /* Uklanjamo margin-left: auto jer poziciju sada kontrolira flex wrapper .chat-meta-info */
+    padding: 0 4px;
 }
 
 .notification-badge-chat:empty {
