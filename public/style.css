@@ -114,7 +114,7 @@ body::before {
         padding-bottom: 70px; /* Visina nav bara + malo razmaka */
     }
     /* #lokacijePrikaz je već imao padding-top, ostali kontejneri sada također trebaju */
-    #homePrikazPijanki, #praznaTrazilica, #glavniDio, #editProfil { /* PRILAGOĐENO ID-evima */
+    #homePrikazPijanki, #praznaTrazilica, #glavniDio, #editProfil, #inboxPrikaz { /* PRILAGOĐENO ID-evima */
         padding-top: 70px; /* Osiguraj prostor za header */
     }
     /* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
@@ -129,18 +129,6 @@ body::before {
         height: 100vh; /* Zauzima cijelu visinu viewporta */
     }
 }
-
-/* === NOVI STIL ZA INBOX DA BUDE PREKO CIJELOG EKRANA === */
-#inboxPrikaz.container {
-    padding-left: 0;
-    padding-right: 0;
-}
-#inboxPrikaz h2 {
-    padding-left: 12px;
-    padding-right: 12px;
-    text-align: left;
-}
-
 
 .main-header {
     position: absolute; top: 0; left: 0; right: 0; height: 60px; padding: 0 10px;
@@ -337,7 +325,7 @@ body::before {
 /* KRAJ NOVIH STILOVA ZA BOTTOM NAVIGACIJU */
 
 
-#pijankePregled { flex-grow: 1; overflow-y: auto; min-height: 100px; }
+#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
 
 /* === PROMJENE ZA CHAT LOG SKROLLANJE I ZAGLAVLJE === */
 #privatniChatLog {
@@ -629,7 +617,17 @@ img.preview-slika { display: none; }
 .pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
 
 
-/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) === */
+/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) - Finalna verzija === */
+#inboxPrikaz.container {
+    padding-left: 0;
+    padding-right: 0;
+}
+#inboxPrikaz h2 {
+    padding-left: 12px;
+    padding-right: 12px;
+    text-align: center; 
+}
+
 #listaChatova {
     padding: 0;
     margin: 0;
@@ -637,12 +635,11 @@ img.preview-slika { display: none; }
 
 .chat-item {
     background: transparent;
-    padding: 8px 12px; /* Ostavljamo malo paddinga da sadržaj ne udara u rub */
+    padding: 8px 12px;
     margin: 0;
     display: flex;
     align-items: center;
     gap: 12px;
-    border-bottom: 1px solid #2a2a2a;
     transition: background-color 0.2s ease-in-out;
     width: 100%;
     border-left: 4px solid transparent;
@@ -660,16 +657,11 @@ img.preview-slika { display: none; }
     border-left-color: #ff4757;
 }
 
-.chat-item:last-child {
-    border-bottom: none;
-}
-
 .chat-profilna-wrapper {
     position: relative;
     flex-shrink: 0;
 }
 
-/* Stil za sliku, odvojen od pijanka-profilna-slika */
 .chat-item img {
     width: 44px;
     height: 44px;
