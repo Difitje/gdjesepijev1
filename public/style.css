@@ -368,7 +368,7 @@ body::before {
 /* Uklonjen padding-top iz #privatniChat .chat-header-info jer ga sada definira .container padding-top */
 
 
-#intro, #pravilaEkran, #odabir, #login, #registracija, #editProfil, #homePrikazPijanki, #praznaTrazilica { justify-content: center; align-items: center; } /* Dodan #praznaTrazilica */
+#intro, #pravilaEkran, #odabir, #login, #registracija, #homePrikazPijanki, #praznaTrazilica { justify-content: center; align-items: center; } /* Dodan #praznaTrazilica */
 #objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
 #privatniChat { justify-content: flex-start; align-items: stretch; }
 
@@ -641,8 +641,7 @@ img.preview-slika { display: none; }
 @keyframes bounceIn { 0% { transform: scale(0.1); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
 @keyframes fadeOutSplash { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
 
-#profilKorisnika button,
-#editProfil button {
+#profilKorisnika button {
     /* Puno prozirnije za "glassy" efekt */
     background: rgba(30, 30, 30, 0.3); /* PROMIJENJENO: Vrlo prozirno (30% neprozirnosti) */
     box-shadow: none !important; /* Uklanjamo sjenu */
@@ -650,14 +649,93 @@ img.preview-slika { display: none; }
     outline: none !important;
 }
 
-#profilKorisnika button:hover,
-#editProfil button:hover {
+#profilKorisnika button:hover {
     /* Na hoveru malo manje prozirno da se istakne */
     background: rgba(40, 40, 40, 0.6); /* PROMIJENJENO: Malo manje prozirno na hoveru */
     transform: none;
     box-shadow: none !important;
     outline: none !important;
 }
+
+/* === NOVI STILOVI ZA #editProfil - Redizajn === */
+#editProfil {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centriraj sadržaj horizontalno */
+    justify-content: flex-start; /* Poravnaj sadržaj na vrh */
+}
+
+#editProfil h2 {
+    margin-bottom: 25px; /* Povećan razmak ispod naslova */
+}
+
+#editProfil .profilna-slika {
+    margin-bottom: 20px; /* Razmak ispod profilne slike */
+    border: 3px solid #ff4757; /* Naglašeniji crveni border */
+    width: 100px;
+    height: 100px;
+}
+
+#editProfil input[type="file"] {
+    background: rgba(30, 30, 30, 0.3); /* Prozirna pozadina za file input */
+    border: 1px solid rgba(51, 51, 51, 0.2); /* Prozirniji border */
+    padding: 10px;
+    margin-bottom: 20px; /* Razmak ispod file inputa */
+    cursor: pointer;
+}
+
+#editProfil label {
+    align-self: flex-start; /* Poravnaj labelu lijevo */
+    margin-bottom: 8px; /* Mali razmak iznad inputa/textarea */
+    color: #e0e0e0;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+#editProfil input[type="text"],
+#editProfil input[type="password"],
+#editProfil textarea {
+    width: 100%;
+    max-width: 400px; /* Ograniči širinu inputa i textarea na desktopu */
+    margin-bottom: 18px; /* Povećan razmak između inputa */
+    background: #1e1e1e; /* Tamnija pozadina za inpute/textarea */
+    border: 1px solid #2a2a2a; /* Suptilniji border */
+    border-radius: 12px; /* Veći border-radius */
+    padding: 14px; /* Veći padding */
+    color: #f0f0f0;
+    font-size: 16px;
+}
+
+#editProfil input[type="text"]:focus,
+#editProfil input[type="password"]:focus,
+#editProfil textarea:focus {
+    border-color: #ff4757;
+    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.3);
+}
+
+#editProfil button {
+    /* Puno prozirnije za "glassy" efekt */
+    background: rgba(30, 30, 30, 0.3); /* PROMIJENJENO: Vrlo prozirno (30% neprozirnosti) */
+    box-shadow: none !important; /* Uklanjamo sjenu */
+    border: 1px solid rgba(51, 51, 51, 0.2); /* PROMIJENJENO: I border je prozirniji */
+    outline: none !important;
+    max-width: 400px; /* Ograniči širinu gumba */
+    margin-top: 10px; /* Razmak iznad gumba */
+    padding: 14px 20px;
+    font-size: 17px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+}
+
+#editProfil button:hover {
+    /* Na hoveru malo manje prozirno da se istakne */
+    background: rgba(40, 40, 40, 0.6); /* PROMIJENJENO: Malo manje prozirno na hoveru */
+    transform: translateY(-1px); /* Mali pomak na hoveru */
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2); /* Suptilna sjena na hoveru */
+}
+/* === KRAJ NOVIH STILOVA ZA #editProfil === */
 
 #objavaForma button {
     /* Puno prozirnije crveno za "glassy" efekt */

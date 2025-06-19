@@ -287,7 +287,7 @@ async function prikaziEditProfila() {
     document.getElementById("editIme").value = user.ime || '';
     document.getElementById("editOpis").value = user.opis || '';
     document.getElementById("editInstagram").value = user.instagram || '';
-    document.getElementById("tiktok").value = user.tiktok || '';
+    document.getElementById("editTiktok").value = user.tiktok || ''; // Corrected ID
     document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
     document.getElementById("previewEditSlike").style.display = "block";
     odabranaEditSlika = null;
@@ -295,18 +295,32 @@ async function prikaziEditProfila() {
 }
 
 async function sacuvajProfil() {
+    if (!trenutniKorisnik || !trenutniKorisnik.id) {
+        alert("Niste prijavljeni.");
+        return;
+    }
+
     const novoIme = document.getElementById("editIme").value.trim();
     const noviOpis = document.getElementById("editOpis").value.trim();
     const noviInstagram = document.getElementById("editInstagram").value.trim();
-    const noviTiktok = document.getElementById("editTiktok").value.trim();
+    const noviTiktok = document.getElementById("editTiktok").value.trim(); // Corrected ID
     const sacuvajBtn = document.getElementById('sacuvajProfilBtn');
 
     if (!novoIme) return alert("Ime ne može biti prazno!");
-    sacuvajBtn.disabled = true; sacuvajBtn.textContent = 'Spremam promjene...';
+    sacuvajBtn.disabled = true; 
+    sacuvajBtn.textContent = 'Spremam promjene...';
+    
     let finalSlika = null;
-    if (odabranaEditSlika) { finalSlika = await compressImage(odabranaEditSlika); }
+    if (odabranaEditSlika) { 
+        finalSlika = await compressImage(odabranaEditSlika); 
+    } else {
+        // If no new image is selected, use the current profile image
+        finalSlika = document.getElementById("previewEditSlike").src;
+    }
+
     const updateData = { username: novoIme, opis: noviOpis, instagram: noviInstagram, tiktok: noviTiktok };
     if (finalSlika) { updateData.slika = finalSlika; }
+
     try {
         const response = await authenticatedFetch(`/api/users/${trenutniKorisnik.id}`, {
             method: 'PUT',
@@ -323,8 +337,10 @@ async function sacuvajProfil() {
         }
     } catch (error) {
         alert("Došlo je do greške pri spremanja profila.");
+        console.error("Error saving profile:", error);
     } finally {
-        sacuvajBtn.disabled = false; sacuvajBtn.textContent = 'Spremi promjene';
+        sacuvajBtn.disabled = false; 
+        sacuvajBtn.textContent = 'Spremi promjene';
     }
 }
 
