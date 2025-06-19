@@ -556,8 +556,23 @@ h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22p
 h2 { font-size: 20px; }
 p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
 #intro p, #odabir p { text-align: center; } /* Uklonjen #pijankePregled p odavdje */
-.profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
-.drustvene-mreze { text-align: center; margin-bottom: 15px; }
+.profil-opis {
+    text-align: center;
+    color: #c0c0c0; /* Malo svjetlija, mekša siva za opis */
+    margin-bottom: 25px; /* Povećan razmak ispod opisa */
+    font-size: 15px; /* Malo veći font za čitljivost */
+    line-height: 1.6; /* Povećan line-height za bolju čitljivost */
+    max-width: 450px; /* Ograničenje širine za bolju tipografiju na većim ekranima */
+    padding: 0 15px; /* Mali padding da se tekst ne lijepi za rubove */
+}
+.drustvene-mreze {
+    text-align: center;
+    margin-bottom: 30px; /* Povećan razmak ispod ikonica */
+    display: flex; /* Koristi flexbox za centriranje ikonica */
+    justify-content: center; /* Centriraj ikonice horizontalno */
+    align-items: center;
+    gap: 15px; /* Razmak između ikonica */
+}
 
 /* === REDIZAJNIRANI STILOVI ZA #profilKorisnika - AKCIJSKI GUMBI (Luksuzan Izgled, Manja Veličina) === */
 #profilKorisnika .profil-actions {
@@ -684,8 +699,23 @@ img.preview-slika { display: none; }
 .status-dot.offline { background-color: #7f8c8d; }
 .status-text { font-size: 13px; color: #999; margin: 0; }
 .notification-badge-chat { width: 12px; height: 12px; background: #ff4757; border-radius: 50%; margin-left: auto; }
-.mreza-ikonica { width: 28px; height: 28px; margin: 0 10px; vertical-align: middle; transition: transform 0.2s ease; }
-.mreza-ikonica:hover { transform: scale(1.1); }
+.mreza-ikonica {
+    width: 36px; /* Povećana veličina ikonica za bolju vidljivost i "premium" osjećaj */
+    height: 36px; /* Ista visina kao širina za proporcionalnost */
+    margin: 0; /* Uklanjanje postojećih margina */
+    vertical-align: middle;
+    transition: transform 0.25s ease-in-out, filter 0.25s ease-in-out; /* Glatkija tranzicija */
+    object-fit: contain; /* Osigurava da se slika pravilno uklapa */
+    
+    /* Novi efekti za ikonice */
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.4)); /* Suptilna sjena za dubinu */
+    border-radius: 8px; /* Blagi border-radius ako je ikonica kvadratna */
+}
+
+.mreza-ikonica:hover {
+    transform: scale(1.15) translateY(-2px); /* Izraženiji efekt na hoveru */
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6)) brightness(1.2); /* Jača sjena i blago osvjetljenje */
+}
 .pravila-checkbox-wrapper { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; justify-content: center; }
 .pravila-checkbox-wrapper input[type="checkbox"] { width: auto; margin-bottom: 0; flex-shrink: 0; }
 .pravila-checkbox-wrapper label { margin-bottom: 0; font-size: 14px; color: #f0f0f0; text-align: left; }
