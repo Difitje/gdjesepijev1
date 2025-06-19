@@ -59,8 +59,7 @@ body::before {
     flex-direction: column;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    /* Dodaj align-items: center ovdje kako bi svi kontejneri bili centrirani po defaultu */
-    align-items: center; 
+    /* UKLONJENO: align-items: center; ODAVDE! To je uzrokovalo problem */
 }
 .container.active-screen {
     opacity: 1;
@@ -98,14 +97,18 @@ body::before {
         border: 1px solid #2a2a2a;
         border-radius: 24px;
         box-shadow: 0 10px 40px rgba(0,0,0, 0.5);
+        /* Na desktopu, ako je kontejner flex, centriraj djecu */
+        align-items: center; /* Dodaj align-items: center za desktop kontejnere ovdje */
     }
     .chat-input-area { max-width: 1200px; margin: 0 auto; }
     #objavaForma, #profilKorisnika, #login > input, #login > button,
     #registracija > input, #registracija > textarea, #registracija > button, #registracija > label, #registracija > img {
         width: 100%; max-width: 600px; margin-left: auto; margin-right: auto;
     }
-    /* UKLONJENO #editProfil iz ovog dijela jer će se stilizirati posebno za centriranje unutar svoje flex kolone */
-    #login, #registracija { align-items: center; } 
+    /* Specificiraj za ove kontejnere da centriraju svoje direktne djecu */
+    #login, #registracija, #intro, #odabir, #pravilaEkran { 
+        align-items: center; 
+    } 
     #privatniChatLog p { max-width: 800px; margin-left: auto; margin-right: auto; }
 }
 
@@ -315,7 +318,6 @@ body::before {
     top: 5px; /* Manja vrijednost da bude bliže vrhu ikone */
     right: calc(50% - 12px); /* Centrirano horizontalno unutar SVG-a (+/- malo pomaka) */
     transform: translateX(100%); /* Pomakni bedž za 100% svoje širine udesno */
-    /* Eksperimentiranje s transformom za bolju preciznost */
     
     border: 2px solid rgba(26, 26, 26, 0.95); /* Boja ruba da odgovara pozadini nav bara */
 }
@@ -370,7 +372,11 @@ body::before {
 /* Uklonjen padding-top iz #privatniChat .chat-header-info jer ga sada definira .container padding-top */
 
 
-#intro, #pravilaEkran, #odabir, #login, #registracija, #homePrikazPijanki, #praznaTrazilica { justify-content: center; /* Centriraj djecu horizontalno */ } /* Dodan #praznaTrazilica */
+/* Globalno centriranje za ove kontejnere (koji nisu #editProfil) */
+#intro, #pravilaEkran, #odabir, #login, #registracija, #homePrikazPijanki, #praznaTrazilica { 
+    justify-content: center; /* Centriraj djecu vertikalno */
+    align-items: center; /* Centriraj djecu horizontalno */
+} 
 #objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
 #privatniChat { justify-content: flex-start; align-items: stretch; }
 
@@ -650,23 +656,108 @@ img.preview-slika { display: none; }
 @keyframes bounceIn { 0% { transform: scale(0.1); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
 @keyframes fadeOutSplash { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
 
-#profilKorisnika button {
-    /* Puno prozirnije za "glassy" efekt */
-    background: rgba(30, 30, 30, 0.3); /* PROMIJENJENO: Vrlo prozirno (30% neprozirnosti) */
-    box-shadow: none !important; /* Uklanjamo sjenu */
-    border: 1px solid rgba(51, 51, 51, 0.2); /* PROMIJENJENO: I border je prozirniji */
-    outline: none !important;
+/* Redizajn #profilKorisnika */
+/* Redizajn #profilKorisnika */
+#profilKorisnika {
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 20px;
+    padding: 30px 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    width: 100%;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Ovo osigurava horizontalno centriranje unutar flexboxa */
+    margin: 20px auto; /* Centriranje boxa na sredinu */
+    gap: 12px;
 }
 
-#profilKorisnika button:hover {
-    /* Na hoveru malo manje prozirno da se istakne */
-    background: rgba(40, 40, 40, 0.6); /* PROMIJENJENO: Malo manje prozirno na hoveru */
-    transform: none;
-    box-shadow: none !important;
-    outline: none !important;
+/* Uklanjamo h2 iz #profilKorisnika, pa ga više ne treba posebno stilizirati */
+/* #profilKorisnika h2 {
+    display: none;
+} */
+
+#profilKorisnika .profilna-slika-velika {
+    width: 100px;
+    height: 100px;
+    border: 4px solid #ff4757;
+    margin-bottom: 10px;
+    box-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
 }
 
-/* === NOVI STILOVI ZA #editProfil - Redizajn i optimizacija visine === */
+#profilKorisnika .profil-ime {
+    font-size: 24px;
+    color: #fff;
+    margin-bottom: 5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-align: center; /* Dodano za centriranje imena */
+    width: 100%; /* Osigurava da zauzme cijelu širinu za centriranje */
+}
+
+#profilKorisnika .profil-opis {
+    font-size: 15px;
+    color: #e0e0e0;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    max-width: 90%;
+    text-align: center;
+}
+
+#profilKorisnika .drustvene-mreze {
+    margin-bottom: 20px;
+    text-align: center; /* Centriranje ikonica društvenih mreža */
+    width: 100%; /* Omogućava centriranje */
+}
+
+#profilKorisnika .profil-actions {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px; /* Smanjena max-width za gumbe */
+    margin-top: 10px;
+    gap: 8px; /* Smanjen razmak između gumba */
+    align-items: center; /* KLJUČNO: Centriranje gumba unutar .profil-actions */
+}
+
+.profil-action-button {
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+    width: 100%; /* Gumbovi zauzimaju cijelu širinu svog roditelja (.profil-actions) */
+    max-width: 280px; /* Nije neophodno ako je width 100% i roditelj ima max-width */
+    margin-bottom: 0; /* Uklonite margin-bottom jer gap radi razmak */
+    background: linear-gradient(45deg, #ff4757, #e03f4d); /* Dodano za profilne gumbe */
+    color: white; /* Dodano za profilne gumbe */
+    font-weight: bold; /* Dodano za profilne gumbe */
+    text-transform: uppercase; /* Dodano za profilne gumbe */
+    letter-spacing: 0.8px; /* Dodano za profilne gumbe */
+    border: none; /* Dodano za profilne gumbe */
+}
+.profil-action-button:hover {
+    transform: translateY(-2px) scale(1.01); /* Smanjen transform efekt */
+    box-shadow: 0 6px 16px rgba(255, 71, 87, 0.5); /* Smanjena sjena */
+    background: linear-gradient(45deg, #e03f4d, #ff4757); /* Dodano za profilne gumbe */
+}
+.profil-action-button.btn-danger {
+    background: rgba(255, 255, 255, 0.1); /* PROMIJENJENO: Prozirna pozadina za opasne gumbe */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* PROMIJENJENO: Prozirni rub */
+    color: #f0f0f0; /* Boja teksta */
+    box-shadow: none; /* Bez sjene za opasne gumbe */
+}
+
+.profil-action-button.btn-danger:hover {
+    background: rgba(255, 255, 255, 0.2); /* PROMIJENJENO: Malo manje prozirno na hoveru */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+
+/* === STILOVI ZA #editProfil - Redizajn i optimizacija visine === */
 #editProfil {
     background: rgba(30, 30, 30, 0.6);
     backdrop-filter: blur(8px);
@@ -680,7 +771,7 @@ img.preview-slika { display: none; }
     margin: 10px auto; /* Ključno: Centriranje CIJELOG boxa na sredinu ekrana */
     display: flex;
     flex-direction: column;
-    /* UKLONJENO: align-items: center;  -> Ovo je to što je guralo sve na sredinu. */
+    /* UKLONJENO: align-items: center; */ /* Ovo je ključno za lijevo poravnanje unutrašnjeg sadržaja */
     justify-content: flex-start;
     height: auto;
     min-height: unset;
@@ -697,14 +788,14 @@ img.preview-slika { display: none; }
     right: auto;
     width: auto;
     z-index: 51;
-    pointer-events: none;
+    pointer-events: none; /* Da ne blokira klikove na elemente ispod */
     display: flex;
     justify-content: flex-start;
     align-items: center;
 }
 
 #editProfil .back-button {
-    pointer-events: auto;
+    pointer-events: auto; /* Ponovno omogući klikove na sam gumb */
     background: rgba(51, 51, 51, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: #f0f0f0;
@@ -791,8 +882,8 @@ img.preview-slika { display: none; }
     width: 100%; /* Da zauzme punu širinu i može se poravnati */
     max-width: 320px; /* Isto kao inputi */
     text-align: left; /* Tekst unutar labele neka bude lijevo poravnat */
-    margin-left: 0; /* Uklonite auto margine koje su ih centrirale */
-    margin-right: 0; /* Uklonite auto margine koje su ih centrirale */
+    margin-left: auto; /* Ključno: Pomoću auto margina poravnava lijevo unutar centriranog roditelja */
+    margin-right: auto; /* Služi da se ne zalijepi skroz desno ako ne želimo */
 }
 
 /* Prilagodba inputa i textarea da budu uže i da stanu svi zajedno */
@@ -805,15 +896,15 @@ img.preview-slika { display: none; }
     padding: 8px;
     border-radius: 6px;
     font-size: 14px;
-    margin-left: 0; /* Uklonite auto margine koje su ih centrirale */
-    margin-right: 0; /* Uklonite auto margine koje su ih centrirale */
+    margin-left: auto; /* Ključno: Auto margine za horizontalno centriranje inputa */
+    margin-right: auto;
 }
 
 /* Specifično za "O meni" textarea - osigurajte da ima istu širinu */
 #editProfil textarea#editOpis {
-    max-width: 320px; /* Postavite istu max-width kao i inputi - ISPRAVAK */
-    margin-left: 0; /* Uklonite auto margine koje su ga centrirale */
-    margin-right: 0; /* Uklonite auto margine koje su ga centrirale */
+    max-width: 320px; /* Postavite istu max-width kao i inputi */
+    margin-left: auto; /* Osigurajte centriranje */
+    margin-right: auto;
 }
 
 
