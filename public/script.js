@@ -398,8 +398,6 @@ function pokaziObjavu() {
     closeBtn.style.display = 'flex';
     closeBtn.onclick = () => {
         navigateTo('homePrikazPijanki');
-        // Vratite onclick na originalnu funkciju nakon klika, ako je potrebno da se ne duplicira
-        // closeBtn.onclick = null; // ili postavite na originalnu navigateBack ako ce X imati i tu ulogu na drugim mjestima
     };
 
     navigateTo('glavniDio');
@@ -422,9 +420,8 @@ async function objaviPijanku() {
         if (response.ok) {
             alert(data.message);
             await dohvatiSvePijanke();
-            // IZMJENA: Preusmjeri direktno na homePrikazPijanki
             navigateTo('homePrikazPijanki');
-            prikaziPijankePregled(); // Osiguraj da se pijanke osvježe na Home ekranu
+            prikaziPijankePregled(); 
         } else {
             alert("Greška pri objavi pijanke: " + data.message);
         }
@@ -516,9 +513,8 @@ async function otvoriProfil(korisnikId) {
         <div class="profil-actions">${actionButtons}</div>
     `;
 
-    // Sakrij back i close gumbe kada se prikazuje profil
-    document.querySelector('#glavniDio .back-button').style.display = 'none'; // Uklonjeno
-    document.querySelector('#glavniDio .close-btn').style.display = 'none'; // Uklonjeno
+    document.querySelector('#glavniDio .back-button').style.display = 'none';
+    document.querySelector('#glavniDio .close-btn').style.display = 'none';
     navigateTo('glavniDio');
 }
 
@@ -556,7 +552,6 @@ function otvoriInbox() {
     if (chatKeys.length === 0) {
         div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
     } else {
-        // Ispravak sortiranja da rukuje chatovima bez poruka
         chatKeys.sort((a, b) => {
             const timeA = privatnePoruke[a]?.slice(-1)[0]?.time;
             const timeB = privatnePoruke[b]?.slice(-1)[0]?.time;
@@ -676,13 +671,15 @@ async function posaljiPrivatno() {
     }
 }
 
-// === IZMIJENJENA FUNKCIJA ===
+// === KONAČNA ISPRAVKA REDOSLIJEDA PORUKA ===
 function prikaziPrivatniLog() {
     if (!trenutniKorisnik || !trenutniChatPartnerId) return;
     const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
     const log = privatnePoruke[chatKey] || [];
     const div = document.getElementById("privatniChatLog");
 
+    // Uklonjen .reverse() jer CSS flex-direction: column-reverse već radi svoj posao.
+    // Dovoljno je samo ispravno mapirati originalni (kronološki) niz.
     div.innerHTML = log.map(msg => {
         const vrijeme = new Date(msg.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' });
         const klasaWrappera = msg.autorId === trenutniKorisnik.id ? "moja-poruka" : "tudja-poruka";
@@ -696,9 +693,6 @@ function prikaziPrivatniLog() {
             </div>
         `;
     }).join("");
-
-    // Ovo nije više potrebno zbog flex-direction: column-reverse u CSS-u
-    // div.scrollTop = div.scrollHeight;
 }
 
 

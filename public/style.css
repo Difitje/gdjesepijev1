@@ -124,7 +124,7 @@ body::before {
 
     /* === PRILAGODBA ZA privatniChat CONTAINER - ZAUZIMA CIJELI EKRAN I POMAKNUT JE ZBOG CHAT HEADERA I INPUTA === */
     #privatniChat {
-        padding-top: 55px; /* PROMIJENJENO: Smanjeno zbog manjeg headera */
+        padding-top: 50px; /* PROMIJENJENO: Smanjeno zbog manjeg headera */
         padding-bottom: 60px; /* Visina chat input area */
         height: 100vh; /* Zauzima cijelu visinu viewporta */
     }
@@ -357,6 +357,20 @@ body::before {
     display: none;
 }
 
+/* PROMIJENJENO: Poravnanje tipke za nazad */
+#privatniChat .top-nav-buttons {
+    display: flex;
+    align-items: center; /* Osigurava vertikalno centriranje */
+    height: 50px; /* Mora odgovarati visini .chat-header-info */
+    top: 0;
+}
+
+#privatniChat .top-nav-buttons .back-button {
+    position: absolute;
+    left: 5px;
+}
+
+
 .top-nav-buttons {
     position: absolute;
     top: 15px;
@@ -497,31 +511,31 @@ body::before {
 }
 /* ========================================= */
 
-/* === IZMJENA: Smanjeno zaglavlje chata === */
+/* === IZMJENA: Dodatno smanjeno zaglavlje chata === */
 .chat-header-info {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    padding-top: 0; /* Uklonjen padding */
+    padding-top: 0;
     width: 100%;
-    padding-left: 55px;
+    padding-left: 50px; /* Prilagođeno zbog tipke za nazad */
     position: absolute;
     top: 0;
     left: 0;
     background-color: rgba(0, 0, 0, 0.95);
-    height: 55px; /* PROMIJENJENO: Smanjena visina */
+    height: 50px; /* PROMIJENJENO: Dodatno smanjena visina */
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     z-index: 50;
 }
 
 .chat-partner-profilna {
-    width: 36px;   /* PROMIJENJENO: Smanjena slika */
-    height: 36px;  /* PROMIJENJENO: Smanjena slika */
+    width: 32px;   /* PROMIJENJENO: Dodatno smanjena slika */
+    height: 32px;  /* PROMIJENJENO: Dodatno smanjena slika */
     border-radius: 50%;
     object-fit: cover;
     border: 1.5px solid #ff4757;
-    margin-right: 12px;
+    margin-right: 10px;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
 }
@@ -532,7 +546,7 @@ body::before {
 
 .chat-header-info h2 { 
     margin-bottom: 0;
-    font-size: 17px; /* PROMIJENJENO: Smanjen font */
+    font-size: 16px; /* PROMIJENJENO: Dodatno smanjen font */
     color: #f0f0f0; 
     cursor: pointer; 
     padding-top: 0;
@@ -541,8 +555,8 @@ body::before {
     width: auto;
 }
 .chat-header-info .status-text { 
-    margin-top: 0; 
-    font-size: 12px; /* PROMIJENJENO: Smanjen font */
+    margin-top: 1px; 
+    font-size: 11px; /* PROMIJENJENO: Dodatno smanjen font */
     color: #aaa;
     text-align: left;
     width: auto;
