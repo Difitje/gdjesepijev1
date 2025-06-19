@@ -479,20 +479,44 @@
                         const partnerId = chatKey.split("-").find(id => id !== trenutniKorisnik.id);
                         const partner = sviKorisnici.find(u => u.id == partnerId);
                         if (!partner) return;
-                        const neprocitane = privatnePoruke[chatKey].some(m => !m.isRead && m.autorId == partner.id);
+
+                        // --- START: Nova logika za dohvaćanje detalja zadnje poruke ---
+                        const svePorukeChata = privatnePoruke[chatKey] || [];
+                        const zadnjaPorukaObj = svePorukeChata.length > 0 ? svePorukeChata[svePorukeChata.length - 1] : null;
+
+                        let zadnjaPorukaPreview = "Započnite razgovor";
+                        if (zadnjaPorukaObj) {
+                            if (zadnjaPorukaObj.imageUrl) {
+                                zadnjaPorukaPreview = "📷 Slika";
+                            } else if (zadnjaPorukaObj.tekst) {
+                                zadnjaPorukaPreview = zadnjaPorukaObj.tekst;
+                            }
+                        }
+                        
+                        const vrijemePoruke = zadnjaPorukaObj ? new Date(zadnjaPorukaObj.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' }) : '';
+                        const neprocitaneCount = svePorukeChata.filter(m => !m.isRead && m.autorId == partner.id).length;
                         const status = formatirajStatus(partner.lastActive);
+                        // --- END: Nova logika ---
+
+                        // --- START: Novi, redizajnirani HTML za chat-item ---
                         div.innerHTML += `
                             <div class="chat-item" onclick="pokreniPrivatniChat('${partner.id}')">
-                                <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
+                                <div class="chat-profilna-wrapper">
+                                    <img src="${partner.slika || 'default_profile.png'}" class="chat-item-profilna" alt="profilna">
+                                    <span class="status-dot ${status.online ? 'online' : 'offline'}"></span>
+                                </div>
                                 <div class="chat-item-info">
-                                    <span class="status-dot ${status.online ? "online" : "offline"}"></span>
                                     <div class="chat-item-info-text">
                                         <strong>${partner.ime}</strong>
-                                        <p class="status-text">${status.online ? "Online" : status.text}</p>
+                                        <p class="status-text">${zadnjaPorukaPreview}</p>
+                                    </div>
+                                    <div class="chat-meta-info">
+                                        <span class="chat-vrijeme">${vrijemePoruke}</span>
+                                        ${neprocitaneCount > 0 ? `<span class="notification-badge-chat">${neprocitaneCount}</span>` : ""}
                                     </div>
                                 </div>
-                                ${neprocitane ? '<span class="notification-badge-chat"></span>' : ""}
                             </div>`;
+                        // --- END: Novi HTML ---
                     });
                 }
                 azurirajNotifikacije();

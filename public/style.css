@@ -582,7 +582,6 @@ img.preview-slika { display: none; }
 .status-dot.online { background-color: #2ecc71; }
 .status-dot.offline { background-color: #7f8c8d; }
 .status-text { font-size: 13px; color: #999; margin: 0; }
-.notification-badge-chat { width: 12px; height: 12px; background: #ff4757; border-radius: 50%; margin-left: auto; }
 .mreza-ikonica { width: 28px; height: 28px; margin: 0 10px; vertical-align: middle; transition: transform 0.2s ease; }
 .mreza-ikonica:hover { transform: scale(1.1); }
 .pravila-checkbox-wrapper { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; justify-content: center; }
@@ -611,17 +610,158 @@ img.preview-slika { display: none; }
 .pijanka-header { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 8px; border-bottom: 1px solid #333; margin-bottom: 8px; width: 100%; }
 .pijanka-profilna-slika { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #ff4757; flex-shrink: 0; }
 
-.pijanka-info, .chat-item-info { flex-grow: 1; display: flex; align-items: center; gap: 10px; }
-.pijanka-info-text, .chat-item-info-text { display: flex; flex-direction: column; }
-.pijanka-info strong, .chat-item-info strong { line-height: 1.2; font-size: 18px; color: #f0f0f0; }
-.pijanka-info .status-text, .chat-item-info .status-text { line-height: 1.2; margin: 0; padding: 0; color: #a0a0a0; }
+.pijanka-info { flex-grow: 1; display: flex; align-items: center; gap: 10px; }
+.pijanka-info-text { display: flex; flex-direction: column; }
+.pijanka-info strong { line-height: 1.2; font-size: 18px; color: #f0f0f0; }
+.pijanka-info .status-text { line-height: 1.2; margin: 0; padding: 0; color: #a0a0a0; }
+
 .delete-btn { background: none; border: none; font-size: 14px; padding: 2px; margin-left: auto; cursor: pointer; color: #777; flex-shrink: 0; line-height: 1; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; border-radius: 50%; }
 .delete-btn:hover { color: #ff4757; background: rgba(51, 51, 51, 0.5); box-shadow: none; transform: scale(1.05); }
 .pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
-.chat-item { background: rgba(48, 48, 48, 0.9); padding: 12px; border-radius: 10px; margin: 0 auto 10px auto; display: flex; align-items: center; gap: 12px; border-left: 3px solid rgba(51, 51, 51, 0.5); transition: all 0.2s ease-in-out; width: 100%; max-width: 600px; box-sizing: border-box; }
-.chat-item:hover { background: rgba(48, 48, 48, 0.9); border-left-color: #ff4757; }
-.chat-item img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.chat-item-info { cursor: pointer; }
+
+
+/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) === */
+#listaChatova {
+    padding: 0; /* Uklanjamo padding da bi se itemi protezali od ruba do ruba */
+    max-width: 600px; /* Ograničava širinu liste na desktopu */
+    margin: 0 auto; /* Centriranje liste */
+}
+
+.chat-item {
+    background: transparent;
+    padding: 14px 16px; /* Vertikalni i horizontalni padding */
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid #2a2a2a; /* Linija za separaciju */
+    transition: background-color 0.2s ease-in-out;
+    width: 100%;
+    border-left: 4px solid transparent; /* Nevidljivi border za aktivno stanje */
+    cursor: pointer;
+    /* Reset starih stilova */
+    border-radius: 0;
+    box-sizing: border-box;
+}
+
+.chat-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.chat-item.active {
+    background: rgba(255, 71, 87, 0.08);
+    border-left-color: #ff4757;
+}
+
+.chat-item:last-child {
+    border-bottom: none;
+}
+
+/* NAPOMENA: Za idealan prikaz statusa (online/offline),
+  preporučuje se zamotati <img> i .status-dot u jedan div u HTML-u:
+  <div class="chat-profilna-wrapper">
+    <img src="..." class="chat-item-profilna">
+    <span class="status-dot online"></span>
+  </div>
+*/
+.chat-profilna-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.chat-item img { /* Stilovi se sada primjenjuju direktno na img unutar .chat-item */
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.chat-profilna-wrapper .status-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #1e1e1e; /* Rub koji se stapa s pozadinom */
+}
+
+.chat-item-info {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Poravnanje na vrh */
+    gap: 10px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.chat-item-info-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    overflow: hidden;
+}
+
+.chat-item-info strong {
+    font-size: 17px;
+    font-weight: 600;
+    color: #f0f0f0;
+    white-space: nowrap;
+    line-height: 1.3;
+}
+
+/* NAPOMENA: Preporučuje se u HTML-u promijeniti klasu sa .status-text na .chat-zadnja-poruka */
+.chat-item-info .status-text {
+    font-size: 14px;
+    color: #999;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Dodaje "..." za preduge poruke */
+    line-height: 1.3;
+    margin: 0;
+    padding: 0;
+}
+
+/* Wrapper za desnu stranu (vrijeme i notifikacija) */
+.chat-meta-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+    padding-top: 2px;
+}
+
+/* Vrijeme poruke (novi element, potrebno ga je dodati u HTML) */
+.chat-vrijeme {
+    font-size: 12px;
+    color: #888;
+    white-space: nowrap;
+}
+
+/* Redizajnirani badge za nepročitane poruke */
+.notification-badge-chat {
+    background-color: #ff4757;
+    color: white;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 0 5px;
+    /* Uklanjamo margin-left: auto jer poziciju sada kontrolira flex wrapper .chat-meta-info */
+}
+
+.notification-badge-chat:empty {
+    display: none;
+}
+/* === KRAJ: REDIZAJN INBOXA (LISTA CHATOVA) === */
+
 
 #privatniChatLog p > span { display: inline-block; padding: 8px 12px; border-radius: 18px; max-width: 85%; word-wrap: break-word; font-size: 15px; }
 #privatniChatLog p.moja-poruka { text-align: right; }
