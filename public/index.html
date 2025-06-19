@@ -151,8 +151,16 @@
             <button class="back-button" onclick="navigateBack()">←</button>
         </div>
         <h2>Uredi profil</h2>
-        <img id="previewEditSlike" class="profilna-slika" />
-        <input type="file" id="hiddenEditSlikaUpload" accept="image/*" style="display: none;" /> <label for="editIme">Korisničko ime:</label>
+        <div class="edit-profil-slika-wrapper">
+            <img id="previewEditSlike" class="profilna-slika" />
+            <div class="edit-camera-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
+                </svg>
+            </div>
+        </div>
+        <input type="file" id="hiddenEditSlikaUpload" accept="image/*" style="display: none;" />
+        <label for="editIme">Korisničko ime:</label>
         <input id="editIme" placeholder="Korisničko ime" />
         <label for="editOpis">O meni:</label>
         <textarea id="editOpis" placeholder="O meni..." rows="3"></textarea>
@@ -441,18 +449,18 @@
             
             let actionButtons = '';
             if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
-                document.querySelector('#glavniDio h2').innerText = "Moj profil";
+                // Uklonjeno postavljanje teksta "Moj profil" u h2 #glavniNaslov
                 actionButtons = `<button class="profil-action-button" onclick="prikaziEditProfila()">Uredi profil</button><button class="profil-action-button btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
             } else {
-                document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
+                document.querySelector('#glavniDio h2').innerText = "Profil korisnika"; // Ostavi ovo ako je profil drugog korisnika
                 actionButtons = `<button class="profil-action-button" onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
             }
 
             profilKorisnikaDiv.innerHTML = `
-                <img src="${korisnik.slika || 'default_profile.png'}" class="profilna-slika-velika">
-                <h2 class="profil-ime">${korisnik.ime || 'Nepoznat korisnik'}</h2>
-                <p class="profil-opis">${korisnik.opis || "Nema opisa."}</p>
-                <div class="drustvene-mreze">${prikaziMreze(korisnik)}</div>
+                <img src="<span class="math-inline">\{korisnik\.slika \|\| 'default\_profile\.png'\}" class\="profilna\-slika\-velika"\>
+<h2 class\="profil\-ime"\></span>{korisnik.ime || 'Nepoznat korisnik'}</h2>
+                <p class="profil-opis"><span class="math-inline">\{korisnik\.opis \|\| "Nema opisa\."\}</p\>
+<div class\="drustvene\-mreze"\></span>{prikaziMreze(korisnik)}</div>
                 <div class="profil-actions">${actionButtons}</div>
             `;
 
@@ -482,12 +490,12 @@
                         const neprocitane = privatnePoruke[chatKey].some(m => !m.isRead && m.autorId == partner.id);
                         const status = formatirajStatus(partner.lastActive);
                         div.innerHTML += `
-                            <div class="chat-item" onclick="pokreniPrivatniChat('${partner.id}')">
-                                <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
+                            <div class="chat-item" onclick="pokreniPrivatniChat('<span class="math-inline">\{partner\.id\}'\)"\>
+<img src\="</span>{partner.slika || 'default_profile.png'}" alt="profilna">
                                 <div class="chat-item-info">
-                                    <span class="status-dot ${status.online ? "online" : "offline"}"></span>
-                                    <div class="chat-item-info-text">
-                                        <strong>${partner.ime}</strong>
+                                    <span class="status-dot <span class="math-inline">\{status\.online ? "online" \: "offline"\}"\></span\>
+<div class\="chat\-item\-info\-text"\>
+<strong\></span>{partner.ime}</strong>
                                         <p class="status-text">${status.online ? "Online" : status.text}</p>
                                     </div>
                                 </div>
