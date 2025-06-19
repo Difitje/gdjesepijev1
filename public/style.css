@@ -102,7 +102,8 @@ body::before {
     #registracija > input, #registracija > textarea, #registracija > button, #registracija > label, #registracija > img {
         width: 100%; max-width: 600px; margin-left: auto; margin-right: auto;
     }
-    #login, #registracija, #editProfil { align-items: center; } /* Adjusted alignment for editProfil here */
+    /* UKLONJENO #editProfil iz ovog dijela jer će se stilizirati posebno za centriranje unutar svoje flex kolone */
+    #login, #registracija { align-items: center; } 
     #privatniChatLog p { max-width: 800px; margin-left: auto; margin-right: auto; }
 }
 
@@ -648,6 +649,7 @@ img.preview-slika { display: none; }
 @keyframes fadeOutSplash { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
 
 /* Redizajn #profilKorisnika */
+/* Redizajn #profilKorisnika */
 #profilKorisnika {
     background: rgba(30, 30, 30, 0.6);
     backdrop-filter: blur(8px);
@@ -664,6 +666,11 @@ img.preview-slika { display: none; }
     margin: 20px auto; /* Centriranje boxa na sredinu */
     gap: 12px;
 }
+
+/* Uklanjamo h2 iz #profilKorisnika, pa ga više ne treba posebno stilizirati */
+/* #profilKorisnika h2 {
+    display: none;
+} */
 
 #profilKorisnika .profilna-slika-velika {
     width: 100px;
@@ -748,17 +755,15 @@ img.preview-slika { display: none; }
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-radius: 20px;
-    padding: 20px 20px;
+    padding: 20px; /* Smanjen padding na 20px sa svih strana */
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     border: 1px solid rgba(255, 255, 255, 0.18);
     width: 100%;
-    max-width: 400px; /* Dodatno smanjena maksimalna širina boxa */
+    max-width: 400px;
     margin: 10px auto; /* Ključno: Centriranje CIJELOG boxa na sredinu ekrana */
     display: flex;
     flex-direction: column;
-    /* UKLONJENO: align-items: center; jer želimo da labele i inputi budu lijevo poravnati
-       Unutar flex kontejnera s flex-direction: column, align-items kontrolira horizontalno poravnanje.
-       Uklanjanjem ga, default je 'stretch', ali ćemo ga premostiti s auto marginama na child elementima. */
+    /* UKLONJENO: align-items: center; */ /* Ovo je ključno za lijevo poravnanje unutrašnjeg sadržaja */
     justify-content: flex-start;
     height: auto;
     min-height: unset;
@@ -811,8 +816,8 @@ img.preview-slika { display: none; }
 #editProfil h2 {
     margin-bottom: 12px;
     font-size: 22px;
-    text-align: center; /* Osigurajte da je naslov "Uredi profil" centriran */
-    width: 100%; /* Da zauzme cijelu širinu i može se centrirati */
+    text-align: center; /* Naslov "Uredi profil" ostaje centriran */
+    width: 100%;
 }
 
 /* Wrapper za profilnu sliku i ikonu */
@@ -822,9 +827,8 @@ img.preview-slika { display: none; }
     height: 90px;
     margin-bottom: 15px;
     cursor: pointer;
-    /* Dodaj auto margine za centriranje unutar #editProfil ako #editProfil nema align-items: center */
-    margin-left: auto;
-    margin-right: auto;
+    margin-left: auto; /* Centrirajte wrapper sa slikom */
+    margin-right: auto; /* Centrirajte wrapper sa slikom */
 }
 
 #editProfil .profilna-slika {
@@ -867,11 +871,11 @@ img.preview-slika { display: none; }
 #editProfil label {
     margin-bottom: 2px;
     font-size: 13px;
-    width: 100%; /* Da zauzme punu širinu i može se poravnati */
-    max-width: 320px; /* Ista maksimalna širina kao i inputi */
+    width: 100%;
+    max-width: 320px; /* Isto kao inputi */
     text-align: left; /* Tekst unutar labele neka bude lijevo poravnat */
-    margin-left: auto; /* Ključno: Pomoću auto margina poravnava lijevo unutar centriranog roditelja */
-    margin-right: auto; /* Služi da se ne zalijepi skroz desno ako ne želimo */
+    margin-left: 0; /* Uklonite auto margine koje su ih centrirale */
+    margin-right: 0; /* Uklonite auto margine koje su ih centrirale */
 }
 
 /* Prilagodba inputa i textarea da budu uže i da stanu svi zajedno */
@@ -879,20 +883,20 @@ img.preview-slika { display: none; }
 #editProfil input[type="password"],
 #editProfil textarea {
     width: 100%;
-    max-width: 320px; /* Ključno: Zadržava maksimalnu širinu */
+    max-width: 320px; /* Osigurajte da je ista širina */
     margin-bottom: 10px;
     padding: 8px;
     border-radius: 6px;
     font-size: 14px;
-    margin-left: auto; /* Ključno: Auto margine za horizontalno centriranje inputa */
-    margin-right: auto;
+    margin-left: 0; /* Uklonite auto margine koje su ih centrirale */
+    margin-right: 0; /* Uklonite auto margine koje su ih centrirale */
 }
 
 /* Specifično za "O meni" textarea - osigurajte da ima istu širinu */
 #editProfil textarea#editOpis {
     max-width: 320px; /* Postavite istu max-width kao i inputi */
-    margin-left: auto; /* Osigurajte centriranje */
-    margin-right: auto;
+    margin-left: 0; /* Uklonite auto margine koje su ga centrirale */
+    margin-right: 0; /* Uklonite auto margine koje su ga centrirale */
 }
 
 
@@ -903,30 +907,7 @@ img.preview-slika { display: none; }
     max-width: 280px; /* Prilagođeno širini inputa za konzistentnost */
     margin-top: 10px;
     box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
-    width: 100%; /* Omogućava gumbu da se centrira */
-    margin-left: auto; /* Ključno: Auto margine za horizontalno centriranje gumba */
-    margin-right: auto;
+    width: 100%;
+    margin-left: auto; /* Korištenje auto margina samo za gumb, kako bi se on centrirao */
+    margin-right: auto; /* Korištenje auto margina samo za gumb, kako bi se on centrirao */
 }
-
-/* === KRAJ NOVIH STILOVA ZA #editProfil === */
-
-#objavaForma button {
-    /* Puno prozirnije crveno za "glassy" efekt */
-    background: rgba(255, 71, 87, 0.3); /* PROMIJENJENO: Crvena s 30% neprozirnosti */
-    border: none;
-    font-weight: bold;
-    position: relative;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-#objavaForma button:hover {
-    /* Na hoveru malo manje prozirno da se istakne */
-    background: rgba(255, 71, 87, 0.6); /* PROMIJENJENO: Crvena s 60% neprozirnosti na hoveru */
-    transform: none;
-    box-shadow: none !important;
-    outline: none !important;
-}
-/* === KRAJ CSS-a === */
