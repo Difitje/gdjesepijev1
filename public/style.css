@@ -753,10 +753,12 @@ img.preview-slika { display: none; }
     border: 1px solid rgba(255, 255, 255, 0.18);
     width: 100%;
     max-width: 400px; /* Dodatno smanjena maksimalna širina boxa */
-    margin: 10px auto; /* Centriranje CIJELOG boxa na sredinu ekrana */
+    margin: 10px auto; /* Ključno: Centriranje CIJELOG boxa na sredinu ekrana */
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centriranje SVIH DIREKTNIH DJECA unutar #editProfil horizontalno */
+    /* UKLONJENO: align-items: center; jer želimo da labele i inputi budu lijevo poravnati
+       Unutar flex kontejnera s flex-direction: column, align-items kontrolira horizontalno poravnanje.
+       Uklanjanjem ga, default je 'stretch', ali ćemo ga premostiti s auto marginama na child elementima. */
     justify-content: flex-start;
     height: auto;
     min-height: unset;
@@ -809,6 +811,8 @@ img.preview-slika { display: none; }
 #editProfil h2 {
     margin-bottom: 12px;
     font-size: 22px;
+    text-align: center; /* Osigurajte da je naslov "Uredi profil" centriran */
+    width: 100%; /* Da zauzme cijelu širinu i može se centrirati */
 }
 
 /* Wrapper za profilnu sliku i ikonu */
@@ -818,6 +822,9 @@ img.preview-slika { display: none; }
     height: 90px;
     margin-bottom: 15px;
     cursor: pointer;
+    /* Dodaj auto margine za centriranje unutar #editProfil ako #editProfil nema align-items: center */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #editProfil .profilna-slika {
@@ -856,17 +863,38 @@ img.preview-slika { display: none; }
     fill: #ffffff;
 }
 
+/* Podesi stilove labela da budu lijevo poravnate */
+#editProfil label {
+    margin-bottom: 2px;
+    font-size: 13px;
+    width: 100%; /* Da zauzme punu širinu i može se poravnati */
+    max-width: 320px; /* Ista maksimalna širina kao i inputi */
+    text-align: left; /* Tekst unutar labele neka bude lijevo poravnat */
+    margin-left: auto; /* Ključno: Pomoću auto margina poravnava lijevo unutar centriranog roditelja */
+    margin-right: auto; /* Služi da se ne zalijepi skroz desno ako ne želimo */
+}
+
 /* Prilagodba inputa i textarea da budu uže i da stanu svi zajedno */
 #editProfil input[type="text"],
 #editProfil input[type="password"],
 #editProfil textarea {
-    width: 100%; /* Da zauzme cijelu širinu kontejnera (max-width) */
-    max-width: 320px; /* Ključno za centriranje unutar align-items: center */
+    width: 100%;
+    max-width: 320px; /* Ključno: Zadržava maksimalnu širinu */
     margin-bottom: 10px;
     padding: 8px;
     border-radius: 6px;
     font-size: 14px;
+    margin-left: auto; /* Ključno: Auto margine za horizontalno centriranje inputa */
+    margin-right: auto;
 }
+
+/* Specifično za "O meni" textarea - osigurajte da ima istu širinu */
+#editProfil textarea#editOpis {
+    max-width: 320px; /* Postavite istu max-width kao i inputi */
+    margin-left: auto; /* Osigurajte centriranje */
+    margin-right: auto;
+}
+
 
 #editProfil button {
     padding: 10px 18px;
@@ -876,6 +904,8 @@ img.preview-slika { display: none; }
     margin-top: 10px;
     box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
     width: 100%; /* Omogućava gumbu da se centrira */
+    margin-left: auto; /* Ključno: Auto margine za horizontalno centriranje gumba */
+    margin-right: auto;
 }
 
 /* === KRAJ NOVIH STILOVA ZA #editProfil === */
