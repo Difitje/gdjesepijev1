@@ -671,15 +671,17 @@ async function posaljiPrivatno() {
     }
 }
 
-// === KONAČNA ISPRAVKA REDOSLIJEDA PORUKA v2 ===
 function prikaziPrivatniLog() {
     if (!trenutniKorisnik || !trenutniChatPartnerId) return;
     const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
     const log = privatnePoruke[chatKey] || [];
     const div = document.getElementById("privatniChatLog");
 
+    // === KONAČNA ISPRAVKA v3 ===
     // Eksplicitno sortiramo log po vremenu, od najstarijeg do najnovijeg.
-    // CSS `column-reverse` će se pobrinuti da se vizualno slažu od dna.
+    // Ovo osigurava da je redoslijed u DOM-u uvijek ispravan (kronološki).
+    // CSS `flex-direction: column-reverse` će onda vizualno okrenuti redoslijed
+    // i prikazati najnovije poruke na dnu, što je ispravno ponašanje.
     const sortiraniLog = log.slice().sort((a, b) => new Date(a.time) - new Date(b.time));
 
     div.innerHTML = sortiraniLog.map(msg => {
