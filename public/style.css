@@ -176,7 +176,7 @@ body::before {
     display: flex;
     align-items: center;
     position: sticky; /* Sticky pozicija da ostane na vrhu prilikom skrolanja */
-    top: 70px; /* Ispod main-header-a na mobilnom */
+    top: 70px; /* Ispod main-header-a na mobilnom, ili ispod h2 na mobilnom */
     z-index: 4; /* Ispod h2 ali iznad liste chatova */
     box-sizing: border-box; /* Da padding ne poveća širinu */
 }
@@ -186,12 +186,10 @@ body::before {
         position: relative; /* Na desktopu može biti relativan */
         top: auto;
         border-radius: 24px; /* Za desktop da prati container */
-        margin: -20px 0 20px 0; /* Prilagodi marginu za desktop */
+        margin: -20px auto 20px auto; /* Prilagodi marginu za desktop, centriraj */
         background-color: #1e1e1e; /* Prilagodi pozadinu za desktop */
         border: 1px solid #2a2a2a;
         max-width: 600px; /* Ograniči širinu na desktopu */
-        margin-left: auto;
-        margin-right: auto;
         padding: 12px 20px; /* Veći padding za desktop */
     }
 }
@@ -727,7 +725,7 @@ img.preview-slika { display: none; }
     padding: 0;
     margin: 0;
     /* NOVO: Dodatni padding-top da lista počne ispod search bara */
-    padding-top: 120px; /* Visina h2 + visina search bara + malo razmaka */
+    padding-top: calc(50px + 60px); /* Visina h2 (50px) + visina search bara (oko 40px input + 2*10 padding = 60px) */
     position: relative; /* Potrebno za z-index i da se lista skroluje ispod stickynih elemenata */
     z-index: 2; /* Mora biti ispod search bara i h2 */
 }

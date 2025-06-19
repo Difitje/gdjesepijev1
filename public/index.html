@@ -97,6 +97,13 @@
 
     <div class="container" id="inboxPrikaz">
         <h2>Poruke</h2>
+        <div class="inbox-search-bar">
+            <input type="text" id="inboxSearchBarInput" placeholder="Pretraži razgovore..." oninput="filterChatItems()">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+        </div>
         <div id="listaChatova"></div>
     </div>
 
@@ -474,7 +481,14 @@
                 if (chatKeys.length === 0) {
                     div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
                 } else {
-                    chatKeys.sort((a, b) => new Date(privatnePoruke[b].slice(-1)[0]?.time) - new Date(privatnePoruke[a].slice(-1)[0]?.time))
+                    // Sortiraj po vremenu zadnje poruke, najnovije prvo
+                    chatKeys.sort((a, b) => {
+                        const timeA = privatnePoruke[a]?.slice(-1)[0]?.time;
+                        const timeB = privatnePoruke[b]?.slice(-1)[0]?.time;
+                        if (!timeA) return 1; // Ako nema poruka, premjesti ga na kraj
+                        if (!timeB) return -1; // Ako nema poruka, premjesti ga na kraj
+                        return new Date(timeB) - new Date(timeA);
+                    })
                     .forEach(chatKey => {
                         const partnerId = chatKey.split("-").find(id => id !== trenutniKorisnik.id);
                         const partner = sviKorisnici.find(u => u.id == partnerId);
@@ -500,7 +514,7 @@
 
                         // --- START: Novi, redizajnirani HTML za chat-item ---
                         div.innerHTML += `
-                            <div class="chat-item" onclick="pokreniPrivatniChat('${partner.id}')">
+                            <div class="chat-item" data-partner-name="${partner.ime.toLowerCase()}" onclick="pokreniPrivatniChat('${partner.id}')">
                                 <div class="chat-profilna-wrapper">
                                     <img src="${partner.slika || 'default_profile.png'}" class="chat-item-profilna" alt="profilna">
                                     <span class="status-dot ${status.online ? 'online' : 'offline'}"></span>
@@ -533,6 +547,20 @@
             });
             document.getElementById('fabObjaviPijanku').style.display = 'none';
         };
+
+        // NOVO: Funkcija za filtriranje chat stavki
+        function filterChatItems() {
+            const searchTerm = document.getElementById('inboxSearchBarInput').value.toLowerCase();
+            const chatItems = document.querySelectorAll('#listaChatova .chat-item');
+            chatItems.forEach(item => {
+                const partnerName = item.dataset.partnerName;
+                if (partnerName.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
 
     </script>
 </body>
