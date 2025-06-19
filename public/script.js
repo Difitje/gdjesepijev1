@@ -580,7 +580,7 @@ function otvoriInbox() {
             const status = formatirajStatus(partner.lastActive);
 
             div.innerHTML += `
-                <div class="chat-item" onclick="pokreniPrivatniChat('${partner.id}')">
+                <div class="chat-item" data-partner-name="${partner.ime.toLowerCase()}" onclick="pokreniPrivatniChat('${partner.id}')">
                     <div class="chat-profilna-wrapper">
                         <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
                         <span class="status-dot ${status.online ? 'online' : 'offline'}"></span>
