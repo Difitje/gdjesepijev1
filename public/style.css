@@ -620,24 +620,23 @@ img.preview-slika { display: none; }
 .pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
 
 
-/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) - Instagram Stil === */
+/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) - Finalna kompaktna verzija === */
 #listaChatova {
     padding: 0;
-    /* UKLONJENO: max-width je uklonjen kako bi lista bila preko cijele širine */
     margin: 0 auto;
 }
 
 .chat-item {
     background: transparent;
-    padding: 10px 16px; /* PROMIJENJENO: Značajno smanjen vertikalni padding za kompaktniji izgled */
+    padding: 8px 16px; /* PROMIJENJENO: Dodatno smanjen padding za maksimalnu kompaktnost */
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 15px;
-    border-bottom: 1px solid #2a2a2a; /* Linija za separaciju */
+    gap: 12px; /* PROMIJENJENO: Smanjen razmak između slike i teksta */
+    border-bottom: 1px solid #2a2a2a;
     transition: background-color 0.2s ease-in-out;
     width: 100%;
-    border-left: 4px solid transparent; /* Nevidljivi border za aktivno stanje */
+    border-left: 4px solid transparent;
     cursor: pointer;
     border-radius: 0;
     box-sizing: border-box;
@@ -662,8 +661,8 @@ img.preview-slika { display: none; }
 }
 
 .chat-item img {
-    width: 48px;  /* PROMIJENJENO: Smanjena veličina slike za kompaktniji izgled */
-    height: 48px; /* PROMIJENJENO: Smanjena veličina slike za kompaktniji izgled */
+    width: 44px;  /* PROMIJENJENO: Smanjena slika na 44px */
+    height: 44px; /* PROMIJENJENO: Smanjena slika na 44px */
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
@@ -671,10 +670,10 @@ img.preview-slika { display: none; }
 
 .chat-profilna-wrapper .status-dot {
     position: absolute;
-    bottom: 1px;  /* Prilagođeno za manju sliku */
-    right: 1px;   /* Prilagođeno za manju sliku */
-    width: 11px;  /* Prilagođeno za manju sliku */
-    height: 11px; /* Prilagođeno za manju sliku */
+    bottom: 0px;
+    right: 0px;
+    width: 12px;
+    height: 12px;
     border: 2px solid #1e1e1e;
 }
 
@@ -682,35 +681,36 @@ img.preview-slika { display: none; }
     flex-grow: 1;
     display: flex;
     justify-content: space-between;
-    align-items: center; /* Vraćeno na center za bolji vertikalni balans */
+    align-items: flex-start; /* PROMIJENJENO: Sadržaj kreće s vrha, nije više centriran */
     gap: 10px;
     overflow: hidden;
     cursor: pointer;
+    padding-top: 1px; /* Fino podešavanje poravnanja */
 }
 
 .chat-item-info-text {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 2px; /* PROMIJENJENO: Dodatno smanjen razmak između imena i poruke */
+    justify-content: flex-start; /* Poravnanje na vrh */
+    gap: 2px;
     overflow: hidden;
 }
 
 .chat-item-info strong {
-    font-size: 16px; /* PROMIJENJENO: Smanjen font za kompaktniji izgled */
-    font-weight: 600;
+    font-size: 15px; /* PROMIJENJENO: Smanjen font imena */
+    font-weight: 500; /* Smanjen weight za lakši izgled */
     color: #f0f0f0;
     white-space: nowrap;
-    line-height: 1.4; /* Prilagođen line-height */
+    line-height: 1.3; /* PROMIJENJENO: Smanjen razmak između redova */
 }
 
 .chat-item-info .status-text {
-    font-size: 14px;
-    color: #999;
+    font-size: 13px; /* PROMIJENJENO: Smanjen font poruke */
+    color: #888; /* Malo svjetlija boja za bolji kontrast */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.4; /* Prilagođen line-height */
+    line-height: 1.3; /* PROMIJENJENO: Smanjen razmak između redova */
     margin: 0;
     padding: 0;
 }
@@ -719,8 +719,9 @@ img.preview-slika { display: none; }
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 6px;
+    gap: 5px; /* Smanjen gap */
     flex-shrink: 0;
+    padding-top: 1px;
 }
 
 .chat-vrijeme {
@@ -732,13 +733,13 @@ img.preview-slika { display: none; }
 .notification-badge-chat {
     background-color: #ff4757;
     color: white;
-    min-width: 20px;  /* Prilagođeno */
-    height: 20px;     /* Prilagođeno */
-    border-radius: 10px;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 11px;  /* Prilagođeno */
+    font-size: 11px;
     font-weight: 600;
     padding: 0 4px;
 }
