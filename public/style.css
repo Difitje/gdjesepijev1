@@ -620,7 +620,7 @@ img.preview-slika { display: none; }
 .pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
 
 
-/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) - Finalna verzija sa maksimalnom širinom v2 === */
+/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) - Finalna verzija bez horizontalnog paddinga === */
 #listaChatova {
     padding: 0;
     margin: 0;
@@ -628,11 +628,11 @@ img.preview-slika { display: none; }
 
 .chat-item {
     background: transparent;
-    padding: 8px 5px; /* PROMIJENJENO: Smanjen horizontalni padding na minimum (5px) */
+    padding: 8px 0; /* PROMIJENJENO: Uklonjen horizontalni padding u potpunosti */
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 15px; /* PROMIJENJENO: Povećan razmak između slike i teksta za bolji 'spread' efekt */
+    gap: 12px; /* Vraćen manji razmak jer nema vanjskog paddinga */
     border-bottom: 1px solid #2a2a2a;
     transition: background-color 0.2s ease-in-out;
     width: 100%;
@@ -641,6 +641,15 @@ img.preview-slika { display: none; }
     border-radius: 0;
     box-sizing: border-box;
 }
+
+/* Dodajemo padding na prvi i zadnji element unutar .chat-item da sadržaj ne dodiruje rub */
+.chat-item > *:first-child {
+    margin-left: 12px;
+}
+.chat-item > *:last-child {
+    margin-right: 12px;
+}
+
 
 .chat-item:hover {
     background: rgba(255, 255, 255, 0.04);
@@ -682,7 +691,7 @@ img.preview-slika { display: none; }
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 15px; /* PROMIJENJENO: Povećan razmak da se desni dio više odmakne */
+    gap: 10px;
     overflow: hidden;
     cursor: pointer;
     padding-top: 1px;
