@@ -114,7 +114,7 @@ body::before {
         padding-bottom: 70px; /* Visina nav bara + malo razmaka */
     }
     /* #lokacijePrikaz je već imao padding-top, ostali kontejneri sada također trebaju */
-    #homePrikazPijanki, #praznaTrazilica, #inboxPrikaz, #glavniDio, #editProfil { /* PRILAGOĐENO ID-evima */
+    #homePrikazPijanki, #praznaTrazilica, #glavniDio, #editProfil { /* PRILAGOĐENO ID-evima */
         padding-top: 70px; /* Osiguraj prostor za header */
     }
     /* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
@@ -129,6 +129,18 @@ body::before {
         height: 100vh; /* Zauzima cijelu visinu viewporta */
     }
 }
+
+/* === NOVI STIL ZA INBOX DA BUDE PREKO CIJELOG EKRANA === */
+#inboxPrikaz.container {
+    padding-left: 0;
+    padding-right: 0;
+}
+#inboxPrikaz h2 {
+    padding-left: 12px;
+    padding-right: 12px;
+    text-align: left;
+}
+
 
 .main-header {
     position: absolute; top: 0; left: 0; right: 0; height: 60px; padding: 0 10px;
@@ -325,7 +337,7 @@ body::before {
 /* KRAJ NOVIH STILOVA ZA BOTTOM NAVIGACIJU */
 
 
-#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
+#pijankePregled { flex-grow: 1; overflow-y: auto; min-height: 100px; }
 
 /* === PROMJENE ZA CHAT LOG SKROLLANJE I ZAGLAVLJE === */
 #privatniChatLog {
@@ -588,24 +600,21 @@ img.preview-slika { display: none; }
 .pravila-checkbox-wrapper input[type="checkbox"] { width: auto; margin-bottom: 0; flex-shrink: 0; }
 .pravila-checkbox-wrapper label { margin-bottom: 0; font-size: 14px; color: #f0f0f0; text-align: left; }
 .pijanka { 
-    /* PROMIJENJENO: Crvena boja (#ff4757) s 10% neprozirnosti (još prozirnije) */
     background: rgba(255, 71, 87, 0.1); 
     padding: 15px; 
     border-radius: 10px; 
     margin: 0 auto 8px auto; 
     display: flex; 
     flex-direction: column; 
-    /* Prilagođen border-left-color da se slaže s prozirnijom pozadinom */
-    border-left: 3px solid rgba(255, 71, 87, 0.3); /* Nešto tamnija crvena za rub */
+    border-left: 3px solid rgba(255, 71, 87, 0.3);
     transition: all 0.2s ease-in-out; 
     width: 100%; 
     max-width: 600px; 
     box-sizing: border-box; 
 }
 .pijanka:hover { 
-    /* PROMIJENJENO: Pozadina na hoveru je malo manje prozirna crvena */
-    background: rgba(255, 71, 87, 0.2); /* Crvena boja s 20% neprozirnosti na hoveru */
-    border-left-color: #ff4757; /* Puna crvena boja na hoveru za rub */
+    background: rgba(255, 71, 87, 0.2);
+    border-left-color: #ff4757;
 }
 .pijanka-header { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 8px; border-bottom: 1px solid #333; margin-bottom: 8px; width: 100%; }
 .pijanka-profilna-slika { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #ff4757; flex-shrink: 0; }
@@ -620,7 +629,7 @@ img.preview-slika { display: none; }
 .pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
 
 
-/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) - Finalna verzija bez horizontalnog paddinga === */
+/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) === */
 #listaChatova {
     padding: 0;
     margin: 0;
@@ -628,11 +637,11 @@ img.preview-slika { display: none; }
 
 .chat-item {
     background: transparent;
-    padding: 8px 0; /* PROMIJENJENO: Uklonjen horizontalni padding u potpunosti */
+    padding: 8px 12px; /* Ostavljamo malo paddinga da sadržaj ne udara u rub */
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 12px; /* Vraćen manji razmak jer nema vanjskog paddinga */
+    gap: 12px;
     border-bottom: 1px solid #2a2a2a;
     transition: background-color 0.2s ease-in-out;
     width: 100%;
@@ -641,15 +650,6 @@ img.preview-slika { display: none; }
     border-radius: 0;
     box-sizing: border-box;
 }
-
-/* Dodajemo padding na prvi i zadnji element unutar .chat-item da sadržaj ne dodiruje rub */
-.chat-item > *:first-child {
-    margin-left: 12px;
-}
-.chat-item > *:last-child {
-    margin-right: 12px;
-}
-
 
 .chat-item:hover {
     background: rgba(255, 255, 255, 0.04);
@@ -669,6 +669,7 @@ img.preview-slika { display: none; }
     flex-shrink: 0;
 }
 
+/* Stil za sliku, odvojen od pijanka-profilna-slika */
 .chat-item img {
     width: 44px;
     height: 44px;
@@ -765,10 +766,10 @@ img.preview-slika { display: none; }
 #privatniChatLog p.tudja-poruka { text-align: left; }
 #privatniChatLog p.tudja-poruka > span { background: #3a3a3a; color: #f0f0f0; }
 
-#splashScreen { /* Zadržavamo definiciju u CSS-u iako je element uklonjen iz HTML-a */
-    display: none; /* Potpuno sakrij splash screen */
+#splashScreen {
+    display: none;
 }
-#splashScreen h1 { /* Slično, ostavljamo ako se nekad vrati, ali neće biti vidljivo */
+#splashScreen h1 {
     display: none;
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -777,51 +778,48 @@ img.preview-slika { display: none; }
 @keyframes fadeOutSplash { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
 
 #profilKorisnika button {
-    /* Puno prozirnije za "glassy" efekt */
-    background: rgba(30, 30, 30, 0.3); /* PROMIJENJENO: Vrlo prozirno (30% neprozirnosti) */
-    box-shadow: none !important; /* Uklanjamo sjenu */
-    border: 1px solid rgba(51, 51, 51, 0.2); /* PROMIJENJENO: I border je prozirniji */
+    background: rgba(30, 30, 30, 0.3);
+    box-shadow: none !important;
+    border: 1px solid rgba(51, 51, 51, 0.2);
     outline: none !important;
 }
 
 #profilKorisnika button:hover {
-    /* Na hoveru malo manje prozirno da se istakne */
-    background: rgba(40, 40, 40, 0.6); /* PROMIJENJENO: Malo manje prozirno na hoveru */
+    background: rgba(40, 40, 40, 0.6);
     transform: none;
     box-shadow: none !important;
     outline: none !important;
 }
 
-/* === NOVI STILOVI ZA #editProfil - Redizajn === */
 #editProfil {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centriraj sadržaj horizontalno */
-    justify-content: flex-start; /* Poravnaj sadržaj na vrh */
+    align-items: center;
+    justify-content: flex-start;
 }
 
 #editProfil h2 {
-    margin-bottom: 25px; /* Povećan razmak ispod naslova */
+    margin-bottom: 25px;
 }
 
 #editProfil .profilna-slika {
-    margin-bottom: 20px; /* Razmak ispod profilne slike */
-    border: 3px solid #ff4757; /* Naglašeniji crveni border */
+    margin-bottom: 20px;
+    border: 3px solid #ff4757;
     width: 100px;
     height: 100px;
 }
 
 #editProfil input[type="file"] {
-    background: rgba(30, 30, 30, 0.3); /* Prozirna pozadina za file input */
-    border: 1px solid rgba(51, 51, 51, 0.2); /* Prozirniji border */
+    background: rgba(30, 30, 30, 0.3);
+    border: 1px solid rgba(51, 51, 51, 0.2);
     padding: 10px;
-    margin-bottom: 20px; /* Razmak ispod file inputa */
+    margin-bottom: 20px;
     cursor: pointer;
 }
 
 #editProfil label {
-    align-self: flex-start; /* Poravnaj labelu lijevo */
-    margin-bottom: 8px; /* Mali razmak iznad inputa/textarea */
+    align-self: flex-start;
+    margin-bottom: 8px;
     color: #e0e0e0;
     font-size: 15px;
     font-weight: 500;
@@ -831,12 +829,12 @@ img.preview-slika { display: none; }
 #editProfil input[type="password"],
 #editProfil textarea {
     width: 100%;
-    max-width: 400px; /* Ograniči širinu inputa i textarea na desktopu */
-    margin-bottom: 18px; /* Povećan razmak između inputa */
-    background: #1e1e1e; /* Tamnija pozadina za inpute/textarea */
-    border: 1px solid #2a2a2a; /* Suptilniji border */
-    border-radius: 12px; /* Veći border-radius */
-    padding: 14px; /* Veći padding */
+    max-width: 400px;
+    margin-bottom: 18px;
+    background: #1e1e1e;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 14px;
     color: #f0f0f0;
     font-size: 16px;
 }
@@ -849,13 +847,12 @@ img.preview-slika { display: none; }
 }
 
 #editProfil button {
-    /* Puno prozirnije za "glassy" efekt */
-    background: rgba(30, 30, 30, 0.3); /* PROMIJENJENO: Vrlo prozirno (30% neprozirnosti) */
-    box-shadow: none !important; /* Uklanjamo sjenu */
-    border: 1px solid rgba(51, 51, 51, 0.2); /* PROMIJENJENO: I border je prozirniji */
+    background: rgba(30, 30, 30, 0.3);
+    box-shadow: none !important;
+    border: 1px solid rgba(51, 51, 51, 0.2);
     outline: none !important;
-    max-width: 400px; /* Ograniči širinu gumba */
-    margin-top: 10px; /* Razmak iznad gumba */
+    max-width: 400px;
+    margin-top: 10px;
     padding: 14px 20px;
     font-size: 17px;
     border-radius: 12px;
@@ -865,16 +862,13 @@ img.preview-slika { display: none; }
 }
 
 #editProfil button:hover {
-    /* Na hoveru malo manje prozirno da se istakne */
-    background: rgba(40, 40, 40, 0.6); /* PROMIJENJENO: Malo manje prozirno na hoveru */
-    transform: translateY(-1px); /* Mali pomak na hoveru */
-    box-shadow: 0 3px 10px rgba(0,0,0,0.2); /* Suptilna sjena na hoveru */
+    background: rgba(40, 40, 40, 0.6);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
 }
-/* === KRAJ NOVIH STILOVA ZA #editProfil === */
 
 #objavaForma button {
-    /* Puno prozirnije crveno za "glassy" efekt */
-    background: rgba(255, 71, 87, 0.3); /* PROMIJENJENO: Crvena s 30% neprozirnosti */
+    background: rgba(255, 71, 87, 0.3);
     border: none;
     font-weight: bold;
     position: relative;
@@ -885,8 +879,7 @@ img.preview-slika { display: none; }
 }
 
 #objavaForma button:hover {
-    /* Na hoveru malo manje prozirno da se istakne */
-    background: rgba(255, 71, 87, 0.6); /* PROMIJENJENO: Crvena s 60% neprozirnosti na hoveru */
+    background: rgba(255, 71, 87, 0.6);
     transform: none;
     box-shadow: none !important;
     outline: none !important;

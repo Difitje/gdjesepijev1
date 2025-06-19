@@ -550,34 +550,64 @@ function azurirajNotifikacije() {
 function otvoriInbox() {
     const div = document.getElementById("listaChatova");
     div.innerHTML = "";
-    // Ovdje više nema back buttona, pa nema potrebe skrivati ga putem JS-a za inbox.
+
     const chatKeys = (trenutniKorisnik && trenutniKorisnik.id) ? Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id)) : [];
+    
     if (chatKeys.length === 0) {
         div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
     } else {
-        chatKeys.sort((a, b) => new Date(privatnePoruke[b].slice(-1)[0]?.time) - new Date(privatnePoruke[a].slice(-1)[0]?.time))
+        // Ispravak sortiranja da rukuje chatovima bez poruka
+        chatKeys.sort((a, b) => {
+            const timeA = privatnePoruke[a]?.slice(-1)[0]?.time;
+            const timeB = privatnePoruke[b]?.slice(-1)[0]?.time;
+            if (!timeA) return 1;
+            if (!timeB) return -1;
+            return new Date(timeB) - new Date(timeA);
+        })
         .forEach(chatKey => {
             const partnerId = chatKey.split("-").find(id => id !== trenutniKorisnik.id);
             const partner = sviKorisnici.find(u => u.id == partnerId);
             if (!partner) return;
-            const neprocitane = privatnePoruke[chatKey].some(m => !m.isRead && m.autorId == partner.id);
+
+            // Logika za dohvaćanje detalja zadnje poruke
+            const svePorukeChata = privatnePoruke[chatKey] || [];
+            const zadnjaPorukaObj = svePorukeChata.length > 0 ? svePorukeChata[svePorukeChata.length - 1] : null;
+
+            let zadnjaPorukaPreview = "Započnite razgovor";
+            if (zadnjaPorukaObj && zadnjaPorukaObj.tekst) {
+                zadnjaPorukaPreview = zadnjaPorukaObj.tekst;
+            }
+             if (zadnjaPorukaObj && zadnjaPorukaObj.imageUrl) {
+                zadnjaPorukaPreview = "📷 Slika";
+            }
+
+            const vrijemePoruke = zadnjaPorukaObj ? new Date(zadnjaPorukaObj.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' }) : '';
+            const neprocitaneCount = svePorukeChata.filter(m => !m.isRead && m.autorId == partner.id).length;
             const status = formatirajStatus(partner.lastActive);
+
+            // Generiranje HTML-a s novom, modernom strukturom
             div.innerHTML += `
                 <div class="chat-item" onclick="pokreniPrivatniChat('${partner.id}')">
-                    <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
+                    <div class="chat-profilna-wrapper">
+                        <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
+                        <span class="status-dot ${status.online ? 'online' : 'offline'}"></span>
+                    </div>
                     <div class="chat-item-info">
-                        <span class="status-dot ${status.online ? "online" : "offline"}"></span>
                         <div class="chat-item-info-text">
                             <strong>${partner.ime}</strong>
-                            <p class="status-text">${status.online ? "Online" : status.text}</p>
+                            <p class="status-text">${zadnjaPorukaPreview}</p>
+                        </div>
+                        <div class="chat-meta-info">
+                            <span class="chat-vrijeme">${vrijemePoruke}</span>
+                            ${neprocitaneCount > 0 ? `<span class="notification-badge-chat">${neprocitaneCount}</span>` : ""}
                         </div>
                     </div>
-                    ${neprocitane ? '<span class="notification-badge-chat"></span>' : ""}
                 </div>`;
         });
     }
     navigateTo('inboxPrikaz');
 }
+
 
 async function pokreniPrivatniChat(partnerId) {
     trenutniChatPartnerId = partnerId;
