@@ -1,5 +1,5 @@
 /* === POCETAK CSS-a (Konačna verzija) === */
-/* public/style.css - VERZIJA 11 - Finalno centriranje */
+/* public/style.css - VERZIJA 11 - Finalno centriranje - Izmjene za Inbox Search */
 
 * {
     box-sizing: border-box;
@@ -134,12 +134,95 @@ body::before {
 #inboxPrikaz.container {
     padding-left: 0;
     padding-right: 0;
+    /* Dodatni padding-top za mobilni prikaz zbog novog search bara */
+    padding-top: 10px; /* Smanjeno jer je h2 sada position: absolute */
 }
+
+/* === IZMJENA: Pozicioniranje h2 unutar inboxPrikaz === */
 #inboxPrikaz h2 {
     padding-left: 12px;
     padding-right: 12px;
     text-align: center; 
+    /* NOVO: Podigni h2 na vrh i omogući pozicioniranje search bara ispod njega */
+    position: absolute;
+    top: 20px; /* Prilagodi po potrebi da bude na samom vrhu */
+    left: 0;
+    right: 0;
+    z-index: 5; /* Da bude iznad liste chatova */
+    background-color: rgba(0, 0, 0, 0.95); /* Pozadina koja pokriva ispod da se ne vidi skrolanje */
+    padding-top: 0; /* Resetiraj padding-top ako je bio postavljen iz container > h2 */
+    margin-bottom: 0; /* Ukloni donju marginu */
+    height: 50px; /* Postavi fiksnu visinu za zaglavlje */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px; /* Osiguraj da je veličina fonta konzistentna s ostalim h2 */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Lagana sjena */
 }
+
+@media (max-width: 767px) {
+    #inboxPrikaz h2 {
+        top: 0; /* Na mobilnom skroz gore */
+        height: 60px; /* Visina za mobilni header */
+    }
+}
+
+/* === NOVO: Stilovi za Search Bar u Inboxu === */
+.inbox-search-bar {
+    width: 100%;
+    padding: 10px 12px; /* Vertikalni padding 10px, horizontalni 12px da odgovara chat-item-u */
+    background-color: rgba(0, 0, 0, 0.9); /* Pozadina koja odgovara headeru */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    position: sticky; /* Sticky pozicija da ostane na vrhu prilikom skrolanja */
+    top: 70px; /* Ispod main-header-a na mobilnom */
+    z-index: 4; /* Ispod h2 ali iznad liste chatova */
+    box-sizing: border-box; /* Da padding ne poveća širinu */
+}
+
+@media (min-width: 768px) {
+    .inbox-search-bar {
+        position: relative; /* Na desktopu može biti relativan */
+        top: auto;
+        border-radius: 24px; /* Za desktop da prati container */
+        margin: -20px 0 20px 0; /* Prilagodi marginu za desktop */
+        background-color: #1e1e1e; /* Prilagodi pozadinu za desktop */
+        border: 1px solid #2a2a2a;
+        max-width: 600px; /* Ograniči širinu na desktopu */
+        margin-left: auto;
+        margin-right: auto;
+        padding: 12px 20px; /* Veći padding za desktop */
+    }
+}
+
+.inbox-search-bar input {
+    flex-grow: 1;
+    border: none;
+    background-color: #3a3a3a;
+    color: #f0f0f0;
+    padding: 10px 15px;
+    border-radius: 20px;
+    font-size: 16px;
+    outline: none !important;
+    box-shadow: none !important;
+    margin-bottom: 0; /* Ukloni defaultnu marginu */
+}
+
+.inbox-search-bar input:focus {
+    background-color: #4a4a4a;
+    border-color: #ff4757;
+    box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
+}
+
+.inbox-search-bar .search-icon {
+    margin-left: 10px;
+    width: 20px;
+    height: 20px;
+    fill: #b0b0b0;
+    flex-shrink: 0; /* Spriječi da se ikona smanji */
+}
+/* === KRAJ: Stilovi za Search Bar u Inboxu === */
 
 
 .main-header {
@@ -393,7 +476,8 @@ body::before {
 }
 .back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
 
-.container > h2 { padding-top: 30px; }
+/* Uklonjeno jer je #inboxPrikaz h2 sada pozicioniran apsolutno */
+/* .container > h2 { padding-top: 30px; } */
 
 #intro, #pravilaEkran, #odabir, #login, #registracija, #homePrikazPijanki, #praznaTrazilica { justify-content: center; align-items: center; }
 #objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
@@ -637,16 +721,23 @@ img.preview-slika { display: none; }
 
 
 /* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) === */
-#inboxPrikaz h2 {
-    padding-left: 12px;
-    padding-right: 12px;
-    text-align: center; 
-}
+/* #inboxPrikaz h2 je pomaknut gore, stilovi prilagođeni iznad */
 
 #listaChatova {
     padding: 0;
     margin: 0;
+    /* NOVO: Dodatni padding-top da lista počne ispod search bara */
+    padding-top: 120px; /* Visina h2 + visina search bara + malo razmaka */
+    position: relative; /* Potrebno za z-index i da se lista skroluje ispod stickynih elemenata */
+    z-index: 2; /* Mora biti ispod search bara i h2 */
 }
+
+@media (min-width: 768px) {
+    #listaChatova {
+        padding-top: 0; /* Na desktopu lista može početi odmah ispod search bara */
+    }
+}
+
 
 .chat-item {
     background: transparent;
