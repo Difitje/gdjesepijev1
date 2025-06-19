@@ -569,7 +569,6 @@ function otvoriInbox() {
             const partner = sviKorisnici.find(u => u.id == partnerId);
             if (!partner) return;
 
-            // Logika za dohvaćanje detalja zadnje poruke
             const svePorukeChata = privatnePoruke[chatKey] || [];
             const zadnjaPorukaObj = svePorukeChata.length > 0 ? svePorukeChata[svePorukeChata.length - 1] : null;
 
@@ -585,7 +584,6 @@ function otvoriInbox() {
             const neprocitaneCount = svePorukeChata.filter(m => !m.isRead && m.autorId == partner.id).length;
             const status = formatirajStatus(partner.lastActive);
 
-            // Generiranje HTML-a s novom, modernom strukturom
             div.innerHTML += `
                 <div class="chat-item" onclick="pokreniPrivatniChat('${partner.id}')">
                     <div class="chat-profilna-wrapper">
@@ -623,12 +621,11 @@ async function pokreniPrivatniChat(partnerId) {
         </div>
     `;
 
-    // Ponovno dodaj event listenere jer je HTML rekreiran
     document.getElementById("chatPartnerSlika").onclick = () => otvoriProfil(primalac.id);
     document.getElementById("chatSaKorisnikom").onclick = () => otvoriProfil(primalac.id);
 
     navigateTo('privatniChat');
-    toggleAppUI(false); // Sakrij nav bar kada uđeš u chat
+    toggleAppUI(false); 
 
     const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
     try {
@@ -679,14 +676,31 @@ async function posaljiPrivatno() {
     }
 }
 
+// === IZMIJENJENA FUNKCIJA ===
 function prikaziPrivatniLog() {
     if (!trenutniKorisnik || !trenutniChatPartnerId) return;
     const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
     const log = privatnePoruke[chatKey] || [];
     const div = document.getElementById("privatniChatLog");
-    div.innerHTML = log.map(msg => `<p class="${msg.autorId === trenutniKorisnik.id ? "moja-poruka" : "tudja-poruka"}"><span>${msg.tekst}</span></p>`).join("");
-    div.scrollTop = div.scrollHeight;
+
+    div.innerHTML = log.map(msg => {
+        const vrijeme = new Date(msg.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' });
+        const klasaWrappera = msg.autorId === trenutniKorisnik.id ? "moja-poruka" : "tudja-poruka";
+
+        return `
+            <div class="poruka-wrapper ${klasaWrappera}">
+                <div class="poruka-balon">
+                    <span>${msg.tekst}</span>
+                </div>
+                <span class="poruka-vrijeme">${vrijeme}</span>
+            </div>
+        `;
+    }).join("");
+
+    // Ovo nije više potrebno zbog flex-direction: column-reverse u CSS-u
+    // div.scrollTop = div.scrollHeight;
 }
+
 
 async function dohvatiSveKorisnike() {
     try { const response = await authenticatedFetch('/api/users'); if (response.ok) sviKorisnici = await response.json(); }
