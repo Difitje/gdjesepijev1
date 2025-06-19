@@ -898,22 +898,22 @@ img.preview-slika { display: none; }
 /* Prilagodba inputa i textarea da budu uže i da stanu svi zajedno */
 #editProfil input[type="text"],
 #editProfil input[type="password"],
-#editProfil textarea {
-    width: 100%; /* */
-    max-width: 320px; /* Ključno: Zadržava maksimalnu širinu */ /* */
-    margin-bottom: 10px; /* */
-    padding: 8px; /* */
-    border-radius: 6px; /* */
-    font-size: 14px; /* */
-    margin-left: auto; /* Ključno: Auto margine za horizontalno centriranje inputa */ /* */
-    margin-right: auto; /* */
+#editProfil textarea { /* Dodaj textarea ovdje ako nije već bio */
+    width: 100%;
+    max-width: 320px; /* Ključno: Zadržava maksimalnu širinu */
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-left: auto; /* Ključno: Auto margine za horizontalno centriranje inputa */
+    margin-right: auto;
 }
 
-/* Specifično za "O meni" textarea - osigurajte da ima istu širinu */
+/* Specifično za "O meni" textarea - osigurajte da ima istu širinu i centriranje */
 #editProfil textarea#editOpis {
-    max-width: 320px; /* Postavite istu max-width kao i inputi */ /* */
-    margin-left: auto; /* Osigurajte centriranje */ /* */
-    margin-right: auto; /* */
+    max-width: 320px; /* Postavite istu max-width kao i inputi - ISPRAVAK */
+    margin-left: auto; /* Osigurajte centriranje */
+    margin-right: auto;
 }
 
 
