@@ -99,11 +99,10 @@ body::before {
     }
     .chat-input-area { max-width: 1200px; margin: 0 auto; }
     #objavaForma, #profilKorisnika, #login > input, #login > button,
-    #registracija > input, #registracija > textarea, #registracija > button, #registracija > label, #registracija > img,
-    #editProfil > input, #editProfil > textarea, #editProfil > button, #editProfil > label, #editProfil > div {
+    #registracija > input, #registracija > textarea, #registracija > button, #registracija > label, #registracija > img {
         width: 100%; max-width: 600px; margin-left: auto; margin-right: auto;
     }
-    #login, #registracija, #editProfil { align-items: center; }
+    #login, #registracija, #editProfil { align-items: center; } /* Adjusted alignment for editProfil here */
     #privatniChatLog p { max-width: 800px; margin-left: auto; margin-right: auto; }
 }
 
