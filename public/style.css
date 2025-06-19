@@ -346,7 +346,6 @@ body::before {
     -ms-overflow-style: none;
     scrollbar-width: none;
     padding: 10px;
-    /* DODANO: Poruke se sada slažu od dna */
     display: flex;
     flex-direction: column-reverse;
 }
@@ -357,33 +356,26 @@ body::before {
     display: none;
 }
 
-/* PROMIJENJENO: Poravnanje tipke za nazad */
+/* KONAČNA ISPRAVKA: Poravnanje tipke za nazad */
 #privatniChat .top-nav-buttons {
-    display: flex;
-    align-items: center; /* Osigurava vertikalno centriranje */
     height: 50px; /* Mora odgovarati visini .chat-header-info */
     top: 0;
+    left: 0; /* Puni raspon */
+    right: 0;
 }
 
 #privatniChat .top-nav-buttons .back-button {
     position: absolute;
     left: 5px;
+    top: 50%;
+    transform: translateY(-50%); /* Trik za savršeno vertikalno centriranje */
 }
 
 
 .top-nav-buttons {
     position: absolute;
-    top: 15px;
-    left: 15px;
-    right: 15px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
     z-index: 51;
     pointer-events: none;
-}
-@media (min-width: 768px) { 
-    .top-nav-buttons { top: 25px; left: 25px; right: 25px; }
 }
 .back-button, .close-btn {
     pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
@@ -519,7 +511,7 @@ body::before {
     justify-content: flex-start;
     padding-top: 0;
     width: 100%;
-    padding-left: 50px; /* Prilagođeno zbog tipke za nazad */
+    padding-left: 50px;
     position: absolute;
     top: 0;
     left: 0;

@@ -678,8 +678,9 @@ function prikaziPrivatniLog() {
     const log = privatnePoruke[chatKey] || [];
     const div = document.getElementById("privatniChatLog");
 
-    // Uklonjen .reverse() jer CSS flex-direction: column-reverse već radi svoj posao.
-    // Dovoljno je samo ispravno mapirati originalni (kronološki) niz.
+    // CSS `column-reverse` se brine za slaganje od dna, a JS samo treba ispisati
+    // poruke kronološki (onako kako stižu s servera), što .map() i radi.
+    // .reverse() nije potreban i uzrokovao je problem.
     div.innerHTML = log.map(msg => {
         const vrijeme = new Date(msg.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' });
         const klasaWrappera = msg.autorId === trenutniKorisnik.id ? "moja-poruka" : "tudja-poruka";
