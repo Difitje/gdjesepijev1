@@ -620,16 +620,16 @@ img.preview-slika { display: none; }
 .pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
 
 
-/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) - Ažurirano sa više prostora === */
+/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) - Ažurirano sa većom širinom === */
 #listaChatova {
     padding: 0; /* Uklanjamo padding da bi se itemi protezali od ruba do ruba */
-    max-width: 600px; /* Ograničava širinu liste na desktopu */
+    max-width: 720px; /* PROMIJENJENO: Povećana maksimalna širina sa 600px na 720px za širi izgled */
     margin: 0 auto; /* Centriranje liste */
 }
 
 .chat-item {
     background: transparent;
-    padding: 18px 16px; /* PROMIJENJENO: Povećan vertikalni padding sa 14px na 18px */
+    padding: 14px 16px; /* VRAĆENO: Vraćen kompaktniji vertikalni padding */
     margin: 0;
     display: flex;
     align-items: center;
@@ -700,7 +700,7 @@ img.preview-slika { display: none; }
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 6px; /* PROMIJENJENO: Povećan razmak između imena i poruke sa 4px na 6px */
+    gap: 4px; /* VRAĆENO: Vraćen manji razmak između imena i poruke */
     overflow: hidden;
 }
 
