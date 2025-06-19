@@ -682,7 +682,7 @@ function prikaziPrivatniLog() {
     // Ovo osigurava da je redoslijed u DOM-u uvijek ispravan (kronološki).
     // CSS `flex-direction: column-reverse` će onda vizualno okrenuti redoslijed
     // i prikazati najnovije poruke na dnu, što je ispravno ponašanje.
-    const sortiraniLog = log.slice().sort((a, b) => new Date(a.time) - new Date(b.time));
+    const sortiraniLog = log.slice().sort((a, b) => new Date(b.time) - new Date(a.time));
 
     div.innerHTML = sortiraniLog.map(msg => {
         const vrijeme = new Date(msg.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' });
