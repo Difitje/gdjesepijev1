@@ -671,17 +671,18 @@ async function posaljiPrivatno() {
     }
 }
 
-// === KONAČNA ISPRAVKA REDOSLIJEDA PORUKA ===
+// === KONAČNA ISPRAVKA REDOSLIJEDA PORUKA v2 ===
 function prikaziPrivatniLog() {
     if (!trenutniKorisnik || !trenutniChatPartnerId) return;
     const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
     const log = privatnePoruke[chatKey] || [];
     const div = document.getElementById("privatniChatLog");
 
-    // CSS `column-reverse` se brine za slaganje od dna, a JS samo treba ispisati
-    // poruke kronološki (onako kako stižu s servera), što .map() i radi.
-    // .reverse() nije potreban i uzrokovao je problem.
-    div.innerHTML = log.map(msg => {
+    // Eksplicitno sortiramo log po vremenu, od najstarijeg do najnovijeg.
+    // CSS `column-reverse` će se pobrinuti da se vizualno slažu od dna.
+    const sortiraniLog = log.slice().sort((a, b) => new Date(a.time) - new Date(b.time));
+
+    div.innerHTML = sortiraniLog.map(msg => {
         const vrijeme = new Date(msg.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' });
         const klasaWrappera = msg.autorId === trenutniKorisnik.id ? "moja-poruka" : "tudja-poruka";
 
