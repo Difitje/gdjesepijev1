@@ -620,15 +620,15 @@ img.preview-slika { display: none; }
 .pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
 
 
-/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) - Finalna verzija sa lijevim poravnanjem === */
+/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) - Finalna verzija sa maksimalnom širinom === */
 #listaChatova {
     padding: 0;
-    margin: 0; /* PROMIJENJENO: Uklonjen 'auto' da se osigura lijevo poravnanje unutar kontejnera */
+    margin: 0;
 }
 
 .chat-item {
     background: transparent;
-    padding: 8px 16px; 
+    padding: 8px 10px; /* PROMIJENJENO: Smanjen horizontalni padding sa 16px na 10px da se sadržaj raširi do rubova */
     margin: 0;
     display: flex;
     align-items: center;
