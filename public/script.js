@@ -416,31 +416,42 @@ function pokaziObjavu() {
 }
 
 async function objaviPijanku() {
-    const opis = document.getElementById("opisPijanke").value.trim();
-    if (!opis) return alert("Molimo popunite opis pijanke!");
-    if (!mojPoz) return dohvatiLokaciju(() => objaviPijanku());
+    console.log("Objavi pijanku function called!"); // Added for debugging
+    const opis = document.getElementById("opisPijanke").value.trim(); //
+    if (!opis) {
+        return alert("Molimo popunite opis pijanke!"); //
+    }
+    if (!mojPoz) {
+        // If location is not available, try to get it and then re-call objaviPijanku
+        console.log("Location not available, attempting to fetch..."); // Added for debugging
+        return dohvatiLokaciju(() => objaviPijanku()); //
+    }
 
-    const objaviBtn = document.querySelector('#objavaForma button');
-    objaviBtn.disabled = true; objabiBtn.textContent = 'Objavljujem...';
+    const objaviBtn = document.querySelector('#objavaForma button'); //
+    objaviBtn.disabled = true; //
+    objaviBtn.textContent = 'Objavljujem...'; // Corrected: objabiBtn changed to objaviBtn
+
     try {
-        const response = await authenticatedFetch('/api/posts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ opis, lat: mojPoz.lat, lon: mojPoz.lon })
+        const response = await authenticatedFetch('/api/posts', { //
+            method: 'POST', //
+            headers: { 'Content-Type': 'application/json' }, //
+            body: JSON.stringify({ opis, lat: mojPoz.lat, lon: mojPoz.lon }) //
         });
-        const data = await response.json();
-        if (response.ok) {
-            alert(data.message);
-            await dohvatiSvePijanke();
-            navigateTo('homePrikazPijanki');
-            prikaziPijankePregled();
+        const data = await response.json(); //
+        if (response.ok) { //
+            alert(data.message); //
+            await dohvatiSvePijanke(); //
+            navigateTo('homePrikazPijanki'); //
+            prikaziPijankePregled(); //
         } else {
-            alert("Greška pri objavi pijanke: " + data.message);
+            alert("Greška pri objavi pijanke: " + data.message); //
         }
     } catch (error) {
-        alert("Došlo je do greške pri objavi pijanke.");
+        console.error("Error during objaviPijanku:", error); // Log the actual error for debugging
+        alert("Došlo je do greške pri objavi pijanke."); //
     } finally {
-        objaviBtn.disabled = false; objabiBtn.textContent = 'Objavi';
+        objaviBtn.disabled = false; //
+        objaviBtn.textContent = 'Objavi'; // Corrected: objabiBtn changed to objaviBtn
     }
 }
 
