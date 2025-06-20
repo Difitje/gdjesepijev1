@@ -369,7 +369,7 @@ body::before {
     stroke: #b0b0b0; /* Siva boja za ikone */
     stroke-width: 1.8;
     margin-bottom: 2px;
-    transition: none !important; /* UKLONJuje instant promjenu boje */
+    transition: none !important; /* UKLONJENO: Omogućuje instant promjenu boje */
 }
 
 .bottom-nav .nav-button.active {
@@ -439,30 +439,19 @@ body::before {
 
 /* === KONAČNA ISPRAVKA: Pravila za gornje tipke === */
 
-/* **ISPRAVKA: top-nav-buttons defaultno skriven i postavljen na absolute/flex samo kad je potrebno** */
+/* Općenito pravilo za sve ekrane OSIM chata */
 .top-nav-buttons {
-    position: absolute; /* Postavi na absolute da ne utječe na flow */
+    position: absolute;
     top: 15px;
     left: 15px;
-    width: calc(100% - 30px); /* Puna širina unutar containera */
-    display: none; /* Sakrij po defaultu */
-    justify-content: space-between;
-    align-items: center;
     z-index: 51;
-    pointer-events: none; /* Defaultno onemogući evente, omogućit ćemo ih za specifične gumbe */
+    pointer-events: none;
+    /* Omogući flexbox za pravilno pozicioniranje back i confirm buttona */
+    display: flex;
+    width: calc(100% - 30px); /* Puna širina unutar containera */
+    justify-content: space-between; /* Razmak između elemenata */
+    align-items: center; /* Centriraj po vertikali */
 }
-
-/* Specificno za editProfil */
-#editProfil .top-nav-buttons {
-    display: flex; /* Prikazi ga samo na editProfilu */
-}
-
-/* Specificno za glavniDio (objavaForma, profilKorisnika) */
-#glavniDio .top-nav-buttons {
-    display: flex; /* Prikazi ga samo na glavniDio */
-}
-
-
 @media (min-width: 768px) {
     .top-nav-buttons {
         top: 25px;
@@ -480,8 +469,6 @@ body::before {
     justify-content: flex-start; /* back-button na lijevo */
     padding-left: 5px; /* Mali padding za back-button */
     padding-right: 15px; /* Padding da confirm-button ne bude skroz desno */
-    /* **NOVO: Dodan display: flex za privatniChat.top-nav-buttons da bi bio vidljiv** */
-    display: flex;
 }
 #privatniChat .top-nav-buttons .back-button {
     position: static; /* Vrati na normalno pozicioniranje unutar flexboxa */
@@ -553,48 +540,595 @@ body::before {
     }
 }
 */
+/* KRAJ NOVIH STILOVA ZA GUMB ZA POTVRDU */
 
-/* --- NOVO: Stilovi za prilagođenu obavijest (Custom Notification) --- */
-.custom-notification {
+
+/* Uklonjeno jer je #inboxPrikaz h2 sada pozicioniran apsolutno */
+/* .container > h2 { padding-top: 30px; } */
+
+#intro, #pravilaEkran, #odabir, #login, #registracija, #homePrikazPijanki, #praznaTrazilica { justify-content: center; align-items: center; }
+#objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
+#privatniChat { justify-content: flex-start; align-items: stretch; }
+
+/* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
+.chat-input-area {
     position: fixed;
-    top: 20px; /* Možete prilagoditi vertikalni položaj */
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(46, 204, 113, 0.9); /* Zelena boja za uspjeh */
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: rgba(0, 0, 0, 0.95);
+    border-top: 1px solid rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    z-index: 100;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
+}
+
+#privatniInput {
+    flex-grow: 1;
+    border: none;
+    border-radius: 20px;
+    background-color: #3a3a3a;
+    color: #f0f0f0;
     font-size: 16px;
-    text-align: center;
-    z-index: 9999; /* Da bude iznad svega */
+    line-height: 1.4;
+    min-height: 40px;
+    max-height: 100px;
+    overflow-y: auto;
+    resize: none;
+    transition: all 0.2s ease;
+    margin: 0;
+    padding: 10px 45px 10px 45px;
+}
+
+#privatniInput:focus {
+    outline: none;
+    background-color: #4a4a4a;
+    box-shadow: none;
+    border-color: transparent;
+}
+
+.image-upload-icon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10;
+    background: rgba(40, 40, 40, 0.3);
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.image-upload-icon:hover {
+    background: rgba(40, 40, 40, 0.6);
+}
+
+.image-upload-icon svg {
+    width: 18px;
+    height: 18px;
+    fill: #f0f0f0;
+}
+
+#posaljiPrivatnoBtn {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    margin: 0;
+    background-color: #ff4757;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+    z-index: 10;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease-out, visibility 0.3s ease-out, top 0.3s ease-out;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    min-width: 250px; /* Minimalna širina */
-    max-width: 90%; /* Maksimalna širina, da se ne prelije na malim ekranima */
+    transform: scale(0.5) translateY(-50%);
+    transform-origin: center center;
 }
 
-.custom-notification.show {
+#posaljiPrivatnoBtn.enabled {
     opacity: 1;
     visibility: visible;
-    top: 60px; /* Malo se spusti prilikom prikaza */
+    transform: scale(1) translateY(-50%);
 }
 
-.custom-notification.error {
-    background-color: rgba(231, 76, 60, 0.9); /* Crvena boja za greške */
+#posaljiPrivatnoBtn:not(.enabled) {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.5) translateY(-50%);
 }
 
-/* Prilagodba za desktop */
+#posaljiPrivatnoBtn svg {
+    width: 16px;
+    height: 16px;
+    fill: #ffffff;
+    margin-left: -1px;
+}
+/* ========================================= */
+
+/* === IZMJENA: Dodatno smanjeno zaglavlje chata === */
+.chat-header-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 0;
+    width: 100%;
+    padding-left: 50px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.95);
+    height: 50px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    z-index: 50;
+}
+
+.chat-partner-profilna {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #ff4757;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.chat-partner-profilna:hover {
+    transform: scale(1.05);
+}
+
+.chat-header-info h2 {
+    margin-bottom: 0;
+    font-size: 16px;
+    color: #f0f0f0;
+    cursor: pointer;
+    padding-top: 0;
+    margin-right: 10px;
+    text-align: left;
+    width: auto;
+}
+.chat-header-info .status-text {
+    margin-top: 1px;
+    font-size: 11px;
+    color: #aaa;
+    text-align: left;
+    width: auto;
+    white-space: nowrap;
+}
+.chat-info-text-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+/* ========================================= */
+
+
+h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
+h2 { font-size: 20px; }
+p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
+#intro p, #odabir p { text-align: center; }
+.profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
+.drustvene-mreze { text-align: center; margin-bottom: 15px; }
+
+.profil-actions { display: flex; flex-direction: column; width: 100%; max-width: 400px; margin-top: 10px; gap: 10px; }
+.profil-actions button { margin-bottom: 0; }
+.btn-danger { background: #444; }
+.btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
+
+input, textarea, button {
+    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
+    color: #f0f0f0; border-radius: 8px; font-size: 16px; font-family: inherit; transition: all 0.2s ease-in-out;
+    outline: none !important;
+    box-shadow: none !important;
+}
+input:focus, textarea:focus { outline: none !important; border-color: #ff4757; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); }
+button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px; }
+button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
+button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
+img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
+.profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; }
+img.preview-slika { display: none; }
+#previewEditSlike { display: block; margin: 8px auto; } /* Keep this */
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.status-dot.online { background-color: #2ecc71; }
+.status-dot.offline { background-color: #7f8c8d; }
+.status-text { font-size: 13px; color: #999; margin: 0; }
+.mreza-ikonica { width: 28px; height: 28px; margin: 0 10px; vertical-align: middle; transition: transform 0.2s ease; }
+.mreza-ikonica:hover { transform: scale(1.1); }
+.pravila-checkbox-wrapper { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; justify-content: center; }
+.pravila-checkbox-wrapper input[type="checkbox"] { width: auto; margin-bottom: 0; flex-shrink: 0; }
+.pravila-checkbox-wrapper label { margin-bottom: 0; font-size: 14px; color: #f0f0f0; text-align: left; }
+.pijanka {
+    background: rgba(255, 71, 87, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 0 auto 8px auto;
+    display: flex;
+    flex-direction: column;
+    border-left: 3px solid rgba(255, 71, 87, 0.3);
+    transition: all 0.2s ease-in-out;
+    width: 100%;
+    max-width: 600px; /* <--- OVO JE PROBLEM */
+    box-sizing: border-box;
+}
+.pijanka:hover {
+    background: rgba(255, 71, 87, 0.2);
+    border-left-color: #ff4757;
+}
+.pijanka-header { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 8px; border-bottom: 1px solid #333; margin-bottom: 8px; width: 100%; }
+.pijanka-profilna-slika { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #ff4757; flex-shrink: 0; }
+
+.pijanka-info { flex-grow: 1; display: flex; align-items: center; gap: 10px; }
+.pijanka-info-text { display: flex; flex-direction: column; }
+.pijanka-info strong { line-height: 1.2; font-size: 18px; color: #f0f0f0; }
+.pijanka-info .status-text { line-height: 1.2; margin: 0; padding: 0; color: #a0a0a0; }
+
+.delete-btn { background: none; border: none; font-size: 14px; padding: 2px; margin-left: auto; cursor: pointer; color: #777; flex-shrink: 0; line-height: 1; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; border-radius: 50%; }
+.delete-btn:hover { color: #ff4757; background: rgba(51, 51, 51, 0.5); box-shadow: none; transform: scale(1.05); }
+.pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
+
+
+/* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) === */
+/* #inboxPrikaz h2 je pomaknut gore, stilovi prilagođeni iznad */
+
+#listaChatova {
+    padding: 0;
+    margin: 0;
+    /* NOVO: Dodatni padding-top da lista počne ispod search bara */
+    padding-top: calc(50px + 60px); /* Visina h2 (50px) + visina search bara (oko 40px input + 2*10 padding = 60px) */
+    position: relative; /* Potrebno za z-index i da se lista skroluje ispod stickynih elemenata */
+    z-index: 2; /* Mora biti ispod search bara i h2 */
+}
+
 @media (min-width: 768px) {
-    .custom-notification {
-        top: 40px;
-        padding: 15px 25px;
-    }
-    .custom-notification.show {
-        top: 80px;
+    #listaChatova {
+        padding-top: 0; /* Na desktopu lista može početi odmah ispod search bara */
     }
 }
-/* --- KRAJ: Stilovi za prilagođenu obavijest --- */
 
+
+.chat-item {
+    background: transparent;
+    padding: 8px 12px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background-color 0.2s ease-in-out;
+    width: 100%;
+    border-left: 4px solid transparent;
+    cursor: pointer;
+    border-radius: 0;
+    box-sizing: border-box;
+}
+
+.chat-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.chat-item.active {
+    background: rgba(255, 71, 87, 0.08);
+    border-left-color: #ff4757;
+}
+
+.chat-profilna-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.chat-item img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.chat-profilna-wrapper .status-dot {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #1e1e1e;
+}
+
+.chat-item-info {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    padding-top: 1px;
+}
+
+.chat-item-info-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 2px;
+    overflow: hidden;
+}
+
+.chat-item-info strong {
+    font-size: 15px;
+    font-weight: 500;
+    color: #f0f0f0;
+    white-space: nowrap;
+    line-height: 1.3;
+}
+
+.chat-item-info .status-text {
+    font-size: 13px;
+    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+    margin: 0;
+    padding: 0;
+}
+
+.chat-meta-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+    flex-shrink: 0;
+    padding-top: 1px;
+}
+
+.chat-vrijeme {
+    font-size: 12px;
+    color: #888;
+    white-space: nowrap;
+}
+
+.notification-badge-chat {
+    background-color: #ff4757;
+    color: white;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 0 4px;
+}
+
+.notification-badge-chat:empty {
+    display: none;
+}
+/* === KRAJ: REDIZAJN INBOXA (LISTA CHATOVA) === */
+
+
+/* === NOVO: Stilovi za timestampove i wrappere poruka === */
+.poruka-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px; /* Povećan razmak između poruka */
+    width: 100%;
+}
+
+.poruka-balon {
+    padding: 8px 12px;
+    border-radius: 18px;
+    max-width: 85%;
+    word-wrap: break-word;
+    font-size: 15px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.poruka-vrijeme {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+}
+
+.moja-poruka {
+    align-items: flex-end;
+}
+
+.moja-poruka .poruka-balon {
+    background: #ff4757;
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+.moja-poruka .poruka-vrijeme {
+    margin-right: 8px;
+}
+
+
+.tudja-poruka {
+    align-items: flex-start;
+}
+.tudja-poruka .poruka-balon {
+    background: #3a3a3a;
+    color: #f0f0f0;
+    border-bottom-left-radius: 4px;
+}
+.tudja-poruka .poruka-vrijeme {
+    margin-left: 8px;
+}
+/* ======================================================== */
+
+
+#splashScreen {
+    display: none;
+}
+#splashScreen h1 {
+    display: none;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+@keyframes bounceIn { 0% { transform: scale(0.1); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes fadeOutSplash { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+
+#profilKorisnika button {
+    background: rgba(30, 30, 30, 0.3);
+    box-shadow: none !important;
+    border: 1px solid rgba(51, 51, 51, 0.2);
+    outline: none !important;
+}
+
+#profilKorisnika button:hover {
+    background: rgba(40, 40, 40, 0.6);
+    transform: none;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+#editProfil {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+#editProfil h2 {
+    margin-bottom: 25px;
+}
+
+/* NOVO: Wrapper za sliku i ikonicu */
+.profile-picture-edit-wrapper {
+    position: relative;
+    width: 100px; /* Match the image size */
+    height: 100px; /* Match the image size */
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+#editProfil .profilna-slika {
+    margin: 0; /* Remove default margin as it's now in wrapper */
+    border: 3px solid #ff4757;
+    width: 100%; /* Fill the wrapper */
+    height: 100%; /* Fill the wrapper */
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+/* NOVO: Stilovi za ikonu kamere */
+.camera-icon-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(255, 71, 87, 0.9); /* Red background for the icon */
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #1e1e1e; /* Border to stand out from background */
+    transition: background-color 0.2s ease;
+}
+
+.camera-icon-overlay:hover {
+    background-color: #e03f4d; /* Darker red on hover */
+}
+
+.camera-icon-overlay svg {
+    width: 18px;
+    height: 18px;
+    fill: #ffffff; /* White icon color */
+}
+
+
+/* REMOVED: #editProfil input[type="file"] { ... } */
+
+#editProfil label {
+    align-self: flex-start;
+    margin-bottom: 8px;
+    color: #e0e0e0;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+#editProfil input[type="text"],
+#editProfil input[type="password"],
+#editProfil textarea {
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 18px;
+    background: #1e1e1e;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 14px;
+    color: #f0f0f0;
+    font-size: 16px;
+}
+
+#editProfil input[type="text"]:focus,
+#editProfil input[type="password"]:focus,
+#editProfil textarea:focus {
+    border-color: #ff4757;
+    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.3);
+}
+
+/* Uklanjamo stilove za originalni SacuvajProfilBtn jer ga više nema kao standardnog gumba */
+/*
+#editProfil button {
+    background: rgba(30, 30, 30, 0.3);
+    box-shadow: none !important;
+    border: 1px solid rgba(51, 51, 51, 0.2);
+    outline: none !important;
+    max-width: 400px;
+    margin-top: 10px;
+    padding: 14px 20px;
+    font-size: 17px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+}
+
+#editProfil button:hover {
+    background: rgba(40, 40, 40, 0.6);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+*/
+
+#objavaForma button {
+    background: rgba(255, 71, 87, 0.3);
+    border: none;
+    font-weight: bold;
+    position: relative;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+#objavaForma button:hover {
+    background: rgba(255, 71, 87, 0.6);
+    transform: none;
+    box-shadow: none !important;
+    outline: none !important;
+}
 /* === KRAJ CSS-a === */

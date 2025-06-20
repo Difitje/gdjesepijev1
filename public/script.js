@@ -28,27 +28,6 @@ let odabranaEditSlika = null;
 // Nova navigacijska logika
 let navigationStack = [];
 
-// --- POMOĆNA FUNKCIJA ZA PRIKAZ PRILAGOĐENIH OBAVIJESTI ---
-function showCustomNotification(message, isError = false) {
-    const notificationEl = document.getElementById('customNotification');
-    if (!notificationEl) return;
-
-    notificationEl.innerText = message;
-    notificationEl.classList.remove('error');
-    if (isError) {
-        notificationEl.classList.add('error');
-    }
-
-    notificationEl.classList.add('show');
-
-    // Sakrij obavijest nakon 3 sekunde
-    setTimeout(() => {
-        notificationEl.classList.remove('show');
-    }, 3000);
-}
-// --- KRAJ POMOĆNE FUNKCIJE ---
-
-
 // --- NAVIGACIJSKE FUNKCIJE ---
 function swap(hideId, showId) {
     const hideElement = document.getElementById(hideId);
@@ -206,7 +185,7 @@ async function registruj() {
     const opis = document.getElementById("opis").value.trim();
     const registrujBtn = document.getElementById('registracijaSubmitBtn');
 
-    if (!ime || !sifra || !odabranaSlika) { return showCustomNotification("Molimo popunite korisničko ime, lozinku i odaberite sliku!", true); }
+    if (!ime || !sifra || !odabranaSlika) { return alert("Molimo popunite korisničko ime, lozinku i odaberite sliku!"); }
 
     registrujBtn.disabled = true; registrujBtn.textContent = 'Registracija u tijeku...';
 
@@ -219,13 +198,13 @@ async function registruj() {
         });
         const data = await response.json();
         if (response.ok) {
-            showCustomNotification(data.message);
+            alert(data.message);
             await ulogujSe(ime, sifra);
         } else {
-            showCustomNotification("Greška pri registraciji: " + data.message, true);
+            alert("Greška pri registraciji: " + data.message);
         }
     } catch (error) {
-        showCustomNotification("Došlo je do greške pri registraciji.", true);
+        alert("Došlo je do greške pri registraciji.");
     } finally {
         registrujBtn.disabled = false; registrujBtn.textContent = 'Spremi';
     }
@@ -236,7 +215,7 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
     const sifra = passwordFromRegister || document.getElementById("loginSifra").value.trim();
     const loginBtn = document.getElementById('loginSubmitBtn');
 
-    if (!ime || !sifra) { return showCustomNotification("Unesite korisničko ime i lozinku!", true); }
+    if (!ime || !sifra) { return alert("Unesite korisničko ime i lozinku!"); }
 
     loginBtn.disabled = true; loginBtn.textContent = 'Prijava u tijeku...';
 
@@ -253,10 +232,10 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
             await Promise.all([dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke()]);
             pokreniAplikaciju();
         } else {
-            showCustomNotification("Greška pri prijavi: " + data.message, true);
+            alert("Greška pri prijavi: " + data.message);
         }
     } catch (error) {
-        showCustomNotification("Došlo je do greške pri prijavi.", true);
+        alert("Došlo je do greške pri prijavi.");
     } finally {
         loginBtn.disabled = false; loginBtn.textContent = 'Prijavi se';
     }
@@ -308,6 +287,7 @@ async function prikaziEditProfila() {
     document.getElementById("editInstagram").value = user.instagram || '';
     document.getElementById("editTiktok").value = user.tiktok || ''; // Corrected ID
     document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
+    // Ispravljeno: ID za prikaz slike je "previewEditSlike" a ne "previewEditSlikes"
     document.getElementById("previewEditSlike").style.display = "block";
 
     odabranaEditSlika = null; // Reset odabranaEditSlika when opening edit profile
@@ -324,7 +304,7 @@ async function prikaziEditProfila() {
 
 async function sacuvajProfil() {
     if (!trenutniKorisnik || !trenutniKorisnik.id) {
-        showCustomNotification("Niste prijavljeni.", true);
+        alert("Niste prijavljeni.");
         return;
     }
 
@@ -334,7 +314,7 @@ async function sacuvajProfil() {
     const noviTiktok = document.getElementById("editTiktok").value.trim(); // Corrected ID
     const confirmButton = document.getElementById('sacuvajProfilBtn'); // Sada je to ikona
 
-    if (!novoIme) return showCustomNotification("Ime ne može biti prazno!", true);
+    if (!novoIme) return alert("Ime ne može biti prazno!");
 
     if (confirmButton) {
         confirmButton.disabled = true;
@@ -360,15 +340,14 @@ async function sacuvajProfil() {
         });
         const data = await response.json();
         if (response.ok) {
-            showCustomNotification(data.message);
+            alert(data.message);
             await globalRefreshUI();
             navigateBack();
         } else {
-            showCustomNotification("Greška pri spremanju profila: " + data.message, true);
+            alert("Greška pri spremanju profila: " + data.message);
         }
     } catch (error) {
-        showCustomNotification("Došlo je do greške pri spremanja profila.", true);
-        console.error("Error saving profile:", error);
+        alert("Došlo je do greške pri spremanja profila.");
     } finally {
         if (confirmButton) {
             confirmButton.disabled = false;
@@ -407,7 +386,7 @@ function dohvatiLokaciju(callback) {
         mojPoz = { lat: pos.coords.latitude, lon: pos.coords.longitude };
         callback && callback();
     }, (error) => {
-        showCustomNotification("Pristup lokaciji je odbijen. Aplikacija ne može ispravno raditi bez lokacije.", true);
+        alert("Pristup lokaciji je odbijen. Aplikacija ne može ispravno raditi bez lokacije.");
         callback && callback();
     }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
 }
@@ -438,7 +417,7 @@ function pokaziObjavu() {
 
 async function objaviPijanku() {
     const opis = document.getElementById("opisPijanke").value.trim();
-    if (!opis) return showCustomNotification("Molimo popunite opis pijanke!", true);
+    if (!opis) return alert("Molimo popunite opis pijanke!");
     if (!mojPoz) return dohvatiLokaciju(() => objaviPijanku());
 
     const objaviBtn = document.querySelector('#objavaForma button');
@@ -451,15 +430,15 @@ async function objaviPijanku() {
         });
         const data = await response.json();
         if (response.ok) {
-            showCustomNotification(data.message);
+            alert(data.message);
             await dohvatiSvePijanke();
             navigateTo('homePrikazPijanki');
             prikaziPijankePregled();
         } else {
-            showCustomNotification("Greška pri objavi pijanke: " + data.message, true);
+            alert("Greška pri objavi pijanke: " + data.message);
         }
     } catch (error) {
-        showCustomNotification("Došlo je do greške pri objavi pijanke.", true);
+        alert("Došlo je do greške pri objavi pijanke.");
     } finally {
         objaviBtn.disabled = false; objabiBtn.textContent = 'Objavi';
     }
@@ -467,19 +446,19 @@ async function objaviPijanku() {
 
 async function obrisiPijanku(pijankaId, event) {
     if (event) event.stopPropagation();
-    if (confirm("Jeste li sigurni da želite obrisati ovu objavu?")) { // Ostavljamo confirm za potvrdu brisanja
+    if (confirm("Jeste li sigurni da želite obrisati ovu objavu?")) {
         try {
             const response = await authenticatedFetch(`/api/posts?postId=${pijankaId}`, { method: 'DELETE' });
             const data = await response.json();
             if (response.ok) {
-                showCustomNotification(data.message);
+                alert(data.message);
                 await dohvatiSvePijanke();
                 prikaziPijankePregled();
             } else {
-                showCustomNotification("Greška pri brisanju objave: " + data.message, true);
+                alert("Greška pri brisanju objave: " + data.message);
             }
         } catch (error) {
-            showCustomNotification("Došlo je do greške pri brisanja objave.", true);
+            alert("Došlo je do greške pri brisanja objave.");
         }
     }
 }
@@ -701,7 +680,7 @@ async function posaljiPrivatno() {
         await dohvatiSvePoruke();
         prikaziPrivatniLog();
     } catch (error) {
-        showCustomNotification("Došlo je do greške pri slanju poruke.", true);
+        alert("Došlo je do greške pri slanju poruke.");
     }
 }
 
