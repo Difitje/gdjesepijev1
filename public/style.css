@@ -20,7 +20,7 @@ body {
 
     /* ISPRAVAK: DODANA KOSA CRTA (/) NA POČETAK PUTANJE */
     background-image: url('/pozadina.png');
-    
+
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -29,7 +29,7 @@ body {
 
     color: #f0f0f0;
     line-height: 1.5;
-    font-size: 16px; 
+    font-size: 16px;
     position: relative; /* OVO JE KLJUČNO ZA PSEUDO-ELEMENT */
     touch-action: manipulation;
     z-index: 0; /* Dodano za osiguranje z-indeksa ispod overlay-a */
@@ -142,7 +142,7 @@ body::before {
 #inboxPrikaz h2 {
     padding-left: 12px;
     padding-right: 12px;
-    text-align: center; 
+    text-align: center;
     /* NOVO: Podigni h2 na vrh i omogući pozicioniranje search bara ispod njega */
     position: absolute;
     top: 20px; /* Prilagodi po potrebi da bude na samom vrhu */
@@ -229,12 +229,12 @@ body::before {
     z-index: 100;
 }
 @media (min-width: 768px) {
-    .main-header { 
-        position: relative; 
-        border-radius: 24px 24px 0 0; 
-        margin: -40px -40px 20px -40px; 
-        padding: 0 30px; 
-        height: 70px; 
+    .main-header {
+        position: relative;
+        border-radius: 24px 24px 0 0;
+        margin: -40px -40px 20px -40px;
+        padding: 0 30px;
+        height: 70px;
         background-color: rgba(34, 34, 34, 0.8); /* Prilagođeno za desktop */
         justify-content: center; /* Centriranje loga i na desktopu */
     }
@@ -271,22 +271,22 @@ body::before {
 /* Header iconi su uklonjene iz main-header-a, zadržavamo stilove samo ako se koriste negdje drugdje */
 .header-icon {
     background: transparent;
-    border: none; 
-    cursor: pointer; 
+    border: none;
+    cursor: pointer;
     position: relative;
     width: 44px; height: 44px; margin: 0; border-radius: 50%;
     display: flex; justify-content: center; align-items: center;
     transition: background-color 0.2s ease-in-out;
 }
-.header-icon:hover { 
-    background-color: rgba(255, 255, 255, 0.08); 
+.header-icon:hover {
+    background-color: rgba(255, 255, 255, 0.08);
 }
-.header-icon svg { 
+.header-icon svg {
     stroke: #e0e0e0;
     width: 26px;
     height: 26px;
     stroke-width: 1.5;
-    transition: stroke 0.2s ease; 
+    transition: stroke 0.2s ease;
 }
 .header-icon:hover svg { stroke: #ff4757; }
 
@@ -297,19 +297,19 @@ body::before {
     justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
 }
 .fab {
-    position: fixed; 
-    bottom: 90px; 
+    position: fixed;
+    bottom: 90px;
     right: 30px; /* Povećan bottom da bude iznad nav bara */
-    width: 60px; 
+    width: 60px;
     height: 60px;
-    background: linear-gradient(45deg, #ff4757, #e03f4d); 
-    border-radius: 50%; 
+    background: linear-gradient(45deg, #ff4757, #e03f4d);
+    border-radius: 50%;
     border: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4); 
-    cursor: pointer; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    cursor: pointer;
     z-index: 1000;
-    display: flex; 
-    justify-content: center; 
+    display: flex;
+    justify-content: center;
     align-items: center;
     transition: all 0.3s ease-in-out;
 }
@@ -317,12 +317,12 @@ body::before {
 .fab:active { transform: scale(1.05) rotate(90deg); }
 .fab svg { width: 30px; height: 30px; color: #ffffff; }
 
-@media (min-width: 768px) { 
-    .fab { 
-        position: absolute; 
-        bottom: 40px; 
-        right: 40px; 
-    } 
+@media (min-width: 768px) {
+    .fab {
+        position: absolute;
+        bottom: 40px;
+        right: 40px;
+    }
 }
 
 
@@ -406,7 +406,7 @@ body::before {
     right: calc(50% - 12px); /* Centrirano horizontalno unutar SVG-a (+/- malo pomaka) */
     transform: translateX(100%); /* Pomakni bedž za 100% svoje širine udesno */
     /* Eksperimentiranje s transformom za bolju preciznost */
-    
+
     border: 2px solid rgba(26, 26, 26, 0.95); /* Boja ruba da odgovara pozadini nav bara */
 }
 
@@ -447,7 +447,7 @@ body::before {
     z-index: 51;
     pointer-events: none;
 }
-@media (min-width: 768px) { 
+@media (min-width: 768px) {
     .top-nav-buttons { top: 25px; left: 25px; }
 }
 
@@ -487,12 +487,12 @@ body::before {
     bottom: 0;
     left: 0;
     width: 100%;
-    display: flex; 
+    display: flex;
     align-items: center;
     padding: 8px 12px;
     background-color: rgba(0, 0, 0, 0.95);
     border-top: 1px solid rgba(0, 0, 0, 0.5);
-    flex-shrink: 0; 
+    flex-shrink: 0;
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
     z-index: 100;
     box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
@@ -500,81 +500,81 @@ body::before {
 
 #privatniInput {
     flex-grow: 1;
-    border: none; 
+    border: none;
     border-radius: 20px;
-    background-color: #3a3a3a; 
-    color: #f0f0f0; 
+    background-color: #3a3a3a;
+    color: #f0f0f0;
     font-size: 16px;
-    line-height: 1.4; 
+    line-height: 1.4;
     min-height: 40px;
     max-height: 100px;
-    overflow-y: auto; 
+    overflow-y: auto;
     resize: none;
-    transition: all 0.2s ease; 
-    margin: 0; 
+    transition: all 0.2s ease;
+    margin: 0;
     padding: 10px 45px 10px 45px;
 }
 
-#privatniInput:focus { 
-    outline: none; 
-    background-color: #4a4a4a; 
-    box-shadow: none; 
-    border-color: transparent; 
+#privatniInput:focus {
+    outline: none;
+    background-color: #4a4a4a;
+    box-shadow: none;
+    border-color: transparent;
 }
 
 .image-upload-icon {
-    position: absolute; 
-    left: 20px; 
+    position: absolute;
+    left: 20px;
     top: 50%;
     transform: translateY(-50%);
-    width: 32px; 
+    width: 32px;
     height: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     z-index: 10;
-    background: rgba(40, 40, 40, 0.3); 
-    border-radius: 50%; 
+    background: rgba(40, 40, 40, 0.3);
+    border-radius: 50%;
     transition: background-color 0.2s ease;
 }
 
 .image-upload-icon:hover {
-    background: rgba(40, 40, 40, 0.6); 
+    background: rgba(40, 40, 40, 0.6);
 }
 
 .image-upload-icon svg {
     width: 18px;
     height: 18px;
-    fill: #f0f0f0; 
+    fill: #f0f0f0;
 }
 
 #posaljiPrivatnoBtn {
-    position: absolute; 
-    right: 20px; 
+    position: absolute;
+    right: 20px;
     top: 50%;
     transform: translateY(-50%);
-    width: 32px; 
-    height: 32px; 
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    border: none; 
-    padding: 0; 
-    margin: 0; 
+    border: none;
+    padding: 0;
+    margin: 0;
     background-color: #ff4757;
-    display: flex; 
-    justify-content: center; 
+    display: flex;
+    justify-content: center;
     align-items: center;
-    cursor: pointer; 
+    cursor: pointer;
     transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
-    z-index: 10; 
-    opacity: 0; 
-    visibility: hidden; 
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
     transform: scale(0.5) translateY(-50%);
     transform-origin: center center;
 }
 
-#posaljiPrivatnoBtn.enabled { 
-    opacity: 1; 
+#posaljiPrivatnoBtn.enabled {
+    opacity: 1;
     visibility: visible;
     transform: scale(1) translateY(-50%);
 }
@@ -585,11 +585,11 @@ body::before {
     transform: scale(0.5) translateY(-50%);
 }
 
-#posaljiPrivatnoBtn svg { 
+#posaljiPrivatnoBtn svg {
     width: 16px;
     height: 16px;
-    fill: #ffffff; 
-    margin-left: -1px; 
+    fill: #ffffff;
+    margin-left: -1px;
 }
 /* ========================================= */
 
@@ -606,7 +606,7 @@ body::before {
     top: 0;
     left: 0;
     background-color: rgba(0, 0, 0, 0.95);
-    height: 50px; 
+    height: 50px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     z-index: 50;
 }
@@ -626,18 +626,18 @@ body::before {
     transform: scale(1.05);
 }
 
-.chat-header-info h2 { 
+.chat-header-info h2 {
     margin-bottom: 0;
     font-size: 16px;
-    color: #f0f0f0; 
-    cursor: pointer; 
+    color: #f0f0f0;
+    cursor: pointer;
     padding-top: 0;
     margin-right: 10px;
     text-align: left;
     width: auto;
 }
-.chat-header-info .status-text { 
-    margin-top: 1px; 
+.chat-header-info .status-text {
+    margin-top: 1px;
     font-size: 11px;
     color: #aaa;
     text-align: left;
@@ -678,7 +678,7 @@ button:disabled { background: #555; cursor: not-allowed; transform: none; box-sh
 img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
 .profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; }
 img.preview-slika { display: none; }
-#previewEditSlike { display: block; margin: 8px auto; }
+#previewEditSlike { display: block; margin: 8px auto; } /* Keep this */
 .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 .status-dot.online { background-color: #2ecc71; }
 .status-dot.offline { background-color: #7f8c8d; }
@@ -688,20 +688,20 @@ img.preview-slika { display: none; }
 .pravila-checkbox-wrapper { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; justify-content: center; }
 .pravila-checkbox-wrapper input[type="checkbox"] { width: auto; margin-bottom: 0; flex-shrink: 0; }
 .pravila-checkbox-wrapper label { margin-bottom: 0; font-size: 14px; color: #f0f0f0; text-align: left; }
-.pijanka { 
-    background: rgba(255, 71, 87, 0.1); 
-    padding: 15px; 
-    border-radius: 10px; 
-    margin: 0 auto 8px auto; 
-    display: flex; 
-    flex-direction: column; 
+.pijanka {
+    background: rgba(255, 71, 87, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 0 auto 8px auto;
+    display: flex;
+    flex-direction: column;
     border-left: 3px solid rgba(255, 71, 87, 0.3);
-    transition: all 0.2s ease-in-out; 
-    width: 100%; 
+    transition: all 0.2s ease-in-out;
+    width: 100%;
     max-width: 600px; /* <--- OVO JE PROBLEM */
-    box-sizing: border-box; 
+    box-sizing: border-box;
 }
-.pijanka:hover { 
+.pijanka:hover {
     background: rgba(255, 71, 87, 0.2);
     border-left-color: #ff4757;
 }
@@ -944,20 +944,53 @@ img.preview-slika { display: none; }
     margin-bottom: 25px;
 }
 
-#editProfil .profilna-slika {
-    margin-bottom: 20px;
-    border: 3px solid #ff4757;
-    width: 100px;
-    height: 100px;
-}
-
-#editProfil input[type="file"] {
-    background: rgba(30, 30, 30, 0.3);
-    border: 1px solid rgba(51, 51, 51, 0.2);
-    padding: 10px;
+/* NOVO: Wrapper za sliku i ikonicu */
+.profile-picture-edit-wrapper {
+    position: relative;
+    width: 100px; /* Match the image size */
+    height: 100px; /* Match the image size */
     margin-bottom: 20px;
     cursor: pointer;
 }
+
+#editProfil .profilna-slika {
+    margin: 0; /* Remove default margin as it's now in wrapper */
+    border: 3px solid #ff4757;
+    width: 100%; /* Fill the wrapper */
+    height: 100%; /* Fill the wrapper */
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+/* NOVO: Stilovi za ikonu kamere */
+.camera-icon-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(255, 71, 87, 0.9); /* Red background for the icon */
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #1e1e1e; /* Border to stand out from background */
+    transition: background-color 0.2s ease;
+}
+
+.camera-icon-overlay:hover {
+    background-color: #e03f4d; /* Darker red on hover */
+}
+
+.camera-icon-overlay svg {
+    width: 18px;
+    height: 18px;
+    fill: #ffffff; /* White icon color */
+}
+
+
+/* REMOVED: #editProfil input[type="file"] { ... } */
 
 #editProfil label {
     align-self: flex-start;
