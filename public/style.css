@@ -446,9 +446,18 @@ body::before {
     left: 15px;
     z-index: 51;
     pointer-events: none;
+    /* Omogući flexbox za pravilno pozicioniranje back i confirm buttona */
+    display: flex;
+    width: calc(100% - 30px); /* Puna širina unutar containera */
+    justify-content: space-between; /* Razmak između elemenata */
+    align-items: center; /* Centriraj po vertikali */
 }
 @media (min-width: 768px) {
-    .top-nav-buttons { top: 25px; left: 25px; }
+    .top-nav-buttons {
+        top: 25px;
+        left: 25px;
+        width: calc(100% - 50px);
+    }
 }
 
 /* Posebno pravilo SAMO za chat ekran */
@@ -456,13 +465,14 @@ body::before {
     height: 50px; /* Mora odgovarati visini .chat-header-info */
     top: 0;
     left: 0;
-    width: 50px; /* Ograničavamo širinu kontejnera tipke */
+    width: 100%; /* Puna širina */
+    justify-content: flex-start; /* back-button na lijevo */
+    padding-left: 5px; /* Mali padding za back-button */
+    padding-right: 15px; /* Padding da confirm-button ne bude skroz desno */
 }
 #privatniChat .top-nav-buttons .back-button {
-    position: absolute;
-    left: 5px;
-    top: 50%;
-    transform: translateY(-50%); /* Trik za savršeno vertikalno centriranje */
+    position: static; /* Vrati na normalno pozicioniranje unutar flexboxa */
+    transform: none; /* Ukloni translateY */
 }
 
 
@@ -477,10 +487,6 @@ body::before {
 
 /* NOVO: Stil za gumb za potvrdu na vrhu */
 .confirm-button {
-    position: absolute;
-    top: 15px; /* Poravnato s back-buttonom */
-    right: 15px; /* Desna strana */
-    z-index: 52; /* Iznad ostalih elemenata u top-nav-buttons */
     pointer-events: auto; /* Omogući klik */
     background: none;
     border: none;
@@ -496,6 +502,7 @@ body::before {
     display: flex; /* Centriranje SVG-a */
     justify-content: center;
     align-items: center;
+    flex-shrink: 0; /* Spriječi smanjivanje */
 }
 
 .confirm-button.hidden {
@@ -524,12 +531,15 @@ body::before {
     transform: scale(1.1);
 }
 
+/* Maknuti fiksne pozicije jer su sada unutar flexboxa .top-nav-buttons */
+/*
 @media (min-width: 768px) {
     .confirm-button {
-        top: 25px; /* Prilagodba za desktop */
+        top: 25px;
         right: 25px;
     }
 }
+*/
 /* KRAJ NOVIH STILOVA ZA GUMB ZA POTVRDU */
 
 
