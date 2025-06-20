@@ -125,7 +125,7 @@ body::before {
     /* === PRILAGODBA ZA privatniChat CONTAINER - ZAUZIMA CIJELI EKRAN I POMAKNUT JE ZBOG CHAT HEADERA I INPUTA === */
     #privatniChat {
         padding-top: 50px; /* Visina chat headera */
-        padding-bottom: 0; /* Ovo će biti upravljano visinom .chat-input-area */
+        padding-bottom: 70px; /* PRILAGOĐENO: Vraćeno na konkretnu vrijednost za input bar */
         height: 100vh;
         display: flex; /* Dodano: Postavi kao flex kontejner */
         flex-direction: column; /* Dodano: Slaži djecu vertikalno */
@@ -431,7 +431,7 @@ body::before {
     padding: 10px;
     display: flex;
     flex-direction: column-reverse; /* Zadnje poruke na dnu (vizualno) */
-    padding-bottom: 100px; /* Dodatni padding na dnu za input box */
+    padding-bottom: 0; /* PRILAGOĐENO: Nema padding-bottom ovdje */
 }
 
 
@@ -555,7 +555,7 @@ body::before {
 
 /* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
 .chat-input-area {
-    position: sticky; /* PROMJENA: promijenjeno iz fixed u sticky */
+    position: fixed; /* VRAĆENO: natrag na fixed */
     bottom: 0;
     left: 0;
     width: 100%;
@@ -664,6 +664,7 @@ body::before {
     margin-left: -1px;
 }
 /* ========================================= */
+
 
 /* === IZMJENA: Dodatno smanjeno zaglavlje chata === */
 .chat-header-info {
