@@ -123,12 +123,15 @@ body::before {
     }
 
     /* === PRILAGODBA ZA privatniChat CONTAINER - ZAUZIMA CIJELI EKRAN I POMAKNUT JE ZBOG CHAT HEADERA I INPUTA === */
-#privatniChat {
-    padding-top: 50px;
-    padding-bottom: 90px; /* Povećano da stane ispod input boxa i da poruke budu vidljive */
-    height: 100vh;
+    #privatniChat {
+        padding-top: 50px; /* Visina chat headera */
+        padding-bottom: 0; /* Ovo će biti upravljano visinom .chat-input-area */
+        height: 100vh;
+        display: flex; /* Dodano: Postavi kao flex kontejner */
+        flex-direction: column; /* Dodano: Slaži djecu vertikalno */
+    }
 }
-}
+
 
 /* === NOVI STIL ZA INBOX DA BUDE PREKO CIJELOG EKRANA === */
 #inboxPrikaz.container {
@@ -212,7 +215,6 @@ body::before {
     border-color: #ff4757;
     box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
 }
-
 .inbox-search-bar .search-icon {
     margin-left: 10px;
     width: 20px;
@@ -422,13 +424,14 @@ body::before {
 
 /* === PROMJENE ZA CHAT LOG SKROLLANJE I ZAGLAVLJE === */
 #privatniChatLog {
-    flex-grow: 1;
+    flex-grow: 1; /* Omogući chat logu da zauzme sav dostupan prostor */
     overflow-y: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
     padding: 10px;
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column-reverse; /* Zadnje poruke na dnu (vizualno) */
+    padding-bottom: 100px; /* Dodatni padding na dnu za input box */
 }
 
 
@@ -552,7 +555,7 @@ body::before {
 
 /* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
 .chat-input-area {
-    position: fixed;
+    position: sticky; /* PROMJENA: promijenjeno iz fixed u sticky */
     bottom: 0;
     left: 0;
     width: 100%;

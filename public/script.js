@@ -722,7 +722,7 @@ function prikaziPrivatniLog() {
     // Koristimo setTimeout s malim delayem da se omogući DOM-u da se ažurira
     setTimeout(() => {
         div.scrollTop = 0; // Skrolaj na vrh sadržaja (što je vizualno dno zbog column-reverse)
-    }, 50); // Mali delay
+    }, 100); // Povećan delay na 100ms
 }
 
 async function dohvatiSveKorisnike() {
