@@ -123,11 +123,11 @@ body::before {
     }
 
     /* === PRILAGODBA ZA privatniChat CONTAINER - ZAUZIMA CIJELI EKRAN I POMAKNUT JE ZBOG CHAT HEADERA I INPUTA === */
-    #privatniChat {
-        padding-top: 50px; /* PROMIJENJENO: Smanjeno zbog manjeg headera */
-        padding-bottom: 60px; /* Visina chat input area */
-        height: 100vh; /* Zauzima cijelu visinu viewporta */
-    }
+#privatniChat {
+    padding-top: 50px;
+    padding-bottom: 90px; /* Povećano da stane ispod input boxa i da poruke budu vidljive */
+    height: 100vh;
+}
 }
 
 /* === NOVI STIL ZA INBOX DA BUDE PREKO CIJELOG EKRANA === */

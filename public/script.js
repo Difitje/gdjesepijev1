@@ -701,11 +701,6 @@ function prikaziPrivatniLog() {
     const log = privatnePoruke[chatKey] || [];
     const div = document.getElementById("privatniChatLog");
 
-    // === KONAČNA ISPRAVKA v3 ===
-    // Eksplicitno sortiramo log po vremenu, od najstarijeg do najnovijeg.
-    // Ovo osigurava da je redoslijed u DOM-u uvijek ispravan (kronološki).
-    // CSS `flex-direction: column-reverse` će onda vizualno okrenuti redoslijed
-    // i prikazati najnovije poruke na dnu, što je ispravno ponašanje.
     const sortiraniLog = log.slice().sort((a, b) => new Date(b.time) - new Date(a.time));
 
     div.innerHTML = sortiraniLog.map(msg => {
@@ -721,8 +716,14 @@ function prikaziPrivatniLog() {
             </div>
         `;
     }).join("");
-}
 
+    // NOVO: Skrolaj na dno (vrh vizualno, jer je column-reverse) nakon rendanja poruka
+    // Ovo će osigurati da najnovija poruka uvijek bude vidljiva
+    // Koristimo setTimeout s malim delayem da se omogući DOM-u da se ažurira
+    setTimeout(() => {
+        div.scrollTop = 0; // Skrolaj na vrh sadržaja (što je vizualno dno zbog column-reverse)
+    }, 50); // Mali delay
+}
 
 async function dohvatiSveKorisnike() {
     try { const response = await authenticatedFetch('/api/users'); if (response.ok) sviKorisnici = await response.json(); }
