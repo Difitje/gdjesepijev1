@@ -170,7 +170,9 @@ function handleEditSlikaUploadChange() {
             const previewElement = document.getElementById("previewEditSlike");
             if (previewElement) {
                 previewElement.src = odabranaEditSlika;
-                // Nije potrebno mijenjati display jer je uvijek 'block' unutar wrappera
+                if (previewElement.style.display === "none") {
+                    previewElement.style.display = "block";
+                }
             }
         };
         reader.readAsDataURL(file);
@@ -287,7 +289,7 @@ async function prikaziEditProfila() {
     document.getElementById("editInstagram").value = user.instagram || '';
     document.getElementById("editTiktok").value = user.tiktok || ''; // Corrected ID
     document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
-    // No need to set display: block for previewEditSlike, its parent handles it
+    document.getElementById("previewEditSlike").style.display = "block";
     odabranaEditSlika = null;
     navigateTo('editProfil');
 }
@@ -407,7 +409,7 @@ async function objaviPijanku() {
     if (!mojPoz) return dohvatiLokaciju(() => objaviPijanku());
 
     const objaviBtn = document.querySelector('#objavaForma button');
-    objaviBtn.disabled = true; objabiBtn.textContent = 'Objavljujem...';
+    objaviBtn.disabled = true; objaviBtn.textContent = 'Objavljujem...';
     try {
         const response = await authenticatedFetch('/api/posts', {
             method: 'POST',

@@ -156,30 +156,17 @@
             <button class="back-button" onclick="navigateBack()">←</button>
         </div>
         <h2>Uredi profil</h2>
-        <div class="profile-image-upload-wrapper" onclick="document.getElementById('editSlikaUpload').click()">
-            <img id="previewEditSlike" class="profilna-slika-edit" />
-            <div class="overlay-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 9a3 3 0 100 6 3 3 0 000-6z" />
-                    <path fill-rule="evenodd" d="M9.302 2.21a.75.75 0 01.9 0 11.25 11.25 0 007.877 3.02c1.518.064 2.763 1.292 2.807 2.807A11.25 11.25 0 0021.75 12c0 1.054-.11 2.07-.302 3.038-.044 1.515-1.292 2.76-2.807 2.807A11.25 11.25 0 0012 21.75a11.25 11.25 0 00-7.877-3.02c-1.515-.044-2.76-1.292-2.807-2.807A11.25 11.25 0 002.25 12c0-1.054.11-2.07.302-3.038.044-1.515 1.292-2.76 2.807-2.807A11.25 11.25 0 0012 2.25zm0 1.5A9.75 9.75 0 1021.75 12 9.75 9.75 0 0012 3.75zm0 2.25a6 6 0 100 12 6 6 0 000-12z" clip-rule="evenodd" />
-                </svg>
-
-            </div>
-        </div>
-        <input type="file" id="editSlikaUpload" accept="image/*" style="display: none;" />
-        
+        <img id="previewEditSlike" class="profilna-slika" />
         <label for="editIme">Korisničko ime:</label>
         <input id="editIme" placeholder="Korisničko ime" />
-        
         <label for="editOpis">O meni:</label>
         <textarea id="editOpis" placeholder="O meni..." rows="3"></textarea>
-        
         <label for="editInstagram">Instagram korisničko ime:</label>
         <input id="editInstagram" placeholder="Instagram korisničko ime" />
-        
         <label for="editTiktok">TikTok korisničko ime:</label>
         <input id="editTiktok" placeholder="TikTok korisničko ime" />
-        
+        <label for="editSlikaUpload">Promijeni profilnu sliku:</label>
+        <input type="file" id="editSlikaUpload" accept="image/*" />
         <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
     </div>
 
@@ -489,59 +476,66 @@
             const div = document.getElementById("listaChatova");
             div.innerHTML = "";
 
-            const chatKeys = (trenutniKorisnik && trenutniKorisnik.id) ? Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id)) : [];
-            
-            if (chatKeys.length === 0) {
-                div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
-            } else {
-                chatKeys.sort((a, b) => {
-                    const timeA = privatnePoruke[a]?.slice(-1)[0]?.time;
-                    const timeB = privatnePoruke[b]?.slice(-1)[0]?.time;
-                    if (!timeA) return 1;
-                    if (!timeB) return -1;
-                    return new Date(timeB) - new Date(timeA);
-                })
-                .forEach(chatKey => {
-                    const partnerId = chatKey.split("-").find(id => id !== trenutniKorisnik.id);
-                    const partner = sviKorisnici.find(u => u.id == partnerId);
-                    if (!partner) return;
+            dohvatiSvePoruke().then(() => {
+                const chatKeys = (trenutniKorisnik && trenutniKorisnik.id) ? Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id)) : [];
+                if (chatKeys.length === 0) {
+                    div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
+                } else {
+                    // Sortiraj po vremenu zadnje poruke, najnovije prvo
+                    chatKeys.sort((a, b) => {
+                        const timeA = privatnePoruke[a]?.slice(-1)[0]?.time;
+                        const timeB = privatnePoruke[b]?.slice(-1)[0]?.time;
+                        if (!timeA) return 1; // Ako nema poruka, premjesti ga na kraj
+                        if (!timeB) return -1; // Ako nema poruka, premjesti ga na kraj
+                        return new Date(timeB) - new Date(timeA);
+                    })
+                    .forEach(chatKey => {
+                        const partnerId = chatKey.split("-").find(id => id !== trenutniKorisnik.id);
+                        const partner = sviKorisnici.find(u => u.id == partnerId);
+                        if (!partner) return;
 
-                    const svePorukeChata = privatnePoruke[chatKey] || [];
-                    const zadnjaPorukaObj = svePorukeChata.length > 0 ? svePorukeChata[svePorukeChata.length - 1] : null;
+                        // --- START: Nova logika za dohvaćanje detalja zadnje poruke ---
+                        const svePorukeChata = privatnePoruke[chatKey] || [];
+                        const zadnjaPorukaObj = svePorukeChata.length > 0 ? svePorukeChata[svePorukeChata.length - 1] : null;
 
-                    let zadnjaPorukaPreview = "Započnite razgovor";
-                    if (zadnjaPorukaObj && zadnjaPorukaObj.tekst) {
-                        zadnjaPorukaPreview = zadnjaPorukaObj.tekst;
-                    }
-                     if (zadnjaPorukaObj && zadnjaPorukaObj.imageUrl) {
-                        zadnjaPorukaPreview = "📷 Slika";
-                    }
+                        let zadnjaPorukaPreview = "Započnite razgovor";
+                        if (zadnjaPorukaObj) {
+                            if (zadnjaPorukaObj.imageUrl) {
+                                zadnjaPorukaPreview = "📷 Slika";
+                            } else if (zadnjaPorukaObj.tekst) {
+                                zadnjaPorukaPreview = zadnjaPorukaObj.tekst;
+                            }
+                        }
+                        
+                        const vrijemePoruke = zadnjaPorukaObj ? new Date(zadnjaPorukaObj.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' }) : '';
+                        const neprocitaneCount = svePorukeChata.filter(m => !m.isRead && m.autorId == partner.id).length;
+                        const status = formatirajStatus(partner.lastActive);
+                        // --- END: Nova logika ---
 
-                    const vrijemePoruke = zadnjaPorukaObj ? new Date(zadnjaPorukaObj.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' }) : '';
-                    const neprocitaneCount = svePorukeChata.filter(m => !m.isRead && m.autorId == partner.id).length;
-                    const status = formatirajStatus(partner.lastActive);
-
-                    div.innerHTML += `
-                        <div class="chat-item" data-partner-name="${partner.ime.toLowerCase()}" onclick="pokreniPrivatniChat('${partner.id}')">
-                            <div class="chat-profilna-wrapper">
-                                <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
-                                <span class="status-dot ${status.online ? 'online' : 'offline'}"></span>
-                            </div>
-                            <div class="chat-item-info">
-                                <div class="chat-item-info-text">
-                                    <strong>${partner.ime}</strong>
-                                    <p class="status-text">${zadnjaPorukaPreview}</p>
+                        // --- START: Novi, redizajnirani HTML za chat-item ---
+                        div.innerHTML += `
+                            <div class="chat-item" data-partner-name="${partner.ime.toLowerCase()}" onclick="pokreniPrivatniChat('${partner.id}')">
+                                <div class="chat-profilna-wrapper">
+                                    <img src="${partner.slika || 'default_profile.png'}" class="chat-item-profilna" alt="profilna">
+                                    <span class="status-dot ${status.online ? 'online' : 'offline'}"></span>
                                 </div>
-                                <div class="chat-meta-info">
-                                    <span class="chat-vrijeme">${vrijemePoruke}</span>
-                                    ${neprocitaneCount > 0 ? `<span class="notification-badge-chat">${neprocitaneCount}</span>` : ""}
+                                <div class="chat-item-info">
+                                    <div class="chat-item-info-text">
+                                        <strong>${partner.ime}</strong>
+                                        <p class="status-text">${zadnjaPorukaPreview}</p>
+                                    </div>
+                                    <div class="chat-meta-info">
+                                        <span class="chat-vrijeme">${vrijemePoruke}</span>
+                                        ${neprocitaneCount > 0 ? `<span class="notification-badge-chat">${neprocitaneCount}</span>` : ""}
+                                    </div>
                                 </div>
-                            </div>
-                        </div>`;
-                });
-            }
-            navigateTo('inboxPrikaz');
-        }
+                            </div>`;
+                        // --- END: Novi HTML ---
+                    });
+                }
+                azurirajNotifikacije();
+            });
+        };
 
 
         // Kada se pokaže objava, navigacija ostaje, ali niti jedan gumb nije "aktivan" i FAB se skriva
