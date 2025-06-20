@@ -698,8 +698,25 @@ img.preview-slika { display: none; }
     border-left: 3px solid rgba(255, 71, 87, 0.3);
     transition: all 0.2s ease-in-out; 
     width: 100%; 
-    max-width: 600px; 
     box-sizing: border-box; 
+}
+
+/* NOVO: Media query za desktop - zadržava max-width samo na većim ekranima */
+@media (min-width: 768px) {
+    .pijanka {
+        max-width: 600px; /* Ograniči širinu na desktopu */
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* NOVO: Dodatni padding sa strane za mobilni prikaz */
+@media (max-width: 767px) {
+    .pijanka {
+        padding-left: 12px;  /* Dodaj horizontalni padding */
+        padding-right: 12px; /* Dodaj horizontalni padding */
+        border-radius: 0; /* Ukloni border-radius na cijelom ekranu */
+    }
 }
 .pijanka:hover { 
     background: rgba(255, 71, 87, 0.2);
