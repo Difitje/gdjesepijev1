@@ -140,9 +140,9 @@
                     <path d="M21 21H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h18a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2zM3 5v14h18V5H3z"/>
                 </svg>
             </div>
-            
+
             <textarea id="privatniInput" placeholder="Poruka..." rows="1"></textarea>
-            
+
             <button id="posaljiPrivatnoBtn" onclick="posaljiPrivatno()" disabled>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
@@ -150,7 +150,7 @@
             </button>
         </div>
     </div>
-    
+
     <div class="container" id="editProfil">
         <div class="top-nav-buttons">
             <button class="back-button" onclick="navigateBack()">←</button>
@@ -159,10 +159,14 @@
         <div class="profile-picture-edit-wrapper">
             <img id="previewEditSlike" class="profilna-slika" onclick="document.getElementById('hiddenEditSlikaUpload').click()" />
             <div class="camera-icon-overlay">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-                    <path d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15.5a2.25 2.25 0 002.25-2.25V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.105 2.105 0 00-1.664-1.038 47.31 47.31 0 00-9.293 0zM12 11.25a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path fill-rule="evenodd" d="M12 2.25a.75.75 0 01.75.75v6.75h4.5a.75.75 0 010 1.5h-4.5v4.5a.75.75 0 01-1.5 0v-4.5h-4.5a.75.75 0 010-1.5h4.5V3a.75.75 0 01.75-.75z" clip-rule="evenodd" />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5a.75.75 0 00.75-.75v-1.94l-2.432-2.432a1.125 1.125 0 00-1.57-.037l-3.535 3.535a1.125 1.125 0 01-1.571 0L5.25 9.53l-3.75 6.53Z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M12.559 10.559a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5a.75.75 0 01.75-.75Z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M12 1a.75.75 0 01.75.75V6a.75.75 0 01-1.5 0V1.75A.75.75 0 0112 1Z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M6 3.25a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0V4a.75.75 0 01.75-.75Z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M18 3.25a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0V4a.75.75 0 01.75-.75Z" clip-rule="evenodd" />
                 </svg>
+
             </div>
         </div>
         <input type="file" id="hiddenEditSlikaUpload" accept="image/*" style="display: none;" />
@@ -268,6 +272,7 @@
                     return;
                 }
             }
+
 
             // Pozovi odgovarajuću funkciju na temelju targetScreenId
             if (targetScreenId === 'homePrikazPijanki') {
@@ -503,7 +508,7 @@
 
                         // --- START: Nova logika za dohvaćanje detalja zadnje poruke ---
                         const svePorukeChata = privatnePoruke[chatKey] || [];
-                        const zadnjaPorukaObj = svePorukeChata.length > 0 ? svePorukeChata[svePorukeChata.length - 1] : null;
+                        const zadnjaPorukaObj = svePorukeChata.length > 0 ? svePorokeChata[svePorokeChata.length - 1] : null;
 
                         let zadnjaPorukaPreview = "Započnite razgovor";
                         if (zadnjaPorukaObj) {
