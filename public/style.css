@@ -691,31 +691,46 @@ img.preview-slika { display: none; }
 .pijanka { 
     background: rgba(255, 71, 87, 0.1); 
     padding: 15px; 
-    border-radius: 10px; 
-    margin: 0 auto 8px auto; 
+    border-radius: 10px; /* VRACEN RADIUS */
+    margin-bottom: 8px; /* SAMO DONJA MARGINA */
     display: flex; 
     flex-direction: column; 
     border-left: 3px solid rgba(255, 71, 87, 0.3);
     transition: all 0.2s ease-in-out; 
-    width: 100%; 
+    width: calc(100% - 40px); /* NOVO: 100% minus padding sa strane body/container */
     box-sizing: border-box; 
+    align-self: center; /* Dodano za centriranje na flex kontejneru */
 }
 
-/* NOVO: Media query za desktop - zadržava max-width samo na većim ekranima */
+/* NOVO: Dodatni stil za body da obezbijedi padding sa strane */
+body {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
 @media (min-width: 768px) {
     .pijanka {
         max-width: 600px; /* Ograniči širinu na desktopu */
-        margin-left: auto;
-        margin-right: auto;
+        margin-left: auto; /* Centriraj na desktopu */
+        margin-right: auto; /* Centriraj na desktopu */
+        width: 100%; /* Na desktopu vrati na 100% max-widtha */
+    }
+    body {
+        padding-left: 20px; /* Zadrži padding na desktopu */
+        padding-right: 20px; /* Zadrži padding na desktopu */
     }
 }
 
-/* NOVO: Dodatni padding sa strane za mobilni prikaz */
+/* Osiguraj da container ima odgovarajući padding na mobilnom */
 @media (max-width: 767px) {
-    .pijanka {
-        padding-left: 12px;  /* Dodaj horizontalni padding */
-        padding-right: 12px; /* Dodaj horizontalni padding */
-        border-radius: 0; /* Ukloni border-radius na cijelom ekranu */
+    .container {
+        padding-left: 0; /* Ukloni horizontalni padding iz .container za mobilni */
+        padding-right: 0; /* Ukloni horizontalni padding iz .container za mobilni */
+    }
+    /* Prilagodi padding za specificne kontejnere ako je potrebno */
+    #homePrikazPijanki, #praznaTrazilica, #glavniDio, #editProfil, #inboxPrikaz {
+        padding-left: 0; /* Ukloni horizontalni padding iz ovih kontejnera */
+        padding-right: 0; /* Ukloni horizontalni padding iz ovih kontejnera */
     }
 }
 .pijanka:hover { 
