@@ -287,7 +287,8 @@ async function prikaziEditProfila() {
     document.getElementById("editInstagram").value = user.instagram || '';
     document.getElementById("editTiktok").value = user.tiktok || ''; // Corrected ID
     document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
-    document.getElementById("previewEditSlikes").style.display = "block"; // This was "previewSlikes" not "previewEditSlikes" previously
+    // Ispravljeno: ID za prikaz slike je "previewEditSlike" a ne "previewEditSlikes"
+    document.getElementById("previewEditSlike").style.display = "block";
 
     odabranaEditSlika = null; // Reset odabranaEditSlika when opening edit profile
 
@@ -325,7 +326,7 @@ async function sacuvajProfil() {
         finalSlika = await compressImage(odabranaEditSlika);
     } else {
         // If no new image is selected, use the current profile image
-        finalSlika = document.getElementById("previewEditSlikes").src; // Use the currently displayed image source
+        finalSlika = document.getElementById("previewEditSlike").src; // Use the currently displayed image source
     }
 
     const updateData = { username: novoIme, opis: noviOpis, instagram: noviInstagram, tiktok: noviTiktok };
@@ -347,7 +348,6 @@ async function sacuvajProfil() {
         }
     } catch (error) {
         alert("Došlo je do greške pri spremanja profila.");
-        console.error("Error saving profile:", error);
     } finally {
         if (confirmButton) {
             confirmButton.disabled = false;
