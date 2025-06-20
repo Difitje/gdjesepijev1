@@ -369,7 +369,7 @@ body::before {
     stroke: #b0b0b0; /* Siva boja za ikone */
     stroke-width: 1.8;
     margin-bottom: 2px;
-    transition: none !important; /* UKLONJENO: Omogućuje instant promjenu boje */
+    transition: none !important; /* UKLONJuje instant promjenu boje */
 }
 
 .bottom-nav .nav-button.active {
@@ -439,19 +439,30 @@ body::before {
 
 /* === KONAČNA ISPRAVKA: Pravila za gornje tipke === */
 
-/* Općenito pravilo za sve ekrane OSIM chata */
+/* **ISPRAVKA: top-nav-buttons defaultno skriven i postavljen na absolute/flex samo kad je potrebno** */
 .top-nav-buttons {
-    position: absolute;
+    position: absolute; /* Postavi na absolute da ne utječe na flow */
     top: 15px;
     left: 15px;
-    z-index: 51;
-    pointer-events: none;
-    /* Omogući flexbox za pravilno pozicioniranje back i confirm buttona */
-    display: flex;
     width: calc(100% - 30px); /* Puna širina unutar containera */
-    justify-content: space-between; /* Razmak između elemenata */
-    align-items: center; /* Centriraj po vertikali */
+    display: none; /* Sakrij po defaultu */
+    justify-content: space-between;
+    align-items: center;
+    z-index: 51;
+    pointer-events: none; /* Defaultno onemogući evente, omogućit ćemo ih za specifične gumbe */
 }
+
+/* Specificno za editProfil */
+#editProfil .top-nav-buttons {
+    display: flex; /* Prikazi ga samo na editProfilu */
+}
+
+/* Specificno za glavniDio (objavaForma, profilKorisnika) */
+#glavniDio .top-nav-buttons {
+    display: flex; /* Prikazi ga samo na glavniDio */
+}
+
+
 @media (min-width: 768px) {
     .top-nav-buttons {
         top: 25px;
@@ -469,6 +480,8 @@ body::before {
     justify-content: flex-start; /* back-button na lijevo */
     padding-left: 5px; /* Mali padding za back-button */
     padding-right: 15px; /* Padding da confirm-button ne bude skroz desno */
+    /* **NOVO: Dodan display: flex za privatniChat.top-nav-buttons da bi bio vidljiv** */
+    display: flex;
 }
 #privatniChat .top-nav-buttons .back-button {
     position: static; /* Vrati na normalno pozicioniranje unutar flexboxa */
