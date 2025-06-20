@@ -968,30 +968,86 @@ img.preview-slika { display: none; }
     outline: none !important;
 }
 
+/* Redizajnirana editProfil sekcija */
 #editProfil {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
+    padding: 20px; /* Dodajte padding za mobilni */
+}
+
+@media (min-width: 768px) {
+    #editProfil {
+        padding: 40px; /* Padding za desktop */
+    }
 }
 
 #editProfil h2 {
-    margin-bottom: 25px;
+    margin-bottom: 30px; /* Povećajte razmak */
+    font-size: 24px;
+    color: #f0f0f0;
 }
 
-#editProfil .profilna-slika {
-    margin-bottom: 20px;
-    border: 3px solid #ff4757;
-    width: 100px;
-    height: 100px;
-}
-
-#editProfil input[type="file"] {
-    background: rgba(30, 30, 30, 0.3);
-    border: 1px solid rgba(51, 51, 51, 0.2);
-    padding: 10px;
-    margin-bottom: 20px;
+/* Stilizacija za wrapper slike i ikone */
+.profile-image-upload-wrapper {
+    position: relative;
+    width: 120px; /* Povećajte veličinu wrappera */
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 30px; /* Povećajte razmak */
     cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 3px solid #ff4757; /* Naglasite okvir */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    transition: transform 0.2s ease-in-out;
+}
+
+.profile-image-upload-wrapper:hover {
+    transform: scale(1.03);
+}
+
+.profilna-slika-edit {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    transition: filter 0.3s ease;
+}
+
+.profile-image-upload-wrapper:hover .profilna-slika-edit {
+    filter: brightness(0.6); /* Zatamni sliku na hoveru */
+}
+
+.overlay-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0,0,0,0.6); /* Pozadina ikone */
+    border-radius: 50%;
+    width: 45px; /* Veličina ikone */
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0; /* Sakrij ikonu dok se ne hovera */
+    transition: opacity 0.3s ease;
+    pointer-events: none; /* Omogućuje klik na wrapper ispod */
+}
+
+.profile-image-upload-wrapper:hover .overlay-icon {
+    opacity: 1; /* Prikaži ikonu na hoveru */
+}
+
+.overlay-icon svg {
+    width: 28px;
+    height: 28px;
+    fill: #ffffff; /* Bijela boja za ikonu */
 }
 
 #editProfil label {
@@ -1000,6 +1056,8 @@ img.preview-slika { display: none; }
     color: #e0e0e0;
     font-size: 15px;
     font-weight: 500;
+    width: 100%;
+    max-width: 400px; /* Uskladite s inputima */
 }
 
 #editProfil input[type="text"],
@@ -1014,19 +1072,20 @@ img.preview-slika { display: none; }
     padding: 14px;
     color: #f0f0f0;
     font-size: 16px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); /* Unutarnja sjena */
 }
 
 #editProfil input[type="text"]:focus,
 #editProfil input[type="password"]:focus,
 #editProfil textarea:focus {
     border-color: #ff4757;
-    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.3);
+    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.3), inset 0 1px 3px rgba(0,0,0,0.3);
 }
 
 #editProfil button {
-    background: rgba(30, 30, 30, 0.3);
-    box-shadow: none !important;
-    border: 1px solid rgba(51, 51, 51, 0.2);
+    background: linear-gradient(45deg, #ff4757, #e03f4d); /* Jači gradient */
+    box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
+    border: none;
     outline: none !important;
     max-width: 400px;
     margin-top: 10px;
@@ -1036,12 +1095,17 @@ img.preview-slika { display: none; }
     text-transform: uppercase;
     letter-spacing: 0.8px;
     font-weight: 600;
+    transition: all 0.2s ease-in-out;
 }
 
 #editProfil button:hover {
-    background: rgba(40, 40, 40, 0.6);
-    transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    transform: translateY(-2px); /* Više se podiže */
+    box-shadow: 0 6px 15px rgba(255, 71, 87, 0.4);
+}
+
+#editProfil button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(255, 71, 87, 0.2);
 }
 
 #objavaForma button {
