@@ -155,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- PROMJENA: Novi listener za hiddenEditSlikaUpload ---
     const hiddenEditSlikaUploadEl = document.getElementById("hiddenEditSlikaUpload");
     if (hiddenEditSlikaUploadEl) {
         hiddenEditSlikaUploadEl.addEventListener("change", function() {
@@ -177,8 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
-// REMOVED: function handleEditSlikaUploadChange() { ... } (No longer needed)
 
 async function registruj() {
     const ime = document.getElementById("ime").value.trim();
@@ -290,8 +287,17 @@ async function prikaziEditProfila() {
     document.getElementById("editInstagram").value = user.instagram || '';
     document.getElementById("editTiktok").value = user.tiktok || ''; // Corrected ID
     document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
-    document.getElementById("previewEditSlike").style.display = "block";
+    document.getElementById("previewEditSlikes").style.display = "block"; // This was "previewSlikes" not "previewEditSlikes" previously
+
     odabranaEditSlika = null; // Reset odabranaEditSlika when opening edit profile
+
+    // Prikazi confirm-button kada se otvori edit profil ekran
+    const confirmButton = document.getElementById('sacuvajProfilBtn');
+    if (confirmButton) {
+        confirmButton.classList.remove('hidden');
+        confirmButton.classList.remove('loading'); // Ukloni loading stanje
+    }
+
     navigateTo('editProfil');
 }
 
@@ -305,18 +311,21 @@ async function sacuvajProfil() {
     const noviOpis = document.getElementById("editOpis").value.trim();
     const noviInstagram = document.getElementById("editInstagram").value.trim();
     const noviTiktok = document.getElementById("editTiktok").value.trim(); // Corrected ID
-    const sacuvajBtn = document.getElementById('sacuvajProfilBtn');
+    const confirmButton = document.getElementById('sacuvajProfilBtn'); // Sada je to ikona
 
     if (!novoIme) return alert("Ime ne može biti prazno!");
-    sacuvajBtn.disabled = true;
-    sacuvajBtn.textContent = 'Spremam promjene...';
+
+    if (confirmButton) {
+        confirmButton.disabled = true;
+        confirmButton.classList.add('loading'); // Dodaj loading klasu
+    }
 
     let finalSlika = null;
     if (odabranaEditSlika) {
         finalSlika = await compressImage(odabranaEditSlika);
     } else {
         // If no new image is selected, use the current profile image
-        finalSlika = document.getElementById("previewEditSlike").src;
+        finalSlika = document.getElementById("previewEditSlikes").src; // Use the currently displayed image source
     }
 
     const updateData = { username: novoIme, opis: noviOpis, instagram: noviInstagram, tiktok: noviTiktok };
@@ -340,8 +349,10 @@ async function sacuvajProfil() {
         alert("Došlo je do greške pri spremanja profila.");
         console.error("Error saving profile:", error);
     } finally {
-        sacuvajBtn.disabled = false;
-        sacuvajBtn.textContent = 'Spremi promjene';
+        if (confirmButton) {
+            confirmButton.disabled = false;
+            confirmButton.classList.remove('loading'); // Ukloni loading klasu
+        }
     }
 }
 
@@ -569,11 +580,12 @@ function otvoriInbox() {
             const zadnjaPorukaObj = svePorukeChata.length > 0 ? svePorukeChata[svePorukeChata.length - 1] : null;
 
             let zadnjaPorukaPreview = "Započnite razgovor";
-            if (zadnjaPorukaObj && zadnjaPorukaObj.tekst) {
-                zadnjaPorukaPreview = zadnjaPorukaObj.tekst;
-            }
-             if (zadnjaPorukaObj && zadnjaPorukaObj.imageUrl) {
-                zadnjaPorukaPreview = "📷 Slika";
+            if (zadnjaPorukaObj) {
+                if (zadnjaPorukaObj.imageUrl) {
+                    zadnjaPorukaPreview = "📷 Slika";
+                } else if (zadnjaPorukaObj.tekst) {
+                    zadnjaPorukaPreview = zadnjaPorukaObj.tekst;
+                }
             }
 
             const vrijemePoruke = zadnjaPorukaObj ? new Date(zadnjaPorukaObj.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' }) : '';
@@ -583,7 +595,7 @@ function otvoriInbox() {
             div.innerHTML += `
                 <div class="chat-item" data-partner-name="${partner.ime.toLowerCase()}" onclick="pokreniPrivatniChat('${partner.id}')">
                     <div class="chat-profilna-wrapper">
-                        <img src="${partner.slika || 'default_profile.png'}" alt="profilna">
+                        <img src="${partner.slika || 'default_profile.png'}" class="chat-item-profilna" alt="profilna">
                         <span class="status-dot ${status.online ? 'online' : 'offline'}"></span>
                     </div>
                     <div class="chat-item-info">

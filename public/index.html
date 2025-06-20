@@ -154,6 +154,11 @@
     <div class="container" id="editProfil">
         <div class="top-nav-buttons">
             <button class="back-button" onclick="navigateBack()">←</button>
+            <button id="sacuvajProfilBtn" class="confirm-button hidden" onclick="sacuvajProfil()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9.75 14.25a.75.75 0 01-1.127.075L4.755 10.75a.75.75 0 011.11-1.004l5.176 7.617 8.82-12.875a.75.75 0 011.04-.208Z" clip-rule="evenodd" />
+                </svg>
+            </button>
         </div>
         <h2>Uredi profil</h2>
         <div class="profile-picture-edit-wrapper">
@@ -179,7 +184,6 @@
         <input id="editInstagram" placeholder="Instagram korisničko ime" />
         <label for="editTiktok">TikTok korisničko ime:</label>
         <input id="editTiktok" placeholder="TikTok korisničko ime" />
-        <button id="sacuvajProfilBtn" onclick="sacuvajProfil()">Spremi promjene</button>
     </div>
 
     <button id="fabObjaviPijanku" class="fab hidden-initially" onclick="pokaziObjavu()">
@@ -407,6 +411,16 @@
             // Dodan praznaTrazilica u navBarTargetScreens
             const navBarTargetScreens = ['homePrikazPijanki', 'praznaTrazilica', 'inboxPrikaz', 'glavniDio', 'editProfil'];
 
+            // Prikazi/sakrij confirm-button na editProfilu
+            const confirmButton = document.getElementById('sacuvajProfilBtn');
+            if (confirmButton) {
+                if (targetScreenId === 'editProfil') {
+                    confirmButton.classList.remove('hidden');
+                } else {
+                    confirmButton.classList.add('hidden');
+                }
+            }
+
             if (currentScreenEl && !navBarTargetScreens.includes(targetScreenId)) {
                 if (!(navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId))) {
                     navigationStack.push(currentScreenEl.id);
@@ -443,6 +457,15 @@
                         button.classList.remove('active');
                     });
                 }
+
+                // Sakrij confirm-button kad se vraćamo s editProfila
+                const confirmButton = document.getElementById('sacuvajProfilBtn');
+                if (confirmButton) {
+                    if (newActiveScreenEl && newActiveScreenEl.id !== 'editProfil') {
+                        confirmButton.classList.add('hidden');
+                    }
+                }
+
             }, 300);
         };
 
@@ -508,7 +531,7 @@
 
                         // --- START: Nova logika za dohvaćanje detalja zadnje poruke ---
                         const svePorukeChata = privatnePoruke[chatKey] || [];
-                        const zadnjaPorukaObj = svePorukeChata.length > 0 ? svePorokeChata[svePorokeChata.length - 1] : null;
+                        const zadnjaPorukaObj = svePorukeChata.length > 0 ? svePorukeChata[svePorukeChata.length - 1] : null;
 
                         let zadnjaPorukaPreview = "Započnite razgovor";
                         if (zadnjaPorukaObj) {

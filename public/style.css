@@ -474,6 +474,65 @@ body::before {
 }
 .back-button:hover, .close-btn:hover { color: #ff4757; transform: scale(1.1); }
 
+
+/* NOVO: Stil za gumb za potvrdu na vrhu */
+.confirm-button {
+    position: absolute;
+    top: 15px; /* Poravnato s back-buttonom */
+    right: 15px; /* Desna strana */
+    z-index: 52; /* Iznad ostalih elemenata u top-nav-buttons */
+    pointer-events: auto; /* Omogući klik */
+    background: none;
+    border: none;
+    color: #2ecc71; /* Zelena boja za potvrdu */
+    font-size: 28px; /* Veličina ikone */
+    cursor: pointer;
+    padding: 5px;
+    width: auto;
+    height: auto;
+    line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+    outline: none !important;
+    display: flex; /* Centriranje SVG-a */
+    justify-content: center;
+    align-items: center;
+}
+
+.confirm-button.hidden {
+    display: none !important; /* Skriveno po defaultu */
+}
+
+.confirm-button.loading {
+    animation: spin 1s linear infinite; /* Animacija rotacije za loading */
+    color: #f39c12; /* Neka druga boja za loading */
+    pointer-events: none; /* Onemogući klik tijekom loadinga */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.confirm-button svg {
+    width: 28px; /* Veličina SVG ikone */
+    height: 28px;
+    fill: currentColor; /* Koristi boju definiranu u .confirm-button */
+}
+
+.confirm-button:hover {
+    color: #27ae60; /* Tamnija zelena na hover */
+    transform: scale(1.1);
+}
+
+@media (min-width: 768px) {
+    .confirm-button {
+        top: 25px; /* Prilagodba za desktop */
+        right: 25px;
+    }
+}
+/* KRAJ NOVIH STILOVA ZA GUMB ZA POTVRDU */
+
+
 /* Uklonjeno jer je #inboxPrikaz h2 sada pozicioniran apsolutno */
 /* .container > h2 { padding-top: 30px; } */
 
@@ -1021,6 +1080,8 @@ img.preview-slika { display: none; }
     box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.3);
 }
 
+/* Uklanjamo stilove za originalni SacuvajProfilBtn jer ga više nema kao standardnog gumba */
+/*
 #editProfil button {
     background: rgba(30, 30, 30, 0.3);
     box-shadow: none !important;
@@ -1041,6 +1102,7 @@ img.preview-slika { display: none; }
     transform: translateY(-1px);
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
 }
+*/
 
 #objavaForma button {
     background: rgba(255, 71, 87, 0.3);
