@@ -579,8 +579,9 @@ body::before {
     font-size: 16px;
     line-height: 1.4;
     min-height: 40px;
-    max-height: 100px;
-    overflow-y: auto;
+    /* OVDJE JE PROMJENA: Postavite fiksnu visinu ili prilagodite max-height */
+    max-height: 100px; /* Možete ostaviti ovo ako želite ograničenje */
+    overflow-y: hidden; /* KLJUČNA PROMJENA: Sakrijte interno skrolanje */
     resize: none;
     transition: all 0.2s ease;
     margin: 0;
