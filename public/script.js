@@ -311,22 +311,21 @@ async function sacuvajProfil() {
     const novoIme = document.getElementById("editIme").value.trim();
     const noviOpis = document.getElementById("editOpis").value.trim();
     const noviInstagram = document.getElementById("editInstagram").value.trim();
-    const noviTiktok = document.getElementById("editTiktok").value.trim(); // Corrected ID
-    const confirmButton = document.getElementById('sacuvajProfilBtn'); // Sada je to ikona
+    const noviTiktok = document.getElementById("editTiktok").value.trim();
+    const confirmButton = document.getElementById('sacuvajProfilBtn');
 
     if (!novoIme) return alert("Ime ne može biti prazno!");
 
     if (confirmButton) {
         confirmButton.disabled = true;
-        confirmButton.classList.add('loading'); // Dodaj loading klasu
+        confirmButton.classList.add('loading');
     }
 
     let finalSlika = null;
     if (odabranaEditSlika) {
         finalSlika = await compressImage(odabranaEditSlika);
     } else {
-        // If no new image is selected, use the current profile image
-        finalSlika = document.getElementById("previewEditSlike").src; // Use the currently displayed image source
+        finalSlika = document.getElementById("previewEditSlike").src;
     }
 
     const updateData = { username: novoIme, opis: noviOpis, instagram: noviInstagram, tiktok: noviTiktok };
@@ -342,7 +341,8 @@ async function sacuvajProfil() {
         if (response.ok) {
             alert(data.message);
             await globalRefreshUI();
-            navigateBack();
+            // Promjena je OVDJE:
+            prikaziMojProfil(); // Poziva funkciju koja prikazuje tvoj profil s ažuriranim podacima.
         } else {
             alert("Greška pri spremanju profila: " + data.message);
         }
@@ -351,7 +351,7 @@ async function sacuvajProfil() {
     } finally {
         if (confirmButton) {
             confirmButton.disabled = false;
-            confirmButton.classList.remove('loading'); // Ukloni loading klasu
+            confirmButton.classList.remove('loading');
         }
     }
 }
