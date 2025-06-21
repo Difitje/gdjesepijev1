@@ -10,9 +10,9 @@
 html, body {
     height: 100%;
     width: 100%;
-    overflow: hidden;        /* NOVO */
-    position: fixed;         /* NOVO */
-    touch-action: none;      /* NOVO I AGRESIVNIJE */
+    overflow: hidden;        /* NOVO - Primijeni i na PC-u */
+    position: fixed;         /* NOVO - Primijeni i na PC-u */
+    touch-action: none;      /* NOVO I AGRESIVNIJE - Primijeni i na PC-u */
 }
 
 body {
@@ -49,8 +49,8 @@ body::before {
 
 .container {
     width: 100%;
-    height: 100%;
-    background: transparent; /* <- KLJUČNA IZMJENA */
+    height: 100%; /* Make container take full height */
+    background: transparent;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -59,6 +59,11 @@ body::before {
     flex-direction: column;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    position: absolute; /* Added for mobile-like positioning */
+    padding: 20px; /* Apply mobile padding by default */
+    border-radius: 0; /* Remove border-radius */
+    border: none; /* Remove border */
+    box-shadow: none; /* Remove box-shadow */
 }
 .container.active-screen {
     opacity: 1;
@@ -79,57 +84,34 @@ body::before {
     transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
 }
 
-@media (min-width: 768px) {
-    body {
-        overflow-y: auto;
-        padding: 40px 20px;
-    }
-    .container {
-        position: relative;
-        width: 100%;
-        max-width: 1200px;
-        height: auto;
-        min-height: 80vh;
-        margin: 0 auto;
-        padding: 40px;
-        background: #1e1e1e;
-        border: 1px solid #2a2a2a;
-        border-radius: 24px;
-        box-shadow: 0 10px 40px rgba(0,0,0, 0.5);
-    }
-    .chat-input-area { max-width: 1200px; margin: 0 auto; }
-    #objavaForma, #profilKorisnika, #login > input, #login > button,
-    #registracija > input, #registracija > textarea, #registracija > button, #registracija > label, #registracija > img {
-        width: 100%; max-width: 600px; margin-left: auto; margin-right: auto;
-    }
-    #login, #registracija, #editProfil { align-items: center; } /* Adjusted alignment for editProfil here */
-    #privatniChatLog .poruka-wrapper { max-width: 800px; margin-left: auto; margin-right: auto; }
+/* REMOVED @media (min-width: 768px) block for body and container */
+/* To make PC like mobile, we essentially remove the desktop overrides for body and container */
+
+
+/* All the @media (max-width: 767px) rules now become the default rules */
+/* Remove the @media (max-width: 767px) wrapper and apply directly */
+
+/* These rules were inside @media (max-width: 767px) block, now they are default */
+/* body { overflow: hidden; } - ALREADY APPLIED TO GLOBAL BODY */
+/* .container { position: absolute; padding: 20px; border-radius: 0; border: none; box-shadow: none; } - ALREADY APPLIED TO GLOBAL CONTAINER */
+.container {
+    padding-bottom: 70px; /* Visina nav bara + malo razmaka */
+}
+#homePrikazPijanki, #praznaTrazilica, #glavniDio, #editProfil, #inboxPrikaz { /* PRILAGOĐENO ID-evima */
+    padding-top: 70px; /* Osiguraj prostor za header */
+}
+/* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
+#intro, #odabir, #login, #registracija, #pravilaEkran {
+    padding-top: 20px; /* Standardni padding */
 }
 
-@media (max-width: 767px) {
-    body { overflow: hidden; }
-    .container { position: absolute; padding: 20px; border-radius: 0; border: none; box-shadow: none; }
-    /* Povećan padding-bottom za sve kontejnere zbog fiksne navigacije */
-    .container {
-        padding-bottom: 70px; /* Visina nav bara + malo razmaka */
-    }
-    /* #lokacijePrikaz je već imao padding-top, ostali kontejneri sada također trebaju */
-    #homePrikazPijanki, #praznaTrazilica, #glavniDio, #editProfil, #inboxPrikaz { /* PRILAGOĐENO ID-evima */
-        padding-top: 70px; /* Osiguraj prostor za header */
-    }
-    /* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
-    #intro, #odabir, #login, #registracija, #pravilaEkran {
-        padding-top: 20px; /* Standardni padding */
-    }
-
-    /* === PRILAGODBA ZA privatniChat CONTAINER - ZAUZIMA CIJELI EKRAN I POMAKNUT JE ZBOG CHAT HEADERA I INPUTA === */
-    #privatniChat {
-        padding-top: 50px; /* Visina chat headera */
-        /* uklonjen padding-bottom; upravljat ćemo ga visinom chata i paddingom na logu */
-        height: 100vh;
-        display: flex;
-        flex-direction: column; /* Ključno za raspored unutar chata */
-    }
+/* === PRILAGODBA ZA privatniChat CONTAINER - ZAUZIMA CIJELI EKRAN I POMAKNUT JE ZBOG CHAT HEADERA I INPUTA === */
+#privatniChat {
+    padding-top: 50px; /* Visina chat headera */
+    /* uklonjen padding-bottom; upravljat ćemo ga visinom chata i paddingom na logu */
+    height: 100vh;
+    display: flex;
+    flex-direction: column; /* Ključno za raspored unutar chata */
 }
 
 
@@ -163,11 +145,10 @@ body::before {
     box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Lagana sjena */
 }
 
-@media (max-width: 767px) {
-    #inboxPrikaz h2 {
-        top: 0; /* Na mobilnom skroz gore */
-        height: 60px; /* Visina za mobilni header */
-    }
+/* This rule was inside @media (max-width: 767px) block, now it is default */
+#inboxPrikaz h2 {
+    top: 0; /* Na mobilnom skroz gore */
+    height: 60px; /* Visina za mobilni header */
 }
 
 /* === NOVO: Stilovi za Search Bar u Inboxu (Redizajnirani) === */
@@ -192,18 +173,9 @@ body::before {
     margin-bottom: 10px; /* Razmak ispod tražilice */
 }
 
-@media (min-width: 768px) {
-    .inbox-search-bar {
-        position: relative;
-        top: auto;
-        border-radius: 24px;
-        margin: -20px auto 20px auto;
-        background-color: #1e1e1e;
-        border: 1px solid #2a2a2a;
-        max-width: 600px;
-        padding: 12px 20px;
-    }
-}
+/* REMOVED @media (min-width: 768px) for .inbox-search-bar */
+/* To make PC like mobile, we need to remove desktop specific overrides for search bar */
+
 
 .inbox-search-bar input {
     flex-grow: 1;
@@ -240,17 +212,9 @@ body::before {
     display: flex; justify-content: center; align-items: center; /* Centriranje loga */
     z-index: 100;
 }
-@media (min-width: 768px) {
-    .main-header {
-        position: relative;
-        border-radius: 24px 24px 0 0;
-        margin: -40px -40px 20px -40px;
-        padding: 0 30px;
-        height: 70px;
-        background-color: rgba(34, 34, 34, 0.8); /* Prilagođeno za desktop */
-        justify-content: center; /* Centriranje loga i na desktopu */
-    }
-}
+/* REMOVED @media (min-width: 768px) for .main-header */
+/* To make PC like mobile, remove desktop header styles */
+
 .main-logo {
     display: flex; /* Koristimo flexbox za centriranje slike */
     justify-content: center; /* Centriranje horizontalno */
@@ -266,19 +230,9 @@ body::before {
     object-fit: contain; /* Osigurava da se cijela slika vidi unutar okvira */
 }
 
-/* Prilagodba za desktop verziju loga */
-@media (min-width: 768px) {
-    .main-header {
-        height: 70px; /* Ako već nije postavljeno */
-        align-items: center; /* Osigurava da su svi header elementi centrirani */
-    }
-    .main-logo {
-        height: 100%; /* Osigurava da logo zauzima punu visinu headera za centriranje */
-    }
-    .header-logo-image {
-        max-height: 75px; /* Povećana maksimalna visina za desktop (bilo 60px) */
-    }
-}
+/* REMOVED @media (min-width: 768px) for .main-header and .header-logo-image */
+/* To make PC like mobile, remove desktop logo styles */
+
 
 /* Header iconi su uklonjene iz main-header-a, zadržavamo stilove samo ako se koriste negdje drugdje */
 .header-icon {
@@ -329,13 +283,8 @@ body::before {
 .fab:active { transform: scale(1.05) rotate(90deg); }
 .fab svg { width: 30px; height: 30px; color: #ffffff; }
 
-@media (min-width: 768px) {
-    .fab {
-        position: absolute;
-        bottom: 40px;
-        right: 40px;
-    }
-}
+/* REMOVED @media (min-width: 768px) for .fab */
+/* To make PC like mobile, remove desktop FAB styles */
 
 
 /* NOVI STILOVI ZA BOTTOM NAVIGACIJU (SADA KOMBINIRANI) */
@@ -438,11 +387,8 @@ body::before {
     border: 2px solid rgba(26, 26, 26, 0.95);
 }
 
-@media (min-width: 768px) {
-    .bottom-nav {
-        display: none;
-    }
-}
+/* REMOVED @media (min-width: 768px) for .bottom-nav */
+/* To make PC like mobile, bottom nav should always be displayed */
 /* KRAJ NOVIH STILOVA ZA BOTTOM NAVIGACIJU */
 
 
@@ -480,13 +426,9 @@ body::before {
     justify-content: space-between;
     align-items: center;
 }
-@media (min-width: 768px) {
-    .top-nav-buttons {
-        top: 25px;
-        left: 25px;
-        width: calc(100% - 50px);
-    }
-}
+/* REMOVED @media (min-width: 768px) for .top-nav-buttons */
+/* To make PC like mobile, remove desktop specific top nav button styles */
+
 
 /* Posebno pravilo SAMO za chat ekran */
 #privatniChat .top-nav-buttons {
@@ -804,7 +746,7 @@ img.preview-slika { display: none; }
     border-left: 3px solid rgba(255, 71, 87, 0.3);
     transition: all 0.2s ease-in-out;
     width: 100%;
-    max-width: 600px; /* <--- OVO JE PROBLEM */
+    /* REMOVED max-width: 600px; */ /* <--- OVO JE PROBLEM - Remove for mobile-like full width */
     box-sizing: border-box;
 }
 .pijanka:hover {
@@ -836,11 +778,8 @@ img.preview-slika { display: none; }
     z-index: 2; /* Mora biti ispod search bara i h2 */
 }
 
-@media (min-width: 768px) {
-    #listaChatova {
-        padding-top: 0; /* Na desktopu lista može početi odmah ispod search bara */
-    }
-}
+/* REMOVED @media (min-width: 768px) for #listaChatova */
+/* To make PC like mobile, remove desktop specific padding-top */
 
 
 .chat-item {
@@ -1194,7 +1133,7 @@ img.preview-slika { display: none; }
 #editProfil input[type="password"],
 #editProfil textarea {
     width: 100%;
-    max-width: 400px;
+    max-width: 400px; /* Keep max-width for input fields as they are not full screen */
     margin-bottom: 18px;
     background: #1e1e1e;
     border: 1px solid #2a2a2a;
@@ -1277,19 +1216,9 @@ img.preview-slika { display: none; }
     padding-bottom: 80px; /* Dodatni padding za bottom nav */
 }
 
-@media (min-width: 768px) {
-    #profilKorisnika {
-        background: #1a1a1a; /* Tamnija, elegantna pozadina za desktop */
-        border: 1px solid #2a2a2a; /* Suptilan rub */
-        border-radius: 16px; /* Blago zaobljeni rubovi */
-        box-shadow: 0 8px 30px rgba(0,0,0,0.6); /* Luksuznija sjena */
-        max-width: 800px; /* Optimalna širina za desktop profil */
-        height: auto; /* Visina se prilagođava sadržaju */
-        min-height: 80vh;
-        padding: 40px; /* Veći padding za desktop */
-        margin-top: 40px; /* Odmak od vrha na desktopu */
-    }
-}
+/* REMOVED @media (min-width: 768px) for #profilKorisnika */
+/* To make PC like mobile, remove desktop specific profile container styles */
+
 
 /* === Profilna Slika i Korisničko Ime === */
 .profile-header {
@@ -1556,7 +1485,7 @@ img.preview-slika { display: none; }
 /* === NOVO: Stilovi za modernu tražilicu (#praznaTrazilica) === */
 .search-bar-modern {
     width: 100%;
-    max-width: 600px; /* Ograničenje širine za desktop */
+    /* REMOVED max-width: 600px; */ /* Ograničenje širine za desktop */
     margin: 20px auto; /* Centriranje i razmak */
     padding: 12px 20px; /* Veći padding za desktop */
     background-color: #1e1e1e; /* Tamnija pozadina */
@@ -1618,8 +1547,10 @@ img.preview-slika { display: none; }
     flex-direction: column; /* Za centriranje teksta "Ovdje će se prikazivati..." */
 }
 
-/* Prilagodbe za mobilne uređaje */
+/* All these rules were inside @media (max-width: 767px) block, now they are default */
+/*
 @media (max-width: 767px) {
+*/
     #praznaTrazilica {
         padding-top: 70px; /* Razmak za header na mobilnom */
     }
@@ -1644,7 +1575,9 @@ img.preview-slika { display: none; }
         margin-left: 20px;
         margin-right: 20px;
     }
+/*
 }
+*/
 /* === KRAJ NOVIH STILOVA ZA modernu tražilicu === */
 
 /* === KRAJ CSS-a === */
