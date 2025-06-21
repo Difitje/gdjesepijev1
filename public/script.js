@@ -98,8 +98,7 @@ function navigateBack() {
         swap(currentScreenEl.id, lastScreenId);
         azurirajNotifikacije();
     } else {
-        // ISPRAVLJENO: Pravilno zatvoren string s dvostrukim navodnicima
-        console.error("Navigation stack empty, can't go back.");
+        console.error("Navigation stack empty, can't go back.');"
     }
 }
 
@@ -111,15 +110,7 @@ async function authenticatedFetch(url, options = {}) {
     if (token) {
         options.headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
     }
-    // OVDJE DODAJEMO PROVJERU ZA ODGOVOR 401
-    const response = await fetch(url, options);
-    if (response.status === 401 && token) { // Ako dobijemo 401 I imamo token, znači da je token istekao/nevalidan
-        console.warn("Authentication failed (401). Token might be expired or invalid. Attempting to log out.");
-        await odjaviSe(); // Pozovi odjavu
-        // Bacamo grešku da daljnji .then blokovi ne pokušavaju raditi s neuspjelim odgovorom
-        throw new Error("Unauthorized access, automatically logged out.");
-    }
-    return response;
+    return fetch(url, options);
 }
 
 function compressImage(base64Image, maxWidth = 400, quality = 0.8) {
@@ -197,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const reader = new FileReader();
                 reader.onload = e => {
                     odabranaEditSlika = e.target.result;
-                    const previewElement = document.getElementById("previewEditSlikes");
+                    const previewElement = document.getElementById("previewEditSlike");
                     if (previewElement) {
                         previewElement.src = odabranaEditSlika;
                         if (previewElement.style.display === "none") {
@@ -233,7 +224,6 @@ async function registruj() {
         const data = await response.json();
         if (response.ok) {
             alert(data.message);
-            // Nakon uspješne registracije, automatski se prijavite
             await ulogujSe(ime, sifra);
         } else {
             alert("Greška pri registraciji: " + data.message);
@@ -264,16 +254,14 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
         if (response.ok) {
             localStorage.setItem("token", data.token);
             trenutniKorisnik = data.user;
-            // OVDJE JE PROMJENA: Uklanjamo dohvaćanje podataka o praćenjima odavde.
-            // Ono će se dogoditi kada se pozove pokreniAplikaciju.
-            await Promise.all([dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke()]);
+            // === NOVO: Dohvati inicijalne podatke o praćenjima nakon prijave ===
+            await Promise.all([dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke(), dohvatiMojaPracenja()]);
+            // =================================================================
             pokreniAplikaciju();
         } else {
             alert("Greška pri prijavi: " + data.message);
         }
     } catch (error) {
-        // Obuhvatite greške iz authenticatedFetch, uključujući bacenu grešku kod 401
-        console.error("Greška pri prijavi (catch):", error);
         alert("Došlo je do greške pri prijavi.");
     } finally {
         loginBtn.disabled = false; loginBtn.textContent = 'Prijavi se';
@@ -281,77 +269,32 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
 }
 
 async function odjaviSe() {
-    // PROMJENA: Prvo obriši token i resetiraj korisnika, pa tek onda pokušaj ažurirati aktivnost
-    // Ovo sprječava pokušaj pristupa trenutniKorisnik.id ako je već postao null
-    console.log("Pozvana odjaviSe(). Trenutni korisnik prije resetiranja:", trenutniKorisnik);
-
-    // Zaustavi sve intervale
     [activityInterval, chatStatusInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
-    activityInterval = null; // Resetiraj varijable intervala
-    chatStatusInterval = null;
-    globalDataRefreshInterval = null;
-
-    const userToLogOut = trenutniKorisnik; // Pohrani referencu na korisnika prije resetiranja
+    if (trenutniKorisnik && trenutniKorisnik.id) { await azurirajMojuAktivnost(true); }
     localStorage.removeItem("token");
-    trenutniKorisnik = null; // Odmah postavi na null
-    odabranaSlika = null;
-    odabranaEditSlika = null;
-    myFollowings = [];
-    profileFollowers = [];
-    profileFollowing = [];
-
-    // Pokušaj ažurirati aktivnost SAMO AKO je korisnik bio definiran PRIJE resetiranja
-    if (userToLogOut && userToLogOut.id) {
-        try {
-            // Koristimo običan fetch jer token više nije potreban (ili je nevažeći)
-            // i želimo poslati signal za odjavu bez daljnje provjere autentifikacije.
-            // U idealnom slučaju, vaša API ruta za activity bi trebala to dopuštati.
-            await fetch(`/api/users/${userToLogOut.id}/activity`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ loggingOut: true })
-            });
-        } catch (error) {
-            console.error("Greška pri ažuriranju aktivnosti prilikom odjave:", error);
-        }
-    }
+    trenutniKorisnik = null; odabranaSlika = null; odabranaEditSlika = null;
+    myFollowings = []; // NOVO: Resetiraj moja praćenja
+    profileFollowers = []; // NOVO: Resetiraj podatke o profilu
+    profileFollowing = []; // NOVO: Resetiraj podatke o profilu
 
     ["loginIme", "loginSifra", "ime", "sifra", "instagram", "tiktok", "opis", "editIme", "editOpis", "editInstagram", "editTiktok", "opisPijanke", "privatniInput"].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = "";
     });
     navigationStack = [];
-    // Provjeri je li neki kontejner već aktivan prije nego ga pokušamo sakriti
-    const activeContainer = document.querySelector('.container.active-screen');
-    if (activeContainer) {
-        swap(activeContainer.id, 'intro');
-    } else {
-        // Ako nema aktivnog kontejnera, samo prikaži intro
-        const introScreen = document.getElementById('intro');
-        if (introScreen) {
-            introScreen.style.display = 'flex';
-            introScreen.classList.add('active-screen');
-        }
-    }
-    toggleAppUI(false); // Sakrij UI za prijavljene korisnike
+    swap(document.querySelector('.container.active-screen').id, 'intro');
 }
-
 
 function pokreniAplikaciju() {
     navigationStack = [];
-    // Provjeri je li neki kontejner već aktivan prije nego ga pokušamo sakriti
-    const activeContainer = document.querySelector('.container.active-screen');
-    swap(activeContainer ? activeContainer.id : null, 'homePrikazPijanki');
+    swap(document.querySelector('.container.active-screen')?.id || null, 'homePrikazPijanki');
     ocistiPijankePregled();
 
-    // Resetiraj i ponovno postavi intervale
-    if (activityInterval) clearInterval(activityInterval);
-    if (globalDataRefreshInterval) clearInterval(globalDataRefreshInterval);
+    [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
-    globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
+    globalDataRefreshInterval = setInterval(globalDataRefreshInterval, 30e3);
 
     azurirajMojuAktivnost();
-    dohvatiLokaciju(async () => {
-        await dohvatiMojaPracenja();
+    dohvatiLokaciju(() => {
         prikaziPijankePregled();
         azurirajNotifikacije();
     });
@@ -362,7 +305,7 @@ function prikaziMojProfil() {
     if (trenutniKorisnik && trenutniKorisnik.id) {
         otvoriProfil(trenutniKorisnik.id);
     } else {
-        navigateTo('odabir'); // Ako nije prijavljen, neka ide na ekran odabira
+        navigateTo('odabir');
     }
 }
 
@@ -396,8 +339,8 @@ async function sacuvajProfil() {
 
     const novoIme = document.getElementById("editIme").value.trim();
     const noviOpis = document.getElementById("editOpis").value.trim();
-    const noviInstagram = document.getElementById("instagram").value.trim();
-    const noviTiktok = document.getElementById("tiktok").value.trim();
+    const noviInstagram = document.getElementById("editInstagram").value.trim();
+    const noviTiktok = document.getElementById("editTiktok").value.trim();
     const confirmButton = document.getElementById('sacuvajProfilBtn');
 
     if (!novoIme) return alert("Ime ne može biti prazno!");
@@ -432,7 +375,6 @@ async function sacuvajProfil() {
             alert("Greška pri spremanju profila: " + data.message);
         }
     } catch (error) {
-        console.error("Greška pri spremanju profila (catch):", error);
         alert("Došlo je do greške pri spremanja profila.");
     } finally {
         if (confirmButton) {
@@ -443,16 +385,7 @@ async function sacuvajProfil() {
 }
 
 async function azurirajMojuAktivnost(loggingOut = false) {
-    // Ova funkcija se poziva s intervalom, pa mora biti robusna.
-    // Više ne treba provjeravati 401 ovdje jer authenticatedFetch to radi globalno.
-    if (!trenutniKorisnik || !trenutniKorisnik.id) {
-        // Ako trenutniKorisnik nije definiran, nema smisla slati aktivnost.
-        // Možda se korisnik već odjavio putem drugog taba ili sesija više ne postoji.
-        console.warn("Attempted to update activity for null user, stopping interval.");
-        if (activityInterval) clearInterval(activityInterval);
-        activityInterval = null;
-        return;
-    }
+    if (!trenutniKorisnik || !trenutniKorisnik.id) return;
     try {
         await authenticatedFetch(`/api/users/${trenutniKorisnik.id}/activity`, {
             method: 'PUT',
@@ -460,10 +393,7 @@ async function azurirajMojuAktivnost(loggingOut = false) {
             body: JSON.stringify({ loggingOut })
         });
     }
-    catch (error) {
-        // Ovdje ne radimo alert, jer je to poziv s intervala i ne želimo spamati korisnika.
-        console.error("Greška pri ažuriranju aktivnosti:", error);
-    }
+    catch (error) { console.error("Greška pri ažuriranju aktivnosti:", error); }
 }
 
 function formatirajStatus(isoTimestamp) {
@@ -543,7 +473,7 @@ async function objaviPijanku() {
             alert("Greška pri objavi pijanke: " + data.message);
         }
     } catch (error) {
-        console.error("Error during objaviPijanku (catch):", error);
+        console.error("Error during objaviPijanku:", error);
         alert("Došlo je do greške pri objavi pijanke.");
     } finally {
         objabiBtn.disabled = false;
@@ -565,7 +495,6 @@ async function obrisiPijanku(pijankaId, event) {
                 alert("Greška pri brisanju objave: " + data.message);
             }
         } catch (error) {
-            console.error("Error during obrisiPijanku (catch):", error);
             alert("Došlo je do greške pri brisanja objave.");
         }
     }
@@ -840,7 +769,6 @@ async function posaljiPrivatno() {
         await dohvatiSvePoruke();
         prikaziPrivatniLog();
     } catch (error) {
-        console.error("Greška pri slanju poruke (catch):", error);
         alert("Došlo je do greške pri slanju poruke.");
     } finally {
         posaljiBtn.disabled = false;
@@ -892,18 +820,18 @@ function openImageModal(imageUrl) {
 
 async function dohvatiSveKorisnike() {
     try { const response = await authenticatedFetch('/api/users'); if (response.ok) sviKorisnici = await response.json(); }
-    catch (error) { console.error("Greška mreže pri dohvaćanju korisnika (catch):", error); }
+    catch (error) { console.error("Greška mreže pri dohvaćanju korisnika:", error); }
 }
 
 async function dohvatiSvePijanke() {
     try { const response = await authenticatedFetch('/api/posts'); if (response.ok) svePijanke = await response.json(); }
-    catch (error) { console.error("Greška mreže pri dohvaćanju pijanki (catch):", error); }
+    catch (error) { console.error("Greška mreže pri dohvaćanju pijanki:", error); }
 }
 
 async function dohvatiSvePoruke() {
     if (!localStorage.getItem("token")) return;
     try { const response = await authenticatedFetch('/api/messages'); if (response.ok) privatnePoruke = await response.json(); }
-    catch (error) { console.error("Greška mreže pri dohvaćanju poruka (catch):", error); }
+    catch (error) { console.error("Greška mreže pri dohvaćanju poruka:", error); }
 }
 
 function ocistiPijankePregled() {
@@ -935,7 +863,7 @@ async function posaljiSlikuPrivatno(imageData) {
             alert("Greška pri slanju slike: " + data.message);
         }
     } catch (error) {
-        console.error("Došlo je do greške pri slanju slike (catch):", error);
+        console.error("Došlo je do greške pri slanju slike:", error);
         alert("Došlo je do greške pri slanju slike.");
     } finally {
     }
@@ -948,26 +876,21 @@ async function posaljiSlikuPrivatno(imageData) {
  * POZIVA: /api/users/me/following (GET)
  */
 async function dohvatiMojaPracenja() {
-    // Nema potrebe za if (!trenutniKorisnik || !trenutniKorisnik.id) ovdje,
-    // jer authenticatedFetch već obrađuje 401 i odjavljuje korisnika.
-    // Dovoljno je samo pokušati dohvatiti podatke.
+    if (!trenutniKorisnik || !trenutniKorisnik.id) {
+        myFollowings = [];
+        return;
+    }
     try {
-        console.log("Dohvaćam moja praćenja.");
-        const response = await authenticatedFetch('/api/users/me/following');
+        const response = await authenticatedFetch(`/api/users/me/following`);
         if (response.ok) {
             myFollowings = await response.json();
-            console.log("Dohvaćena moja praćenja:", myFollowings);
         } else {
-            myFollowings = [];
-            // Poruka o grešci će biti ispisana u authenticatedFetch,
-            // ali ovdje možete dodati specifične logove ako je potrebno.
-            console.error("Greška pri dohvaćanju mojih praćenja (response not ok):", response.status, response.statusText);
+            myFollowings = []; // Ako dođe do greške, resetiraj listu
+            console.error("Greška pri dohvaćanju mojih praćenja:", response.statusText);
         }
     } catch (error) {
         myFollowings = [];
-        console.error("Greška mreže pri dohvaćanju mojih praćenja (catch):", error);
-        // Ako se ovdje uhvati greška (npr. mreža nedostupna, ili greška koju baci authenticatedFetch),
-        // korisnik će biti odjavljen globalnom logikom u authenticatedFetch.
+        console.error("Greška mreže pri dohvaćanju mojih praćenja:", error);
     }
 }
 
@@ -1039,15 +962,13 @@ async function toggleFollow(targetUserId, isCurrentlyFollowing) {
 
         if (response.ok) {
             alert(data.message);
-            await dohvatiMojaPracenja();
-            setTimeout(() => {
-                otvoriProfil(targetUserId, true);
-            }, 50);
+            await globalRefreshUI();
+            otvoriProfil(targetUserId, true);
         } else {
             alert(`Greška pri ${actionText.toLowerCase()}anju: ${data.message}`);
         }
     } catch (error) {
-        console.error(`Došlo je do greške pri ${actionText.toLowerCase()}anju korisnika (catch):`, error);
+        console.error(`Došlo je do greške pri ${actionText.toLowerCase()}anju korisnika:`, error);
         alert(`Došlo je do greške pri ${actionText.toLowerCase()}anju korisnika.`);
     }
 }
@@ -1083,15 +1004,7 @@ function showUserListModal(userId, userName, listType) {
                         <span class="user-list-name">${user.ime}</span>
                         ${trenutniKorisnik && trenutniKorisnik.id !== user.id ? `
                             <button class="user-list-follow-btn btn-${myFollowings.includes(user.id) ? 'secondary' : 'primary'}"
-                                onclick="event.stopPropagation();
-                                toggleFollow('${user.id}', ${myFollowings.includes(user.id)})
-                                    .then(() => {
-                                        closeUserListModal();
-                                        setTimeout(() => {
-                                            otvoriProfil('${userId}', true);
-                                            showUserListModal('${userId}', '${userName}', '${listType}');
-                                        }, 100);
-                                    });">
+                                onclick="event.stopPropagation(); toggleFollow('${user.id}', ${myFollowings.includes(user.id)}).then(() => { closeUserListModal(); otvoriProfil('${userId}', true); showUserListModal('${userId}', '${userName}', '${listType}'); });">
                                 ${myFollowings.includes(user.id) ? 'Otprati' : 'Prati'}
                             </button>` : ''}
                     </div>
