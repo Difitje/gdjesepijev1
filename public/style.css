@@ -124,7 +124,8 @@ body::before {
 
     /* === PRILAGODBA ZA privatniChat CONTAINER - ZAUZIMA CIJELI EKRAN I POMAKNUT JE ZBOG CHAT HEADERA I INPUTA === */
     #privatniChat {
-        padding-top: 60px; /* Visina chat headera */
+        padding-top: 50px; /* Visina chat headera */
+        /* uklonjen padding-bottom; upravljat ćemo ga visinom chata i paddingom na logu */
         height: 100vh;
         display: flex;
         flex-direction: column; /* Ključno za raspored unutar chata */
@@ -370,7 +371,7 @@ body::before {
     stroke: #b0b0b0; /* Siva boja za ikone */
     stroke-width: 1.8;
     margin-bottom: 2px;
-    transition: none !important; /* UKLONJENO: Omogućuje instant promjenu boje */
+    transition: none !important; /* UKLONJuje instant promjenu boje */
 }
 
 .bottom-nav .nav-button.active {
@@ -439,17 +440,20 @@ body::before {
     display: none;
 }
 
-/* === KONAČNA ISPRAVKA: Pravila za gornje tipke (OPĆENITO) === */
+/* === KONAČNA ISPRAVKA: Pravila za gornje tipke === */
+
+/* Općenito pravilo za sve ekrane OSIM chata */
 .top-nav-buttons {
     position: absolute;
     top: 15px;
     left: 15px;
     z-index: 51;
     pointer-events: none;
+    /* Omogući flexbox za pravilno pozicioniranje back i confirm buttona */
     display: flex;
-    width: calc(100% - 30px);
-    justify-content: space-between;
-    align-items: center;
+    width: calc(100% - 30px); /* Puna širina unutar containera */
+    justify-content: space-between; /* Razmak između elemenata */
+    align-items: center; /* Centriraj po vertikali */
 }
 @media (min-width: 768px) {
     .top-nav-buttons {
@@ -459,10 +463,24 @@ body::before {
     }
 }
 
-/* POSEBNA PRAVILA ZA CHAT EKRAN top-nav-buttons */
-/* Sakrij opći top-nav-buttons ako je prisutan, jer će chat imati svoje zaglavlje */
+/* Posebno pravilo SAMO za chat ekran */
 #privatniChat .top-nav-buttons {
-    display: none; /* OVAJ SPECIFIČNI DIV SE SADA SKRIVA JER JE GUMB UNUTAR chat-header-info */
+    height: 50px; /* Mora odgovarati visini .chat-header-info */
+    top: 0;
+    left: 0;
+    width: 100%; /* Puna širina */
+    justify-content: flex-start; /* back-button na lijevo */
+    padding-left: 5px; /* Mali padding za back-button */
+    padding-right: 15px; /* Padding da confirm-button ne bude skroz desno */
+}
+#privatniChat .top-nav-buttons .back-button {
+    /* VRAĆENO NA ORIGINAL */
+    position: absolute; /* Vraćeno na absolute */
+    left: 5px; /* Vraćeno na lijevi rub */
+    top: 50%; /* Centrirano vertikalno */
+    transform: translateY(-50%); /* Pravi vertikalni centar */
+    pointer-events: auto; /* Omogućuje klik */
+    z-index: 52; /* Iznad chat-header-info */
 }
 
 
@@ -521,8 +539,20 @@ body::before {
     transform: scale(1.1);
 }
 
+/* Maknuti fiksne pozicije jer su sada unutar flexboxa .top-nav-buttons */
+/*
+@media (min-width: 768px) {
+    .confirm-button {
+        top: 25px;
+        right: 25px;
+    }
+}
+*/
 /* KRAJ NOVIH STILOVA ZA GUMB ZA POTVRDU */
 
+
+/* Uklonjeno jer je #inboxPrikaz h2 sada pozicioniran apsolutno */
+/* .container > h2 { padding-top: 30px; } */
 
 #intro, #pravilaEkran, #odabir, #login, #registracija, #homePrikazPijanki, #praznaTrazilica { justify-content: center; align-items: center; }
 #objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
@@ -643,51 +673,33 @@ body::before {
 /* ========================================= */
 
 
-/* === AŽURIRANO: Zaglavlje chata - sada će se uskladiti s back buttonom unutar njega === */
+/* === IZMJENA: Dodatno smanjeno zaglavlje chata === */
 .chat-header-info {
     display: flex;
     flex-direction: row;
-    align-items: center; /* Centriraj sve vertikalno */
-    justify-content: flex-start;
-    padding: 0 15px; /* Dodan horizontalni padding za cijelo zaglavlje */
+    align-items: center;
+    justify-content: flex-start; /* Centriranje unutar flex-start da back-button bude lijevo */
+    padding-top: 0;
     width: 100%;
-    position: absolute;
+    padding-left: 50px; /* Pomaknuto lijevo zbog back-buttona */
+    position: absolute; /* Ostaje apsolutno pozicionirano unutar chata */
     top: 0;
     left: 0;
     background-color: rgba(0, 0, 0, 0.95);
-    height: 60px; /* Fiksna visina zaglavlja */
+    height: 50px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    z-index: 50; /* Z-index za zaglavlje */
-    gap: 10px; /* Razmak između elemenata unutar headera (gumb, slika, tekst) */
+    z-index: 50;
 }
 
-/* Stil za gumb za nazad unutar chat-header-info */
-.chat-header-info .back-button {
-    position: static; /* Bitno! Uklanja apsolutno pozicioniranje, radi kao flex-item */
-    transform: none; /* Uklanja transformacije */
-    margin-right: 0; /* Ukloni potencijalnu desnu marginu */
-    width: 44px; /* Fiksna širina za klikabilno područje gumba */
-    height: 44px; /* Fiksna visina za klikabilno područje gumba */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px; /* Malo manji font za strelicu ako je prevelika */
-    flex-shrink: 0; /* Spriječi skupljanje gumba */
-    /* back-button background i color su definirani općenito, pa će se primijeniti */
-}
-
-
-/* Stil za profilnu sliku u chat headeru */
 .chat-partner-profilna {
-    width: 40px; /* Malo veća profilna slika */
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     object-fit: cover;
     border: 1.5px solid #ff4757;
-    margin-right: 0; /* Uklonjena desna margina jer koristimo gap */
+    margin-right: 10px;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
-    flex-shrink: 0; /* Spriječi skupljanje slike */
 }
 
 .chat-partner-profilna:hover {
@@ -700,7 +712,7 @@ body::before {
     color: #f0f0f0;
     cursor: pointer;
     padding-top: 0;
-    margin-right: 0; /* Uklonjena desna margina jer koristimo gap */
+    margin-right: 10px;
     text-align: left;
     width: auto;
 }
@@ -717,8 +729,6 @@ body::before {
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
-    flex-grow: 1; /* Omogući da zauzme preostali prostor */
-    min-width: 0; /* Omogući da se tekst skrati ako je predug */
 }
 /* ========================================= */
 
@@ -942,38 +952,51 @@ img.preview-slika { display: none; }
     font-size: 15px;
     margin: 0;
     line-height: 1.4;
-    /* Postavljeno na default za tekstualne poruke */
+    /* Default stil za tekstualne poruke */
     background: #3a3a3a; /* Default sivi balon za tuđe poruke */
     color: #f0f0f0;
 }
-/* Balon za moje poruke - neka bude crveni */
+/* Balon za moje tekstualne poruke - neka bude crveni */
 .moja-poruka .poruka-balon {
     background: #ff4757;
     color: white;
 }
 
 /* Stil za balon kada sadrži sliku */
+/* Ciljamo direktno poruka-balon koji sadrži img */
 .poruka-balon.image-message-bubble {
-    padding: 5px; /* Manji padding za slike */
-    background: transparent !important; /* UKLONJENO: Crveni background za sliku */
-    border: none !important; /* UKLONJENO: Borderi ako ih je bilo */
-    box-shadow: none !important; /* UKLONJENO: Sjena */
+    padding: 0; /* VRACENO NA 0: Nema paddinga za balon sa slikom */
+    background: transparent !important; /* UKLONJENO: Crveni/sivi background */
+    border: none !important; /* UKLONJENO: Borderi */
+    box-shadow: none !important; /* UKLONJENO: Sjene */
+    overflow: hidden; /* Osiguraj da zaobljeni rubovi ostaju */
 }
 
-/* Stil za sliku thumbnail u chatu */
+/* Stil za thumbnail sliku u chatu */
 .chat-image-thumbnail {
-    max-width: 150px; /* Smanjite thumbnail veličinu */
-    height: auto;
-    border-radius: 8px;
+    width: 120px; /* FIKSNA ŠIRINA THUMBNAILA */
+    height: 120px; /* FIKSNA VISINA THUMBNAILA */
+    object-fit: cover; /* KLJUČNO: Odsijeca sliku ako ne stane, ali popunjava prostor */
+    border-radius: 8px; /* Mali radius na slici */
     cursor: pointer;
     display: block;
-    object-fit: cover;
     transition: transform 0.2s ease-in-out;
 }
 
 .chat-image-thumbnail:hover {
     transform: scale(1.02);
 }
+
+/* Osigurajte da poruka-wrapper za slike ima flex-start/flex-end, ali sam balon nema boju */
+.moja-poruka .poruka-balon.image-message-bubble {
+    background: transparent !important;
+    border-bottom-right-radius: 18px; /* Ostavite radius balona ako je to željeno */
+}
+.tudja-poruka .poruka-balon.image-message-bubble {
+    background: transparent !important;
+    border-bottom-left-radius: 18px; /* Ostavite radius balona ako je to željeno */
+}
+
 
 .poruka-vrijeme {
     font-size: 11px;
