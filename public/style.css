@@ -1,5 +1,5 @@
 /* === POCETAK CSS-a (Konačna verzija) === */
-/* public/style.css - VERZI17 - Centriranje teksta i ikonica u nav baru */
+/* public/style.css - VERZIJA 18 - Optimizirano za mobilni prikaz na svim ekranima */
 
 * {
     box-sizing: border-box;
@@ -10,8 +10,8 @@
 html, body {
     height: 100%;
     width: 100%;
-    overflow: hidden;
-    position: fixed;
+    overflow: hidden; /* Fiksno za cijelo vrijeme */
+    position: fixed; /* Fiksno za cijelo vrijeme */
     touch-action: none;
 }
 
@@ -53,9 +53,16 @@ body::before {
     transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    overflow-y: auto; /* Omogući skrolanje kontejneru */
     -webkit-overflow-scrolling: touch;
+    /* Opći padding za sve kontejnere, sada primjenjiv na svim veličinama ekrana */
+    padding: 20px;
+    border-radius: 0; /* Bez zaobljenih rubova */
+    border: none; /* Bez rubova */
+    box-shadow: none; /* Bez sjene */
+    padding-bottom: 70px; /* Visina nav bara + malo razmaka */
 }
+
 .container.active-screen {
     opacity: 1;
     visibility: visible;
@@ -67,7 +74,6 @@ body::before {
     animation: fadeOut 0.3s ease-out forwards;
 }
 
-/* Nova klasa za skrivanje elemenata na početku */
 .hidden-initially {
     opacity: 0;
     visibility: hidden;
@@ -75,73 +81,48 @@ body::before {
     transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
 }
 
-@media (min-width: 768px) {
-    body {
-        overflow-y: auto;
-        padding: 40px 20px;
-    }
-    .container {
-        position: relative;
-        width: 100%;
-        max-width: 1200px;
-        height: auto;
-        min-height: 80vh;
-        margin: 0 auto;
-        padding: 40px;
-        background: #1e1e1e;
-        border: 1px solid #2a2a2a;
-        border-radius: 24px;
-        box-shadow: 0 10px 40px rgba(0,0,0, 0.5);
-    }
-    .chat-input-area { max-width: 1200px; margin: 0 auto; }
-    #objavaForma, #profilKorisnika, #login > input, #login > button,
-    #registracija > input, #registracija > textarea, #registracija > button, #registracija > label, #registracija > img {
-        width: 100%; max-width: 600px; margin-left: auto; margin-right: auto;
-    }
-    #login, #registracija, #editProfil { align-items: center; }
-    #privatniChatLog .poruka-wrapper { max-width: 800px; margin-left: auto; margin-right: auto; }
+/* UKLONJEN @media (min-width: 768px) za body i .container */
+
+/* Prilagodbe padding-top za kontejnere koji imaju header/top bar */
+#homePrikazPijanki, #praznaTrazilica, #glavniDio, #editProfil, #inboxPrikaz {
+    padding-top: 70px; /* Osiguraj prostor za header */
+}
+/* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
+#intro, #odabir, #login, #registracija, #pravilaEkran {
+    padding-top: 20px; /* Standardni padding */
 }
 
-@media (max-width: 767px) {
-    body { overflow: hidden; }
-    .container { position: absolute; padding: 20px; border-radius: 0; border: none; box-shadow: none; }
-    .container {
-        padding-bottom: 70px;
-    }
-    #homePrikazPijanki, #praznaTrazilica, #glavniDio, #editProfil, #inboxPrikaz {
-        padding-top: 70px;
-    }
-    #intro, #odabir, #login, #registracija, #pravilaEkran {
-        padding-top: 20px;
-    }
-
-    #privatniChat {
-        padding-top: 50px;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
+/* === PRILAGODBA ZA privatniChat CONTAINER - ZAUZIMA CIJELI EKRAN I POMAKNUT JE ZBOG CHAT HEADERA I INPUTA === */
+#privatniChat {
+    padding-top: 50px; /* Visina chat headera */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 70px; /* Visina nav bara + malo razmaka, ako je bottom-nav vidljiv i ovdje */
 }
 
+
+/* === NOVI STIL ZA INBOX DA BUDE PREKO CIJELOG EKRANA === */
 #inboxPrikaz.container {
     padding-left: 0;
     padding-right: 0;
     padding-top: 10px;
 }
 
+/* === IZMJENA: Pozicioniranje h2 unutar inboxPrikaz === */
 #inboxPrikaz h2 {
     padding-left: 12px;
     padding-right: 12px;
     text-align: center;
     position: absolute;
-    top: 20px;
+    top: 0; /* Sada je top:0 za mobilni (i desktop) prikaz */
     left: 0;
     right: 0;
     z-index: 5;
     background-color: rgba(0, 0, 0, 0.95);
     padding-top: 0;
     margin-bottom: 0;
-    height: 50px;
+    height: 60px; /* Visina za header */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -149,13 +130,9 @@ body::before {
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
-@media (max-width: 767px) {
-    #inboxPrikaz h2 {
-        top: 0;
-        height: 60px;
-    }
-}
+/* UKLONJEN @media (max-width: 767px) za #inboxPrikaz h2 jer je to sada default */
 
+/* === Stilovi za Search Bar u Inboxu (Redizajnirani) === */
 .inbox-search-bar {
     width: 100%;
     padding: 10px 12px;
@@ -164,30 +141,19 @@ body::before {
     display: flex;
     align-items: center;
     position: sticky;
-    top: 70px;
+    top: 60px; /* PRILAGOĐENO: Ispod novog h2 headera (60px) */
     z-index: 4;
     box-sizing: border-box;
     border-radius: 20px;
     background-color: #1a1a1a;
     border: 1px solid #2a2a2a;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    max-width: calc(100% - 24px);
+    max-width: calc(100% - 40px); /* PRILAGOĐENO: 20px padding s obje strane .container */
     margin: 0 auto;
     margin-bottom: 10px;
 }
 
-@media (min-width: 768px) {
-    .inbox-search-bar {
-        position: relative;
-        top: auto;
-        border-radius: 24px;
-        margin: -20px auto 20px auto;
-        background-color: #1e1e1e;
-        border: 1px solid #2a2a2a;
-        max-width: 600px;
-        padding: 12px 20px;
-    }
-}
+/* UKLONJEN @media (min-width: 768px) za .inbox-search-bar */
 
 .inbox-search-bar input {
     flex-grow: 1;
@@ -220,18 +186,10 @@ body::before {
     position: absolute; top: 0; left: 0; right: 0; height: 60px; padding: 0 10px;
     display: flex; justify-content: center; align-items: center;
     z-index: 100;
+    /* UKLONJENI desktop-specifični stilovi, sada je ovo default */
 }
-@media (min-width: 768px) {
-    .main-header {
-        position: relative;
-        border-radius: 24px 24px 0 0;
-        margin: -40px -40px 20px -40px;
-        padding: 0 30px;
-        height: 70px;
-        background-color: rgba(34, 34, 34, 0.8);
-        justify-content: center;
-    }
-}
+/* UKLONJEN @media (min-width: 768px) za .main-header */
+
 .main-logo {
     display: flex;
     justify-content: center;
@@ -246,19 +204,7 @@ body::before {
     width: auto;
     object-fit: contain;
 }
-
-@media (min-width: 768px) {
-    .main-header {
-        height: 70px;
-        align-items: center;
-    }
-    .main-logo {
-        height: 100%;
-    }
-    .header-logo-image {
-        max-height: 75px;
-    }
-}
+/* UKLONJEN @media (min-width: 768px) za .header-logo-image */
 
 .header-icon {
     background: transparent;
@@ -307,13 +253,8 @@ body::before {
 .fab:active { transform: scale(1.05) rotate(90deg); }
 .fab svg { width: 30px; height: 30px; color: #ffffff; }
 
-@media (min-width: 768px) {
-    .fab {
-        position: absolute;
-        bottom: 40px;
-        right: 40px;
-    }
-}
+/* UKLONJEN @media (min-width: 768px) za .fab */
+
 
 /* NOVI STILOVI ZA BOTTOM NAVIGACIJU (SADA KOMBINIRANI I CENTRIRANI) */
 .bottom-nav {
@@ -326,10 +267,11 @@ body::before {
     border-top: 1px solid rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: space-around;
-    align-items: center; /* Vertikalno centriranje cijelog sadržaja gumba */
+    align-items: center;
     z-index: 100;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
+    /* UKLONJEN @media (min-width: 768px) za .bottom-nav */
 }
 
 .bottom-nav .nav-button {
@@ -337,8 +279,8 @@ body::before {
     border: none !important;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centriranje teksta HORIZONTALNO ispod ikonice */
-    justify-content: center; /* Vertikalno centriranje ikonica i teksta unutar gumba */
+    align-items: center;
+    justify-content: center;
     padding: 5px 0;
     width: 25%;
     height: 100%;
@@ -382,6 +324,7 @@ body::before {
     stroke: none;
 }
 
+
 .bottom-nav .nav-button:hover:not(.active) {
     color: #e0e0e0;
     background: none !important;
@@ -413,12 +356,7 @@ body::before {
     border: 2px solid rgba(26, 26, 26, 0.95);
 }
 
-@media (min-width: 768px) {
-    .bottom-nav {
-        display: none;
-    }
-}
-/* KRAJ NOVIH STILOVA ZA BOTTOM NAVIGACIJU */
+/* UKLONJEN @media (min-width: 768px) za .bottom-nav */
 
 
 #pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
@@ -449,13 +387,7 @@ body::before {
     width: calc(100% - 30px);
     justify-content: space-between;
     align-items: center;
-}
-@media (min-width: 768px) {
-    .top-nav-buttons {
-        top: 25px;
-        left: 25px;
-        width: calc(100% - 50px);
-    }
+    /* UKLONJEN @media (min-width: 768px) za .top-nav-buttons */
 }
 
 #privatniChat .top-nav-buttons {
@@ -528,6 +460,8 @@ body::before {
     color: #27ae60;
     transform: scale(1.1);
 }
+
+/* UKLONJEN @media (min-width: 768px) za .confirm-button */
 
 #intro, #pravilaEkran, #odabir, #login, #registracija, #homePrikazPijanki, #praznaTrazilica { justify-content: center; align-items: center; }
 #privatniChat { justify-content: flex-start; align-items: stretch; }
@@ -1364,15 +1298,6 @@ img.preview-slika { display: none; }
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 15px;
     padding: 10px;
-}
-
-.profile-post-item {
-    background-color: #222;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .profile-post-item:hover {
