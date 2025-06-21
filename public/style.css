@@ -717,13 +717,14 @@ body::before {
     width: auto;
 }
 .chat-header-info .status-text {
-    margin: 0; /* KRITIČNO: Ukloni sve defaultne margine */
-    padding: 0; /* Dodaj i padding na 0 za svaki slučaj */
+    margin: 0;
+    padding: 0;
     font-size: 11px;
     color: #aaa;
     text-align: center;
     width: auto;
     white-space: nowrap;
+    margin-top: -2px; /* NOVO: Eksperimentiraj s ovom vrijednošću, npr. -1px, -3px */
 }
 .chat-info-text-wrapper {
     display: flex;
