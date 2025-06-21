@@ -285,17 +285,18 @@ async function prikaziEditProfila() {
     document.getElementById("editIme").value = user.ime || '';
     document.getElementById("editOpis").value = user.opis || '';
     document.getElementById("editInstagram").value = user.instagram || '';
-    document.getElementById("editTiktok").value = user.tiktok || '';
-    // ISPRAVLJENO: Promijenjen ID iz "previewEditSlike" u "previewEditSlikes"
-    document.getElementById("previewEditSlikes").src = user.slika || 'default_profile.png';
-    document.getElementById("previewEditSlikes").style.display = "block";
+    document.getElementById("editTiktok").value = user.tiktok || ''; // Corrected ID
+    document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
+    // Ispravljeno: ID za prikaz slike je "previewEditSlike" a ne "previewEditSlikes"
+    document.getElementById("previewEditSlike").style.display = "block";
 
-    odabranaEditSlika = null;
+    odabranaEditSlika = null; // Reset odabranaEditSlika when opening edit profile
 
+    // Prikazi confirm-button kada se otvori edit profil ekran
     const confirmButton = document.getElementById('sacuvajProfilBtn');
     if (confirmButton) {
         confirmButton.classList.remove('hidden');
-        confirmButton.classList.remove('loading');
+        confirmButton.classList.remove('loading'); // Ukloni loading stanje
     }
 
     navigateTo('editProfil');
@@ -310,22 +311,22 @@ async function sacuvajProfil() {
     const novoIme = document.getElementById("editIme").value.trim();
     const noviOpis = document.getElementById("editOpis").value.trim();
     const noviInstagram = document.getElementById("editInstagram").value.trim();
-    const noviTiktok = document.getElementById("editTiktok").value.trim();
-    const confirmButton = document.getElementById('sacuvajProfilBtn');
+    const noviTiktok = document.getElementById("editTiktok").value.trim(); // Corrected ID
+    const confirmButton = document.getElementById('sacuvajProfilBtn'); // Sada je to ikona
 
     if (!novoIme) return alert("Ime ne može biti prazno!");
 
     if (confirmButton) {
         confirmButton.disabled = true;
-        confirmButton.classList.add('loading');
+        confirmButton.classList.add('loading'); // Dodaj loading klasu
     }
 
     let finalSlika = null;
     if (odabranaEditSlika) {
         finalSlika = await compressImage(odabranaEditSlika);
     } else {
-        // ISPRAVAK: Promijenjen ID iz "previewEditSlike" u "previewEditSlikes"
-        finalSlika = document.getElementById("previewEditSlikes").src;
+        // If no new image is selected, use the current profile image
+        finalSlika = document.getElementById("previewEditSlike").src; // Use the currently displayed image source
     }
 
     const updateData = { username: novoIme, opis: noviOpis, instagram: noviInstagram, tiktok: noviTiktok };
@@ -341,8 +342,7 @@ async function sacuvajProfil() {
         if (response.ok) {
             alert(data.message);
             await globalRefreshUI();
-            // Poziva funkciju koja prikazuje tvoj profil s ažuriranim podacima.
-            prikaziMojProfil();
+            navigateBack();
         } else {
             alert("Greška pri spremanju profila: " + data.message);
         }
@@ -351,7 +351,7 @@ async function sacuvajProfil() {
     } finally {
         if (confirmButton) {
             confirmButton.disabled = false;
-            confirmButton.classList.remove('loading');
+            confirmButton.classList.remove('loading'); // Ukloni loading klasu
         }
     }
 }
@@ -416,42 +416,31 @@ function pokaziObjavu() {
 }
 
 async function objaviPijanku() {
-    console.log("Objavi pijanku function called!"); // Added for debugging
-    const opis = document.getElementById("opisPijanke").value.trim(); //
-    if (!opis) {
-        return alert("Molimo popunite opis pijanke!"); //
-    }
-    if (!mojPoz) {
-        // If location is not available, try to get it and then re-call objaviPijanku
-        console.log("Location not available, attempting to fetch..."); // Added for debugging
-        return dohvatiLokaciju(() => objaviPijanku()); //
-    }
+    const opis = document.getElementById("opisPijanke").value.trim();
+    if (!opis) return alert("Molimo popunite opis pijanke!");
+    if (!mojPoz) return dohvatiLokaciju(() => objaviPijanku());
 
-    const objaviBtn = document.querySelector('#objavaForma button'); //
-    objaviBtn.disabled = true; //
-    objaviBtn.textContent = 'Objavljujem...'; // Corrected: objabiBtn changed to objaviBtn
-
+    const objaviBtn = document.querySelector('#objavaForma button');
+    objaviBtn.disabled = true; objabiBtn.textContent = 'Objavljujem...';
     try {
-        const response = await authenticatedFetch('/api/posts', { //
-            method: 'POST', //
-            headers: { 'Content-Type': 'application/json' }, //
-            body: JSON.stringify({ opis, lat: mojPoz.lat, lon: mojPoz.lon }) //
+        const response = await authenticatedFetch('/api/posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ opis, lat: mojPoz.lat, lon: mojPoz.lon })
         });
-        const data = await response.json(); //
-        if (response.ok) { //
-            alert(data.message); //
-            await dohvatiSvePijanke(); //
-            navigateTo('homePrikazPijanki'); //
-            prikaziPijankePregled(); //
+        const data = await response.json();
+        if (response.ok) {
+            alert(data.message);
+            await dohvatiSvePijanke();
+            navigateTo('homePrikazPijanki');
+            prikaziPijankePregled();
         } else {
-            alert("Greška pri objavi pijanke: " + data.message); //
+            alert("Greška pri objavi pijanke: " + data.message);
         }
     } catch (error) {
-        console.error("Error during objaviPijanku:", error); // Log the actual error for debugging
-        alert("Došlo je do greške pri objavi pijanke."); //
+        alert("Došlo je do greške pri objavi pijanke.");
     } finally {
-        objaviBtn.disabled = false; //
-        objaviBtn.textContent = 'Objavi'; // Corrected: objabiBtn changed to objaviBtn
+        objaviBtn.disabled = false; objabiBtn.textContent = 'Objavi';
     }
 }
 
@@ -692,8 +681,6 @@ async function posaljiPrivatno() {
         prikaziPrivatniLog();
     } catch (error) {
         alert("Došlo je do greške pri slanju poruke.");
-    } finally {
-        posaljiBtn.disabled = false;
     }
 }
 
@@ -702,47 +689,29 @@ function prikaziPrivatniLog() {
     const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
     const log = privatnePoruke[chatKey] || [];
     const div = document.getElementById("privatniChatLog");
-    const fullImageModal = document.getElementById('fullImage'); // Dohvati element modala
 
+    // === KONAČNA ISPRAVKA v3 ===
+    // Eksplicitno sortiramo log po vremenu, od najstarijeg do najnovijeg.
+    // Ovo osigurava da je redoslijed u DOM-u uvijek ispravan (kronološki).
+    // CSS `flex-direction: column-reverse` će onda vizualno okrenuti redoslijed
+    // i prikazati najnovije poruke na dnu, što je ispravno ponašanje.
     const sortiraniLog = log.slice().sort((a, b) => new Date(b.time) - new Date(a.time));
 
     div.innerHTML = sortiraniLog.map(msg => {
         const vrijeme = new Date(msg.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' });
         const klasaWrappera = msg.autorId === trenutniKorisnik.id ? "moja-poruka" : "tudja-poruka";
 
-        let messageContent;
-        if (msg.imageUrl) {
-            // Smanjite prikazanu sliku i dodajte onclick za otvaranje modala
-            messageContent = `<img src="${msg.imageUrl}" alt="Poslana slika" class="chat-image-thumbnail" onclick="openImageModal('${msg.imageUrl}')">`;
-        } else {
-            messageContent = `<span>${msg.tekst}</span>`;
-        }
-
         return `
             <div class="poruka-wrapper ${klasaWrappera}">
-                <div class="poruka-balon ${msg.imageUrl ? 'image-message-bubble' : ''}"> ${messageContent}
+                <div class="poruka-balon">
+                    <span>${msg.tekst}</span>
                 </div>
                 <span class="poruka-vrijeme">${vrijeme}</span>
             </div>
         `;
     }).join("");
-
-    // NOVO: Skrolaj na dno (vrh vizualno, jer je column-reverse) nakon rendanja poruka
-    // Ovo će osigurati da najnovija poruka uvijek bude vidljiva
-    // Koristimo setTimeout s malim delayem da se omogući DOM-u da se ažurira
-    setTimeout(() => {
-        div.scrollTop = 0; // Skrolaj na vrh sadržaja (što je vizualno dno zbog column-reverse)
-    }, 100); // Povećan delay na 100ms
 }
 
-// NOVO: Funkcija za otvaranje modala za slike
-function openImageModal(imageUrl) {
-    const imageModal = document.getElementById('imageModal');
-    const fullImage = document.getElementById('fullImage');
-    fullImage.src = imageUrl;
-    imageModal.style.display = 'flex'; // Promijenjeno na flex za centriranje
-    document.body.style.overflow = 'hidden'; // Onemogući skrolanje pozadine
-}
 
 async function dohvatiSveKorisnike() {
     try { const response = await authenticatedFetch('/api/users'); if (response.ok) sviKorisnici = await response.json(); }
@@ -763,37 +732,4 @@ async function dohvatiSvePoruke() {
 function ocistiPijankePregled() {
     const div = document.getElementById("pijankePregled");
     if (div) div.innerHTML = "";
-}
-
-// --- NOVO: Funkcija za slanje slike privatno ---
-async function posaljiSlikuPrivatno(imageData) { // imageData je Base64 string kompresirane slike
-    if (!imageData || !trenutniChatPartnerId) {
-        alert("Nema slike za poslati ili nije odabran primatelj.");
-        return;
-    }
-
-    const posaljiBtn = document.getElementById('posaljiPrivatnoBtn');
-    // Ne onemogućavamo ovdje posaljiBtn jer se koristi za tekstualne poruke.
-    // Ako želite vizualnu povratnu informaciju, možete prikazati loading spinner negdje drugdje.
-
-    try {
-        const response = await authenticatedFetch('/api/messages', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ receiverId: trenutniChatPartnerId, imageUrl: imageData }) // Šaljemo imageUrl
-        });
-        const data = await response.json();
-        if (response.ok) {
-            console.log("Slika uspješno poslana:", data);
-            await dohvatiSvePoruke(); // Osvježi poruke nakon slanja
-            prikaziPrivatniLog(); // Prikaz nove poruke
-        } else {
-            alert("Greška pri slanju slike: " + data.message);
-        }
-    } catch (error) {
-        console.error("Došlo je do greške pri slanju slike:", error);
-        alert("Došlo je do greške pri slanju slike.");
-    } finally {
-        // Ovdje ne radimo ništa s posaljiBtn, jer se slanje slike ne pokreće preko njega
-    }
 }

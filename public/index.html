@@ -35,7 +35,7 @@
         <div class="pravila-text">
             <p>Dobrodošli! Prije nego što nastavite, molimo vas da pažljivo pročitate i prihvatite sljedeća pravila:</p>
             <p><strong>1. Punoljetnost:</strong> Morate imati najmanje 18 godina da biste koristili ovu aplikaciju.</p>
-            <p><strong>2. Poštovanje:</strong> Ponašajte se prema drugima s poštovanjem. Bilo kakav oblik uznemiravanja, govora mržnje ili nasilnog ponašanje nije dozvoljen i rezultirat će trajnom zabranom.</p>
+            <p><strong>2. Poštovanje:</strong> Ponašajte se prema drugima s poštovanjem. Bilo kakav oblik uznemiravanja, govora mržnje ili nasilnog ponašanja nije dozvoljen i rezultirat će trajnom zabranom.</p>
             <p><strong>3. Sigurnost na prvom mjestu:</strong> Kada se sastajete s drugim korisnicima, činite to na javnim i sigurnim mjestima. Obavijestite prijatelja gdje idete. Budite odgovorni.</p>
             <p><strong>4. Zakonitost:</strong> Zabranjeno je organiziranje ili promoviranje bilo kakvih ilegalnih aktivnosti putem ove platforme.</p>
             <p><strong>Odricanje od odgovornosti:</strong> Ova aplikacija je samo platforma za povezivanje. Mi, kao kreatori, nismo odgovorni za ponašanje korisnika, niti za bilo kakve direktne ili indirektne posljedice, štete ili povrede koje mogu nastati kao rezultat korištenja aplikacije. Koristite je na vlastitu odgovornost.</p>
@@ -92,23 +92,16 @@
             <h1 class="main-logo">
                 </h1>
         </div>
-        <div class="search-bar-modern">
-            <input type="text" id="mainSearchBarInput" placeholder="Pretraži..." oninput="handleSearchInput()">
-            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.697 4.698a.75.75 0 11-1.06 1.06l-4.697-4.697A8.25 8.25 0 012.25 10.5z" />
-            </svg>
+        <p style="text-align:center; padding-top: 50px;">Ovo je nova stranica za tražilicu!</p>
         </div>
-        <div id="searchResults" class="search-results">
-            <p style="text-align:center; color:#888; margin-top:20px;">Ovdje će se prikazivati rezultati pretrage.</p>
-        </div>
-    </div>
 
     <div class="container" id="inboxPrikaz">
         <h2>Poruke</h2>
         <div class="inbox-search-bar">
             <input type="text" id="inboxSearchBarInput" placeholder="Pretraži razgovore..." oninput="filterChatItems()">
-            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.697 4.698a.75.75 0 11-1.06 1.06l-4.697-4.697A8.25 8.25 0 012.25 10.5z" />
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
         </div>
         <div id="listaChatova"></div>
@@ -140,8 +133,7 @@
     </div>
         <div id="privatniChatLog" class="chat"></div>
         <div class="chat-input-area">
-            <input type="file" id="imageUploadChat" accept="image/*" style="display: none;" />
-            <div class="image-upload-icon" onclick="document.getElementById('imageUploadChat').click()">
+            <div class="image-upload-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
                     <path d="M8.5 13.5l-3.5 4.5h11l-4-6-3.5 4z"/>
                     <circle cx="9" cy="8" r="2.5"/>
@@ -170,7 +162,7 @@
         </div>
         <h2>Uredi profil</h2>
         <div class="profile-picture-edit-wrapper">
-            <img id="previewEditSlikes" class="profilna-slika" onclick="document.getElementById('hiddenEditSlikaUpload').click()" />
+            <img id="previewEditSlike" class="profilna-slika" onclick="document.getElementById('hiddenEditSlikaUpload').click()" />
             <div class="camera-icon-overlay">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                     <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5a.75.75 0 00.75-.75v-1.94l-2.432-2.432a1.125 1.125 0 00-1.57-.037l-3.535 3.535a1.125 1.125 0 01-1.571 0L5.25 9.53l-3.75 6.53Z" clip-rule="evenodd" />
@@ -207,9 +199,8 @@
             </svg>
             <span>Home</span>
         </button>
-        <button class="nav-button" id="navSearch" onclick="handleNavClick('praznaTrazilica');">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path fill-rule="evenodd" d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.697 4.698a.75.75 0 11-1.06 1.06l-4.697-4.697A8.25 8.25 0 012.25 10.5z" clip-rule="evenodd" />
+        <button class="nav-button" id="navSearch" onclick="handleNavClick('praznaTrazilica');"> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
             </svg>
             <span>Tražilica</span>
         </button>
@@ -222,16 +213,11 @@
         </button>
         <button class="nav-button" id="navProfile" onclick="handleNavClick('glavniDio');">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 9 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             <span>Profil</span>
         </button>
     </nav>
-
-    <div id="imageModal" class="image-modal">
-        <span class="close-image-modal">&times;</span>
-        <img class="image-modal-content" id="fullImage">
-    </div>
 
     <script src="/script.js"></script>
     <script>
@@ -359,44 +345,6 @@
                     } else {
                         posaljiBtn.disabled = true;
                         posaljiBtn.classList.remove('enabled');
-                    }
-                });
-            }
-
-            // NOVO: Listener za input za slike u chatu
-            const imageUploadChatEl = document.getElementById("imageUploadChat");
-            if (imageUploadChatEl) {
-                imageUploadChatEl.addEventListener("change", async function() {
-                    const file = this.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = async e => {
-                            const base64Image = e.target.result;
-                            const compressedImage = await compressImage(base64Image); // Koristimo postojeću funkciju
-                            await posaljiSlikuPrivatno(compressedImage); // Nova funkcija za slanje slike
-                            imageUploadChatEl.value = ''; // Resetirajte input field da možete ponovno odabrati istu sliku
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            }
-
-            // NOVO: Postavite event listenere za modal za slike
-            const imageModal = document.getElementById('imageModal');
-            const closeImageModal = document.querySelector('.close-image-modal');
-            if (closeImageModal) {
-                closeImageModal.onclick = function() {
-                    imageModal.style.display = 'none';
-                    // Vratite skrolanje tijelu kad se modal zatvori
-                    document.body.style.overflow = 'hidden';
-                };
-            }
-            if (imageModal) {
-                // Zatvori modal klikom izvan slike (ali unutar overlay-a)
-                imageModal.addEventListener('click', function(event) {
-                    if (event.target === imageModal) {
-                        imageModal.style.display = 'none';
-                        document.body.style.overflow = 'hidden';
                     }
                 });
             }
@@ -649,38 +597,6 @@
             });
         }
 
-        // --- NOVO: Funkcija za slanje slike privatno ---
-        async function posaljiSlikuPrivatno(imageData) { // imageData je Base64 string kompresirane slike
-            if (!imageData || !trenutniChatPartnerId) {
-                alert("Nema slike za poslati ili nije odabran primatelj.");
-                return;
-            }
-
-            const posaljiBtn = document.getElementById('posaljiPrivatnoBtn');
-            // Ne onemogućavamo ovdje posaljiBtn jer se koristi za tekstualne poruke.
-            // Ako želite vizualnu povratnu informaciju, možete prikazati loading spinner negdje drugdje.
-
-            try {
-                const response = await authenticatedFetch('/api/messages', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ receiverId: trenutniChatPartnerId, imageUrl: imageData }) // Šaljemo imageUrl
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    console.log("Slika uspješno poslana:", data);
-                    await dohvatiSvePoruke(); // Osvježi poruke nakon slanja
-                    prikaziPrivatniLog(); // Prikaz nove poruke
-                } else {
-                    alert("Greška pri slanju slike: " + data.message);
-                }
-            } catch (error) {
-                console.error("Došlo je do greške pri slanju slike:", error);
-                alert("Došlo je do greške pri slanju slike.");
-            } finally {
-                // Ovdje ne radimo ništa s posaljiBtn, jer se slanje slike ne pokreće preko njega
-            }
-        }
     </script>
 </body>
 </html>
