@@ -265,44 +265,66 @@
             }
         }
 
-        // NOVO: Glavna funkcija za rukovanje klikovima na navigacijske gumbe
+        // Glavna funkcija za rukovanje klikovima na navigacijske gumbe
         function handleNavClick(targetScreenId) {
+            const currentScreenEl = document.querySelector('.container.active-screen');
+            const currentScreenId = currentScreenEl ? currentScreenEl.id : null;
+
+            let targetNavButtonId;
+            if (targetScreenId === 'homePrikazPijanki') targetNavButtonId = 'navHome';
+            else if (targetScreenId === 'praznaTrazilica') targetNavButtonId = 'navSearch';
+            else if (targetScreenId === 'inboxPrikaz') targetNavButtonId = 'navInbox';
+            else if (targetScreenId === 'glavniDio') targetNavButtonId = 'navProfile';
+
+            // Provjeri je li se kliknulo na već aktivni gumb
             const currentActiveNavButton = document.querySelector('.bottom-nav .nav-button.active');
-            let currentTargetScreenId = '';
-
-            if (currentActiveNavButton) {
-                if (currentActiveNavButton.id === 'navHome') currentTargetScreenId = 'homePrikazPijanki';
-                else if (currentActiveNavButton.id === 'navSearch') currentTargetScreenId = 'praznaTrazilica';
-                else if (currentActiveNavButton.id === 'navInbox') currentTargetScreenId = 'inboxPrikaz';
-                else if (currentActiveNavButton.id === 'navProfile') {
-                    if (document.getElementById("profilKorisnika") && document.getElementById("profilKorisnika").style.display !== "none" && document.querySelector('.container.active-screen')?.id === 'glavniDio') {
-                        currentTargetScreenId = 'glavniDio';
-                    } else if (document.querySelector('.container.active-screen')?.id === 'editProfil') {
-                        currentTargetScreenId = 'editProfil';
-                    }
+            if (currentActiveNavButton && currentActiveNavButton.id === targetNavButtonId) {
+                // Ako je korisnik na istom glavnom ekranu, ne radimo ništa ili skrolamo na vrh
+                if (targetScreenId === 'homePrikazPijanki') {
+                    document.getElementById('pijankePregled').scrollTop = 0;
+                } else if (targetScreenId === 'inboxPrikaz') {
+                    document.getElementById('listaChatova').scrollTop = 0;
+                } else if (targetScreenId === 'praznaTrazilica') {
+                    document.getElementById('searchResults').scrollTop = 0;
                 }
+                return;
             }
 
-            // Onemogući ponovni klik na aktivni gumb
-            if (targetScreenId === currentTargetScreenId) {
-                if (targetScreenId === 'glavniDio' && currentTargetScreenId === 'editProfil') {
+            // Kada se navigira unutar glavnih nav bar ekrana, koristimo replaceState
+            // tako da se back tipka u pregledniku ponaša kako treba (ide na prethodni tab)
+            const navBarTargetScreens = ['homePrikazPijanki', 'praznaTrazilica', 'inboxPrikaz', 'glavniDio'];
+            if (currentScreenId && navBarTargetScreens.includes(currentScreenId) && navBarTargetScreens.includes(targetScreenId)) {
+                // Ako se prebacujemo između glavnih navigacijskih ekrana, zamijenite stanje u povijesti
+                history.replaceState({ screenId: targetScreenId }, '', `#${targetScreenId}`);
+                navigationStack = []; // Očisti stack jer smo se prebacili na novi glavni korijen
+            } else {
+                // Ako dolazimo na glavni navigacijski ekran iz pod-ekrana (npr. iz chata na inbox)
+                // onda pushamo trenutni ekran na stack i pushamo novi u history
+                if (currentScreenId) {
+                     // Čistimo stack jer se vraćamo na "korijensku" razinu navigacije
+                    navigationStack = [];
+                    history.pushState({ screenId: targetScreenId, fromScreenId: currentScreenId }, '', `#${targetScreenId}`);
                 } else {
-                    return;
+                    // Početno učitavanje
+                    history.replaceState({ screenId: targetScreenId }, '', `#${targetScreenId}`);
                 }
             }
-
 
             // Pozovi odgovarajuću funkciju na temelju targetScreenId
             if (targetScreenId === 'homePrikazPijanki') {
-                navigateTo(targetScreenId);
+                swap(currentScreenId, targetScreenId); // direktan swap
             } else if (targetScreenId === 'praznaTrazilica') {
-                navigateTo(targetScreenId);
-                // Ovdje se ne poziva dohvatiSvePijanke/prikaziPijankePregled
+                swap(currentScreenId, targetScreenId); // direktan swap
             } else if (targetScreenId === 'inboxPrikaz') {
-                otvoriInbox();
+                originalOtvoriInbox(); // Pozovi originalnu funkciju da obavi logiku otvaranja inboxa
+                swap(currentScreenId, targetScreenId);
             } else if (targetScreenId === 'glavniDio') {
-                prikaziMojProfil();
+                originalOtvoriProfil(trenutniKorisnik.id); // Pozovi originalnu funkciju za prikaz profila
+                swap(currentScreenId, targetScreenId);
             }
+
+            // Ažuriraj navigacijski gumb odmah
+            updateActiveNavButton(targetNavButtonId);
         }
 
         // Modificiramo DOMContentLoaded da se aplikacija odmah pokrene
@@ -336,13 +358,48 @@
                 }
             }
 
+            // NOVO: Logika za deep linking na DOMContentLoaded
             if (appInitializedSuccessfully) {
-                // Ako je korisnik uspješno provjeren, pokreni aplikaciju
+                // Pokreni aplikaciju (postavit će homePrikazPijanki kao početni ekran i u povijest)
                 pokreniAplikaciju();
+
+                if (window.location.hash) {
+                    const fullHash = window.location.hash.substring(1); // Ukloni '#'
+                    const validScreens = ['homePrikazPijanki', 'praznaTrazilica', 'inboxPrikaz', 'glavniDio', 'editProfil', 'pravilaEkran', 'odabir', 'login', 'registracija', 'privatniChat'];
+
+                    // Provjera za privatniChat sa ID-jem
+                    if (fullHash.startsWith('privatniChat-')) {
+                        const partnerId = fullHash.split('-')[1];
+                        // Prvo dohvati sve korisnike ako već nisu, da se može pronaći partner
+                        await dohvatiSveKorisnike();
+                        if (sviKorisnici.find(u => u.id == partnerId)) {
+                            navigateTo('privatniChat', false); // Navigiraj na chat ekran bez pusha
+                            await pokreniPrivatniChat(partnerId); // Pokreni specifični chat
+                            // history.replaceState({ screenId: fullHash }, '', `#${fullHash}`); // Ažuriraj history
+                        } else {
+                            // Ako partner ne postoji, idi na home
+                            navigateTo('homePrikazPijanki', false);
+                            history.replaceState({ screenId: 'homePrikazPijanki' }, '', '#homePrikazPijanki');
+                        }
+                    } else if (validScreens.includes(fullHash)) {
+                        // Za ostale validne statične ekrane
+                        navigateTo(fullHash, false); // Navigiraj na taj ekran bez pusha
+                        // history.replaceState({ screenId: fullHash }, '', `#${fullHash}`); // Ažuriraj history
+                    } else {
+                        // Ako hash nije validan, vratite se na home
+                        navigateTo('homePrikazPijanki', false);
+                        history.replaceState({ screenId: 'homePrikazPijanki' }, '', '#homePrikazPijanki');
+                    }
+                } else {
+                    // Ako nema hash-a, pokreni aplikaciju na homePrikazPijanki (što je već urađeno s pokreniAplikaciju)
+                    // history.replaceState({ screenId: 'homePrikazPijanki' }, '', '#homePrikazPijanki');
+                }
             } else {
                 // Inače, prikaži intro ekran i sakrij UI elemente
-                navigateTo('intro');
+                navigateTo('intro', false); // Postavi 'intro' kao početno stanje povijesti
                 toggleAppUI(false);
+                // Osigurajte da je intro u history ako nema tokena
+                history.replaceState({ screenId: 'intro' }, '', '#intro');
             }
 
             // Inicijalizacija listenera za privatniInput (ovo može ostati isto)
@@ -363,7 +420,7 @@
                 });
             }
 
-            // NOVO: Listener za input za slike u chatu
+            // Listener za input za slike u chatu
             const imageUploadChatEl = document.getElementById("imageUploadChat");
             if (imageUploadChatEl) {
                 imageUploadChatEl.addEventListener("change", async function() {
@@ -381,14 +438,14 @@
                 });
             }
 
-            // NOVO: Postavite event listenere za modal za slike
+            // Postavite event listenere za modal za slike
             const imageModal = document.getElementById('imageModal');
             const closeImageModal = document.querySelector('.close-image-modal');
             if (closeImageModal) {
                 closeImageModal.onclick = function() {
                     imageModal.style.display = 'none';
                     // Vratite skrolanje tijelu kad se modal zatvori
-                    document.body.style.overflow = 'hidden';
+                    document.body.style.overflow = ''; // Vratite na default
                 };
             }
             if (imageModal) {
@@ -396,28 +453,19 @@
                 imageModal.addEventListener('click', function(event) {
                     if (event.target === imageModal) {
                         imageModal.style.display = 'none';
-                        document.body.style.overflow = 'hidden';
+                        document.body.style.overflow = ''; // Vratite na default
                     }
                 });
             }
         });
 
         // Modificiramo pokreniAplikaciju da prikaže UI i postavi aktivni gumb
-        const originalPokreniAplikaciju = pokreniAplikaciju;
-        pokreniAplikaciju = function() {
-            originalPokreniAplikaciju();
-            toggleAppUI(true);
-            navigateTo('homePrikazPijanki');
-            // Ovdje također osiguraj da se podaci ponovno dohvate pri pokretanju aplikacije nakon prijave
-            globalRefreshUI();
-        };
+        // Ne diramo pokreniAplikaciju ovdje, originalna je sada u script.js
+        // Ona već radi sve što treba: postavlja homePrikazPijanki kao početni ekran i history.replaceState.
 
         // Modificiramo odjaviSe da sakrije UI
-        const originalOdjaviSe = odjaviSe;
-        odjaviSe = function() {
-            originalOdjaviSe();
-            toggleAppUI(false);
-        };
+        // Ne diramo odjaviSe ovdje, originalna je sada u script.js
+        // Ona već radi sve što treba: vraća na intro i history.replaceState.
 
         // Funkcija koja se poziva nakon što se swap završi, da ažurira aktivni nav gumb
         function afterSwapUpdateNavButton(targetScreenId) {
@@ -434,8 +482,13 @@
             } else if (targetScreenId === 'inboxPrikaz') {
                 updateActiveNavButton('navInbox');
             } else if (targetScreenId === 'glavniDio') {
+                // Provjerite koji je pod-ekran aktivan unutar 'glavniDio'
                 if (document.getElementById("profilKorisnika") && document.getElementById("profilKorisnika").style.display !== "none") {
                     updateActiveNavButton('navProfile');
+                } else if (document.getElementById("objavaForma") && document.getElementById("objavaForma").style.display !== "none") {
+                    document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
+                        button.classList.remove('active');
+                    });
                 } else {
                     document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                         button.classList.remove('active');
@@ -443,197 +496,52 @@
                 }
             } else if (targetScreenId === 'editProfil') {
                 updateActiveNavButton('navProfile');
-            }
-            else if (targetScreenId === 'privatniChat') {
+            } else if (targetScreenId === 'privatniChat') {
                 document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                     button.classList.remove('active');
                 });
-            }
-            else {
+            } else {
                 document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                     button.classList.remove('active');
                 });
             }
         }
 
-        // Modificiramo navigateTo da odmah prikaže novi ekran i ažurira nav gumb
-        const originalNavigateTo = navigateTo;
-        navigateTo = function(targetScreenId) {
-            const currentScreenEl = document.querySelector('.container.active-screen');
-            // Dodan praznaTrazilica u navBarTargetScreens
-            const navBarTargetScreens = ['homePrikazPijanki', 'praznaTrazilica', 'inboxPrikaz', 'glavniDio', 'editProfil'];
+        // Originalne funkcije koje su preuzete i zamijenjene u script.js
+        // Moramo ih redefinirati ovdje unutar DOMContentLoaded da se koriste pravilno
+        // jer su njihove reference u script.js unutar `window.addEventListener('popstate')`
+        // ili drugih poziva, pa ne mozemo izbrisati originalne definicije.
 
-            // Prikazi/sakrij confirm-button na editProfilu
-            const confirmButton = document.getElementById('sacuvajProfilBtn');
-            if (confirmButton) {
-                if (targetScreenId === 'editProfil') {
-                    confirmButton.classList.remove('hidden');
-                } else {
-                    confirmButton.classList.add('hidden');
-                }
-            }
-
-            if (currentScreenEl && !navBarTargetScreens.includes(targetScreenId)) {
-                if (!(navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId))) {
-                    navigationStack.push(currentScreenEl.id);
-                }
-            } else if (currentScreenEl && targetScreenId === 'glavniDio' && document.getElementById("profilKorisnika").style.display !== "none") {
-            } else if (currentScreenEl && targetScreenId === 'glavniDio' && currentScreenEl.id === 'editProfil') {
-            }
-            else if (currentScreenEl && targetScreenId === 'privatniChat' && currentScreenEl.id.includes('Chat')) {
-            }
-            else if (currentScreenEl && !navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId)) {
-            }
-            else if (currentScreenEl && targetScreenId === 'glavniDio' && document.getElementById("objavaForma").style.display !== "none") {
-            }
-            else {
-            }
-
-            swap(currentScreenEl ? currentScreenEl.id : null, targetScreenId);
-            afterSwapUpdateNavButton(targetScreenId);
-        };
-
-        // Modificiramo navigateBack - potrebno je osigurati da se animacija završi
-        const originalNavigateBack = navigateBack;
-        navigateBack = function() {
-            const targetScreenIdAfterBack = navigationStack[navigationStack.length - 1];
-
-            originalNavigateBack();
-
-            setTimeout(() => {
-                const newActiveScreenEl = document.querySelector('.container.active-screen');
-                if (newActiveScreenEl) {
-                    afterSwapUpdateNavButton(newActiveScreenEl.id);
-                } else {
-                    document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
-                        button.classList.remove('active');
-                    });
-                }
-
-                // Sakrij confirm-button kad se vraćamo s editProfila
-                const confirmButton = document.getElementById('sacuvajProfilBtn');
-                if (confirmButton) {
-                    if (newActiveScreenEl && newActiveScreenEl.id !== 'editProfil') {
-                        confirmButton.classList.add('hidden');
-                    }
-                }
-
-            }, 300);
-        };
-
-        // Kada se otvara profil, ažuriraj nav gumb i sakrij FAB
-        const originalOtvoriProfil = otvoriProfil;
+        const originalOtvoriProfil = otvoriProfil; // Spremi originalnu funkciju
         otvoriProfil = function(korisnikId) {
-            navigateTo('glavniDio');
-
-            const korisnik = sviKorisnici.find(u => u.id === korisnikId);
-            if (!korisnik) return;
-
-            const profilKorisnikaDiv = document.getElementById("profilKorisnika");
-            document.getElementById("objavaForma").style.display = "none";
-            profilKorisnikaDiv.style.display = "flex";
-
-            let actionButtons = '';
-            if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
-                document.querySelector('#glavniDio h2').innerText = "Moj profil";
-                actionButtons = `<button onclick="prikaziEditProfila()">Uredi profil</button><button class="btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
-            } else {
-                document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
-                actionButtons = `<button onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
+            const currentScreenEl = document.querySelector('.container.active-screen');
+            // Ako trenutni ekran nije 'glavniDio' (profil) i profil se otvara, navigiraj na njega
+            if (currentScreenEl && currentScreenEl.id !== 'glavniDio') {
+                navigateTo('glavniDio');
             }
-
-            profilKorisnikaDiv.innerHTML = `
-                <img src="${korisnik.slika || 'default_profile.png'}" class="profilna-slika-velika">
-                <h2 style="padding-top:0; margin-bottom: 5px;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
-                <p class="profil-opis">${korisnik.opis || "Nema opisa."}</p>
-                <div class="drustvene-mreze">${prikaziMreze(korisnik)}</div>
-                <div class="profil-actions">${actionButtons}</div>
-            `;
-
-            // Sakrij back i close gumbe kada se prikazuje profil
-            document.querySelector('#glavniDio .back-button').style.display = 'none';
-            document.querySelector('#glavniDio .close-btn').style.display = 'none';
+            originalOtvoriProfil(korisnikId); // Pozovi originalnu funkciju za prikaz sadržaja
         };
 
-        // Kada se otvara inbox, ažuriraj nav gumb i sakrij FAB
-        const originalOtvoriInbox = otvoriInbox;
+        const originalOtvoriInbox = otvoriInbox; // Spremi originalnu funkciju
         otvoriInbox = function() {
-            navigateTo('inboxPrikaz');
-
-            const div = document.getElementById("listaChatova");
-            div.innerHTML = "";
-
-            dohvatiSvePoruke().then(() => {
-                const chatKeys = (trenutniKorisnik && trenutniKorisnik.id) ? Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id)) : [];
-                if (chatKeys.length === 0) {
-                    div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
-                } else {
-                    // Sortiraj po vremenu zadnje poruke, najnovije prvo
-                    chatKeys.sort((a, b) => {
-                        const timeA = privatnePoruke[a]?.slice(-1)[0]?.time;
-                        const timeB = privatnePoruke[b]?.slice(-1)[0]?.time;
-                        if (!timeA) return 1; // Ako nema poruka, premjesti ga na kraj
-                        if (!timeB) return -1; // Ako nema poruka, premjesti ga na kraj
-                        return new Date(timeB) - new Date(timeA);
-                    })
-                    .forEach(chatKey => {
-                        const partnerId = chatKey.split("-").find(id => id !== trenutniKorisnik.id);
-                        const partner = sviKorisnici.find(u => u.id == partnerId);
-                        if (!partner) return;
-
-                        // --- START: Nova logika za dohvaćanje detalja zadnje poruke ---
-                        const svePorukeChata = privatnePoruke[chatKey] || [];
-                        const zadnjaPorukaObj = svePorukeChata.length > 0 ? svePorukeChata[svePorukeChata.length - 1] : null;
-
-                        let zadnjaPorukaPreview = "Započnite razgovor";
-                        if (zadnjaPorukaObj) {
-                            if (zadnjaPorukaObj.imageUrl) {
-                                zadnjaPorukaPreview = "📷 Slika";
-                            } else if (zadnjaPorukaObj.tekst) {
-                                zadnjaPorukaPreview = zadnjaPorukaObj.tekst;
-                            }
-                        }
-
-                        const vrijemePoruke = zadnjaPorukaObj ? new Date(zadnjaPorukaObj.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' }) : '';
-                        const neprocitaneCount = svePorukeChata.filter(m => !m.isRead && m.autorId == partner.id).length;
-                        const status = formatirajStatus(partner.lastActive);
-                        // --- END: Nova logika ---
-
-                        // --- START: Novi, redizajnirani HTML za chat-item ---
-                        div.innerHTML += `
-                            <div class="chat-item" data-partner-name="${partner.ime.toLowerCase()}" onclick="pokreniPrivatniChat('${partner.id}')">
-                                <div class="chat-profilna-wrapper">
-                                    <img src="${partner.slika || 'default_profile.png'}" class="chat-item-profilna" alt="profilna">
-                                    <span class="status-dot ${status.online ? 'online' : 'offline'}"></span>
-                                </div>
-                                <div class="chat-item-info">
-                                    <div class="chat-item-info-text">
-                                        <strong>${partner.ime}</strong>
-                                        <p class="status-text">${zadnjaPorukaPreview}</p>
-                                    </div>
-                                    <div class="chat-meta-info">
-                                        <span class="chat-vrijeme">${vrijemePoruke}</span>
-                                        ${neprocitaneCount > 0 ? `<span class="notification-badge-chat">${neprocitaneCount}</span>` : ""}
-                                    </div>
-                                </div>
-                            </div>`;
-                        // --- END: Novi HTML ---
-                    });
-                }
-                azurirajNotifikacije();
-            });
+            const currentScreenEl = document.querySelector('.container.active-screen');
+            // Ako trenutni ekran nije 'inboxPrikaz' i inbox se otvara, navigiraj na njega
+            if (currentScreenEl && currentScreenEl.id !== 'inboxPrikaz') {
+                navigateTo('inboxPrikaz');
+            }
+            originalOtvoriInbox(); // Pozovi originalnu funkciju za prikaz sadržaja
         };
-
 
         // Kada se pokaže objava, navigacija ostaje, ali niti jedan gumb nije "aktivan" i FAB se skriva
         const originalPokaziObjavu = pokaziObjavu;
         pokaziObjavu = function() {
-            originalPokaziObjavu();
+            originalPokaziObjavu(); // Ovdje se poziva navigateTo('glavniDio') unutar originalPokaziObjavu
             document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                 button.classList.remove('active');
             });
             document.getElementById('fabObjaviPijanku').style.display = 'none';
         };
+
 
         // NOVO: Funkcija za filtriranje chat stavki
         function filterChatItems() {
