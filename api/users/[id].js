@@ -1,10 +1,10 @@
 // api/users/[id].js
-const connectToDatabase = require('../../config'); // Prilagodi putanju ako je potrebno
-const withAuth = require('../../auth'); // Prilagodi putanju ako je potrebno
+const connectToDatabase = require('../../config'); // Putanja od api/users/[id].js do api/config.js
+const withAuth = require('../../auth'); // Putanja od api/users/[id].js do api/auth.js
 const { ObjectId } = require('mongodb');
 const cors = require('cors');
 
-const allowCors = cors({ methods: ['GET', 'PUT'], origin: '*' }); // Dozvoli GET i PUT
+const allowCors = cors({ methods: ['GET', 'PUT'], origin: '*' }); // Dozvoli GET i PUT za ovu funkciju
 
 module.exports = withAuth(async (req, res) => {
   if (req.method === 'OPTIONS') {
@@ -26,7 +26,7 @@ module.exports = withAuth(async (req, res) => {
         return res.status(400).json({ message: 'Nevažeći format korisničkog ID-a.', error: oidError.message });
       }
 
-      if (req.method === 'GET') {
+      if (req.method === 'GET') { // Logika za dohvaćanje jednog korisnika
         const user = await usersCollection.findOne({ _id: objectId }, { projection: { password: 0 } });
         if (!user) {
           return res.status(404).json({ message: 'Korisnik nije pronađen.' });
@@ -80,7 +80,7 @@ module.exports = withAuth(async (req, res) => {
 
           res.status(200).json({ message: 'Profil uspješno ažuriran.' });
 
-      } else { // Ako metoda nije ni GET ni PUT
+      } else { // Ako metoda nije ni GET ni PUT za ovaj [id].js endpoint
         res.status(405).json({ message: 'Metoda nije dozvoljena za ovu rutu.' });
       }
     } catch (error) {
