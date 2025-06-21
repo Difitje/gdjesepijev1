@@ -1,5 +1,5 @@
 /* === POCETAK CSS-a (Konačna verzija) === */
-/* public/style.css - VERZIJA 20 - Profil bez scrolla */
+/* public/style.css - VERZIJA 21 - Ekstremno smanjenje elemenata profila */
 
 * {
     box-sizing: border-box;
@@ -52,7 +52,6 @@ body::before {
     transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
     display: flex;
     flex-direction: column;
-    /* UKLONJEN overflow-y: auto; odavde, prebačen na specifične kontejnere ako treba */
     -webkit-overflow-scrolling: touch;
     position: absolute;
     padding: 20px;
@@ -81,28 +80,44 @@ body::before {
 .container {
     padding-bottom: 70px;
 }
+/* Ograničeni skrol na ovim ekranima, kao i prije */
 #homePrikazPijanki, #praznaTrazilica, #inboxPrikaz {
     padding-top: 70px;
-    overflow-y: auto; /* Dopuštamo scroll samo na ovim ekranima */
+    overflow-y: auto;
 }
 
-/* Prilagodba za profile i edit profile ekrane */
+/* Profil i Edit Profil Ekrani - Ovdje primjenjujemo fiksni izgled */
 #glavniDio, #editProfil {
-    padding-top: 70px;
-    /* NEMA overflow-y: auto ovdje, niti na profilKorisnika, da se spriječi scroll */
+    padding-top: 70px; /* Visina headera */
+    /* NEMA overflow-y: auto; ovdje, niti na profilKorisnika, niti na tabContent. Cilj: bez scrolla */
+    display: flex; /* Osigurava flexbox layout */
+    flex-direction: column; /* Vertikalni raspored */
+    justify-content: flex-start; /* Sadržaj na vrhu */
+    align-items: center; /* Centriranje horizontalno */
+    height: calc(100% - 70px - 70px); /* Visina ekrana minus top padding i bottom nav */
+    padding-bottom: 0; /* Bez paddinga na dnu, jer bottom nav ima svoj */
+    padding-left: 10px; /* Smanjeni lijevi/desni padding */
+    padding-right: 10px;
+}
+/* Za "Glavni dio" gdje su profil i objava forma */
+#glavniDio {
+    justify-content: flex-start; /* Počinje od vrha */
 }
 
-/* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
+
+/* Intro, Login, Register, Pravila Ekrani - Centrirani i bez scrolla */
 #intro, #odabir, #login, #registracija, #pravilaEkran {
     padding-top: 20px;
-    /* NEĆEMO STAVITI overflow-y: auto; ovdje jer je cilj da stane na ekran */
-    justify-content: center;
-    align-items: center;
+    overflow-y: hidden; /* Bez scrolla */
+    justify-content: center; /* Vertikalno centriranje */
+    align-items: center; /* Horizontalno centriranje */
     text-align: center;
+    padding-left: 15px; /* Manji padding */
+    padding-right: 15px;
 }
 
 
-/* === PRILAGODBA ZA privatniChat CONTAINER - ZAUZIMA CIJELI EKRAN I POMAKNUT JE ZBOG CHAT HEADERA I INPUTA === */
+/* === PRIVATNI CHAT CONTAINER === */
 #privatniChat {
     padding-top: 50px;
     height: 100vh;
@@ -112,14 +127,13 @@ body::before {
 }
 
 
-/* === NOVI STIL ZA INBOX DA BUDE PREKO CIJELOG EKRANA === */
+/* === INBOX (LISTA CHATOVA) === */
 #inboxPrikaz.container {
     padding-left: 0;
     padding-right: 0;
     padding-top: 10px;
 }
 
-/* === IZMJENA: Pozicioniranje h2 unutar inboxPrikaz === */
 #inboxPrikaz h2 {
     padding-left: 12px;
     padding-right: 12px;
@@ -141,7 +155,7 @@ body::before {
 }
 
 
-/* === NOVO: Stilovi za Search Bar u Inboxu (Redizajnirani) === */
+/* === SEARCH BAR U INBOXU === */
 .inbox-search-bar {
     width: 100%;
     padding: 10px 12px;
@@ -173,7 +187,6 @@ body::before {
     box-shadow: none !important;
     margin-bottom: 0;
 }
-
 .inbox-search-bar input:focus {
     background-color: transparent;
     border-color: transparent;
@@ -188,15 +201,14 @@ body::before {
     stroke: none;
     stroke-width: 0;
 }
-/* === KRAJ: Stilovi za Search Bar u Inboxu === */
 
 
+/* === MAIN HEADER (LOGO) === */
 .main-header {
     position: absolute; top: 0; left: 0; right: 0; height: 60px; padding: 0 10px;
     display: flex; justify-content: center; align-items: center;
     z-index: 100;
 }
-
 .main-logo {
     display: flex;
     justify-content: center;
@@ -205,13 +217,13 @@ body::before {
     margin: 0;
     padding: 0;
 }
-
 .header-logo-image {
     max-height: 65px;
     width: auto;
     object-fit: contain;
 }
 
+/* === HEADER ICONI (Ako ih imate negdje drugdje) === */
 .header-icon {
     background: transparent;
     border: none;
@@ -233,11 +245,14 @@ body::before {
 }
 .header-icon:hover svg { stroke: #ff4757; }
 
+/* === NOTIFIKACIJSKI BEDŽ (Generalni) === */
 .notification-badge-main {
     position: absolute; top: 5px; right: 5px; background-color: #e74c3c; color: white;
     border-radius: 50%; height: 18px; width: 18px; display: none;
     justify-content: center; align-items: center; font-size: 10px; font-weight: bold; border: 2px solid #1a1a1a;
 }
+
+/* === FAB BUTTON === */
 .fab {
     position: fixed;
     bottom: 90px;
@@ -259,6 +274,7 @@ body::before {
 .fab:active { transform: scale(1.05) rotate(90deg); }
 .fab svg { width: 30px; height: 30px; color: #ffffff; }
 
+/* === BOTTOM NAVIGATION BAR === */
 .bottom-nav {
     position: fixed;
     bottom: 0;
@@ -300,50 +316,41 @@ body::before {
     height: 24px;
     margin-bottom: 2px;
     transition: none !important;
-
     stroke: #b0b0b0;
     stroke-width: 1.5;
     fill: none;
 }
-
 .bottom-nav #navSearch svg {
     stroke: none;
     fill: #b0b0b0;
 }
-
 .bottom-nav .nav-button.active svg {
     stroke: #ff4757;
     fill: none;
 }
-
 .bottom-nav #navSearch.active svg {
     fill: #ff4757;
     stroke: none;
 }
-
 
 .bottom-nav .nav-button:hover:not(.active) {
     color: #e0e0e0;
     background: none !important;
     box-shadow: none !important;
 }
-
 .bottom-nav .nav-button:hover:not(.active) svg {
     stroke: #e0e0e0;
     fill: none;
 }
-
 .bottom-nav #navSearch:hover:not(.active) svg {
     fill: #e0e0e0;
     stroke: none;
 }
-
 .bottom-nav .nav-button:focus {
     outline: none !important;
     background: none !important;
     box-shadow: none !important;
 }
-
 .bottom-nav .notification-badge-main {
     top: 5px;
     right: calc(50% - 12px);
@@ -351,9 +358,7 @@ body::before {
     border: 2px solid rgba(26, 26, 26, 0.95);
 }
 
-
-#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
-
+/* === TOP NAV BUTTONS (Back/Close/Confirm) === */
 .top-nav-buttons {
     position: absolute;
     top: 15px;
@@ -365,7 +370,7 @@ body::before {
     justify-content: space-between;
     align-items: center;
 }
-
+/* Prilagodba za chat header, gdje su back button i info */
 #privatniChat .top-nav-buttons {
     height: 50px;
     top: 0;
@@ -383,7 +388,6 @@ body::before {
     pointer-events: auto;
     z-index: 52;
 }
-
 
 .back-button, .close-btn {
     pointer-events: auto; background: none; border: none; color: #f0f0f0; font-size: 28px;
@@ -411,230 +415,41 @@ body::before {
     align-items: center;
     flex-shrink: 0;
 }
-
 .confirm-button.hidden {
     display: none !important;
 }
-
 .confirm-button.loading {
     animation: spin 1s linear infinite;
     color: #f39c12;
     pointer-events: none;
 }
-
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
 .confirm-button svg {
     width: 28px;
     height: 28px;
     fill: currentColor;
 }
-
 .confirm-button:hover {
     color: #27ae60;
     transform: scale(1.1);
 }
 
-#privatniChatLog {
-    flex-grow: 1;
-    overflow-y: auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    padding: 10px;
-    display: flex;
-    flex-direction: column-reverse;
-    padding-bottom: 80px;
-}
-
-#privatniChatLog::-webkit-scrollbar {
-    display: none;
-}
-
-.chat-input-area {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    background-color: rgba(0, 0, 0, 0.95);
-    border-top: 1px solid rgba(0, 0, 0, 0.5);
-    flex-shrink: 0;
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
-    z-index: 100;
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
-    touch-action: none;
-}
-
-#privatniInput {
-    flex-grow: 1;
-    border: none;
-    border-radius: 20px;
-    background-color: #3a3a3a;
-    color: #f0f0f0;
-    font-size: 16px;
-    line-height: 1.4;
-    min-height: 40px;
-    max-height: 100px;
-    overflow-y: hidden;
-    resize: none;
-    transition: all 0.2s ease;
-    margin: 0;
-    padding: 10px 45px 10px 45px;
-    touch-action: none;
-}
-
-#privatniInput:focus {
-    outline: none;
-    background-color: #4a4a4a;
-    box-shadow: none;
-    border-color: transparent;
-}
-
-.image-upload-icon {
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 32px;
-    height: 32px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    z-index: 10;
-    background: rgba(40, 40, 40, 0.3);
-    border-radius: 50%;
-    transition: background-color 0.2s ease;
-}
-
-.image-upload-icon:hover {
-    background: rgba(40, 40, 40, 0.6);
-}
-
-.image-upload-icon svg {
-    width: 18px;
-    height: 18px;
-    fill: #f0f0f0;
-}
-
-#posaljiPrivatnoBtn {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: none;
-    padding: 0;
-    margin: 0;
-    background-color: #ff4757;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
-    z-index: 10;
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(0.5) translateY(-50%);
-    transform-origin: center center;
-}
-
-#posaljiPrivatnoBtn.enabled {
-    opacity: 1;
-    visibility: visible;
-    transform: scale(1) translateY(-50%);
-}
-
-#posaljiPrivatnoBtn:not(.enabled) {
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(0.5) translateY(-50%);
-}
-
-#posaljiPrivatnoBtn svg {
-    width: 16px;
-    height: 16px;
-    fill: #ffffff;
-    margin-left: -1px;
-}
-
-.chat-header-info {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    padding-top: 0;
-    width: 100%;
-    padding-left: 0;
-    position: absolute;
-    top: 0;
-    left: 0;
-    background-color: rgba(0, 0, 0, 0.95);
-    height: 50px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    z-index: 50;
-}
-
-.chat-partner-profilna {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1.5px solid #ff4757;
-    margin-right: 10px;
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-}
-
-.chat-partner-profilna:hover {
-    transform: scale(1.05);
-}
-
-.chat-header-info h2 {
-    margin: 0;
-    padding: 0;
-    font-size: 16px;
-    color: #f0f0f0;
-    cursor: pointer;
-    text-align: center;
-    width: auto;
-}
-.chat-header-info .status-text {
-    margin: 0;
-    padding: 0;
-    font-size: 11px;
-    color: #aaa;
-    text-align: center;
-    width: auto;
-    white-space: nowrap;
-    margin-top: -4px;
-}
-.chat-info-text-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0px;
-}
-
-h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22px; font-weight: 600; letter-spacing: 0.4px; width: 100%; }
-h2 { font-size: 20px; }
-p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
+/* === GLAVNI NASLOVI I PARAGRAFI === */
+h1, h2 { text-align: center; color: #ff4757; margin-bottom: 10px; /* Smanjeno */ font-size: 20px; /* Smanjeno */ font-weight: 600; letter-spacing: 0.4px; width: 100%; }
+h2 { font-size: 18px; /* Smanjeno */ }
+p { margin-bottom: 8px; /* Smanjeno */ color: #b0b0b0; text-align: left; width: 100%; font-size: 14px; /* Smanjeno */ }
 #intro p, #odabir p { text-align: center; }
 
+/* === GUMBI I INPUTI (Generalno) === */
 .btn-danger { background: #444; }
 .btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
 
 input, textarea, button {
-    width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333; background: #252525;
-    color: #f0f0f0; border-radius: 8px; font-size: 16px; font-family: inherit; transition: all 0.2s ease-in-out;
+    width: 100%; padding: 10px; /* Smanjeno */ margin-bottom: 8px; /* Smanjeno */ border: 1px solid #333; background: #252525;
+    color: #f0f0f0; border-radius: 6px; /* Smanjeno */ font-size: 14px; /* Smanjeno */ font-family: inherit; transition: all 0.2s ease-in-out;
     outline: none !important;
     box-shadow: none !important;
 }
@@ -642,24 +457,31 @@ input:focus, textarea:focus { outline: none !important; border-color: #ff4757; b
 button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; border: none; font-weight: bold; position: relative; text-transform: uppercase; letter-spacing: 0.8px; }
 button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
 button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
-img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
+
+/* === PROFILNE SLIKE (Općenito) === */
+img.preview-slika, img.profilna-slika { margin-top: 5px; /* Smanjeno */ width: 60px; /* Smanjeno */ height: 60px; /* Smanjeno */ border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
 img.preview-slika { display: none; }
-#previewEditSlikes { display: block; margin: 8px auto; }
-.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+#previewEditSlikes { display: block; margin: 5px auto; } /* Smanjeno */
+
+/* === STATUS TOČKICA === */
+.status-dot { height: 7px; /* Smanjeno */ width: 7px; /* Smanjeno */ border-radius: 50%; display: inline-block; flex-shrink: 0; }
 .status-dot.online { background-color: #2ecc71; }
 .status-dot.offline { background-color: #7f8c8d; }
 
-.pravila-checkbox-wrapper { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; justify-content: center; }
+/* === PRAVILA CHECKBOX === */
+.pravila-checkbox-wrapper { display: flex; align-items: center; gap: 6px; /* Smanjeno */ margin-bottom: 8px; /* Smanjeno */ justify-content: center; }
 .pravila-checkbox-wrapper input[type="checkbox"] { width: auto; margin-bottom: 0; flex-shrink: 0; }
-.pravila-checkbox-wrapper label { margin-bottom: 0; font-size: 14px; color: #f0f0f0; text-align: left; }
+.pravila-checkbox-wrapper label { margin-bottom: 0; font-size: 13px; /* Smanjeno */ color: #f0f0f0; text-align: left; }
+
+/* === PIJANKE PREGLED (Home Screen) === */
 .pijanka {
     background: rgba(255, 71, 87, 0.1);
-    padding: 15px;
-    border-radius: 10px;
-    margin: 0 auto 8px auto;
+    padding: 10px; /* Smanjeno */
+    border-radius: 8px; /* Smanjeno */
+    margin: 0 auto 6px auto; /* Smanjeno */
     display: flex;
     flex-direction: column;
-    border-left: 3px solid rgba(255, 71, 87, 0.3);
+    border-left: 2px solid rgba(255, 71, 87, 0.3); /* Smanjeno */
     transition: all 0.2s ease-in-out;
     width: 100%;
     box-sizing: border-box;
@@ -668,36 +490,38 @@ img.preview-slika { display: none; }
     background: rgba(255, 71, 87, 0.2);
     border-left-color: #ff4757;
 }
-.pijanka-header { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 8px; border-bottom: 1px solid #333; margin-bottom: 8px; width: 100%; }
-.pijanka-profilna-slika { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #ff4757; flex-shrink: 0; }
+.pijanka-header { display: flex; align-items: center; gap: 10px; /* Smanjeno */ cursor: pointer; padding-bottom: 6px; /* Smanjeno */ border-bottom: 1px solid #333; margin-bottom: 6px; /* Smanjeno */ width: 100%; }
+.pijanka-profilna-slika { width: 40px; /* Smanjeno */ height: 40px; /* Smanjeno */ border-radius: 50%; object-fit: cover; border: 2px solid #ff4757; flex-shrink: 0; }
 
-.pijanka-info { flex-grow: 1; display: flex; align-items: center; gap: 10px; }
+.pijanka-info { flex-grow: 1; display: flex; align-items: center; gap: 8px; /* Smanjeno */ }
 .pijanka-info-text { display: flex; flex-direction: column; }
-.pijanka-info strong { line-height: 1.2; font-size: 18px; color: #f0f0f0; }
-.pijanka-info .status-text { line-height: 1.2; margin: 0; padding: 0; color: #a0a0a0; }
+.pijanka-info strong { line-height: 1.1; /* Smanjeno */ font-size: 16px; /* Smanjeno */ color: #f0f0f0; }
+.pijanka-info .status-text { line-height: 1.1; /* Smanjeno */ margin: 0; padding: 0; color: #a0a0a0; font-size: 12px; /* Smanjeno */ }
 
-.delete-btn { background: none; border: none; font-size: 14px; padding: 2px; margin-left: auto; cursor: pointer; color: #777; flex-shrink: 0; line-height: 1; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; border-radius: 50%; }
+.delete-btn { background: none; border: none; font-size: 13px; /* Smanjeno */ padding: 1px; /* Smanjeno */ margin-left: auto; cursor: pointer; color: #777; flex-shrink: 0; line-height: 1; display: flex; justify-content: center; align-items: center; width: 22px; /* Smanjeno */ height: 22px; /* Smanjeno */ border-radius: 50%; }
 .delete-btn:hover { color: #ff4757; background: rgba(51, 51, 51, 0.5); box-shadow: none; transform: scale(1.05); }
-.pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 14px; text-align: left; }
+.pijanka-opis p { margin-bottom: 0; color: #e0e0e0; font-size: 13px; /* Smanjeno */ text-align: left; }
 
+
+/* === INBOX LISTA CHATOVA === */
 #listaChatova {
     padding: 0;
     margin: 0;
-    padding-top: calc(50px + 60px);
+    padding-top: calc(60px + 60px); /* Visina h2 + search bar */
     position: relative;
     z-index: 2;
 }
 
 .chat-item {
     background: transparent;
-    padding: 8px 12px;
+    padding: 6px 10px; /* Smanjeno */
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px; /* Smanjeno */
     transition: background-color 0.2s ease-in-out;
     width: 100%;
-    border-left: 4px solid transparent;
+    border-left: 3px solid transparent; /* Smanjeno */
     cursor: pointer;
     border-radius: 0;
     box-sizing: border-box;
@@ -718,20 +542,19 @@ img.preview-slika { display: none; }
 }
 
 .chat-item img {
-    width: 44px;
-    height: 44px;
+    width: 38px; /* Smanjeno */
+    height: 38px; /* Smanjeno */
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
 }
 
 .chat-profilna-wrapper .status-dot {
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    width: 12px;
-    height: 12px;
-    border: 2px solid #1e1e1e;
+    bottom: -2px; /* Prilagođeno */
+    right: -2px; /* Prilagođeno */
+    width: 10px; /* Smanjeno */
+    height: 10px; /* Smanjeno */
+    border: 1px solid #1e1e1e; /* Smanjeno */
 }
 
 .chat-item-info {
@@ -739,7 +562,7 @@ img.preview-slika { display: none; }
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px; /* Smanjeno */
     overflow: hidden;
     cursor: pointer;
     padding-top: 1px;
@@ -749,25 +572,25 @@ img.preview-slika { display: none; }
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    gap: 2px;
+    gap: 1px; /* Smanjeno */
     overflow: hidden;
 }
 
 .chat-item-info strong {
-    font-size: 15px;
+    font-size: 14px; /* Smanjeno */
     font-weight: 500;
     color: #f0f0f0;
     white-space: nowrap;
-    line-height: 1.3;
+    line-height: 1.2; /* Smanjeno */
 }
 
 .chat-item-info .status-text {
-    font-size: 13px;
+    font-size: 11px; /* Smanjeno */
     color: #888;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.3;
+    line-height: 1.2; /* Smanjeno */
     margin: 0;
     padding: 0;
 }
@@ -776,13 +599,13 @@ img.preview-slika { display: none; }
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 5px;
+    gap: 3px; /* Smanjeno */
     flex-shrink: 0;
     padding-top: 1px;
 }
 
 .chat-vrijeme {
-    font-size: 12px;
+    font-size: 10px; /* Smanjeno */
     color: #888;
     white-space: nowrap;
 }
@@ -790,36 +613,45 @@ img.preview-slika { display: none; }
 .notification-badge-chat {
     background-color: #ff4757;
     color: white;
-    min-width: 18px;
-    height: 18px;
-    border-radius: 9px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 11px;
+    min-width: 16px; /* Smanjeno */
+    height: 16px; /* Smanjeno */
+    border-radius: 8px; /* Smanjeno */
+    font-size: 10px; /* Smanjeno */
     font-weight: 600;
-    padding: 0 4px;
+    padding: 0 3px; /* Smanjeno */
 }
 
-.notification-badge-chat:empty {
+/* === CHAT LOG (PRIVATNI CHAT) === */
+#privatniChatLog {
+    flex-grow: 1;
+    overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    padding: 8px; /* Smanjeno */
+    display: flex;
+    flex-direction: column-reverse;
+    padding-bottom: 80px; /* Visina inputa i paddinga */
+}
+#privatniChatLog::-webkit-scrollbar {
     display: none;
 }
 
+/* === PORUKA BALONI U CHATU === */
 .poruka-wrapper {
     display: flex;
     flex-direction: column;
-    margin-bottom: 12px;
+    margin-bottom: 8px; /* Smanjeno */
     width: 100%;
 }
 
 .poruka-balon {
-    padding: 8px 12px;
-    border-radius: 18px;
-    max-width: 85%;
+    padding: 6px 10px; /* Smanjeno */
+    border-radius: 12px; /* Smanjeno */
+    max-width: 80%; /* Smanjeno */
     word-wrap: break-word;
-    font-size: 15px;
+    font-size: 14px; /* Smanjeno */
     margin: 0;
-    line-height: 1.4;
+    line-height: 1.3; /* Smanjeno */
     background: #3a3a3a;
     color: #f0f0f0;
 }
@@ -827,7 +659,6 @@ img.preview-slika { display: none; }
     background: #ff4757;
     color: white;
 }
-
 .poruka-balon.image-message-bubble {
     padding: 0;
     background: transparent !important;
@@ -835,48 +666,39 @@ img.preview-slika { display: none; }
     box-shadow: none !important;
     overflow: hidden;
 }
-
 .chat-image-thumbnail {
-    width: 120px;
-    height: 120px;
+    width: 100px; /* Smanjeno */
+    height: 100px; /* Smanjeno */
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 6px; /* Smanjeno */
     cursor: pointer;
     display: block;
     transition: transform 0.2s ease-in-out;
 }
-
 .chat-image-thumbnail:hover {
     transform: scale(1.02);
 }
-
 .moja-poruka .poruka-balon.image-message-bubble {
-    background: transparent !important;
-    border-bottom-right-radius: 18px;
+    border-bottom-right-radius: 12px; /* Prilagođeno */
 }
 .tudja-poruka .poruka-balon.image-message-bubble {
-    background: transparent !important;
-    border-bottom-left-radius: 18px;
+    border-bottom-left-radius: 12px; /* Prilagođeno */
 }
 
 .poruka-vrijeme {
-    font-size: 11px;
+    font-size: 10px; /* Smanjeno */
     color: #888;
-    margin-top: 4px;
+    margin-top: 2px; /* Smanjeno */
 }
-
 .moja-poruka {
     align-items: flex-end;
 }
-
 .moja-poruka .poruka-balon {
     border-bottom-right-radius: 4px;
 }
 .moja-poruka .poruka-vrijeme {
-    margin-right: 8px;
+    margin-right: 6px; /* Smanjeno */
 }
-
-
 .tudja-poruka {
     align-items: flex-start;
 }
@@ -884,596 +706,266 @@ img.preview-slika { display: none; }
     border-bottom-left-radius: 4px;
 }
 .tudja-poruka .poruka-vrijeme {
-    margin-left: 8px;
+    margin-left: 6px; /* Smanjeno */
 }
 
+
+/* === IMAGE MODAL (Prikaz slika preko cijelog ekrana) === */
 .image-modal {
     display: none;
     position: fixed;
     z-index: 200;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
+    left: 0; top: 0; width: 100%; height: 100%; overflow: auto;
     background-color: rgba(0, 0, 0, 0.9);
-    justify-content: center;
-    align-items: center;
+    justify-content: center; align-items: center;
 }
-
 .image-modal-content {
-    margin: auto;
-    display: block;
-    max-width: 95%;
-    max-height: 95vh;
-    object-fit: contain;
+    margin: auto; display: block; max-width: 90%; /* Smanjeno */ max-height: 90vh; /* Smanjeno */ object-fit: contain;
 }
-
 .close-image-modal {
-    position: absolute;
-    top: 15px;
-    right: 35px;
-    color: #f1f1f1;
-    font-size: 40px;
-    font-weight: bold;
-    transition: 0.3s;
-    cursor: pointer;
-    z-index: 201;
+    position: absolute; top: 10px; /* Smanjeno */ right: 20px; /* Smanjeno */
+    color: #f1f1f1; font-size: 36px; /* Smanjeno */ font-weight: bold; transition: 0.3s; cursor: pointer; z-index: 201;
 }
-
-.close-image-modal:hover,
-.close-image-modal:focus {
-    color: #bbb;
-    text-decoration: none;
-    cursor: pointer;
+.close-image-modal:hover, .close-image-modal:focus {
+    color: #bbb; text-decoration: none; cursor: pointer;
 }
 
 
-#splashScreen {
-    display: none;
-}
-#splashScreen h1 {
-    display: none;
-}
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
-@keyframes bounceIn { 0% { transform: scale(0.1); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
-@keyframes fadeOutSplash { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
-
-#profilKorisnika button {
-    background: rgba(30, 30, 30, 0.3);
-    box-shadow: none !important;
-    border: 1px solid rgba(51, 51, 51, 0.2);
-    outline: none !important;
-}
-
-#profilKorisnika button:hover {
-    background: rgba(40, 40, 40, 0.6);
-    transform: none;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-#editProfil {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    overflow-y: auto;
-}
-
-#editProfil h2 {
-    margin-bottom: 25px;
-}
-
-.profile-picture-edit-wrapper {
-    position: relative;
-    width: 100px;
-    height: 100px;
-    margin-bottom: 20px;
-    cursor: pointer;
-}
-
-#editProfil .profilna-slika {
-    margin: 0;
-    border: 3px solid #ff4757;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    display: block;
-}
-
-.camera-icon-overlay {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    background-color: rgba(255, 71, 87, 0.9);
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid #1e1e1e;
-    transition: background-color 0.2s ease;
-}
-
-.camera-icon-overlay:hover {
-    background-color: #e03f4d;
-}
-
-.camera-icon-overlay svg {
-    width: 18px;
-    height: 18px;
-    fill: #ffffff;
-}
-
-#editProfil label {
-    align-self: flex-start;
-    margin-bottom: 8px;
-    color: #e0e0e0;
-    font-size: 15px;
-    font-weight: 500;
-}
-
-#editProfil input[type="text"],
-#editProfil input[type="password"],
-#editProfil textarea {
-    width: 100%;
-    margin-bottom: 18px;
-    background: #1e1e1e;
-    border: 1px solid #2a2a2a;
-    border-radius: 12px;
-    padding: 14px;
-    color: #f0f0f0;
-    font-size: 16px;
-    resize: none;
-}
-
-#editProfil input[type="text"]:focus,
-#editProfil input[type="password"]:focus,
-#editProfil textarea:focus {
-    border-color: #ff4757;
-    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.3);
-}
-
-#objavaForma button {
-    background: rgba(255, 71, 87, 0.3);
-    border: none;
-    font-weight: bold;
-    position: relative;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-#objavaForma button:hover {
-    background: rgba(255, 71, 87, 0.6);
-    transform: none;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-/* === NOVI DIZAJN PROFILA (Moderno i luksuzno) - AŽURIRANO I OPTIMIZIRANO ZA SCROLL === */
-
+/* === PROFILE I EDIT PROFILE SPECIFIČNI STILOVI === */
 #profilKorisnika {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding-top: 20px;
+    padding-top: 10px; /* Smanjeno */
     background: transparent;
     border-radius: 0;
     box-shadow: none;
     width: 100%;
-    height: 100%;
-    position: relative;
-    /* UKLONJEN overflow-y: auto; da se spriječi skrolanje na profilu */
+    /* Visina se računa da stane na ekran */
+    height: 100%; /* Ovo je visina unutar #glavniDio, koji ima fiksnu visinu */
+    overflow-y: hidden; /* KLJUČNO: Nema scrolla na samom profilu */
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 80px;
+    padding-bottom: 0; /* Nema paddinga na dnu, jer je visina fiksna */
 }
 
-/* UKLONJENI stilovi za skrolbar unutar #profilKorisnika */
+/* Stilovi za edit profil - slična filozofija */
+#editProfil {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-y: hidden; /* KLJUČNO: Nema scrolla na edit profilu */
+    padding-top: 10px; /* Smanjeno */
+}
+#editProfil h2 {
+    margin-bottom: 15px; /* Smanjeno */
+    font-size: 20px; /* Smanjeno */
+}
+
+.profile-picture-edit-wrapper {
+    position: relative;
+    width: 80px; /* Smanjeno */
+    height: 80px; /* Smanjeno */
+    margin-bottom: 15px; /* Smanjeno */
+    cursor: pointer;
+}
+#editProfil .profilna-slika {
+    width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid #ff4757;
+}
+.camera-icon-overlay {
+    bottom: 0; right: 0; width: 28px; /* Smanjeno */ height: 28px; /* Smanjeno */ border: 1px solid #1e1e1e; /* Smanjeno */
+}
+.camera-icon-overlay svg {
+    width: 16px; /* Smanjeno */ height: 16px; /* Smanjeno */
+}
+
+#editProfil label {
+    margin-bottom: 5px; /* Smanjeno */ font-size: 14px; /* Smanjeno */
+}
+#editProfil input[type="text"],
+#editProfil input[type="password"],
+#editProfil textarea {
+    padding: 10px; /* Smanjeno */ margin-bottom: 10px; /* Smanjeno */ border-radius: 8px; /* Smanjeno */ font-size: 14px; /* Smanjeno */
+}
+#editProfil input[type="text"]:focus,
+#editProfil input[type="password"]:focus,
+#editProfil textarea:focus {
+    box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2); /* Smanjeno */
+}
 
 
+/* === PROFIL HEADER (Slika, Ime, Status) === */
 .profile-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 30px;
-    width: 100%;
+    margin-bottom: 15px; /* Smanjeno */
 }
-
 .profilna-slika-velika {
-    width: 120px;
-    height: 120px;
-    border: 4px solid #ff4757;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 15px;
-    transition: transform 0.3s ease-in-out;
+    width: 90px; /* Smanjeno */
+    height: 90px; /* Smanjeno */
+    border: 3px solid #ff4757; /* Smanjeno */
+    margin-bottom: 10px; /* Smanjeno */
 }
-
-.profilna-slika-velika:hover {
-    transform: scale(1.05);
-}
-
 #profilKorisnika h2 {
-    font-size: 28px;
-    color: #f0f0f0;
-    margin-bottom: 8px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+    font-size: 22px; /* Smanjeno */
+    margin-bottom: 5px; /* Smanjeno */
 }
-
 .status-text {
-    font-size: 14px;
-    color: #999;
-    margin-bottom: 20px;
+    font-size: 13px; /* Smanjeno */
+    margin-bottom: 10px; /* Smanjeno */
 }
 
+/* === BROJAČI (Pratitelja, Pratim) === */
 .profile-stats {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    max-width: 400px;
-    margin-bottom: 30px;
-    padding: 10px 0;
-    border-top: 1px solid #222;
-    border-bottom: 1px solid #222;
+    margin-bottom: 15px; /* Smanjeno */
+    padding: 5px 0; /* Smanjeno */
 }
-
 .stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 16px;
-    color: #f0f0f0;
-    cursor: pointer;
-    transition: color 0.2s ease;
+    font-size: 14px; /* Smanjeno */
 }
-
-.stat-item:hover {
-    color: #ff4757;
-}
-
 .stat-item strong {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    color: #ff4757;
+    font-size: 18px; /* Smanjeno */
+    margin-bottom: 2px; /* Smanjeno */
 }
-
 .stat-item span {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #aaa;
+    font-size: 10px; /* Smanjeno */
 }
 
+/* === AKCIJSKI GUMBI (Prati/Otprati, Poruka) === */
 .profil-actions {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    gap: 15px;
-    width: 100%;
-    max-width: 500px;
-    margin-bottom: 40px;
-    padding: 0 15px;
+    gap: 10px; /* Smanjeno */
+    margin-bottom: 20px; /* Smanjeno */
+    padding: 0 10px; /* Smanjeno */
 }
-
 .profil-actions button {
-    flex: 1;
-    padding: 12px 20px;
-    border-radius: 25px;
-    font-size: 15px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    transition: all 0.2s ease-in-out;
+    padding: 8px 15px; /* Smanjeno */
+    border-radius: 20px; /* Smanjeno */
+    font-size: 14px; /* Smanjeno */
+    letter-spacing: 0.5px; /* Smanjeno */
 }
-
 .btn-primary {
-    background: linear-gradient(45deg, #ff4757, #e03f4d);
-    color: white;
-    border: none;
-    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+    box-shadow: 0 2px 10px rgba(255, 71, 87, 0.3); /* Smanjeno */
 }
-
 .btn-primary:hover {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.6);
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4); /* Smanjeno */
 }
-
 .btn-secondary {
-    background: #2a2a2a;
-    color: #f0f0f0;
-    border: 1px solid #3a3a3a;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.2); /* Smanjeno */
 }
-
 .btn-secondary:hover {
-    background: #3a3a3a;
-    border-color: #ff4757;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3); /* Smanjeno */
 }
 
+/* === OPIS KORISNIKA === */
+.profil-opis {
+    margin-bottom: 15px; /* Smanjeno */
+    font-size: 13px; /* Smanjeno */
+    padding: 0 10px; /* Dodan padding da opis ne bude preširok */
+}
+
+/* === DRUŠTVENE MREŽE === */
 .drustvene-mreze {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 40px;
-    width: 100%;
+    gap: 15px; /* Smanjeno */
+    margin-bottom: 20px; /* Smanjeno */
 }
-
 .mreza-ikonica {
-    width: 32px;
-    height: 32px;
-    filter: grayscale(100%);
-    opacity: 0.7;
-    transition: all 0.3s ease-in-out;
+    width: 28px; /* Smanjeno */
+    height: 28px; /* Smanjeno */
 }
 
-.mreza-ikonica:hover {
-    filter: grayscale(0%);
-    opacity: 1;
-    transform: translateY(-3px) scale(1.1);
-}
-
+/* === TABOVI SADRŽAJA PROFILA === */
 .profile-content-tabs {
-    width: 100%;
-    max-width: 800px;
-    display: flex;
-    justify-content: center;
-    border-bottom: 1px solid #222;
-    margin-bottom: 20px;
+    margin-bottom: 10px; /* Smanjeno */
 }
-
 .tab-button {
-    background: none;
-    border: none;
-    padding: 15px 20px;
-    color: #888;
-    font-size: 16px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    cursor: pointer;
-    transition: color 0.2s ease, border-bottom-color 0.2s ease;
-    border-bottom: 3px solid transparent;
-    flex-grow: 1;
-    text-align: center;
+    padding: 10px 15px; /* Smanjeno */
+    font-size: 14px; /* Smanjeno */
+    letter-spacing: 0.5px; /* Smanjeno */
+    border-bottom: 2px solid transparent; /* Smanjeno */
 }
 
-.tab-button.active {
-    color: #ff4757;
-    border-bottom-color: #ff4757;
-}
-
-.tab-button:hover:not(.active) {
-    color: #f0f0f0;
-}
-
+/* === TAB SADRŽAJ (Objave) === */
 .tab-content {
-    width: 100%;
-    /* UKLONJEN max-height i overflow-y da se spriječi scroll unutar taba */
-    padding: 10px;
-    display: none;
+    /* UKLONJEN max-height i overflow-y odavde */
+    padding: 5px; /* Smanjeno */
+    /* NEMA SCROLLA: Ovdje se moramo osloniti na to da će sadržaj stati ili biti odrezan */
 }
-
-.tab-content.active {
-    display: block;
-}
-
-/* UKLONJENI stilovi za skrolbar unutar tab-contenta */
-
-
 .profile-post-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-    padding: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Smanjene minimalne širine */
+    gap: 10px; /* Smanjeno */
+    padding: 5px; /* Smanjeno */
 }
-
 .profile-post-item {
-    background-color: #222;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 6px; /* Smanjeno */
+    box-shadow: 0 1px 8px rgba(0,0,0,0.2); /* Smanjeno */
 }
-
-.profile-post-item:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-}
-
 .profile-post-item img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    display: block;
+    height: 100px; /* Smanjeno */
 }
-
 .profile-post-item .post-title {
-    padding: 10px;
-    font-size: 14px;
-    color: #f0f0f0;
-    font-weight: 500;
+    padding: 6px; /* Smanjeno */
+    font-size: 12px; /* Smanjeno */
 }
 
+/* === SEARCH BAR MODERN (na tražilici) === */
 .search-bar-modern {
-    width: calc(100% - 40px);
-    margin: 20px auto 10px auto;
-    padding: 12px 20px;
-    background-color: #1e1e1e;
-    border: 1px solid #2a2a2a;
-    border-radius: 28px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-    display: flex;
-    align-items: center;
-    position: relative;
-    box-sizing: border-box;
+    width: calc(100% - 20px); /* Smanjen padding containera na 10px, pa je 20px ukupno */
+    margin: 10px auto; /* Smanjeno */
+    padding: 10px 15px; /* Smanjeno */
+    border-radius: 24px; /* Smanjeno */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3); /* Smanjeno */
 }
-
 .search-bar-modern input {
-    flex-grow: 1;
-    border: none;
-    background-color: transparent;
-    color: #f0f0f0;
-    padding: 0;
-    font-size: 17px;
-    outline: none !important;
-    box-shadow: none !important;
-    margin-bottom: 0;
+    font-size: 15px; /* Smanjeno */
 }
-
-.search-bar-modern input::placeholder {
-    color: #888;
-}
-
-.search-bar-modern input:focus {
-    background-color: transparent;
-    border-color: transparent;
-    box-shadow: none;
-}
-
 .search-bar-modern .search-icon {
-    margin-left: 15px;
-    width: 24px;
-    height: 24px;
-    fill: #b0b0b0;
-    flex-shrink: 0;
-    stroke: none;
+    width: 20px; /* Smanjeno */
+    height: 20px; /* Smanjeno */
+    margin-left: 8px; /* Smanjeno */
 }
 
+/* === SEARCH RESULTS === */
 .search-results {
-    width: calc(100% - 40px);
+    width: calc(100% - 20px); /* Smanjeno */
     margin: 0 auto;
-    padding: 15px;
-    background-color: #1e1e1e;
-    border: 1px solid #2a2a2a;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    min-height: 100px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #888;
-    font-size: 15px;
-    flex-direction: column;
-    box-sizing: border-box;
+    padding: 10px; /* Smanjeno */
+    border-radius: 10px; /* Smanjeno */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2); /* Smanjeno */
+    min-height: 80px; /* Smanjeno */
+    font-size: 14px; /* Smanjeno */
 }
 
+/* === USER LIST MODAL (Pratitelji/Praćenja) === */
 .user-list-modal-content-wrapper {
-    background-color: #1c1c1c;
-    margin: auto;
-    padding: 20px;
-    border-radius: 12px;
-    max-width: 500px;
-    width: 90%;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.8);
-    position: relative;
+    padding: 15px; /* Smanjeno */
+    border-radius: 10px; /* Smanjeno */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6); /* Smanjeno */
 }
-
 .user-list-modal-content-wrapper h2 {
-    color: #ff4757;
-    margin-bottom: 20px;
-    font-size: 24px;
-    text-align: center;
-    width: 100%;
+    margin-bottom: 15px; /* Smanjeno */
+    font-size: 20px; /* Smanjeno */
 }
-
-.user-list-scroll-area {
-    overflow-y: auto;
-    flex-grow: 1;
-    -webkit-overflow-scrolling: touch;
-    padding-right: 5px;
-}
-
-.user-list-scroll-area::-webkit-scrollbar {
-    width: 8px;
-}
-
-.user-list-scroll-area::-webkit-scrollbar-track {
-    background: #2a2a2a;
-    border-radius: 10px;
-}
-
-.user-list-scroll-area::-webkit-scrollbar-thumb {
-    background: #ff4757;
-    border-radius: 10px;
-    border: 2px solid #1c1c1c;
-}
-
-.user-list-scroll-area::-webkit-scrollbar-thumb:hover {
-    background: #e03f4d;
-}
-
-
 .user-list-item {
-    display: flex;
-    align-items: center;
-    padding: 10px 15px;
-    border-bottom: 1px solid #2a2a2a;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    gap: 15px;
+    padding: 8px 12px; /* Smanjeno */
+    border-bottom: 1px solid #252525; /* Smanjeno */
+    gap: 10px; /* Smanjeno */
 }
-
-.user-list-item:last-child {
-    border-bottom: none;
-}
-
-.user-list-item:hover {
-    background-color: rgba(255, 71, 87, 0.05);
-}
-
-.user-list-avatar-wrapper {
-    position: relative;
-    flex-shrink: 0;
-}
-
 .user-list-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #ff4757;
+    width: 40px; /* Smanjeno */
+    height: 40px; /* Smanjeno */
+    border: 1px solid #ff4757; /* Smanjeno */
 }
-
 .user-list-avatar-wrapper .status-dot {
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    width: 12px;
-    height: 12px;
-    border: 2px solid #1c1c1c;
+    width: 9px; /* Smanjeno */
+    height: 9px; /* Smanjeno */
+    border: 1px solid #1c1c1c; /* Smanjeno */
 }
-
 .user-list-name {
-    flex-grow: 1;
-    font-size: 18px;
-    color: #f0f0f0;
-    font-weight: 500;
+    font-size: 16px; /* Smanjeno */
 }
-
+/* Dugme "Prati" / "Otprati" u listi korisnika - VEĆ SMANJENO U PRETHODNOJ ITERACIJI */
 .user-list-follow-btn {
-    padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.2s ease-in-out;
-    cursor: pointer;
-    flex-shrink: 0;
-    line-height: 1.2;
+    padding: 6px 12px; /* Bilo je već 6px 12px, ostaje */
+    border-radius: 16px; /* Bilo je već 16px, ostaje */
+    font-size: 12px; /* Bilo je već 12px, ostaje */
+    letter-spacing: 0.5px; /* Bilo je već 0.5px, ostaje */
 }
