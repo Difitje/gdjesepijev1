@@ -285,18 +285,17 @@ async function prikaziEditProfila() {
     document.getElementById("editIme").value = user.ime || '';
     document.getElementById("editOpis").value = user.opis || '';
     document.getElementById("editInstagram").value = user.instagram || '';
-    document.getElementById("editTiktok").value = user.tiktok || ''; // Corrected ID
-    document.getElementById("previewEditSlike").src = user.slika || 'default_profile.png';
-    // Ispravljeno: ID za prikaz slike je "previewEditSlike" a ne "previewEditSlikes"
-    document.getElementById("previewEditSlike").style.display = "block";
+    document.getElementById("editTiktok").value = user.tiktok || '';
+    // ISPRAVLJENO: Promijenjen ID iz "previewEditSlike" u "previewEditSlikes"
+    document.getElementById("previewEditSlikes").src = user.slika || 'default_profile.png';
+    document.getElementById("previewEditSlikes").style.display = "block";
 
-    odabranaEditSlika = null; // Reset odabranaEditSlika when opening edit profile
+    odabranaEditSlika = null;
 
-    // Prikazi confirm-button kada se otvori edit profil ekran
     const confirmButton = document.getElementById('sacuvajProfilBtn');
     if (confirmButton) {
         confirmButton.classList.remove('hidden');
-        confirmButton.classList.remove('loading'); // Ukloni loading stanje
+        confirmButton.classList.remove('loading');
     }
 
     navigateTo('editProfil');
