@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const reader = new FileReader();
                 reader.onload = e => {
                     odabranaEditSlika = e.target.result;
-                    const previewElement = document.getElementById("previewEditSlike");
+                    const previewElement = document.getElementById("previewEditSlikes");
                     if (previewElement) {
                         previewElement.src = odabranaEditSlika;
                         if (previewElement.style.display === "none") {
