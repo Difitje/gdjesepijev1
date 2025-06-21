@@ -4,7 +4,7 @@ const withAuth = require('./auth'); // Npr. da samo prijavljeni vide sve korisni
 const { ObjectId } = require('mongodb'); // Uvezi ObjectId
 const cors = require('cors');
 
-const allowCors = cors({ methods: ['GET', 'POST', 'PUT', 'DELETE'], origin: '*' });
+const allowCors = cors({ methods: ['GET'], origin: '*' }); // Samo GET metoda za ovaj endpoint
 
 module.exports = withAuth(async (req, res) => { // Primijeni withAuth
   if (req.method === 'OPTIONS') {
@@ -31,15 +31,12 @@ module.exports = withAuth(async (req, res) => { // Primijeni withAuth
             lastActive: user.lastActive
         }));
 
-        if (!res.status) { console.error("res.status missing in users GET!"); return res.end(JSON.stringify({ message: 'Greška servera pri dohvaćanju korisnika.' })); }
         res.status(200).json(usersToSend);
       } catch (error) {
         console.error('Greška pri dohvaćanju korisnika (api/users):', error);
-        if (!res.status) { console.error("res.status missing in users GET error!"); return res.end(JSON.stringify({ message: 'res.status missing: Greška servera pri dohvaćanju korisnika.', error: error.message })); }
         res.status(500).json({ message: 'Greška servera pri dohvaćanju korisnika.', error: error.message });
       }
-    } else { // Za POST/PUT/DELETE (koje bi bile zaštićene s withAuth)
-      if (!res.status) { console.error("res.status missing in users POST/PUT/DELETE!"); return res.end(JSON.stringify({ message: 'Metoda nije dozvoljena.' })); }
+    } else { // Nedozvoljena metoda
       res.status(405).json({ message: 'Metoda nije dozvoljena.' });
     }
   });

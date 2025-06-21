@@ -117,7 +117,42 @@
             <textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea>
             <button onclick="objaviPijanku()">Objavi</button>
         </div>
-        <div id="profilKorisnika"></div>
+        <div id="profilKorisnika" class="modern-profile-layout">
+            <div class="profile-header-section">
+                <img id="profileUserPicture" src="default_profile.png" alt="Profilna slika" class="profile-picture-lg">
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span id="statPostsCount">0</span>
+                        <span>pijanki</span>
+                    </div>
+                    <div class="stat-item">
+                        <span id="statFollowersCount">0</span>
+                        <span>pratitelja</span>
+                    </div>
+                    <div class="stat-item">
+                        <span id="statFollowingCount">0</span>
+                        <span>prati</span>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-info-section">
+                <h3 id="profileUsername">Ime Korisnika</h3>
+                <p id="profileUserDescription" class="profile-description">Opis korisnika...</p>
+                <div class="profile-social-links" id="profileSocialLinks">
+                    </div>
+                <div class="profile-actions-buttons">
+                    <button id="followButton" class="follow-btn" onclick="toggleFollow()">Učitavanje...</button>
+                    <button id="messageButton" class="message-btn" onclick="pokreniPrivatniChat(currentProfileUserId)">Poruka</button>
+                    <button id="editProfileButton" class="edit-profile-btn" onclick="prikaziEditProfila()">Uredi profil</button>
+                    <button id="logoutButton" class="logout-btn" onclick="odjaviSe()">Odjavi se</button>
+                </div>
+            </div>
+            <div class="profile-posts-grid-container">
+                <div class="profile-posts-grid" id="profilePostsGrid">
+                    </div>
+                 <p id="noPostsMessage" class="no-posts-message" style="display: none;">Ovaj korisnik nema objavljenih pijanki.</p>
+            </div>
+        </div>
     </div>
 
     <div class="container" id="privatniChat">
@@ -267,17 +302,31 @@
                 else if (currentActiveNavButton.id === 'navSearch') currentTargetScreenId = 'praznaTrazilica';
                 else if (currentActiveNavButton.id === 'navInbox') currentTargetScreenId = 'inboxPrikaz';
                 else if (currentActiveNavButton.id === 'navProfile') {
+                    // Specific logic for profile tab to determine which profile screen it should lead to.
+                    // If it's currently on the "My Profile" (glavniDio showing profilKorisnika) or "Edit Profile" (editProfil) screen
+                    // and the navProfile button is clicked, it should stay on the "My Profile" screen (glavniDio).
+                    // Otherwise, it should display "My Profile" (glavniDio) for the current user.
                     if (document.getElementById("profilKorisnika") && document.getElementById("profilKorisnika").style.display !== "none" && document.querySelector('.container.active-screen')?.id === 'glavniDio') {
+                        // User is already on their profile, keep it as target to re-render.
                         currentTargetScreenId = 'glavniDio';
                     } else if (document.querySelector('.container.active-screen')?.id === 'editProfil') {
-                        currentTargetScreenId = 'editProfil';
+                        // User is on edit profile, go back to their main profile view.
+                        currentTargetScreenId = 'glavniDio';
                     }
                 }
             }
 
             // Onemogući ponovni klik na aktivni gumb
             if (targetScreenId === currentTargetScreenId) {
-                if (targetScreenId === 'glavniDio' && currentTargetScreenId === 'editProfil') {
+                 if (targetScreenId === 'glavniDio' && currentTargetScreenId === 'glavniDio') {
+                    // If already on profile and clicking profile nav button, re-render my own profile.
+                    // This handles cases where user might have navigated to another user's profile and wants to quickly go back to their own.
+                     prikaziMojProfil(); // This will explicitly re-render my own profile.
+                     return;
+                } else if (targetScreenId === 'glavniDio' && currentTargetScreenId === 'editProfil') {
+                    // If on edit profile and clicking profile nav button, navigate to main profile.
+                    prikaziMojProfil();
+                    return;
                 } else {
                     return;
                 }

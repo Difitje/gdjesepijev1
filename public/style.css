@@ -371,7 +371,7 @@ body::before {
     stroke: #b0b0b0; /* Siva boja za ikone */
     stroke-width: 1.8;
     margin-bottom: 2px;
-    transition: none !important; /* UKLONJuje instant promjenu boje */
+    transition: none !important; /* UKLONJude instant promjenu boje */
 }
 
 .bottom-nav .nav-button.active {
@@ -555,8 +555,223 @@ body::before {
 /* .container > h2 { padding-top: 30px; } */
 
 #intro, #pravilaEkran, #odabir, #login, #registracija, #homePrikazPijanki, #praznaTrazilica { justify-content: center; align-items: center; }
-#objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
+#objavaForma { display: flex; flex-direction: column; align-items: center; }
 #privatniChat { justify-content: flex-start; align-items: stretch; }
+
+/* === NOVO: STILOVI ZA MODERN PROFIL === */
+#profilKorisnika {
+    display: flex; /* Postavite profil kao flex kontejner */
+    flex-direction: column; /* Složite sadržaj vertikalno */
+    align-items: center; /* Centrirajte stavke horizontalno */
+    padding: 20px 15px; /* Manji padding za mobilni prikaz */
+    max-width: 600px; /* Ograničite širinu na desktopu */
+    margin: 0 auto; /* Centrirajte na desktopu */
+    background: transparent; /* Uklonite pozadinu, bit će tamnija pozadina cijelog containera */
+    box-shadow: none; /* Uklonite sjenu */
+    height: 100%; /* Puni visinu containera */
+    overflow-y: auto; /* Omogućite skrolanje ako sadržaj prelazi */
+}
+
+.profile-header-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.profile-picture-lg {
+    width: 100px; /* Velika profilna slika */
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ff4757;
+    margin-bottom: 15px;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 300px; /* Ograničite širinu statistika */
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #f0f0f0;
+    font-size: 14px;
+}
+
+.stat-item span:first-child {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ff4757;
+}
+
+.profile-info-section {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#profileUsername {
+    font-size: 22px;
+    font-weight: 600;
+    color: #f0f0f0;
+    margin-bottom: 5px;
+}
+
+.profile-description {
+    font-size: 14px;
+    color: #b0b0b0;
+    margin-bottom: 15px;
+    text-align: center; /* Centrirajte opis */
+    padding: 0 10px; /* Dodajte malo paddinga s lijeve i desne strane */
+}
+
+.profile-social-links {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.profile-social-links .mreza-ikonica {
+    width: 32px;
+    height: 32px;
+}
+
+.profile-actions-buttons {
+    display: flex;
+    flex-wrap: wrap; /* Omogućite prelamanje gumba u više redova ako je potrebno */
+    justify-content: center;
+    gap: 10px; /* Razmak između gumba */
+    width: 100%;
+    max-width: 400px; /* Ograničite širinu gumba */
+}
+
+.profile-actions-buttons button {
+    flex-grow: 1; /* Neka gumbi zauzmu dostupan prostor */
+    min-width: 120px; /* Minimalna širina gumba */
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease-in-out;
+    outline: none !important;
+    box-shadow: none !important;
+    margin-bottom: 0; /* Uklonite defaultnu marginu */
+}
+
+.profile-actions-buttons .follow-btn {
+    background: #ff4757; /* Crvena za "Prati" */
+    color: white;
+    border: none;
+}
+
+.profile-actions-buttons .follow-btn.followed {
+    background: #3a3a3a; /* Tamnija boja za "Zapraćen" */
+    color: #f0f0f0;
+    border: 1px solid #555;
+}
+
+.profile-actions-buttons .follow-btn:hover {
+    background: #e03f4d;
+    transform: translateY(-1px);
+}
+.profile-actions-buttons .follow-btn.followed:hover {
+    background: #4a4a4a;
+}
+
+.profile-actions-buttons .message-btn {
+    background: #2a2a2a; /* Tamna boja za "Poruka" */
+    color: #f0f0f0;
+    border: 1px solid #444;
+}
+.profile-actions-buttons .message-btn:hover {
+    background: #3e3e3e;
+    transform: translateY(-1px);
+}
+
+.profile-actions-buttons .edit-profile-btn,
+.profile-actions-buttons .logout-btn {
+    background: none; /* Bez pozadine */
+    color: #b0b0b0;
+    border: 1px solid #555;
+}
+.profile-actions-buttons .edit-profile-btn:hover,
+.profile-actions-buttons .logout-btn:hover {
+    background: rgba(85, 85, 85, 0.2);
+    color: #f0f0f0;
+    transform: translateY(-1px);
+}
+
+
+.profile-posts-grid-container {
+    width: 100%;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-posts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 stupca */
+    gap: 5px; /* Mali razmak između slika */
+    width: 100%;
+}
+
+.profile-post-item {
+    width: 100%;
+    padding-top: 100%; /* Stvara kvadratne elemente (visina = širina) */
+    position: relative;
+    overflow: hidden;
+    background-color: #2a2a2a; /* Fallback boja */
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.profile-post-item img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Pokriva cijeli prostor, odsijeca ako je potrebno */
+    display: block;
+}
+
+.profile-post-item p,
+.profile-post-item small {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    text-align: center;
+    background-color: rgba(0,0,0,0.6);
+    padding: 5px;
+    border-radius: 4px;
+    display: block; /* Uvijek vidljiv tekst */
+    z-index: 1; /* Iznad slike */
+    max-width: 90%;
+    box-sizing: border-box;
+}
+
+.no-posts-message {
+    text-align: center;
+    color: #888;
+    margin-top: 20px;
+    font-size: 14px;
+}
+/* === KRAJ NOVIH STILOVA ZA MODERN PROFIL === */
+
 
 /* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
 .chat-input-area {
@@ -799,8 +1014,6 @@ img.preview-slika { display: none; }
 
 
 /* === POCETAK: REDIZAJN INBOXA (LISTA CHATOVA) === */
-/* #inboxPrikaz h2 je pomaknut gore, stilovi prilagođeni iznad */
-
 #listaChatova {
     padding: 0;
     margin: 0;
