@@ -1484,84 +1484,92 @@ img.preview-slika { display: none; }
 }
 
 /* === NOVO: Stilovi za modernu tražilicu (#praznaTrazilica) === */
+/* public/style.css - VERZIJA 16 - Ispravak ikona u navigaciji */
+
+/* ... (keep all your existing global styles, html, body, container, etc.) ... */
+
+/* === NOVO: Stilovi za modernu tražilicu (#praznaTrazilica) === */
 .search-bar-modern {
-    width: 100%;
-    /* REMOVED max-width: 600px; */ /* Ograničenje širine za desktop */
-    margin: 20px auto; /* Centriranje i razmak */
-    padding: 12px 20px; /* Veći padding za desktop */
-    background-color: #1e1e1e; /* Tamnija pozadina */
-    border: 1px solid #2a2a2a; /* Suptilni rub */
-    border-radius: 28px; /* Jako zaobljeni rubovi */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4); /* Luksuznija sjena */
+    width: calc(100% - 40px); /* Adjust to container's 20px padding on each side */
+    margin: 20px auto 10px auto; /* Centered, with top/bottom margin. 10px bottom from existing rule. */
+    padding: 12px 20px; /* Veći padding za desktop - keep for visual padding inside the bar */
+    background-color: #1e1e1e;
+    border: 1px solid #2a2a2a;
+    border-radius: 28px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     display: flex;
     align-items: center;
-    position: relative; /* Za pozicioniranje ikone */
+    position: relative;
+    box-sizing: border-box; /* Ensure padding is included in the width */
 }
 
 .search-bar-modern input {
     flex-grow: 1;
     border: none;
-    background-color: transparent; /* Prozirna pozadina inputa */
+    background-color: transparent;
     color: #f0f0f0;
-    padding: 0; /* Ukloni padding, jer je već na roditeljskom divu */
-    font-size: 17px; /* Malo veći font */
+    padding: 0;
+    font-size: 17px;
     outline: none !important;
     box-shadow: none !important;
-    margin-bottom: 0; /* Ukloni defaultnu marginu */
+    margin-bottom: 0;
 }
 
 .search-bar-modern input::placeholder {
-    color: #888; /* Boja placeholder teksta */
+    color: #888;
 }
 
 .search-bar-modern input:focus {
-    background-color: transparent; /* Ostaje prozirno na fokusu */
+    background-color: transparent;
     border-color: transparent;
-    box-shadow: none; /* Ukloni sjenu na fokusu, ako se pojavi */
+    box-shadow: none;
 }
 
 .search-bar-modern .search-icon {
-    margin-left: 15px; /* Razmak ikone od inputa */
-    width: 24px; /* Veličina ikone */
+    margin-left: 15px;
+    width: 24px;
     height: 24px;
-    fill: #b0b0b0; /* BOJA IKONE (FILLED) */
-    flex-shrink: 0; /* Spriječi da se ikona smanji */
-    stroke: none; /* Ukloni stroke jer je ovo fill ikona */
+    fill: #b0b0b0;
+    flex-shrink: 0;
+    stroke: none;
 }
 
 /* Stilovi za rezultate pretrage */
 .search-results {
-    width: 100%;
-    max-width: 600px;
-    margin: 20px auto;
+    width: calc(100% - 40px); /* Adjust to container's 20px padding on each side */
+    margin: 0 auto; /* Centered with no additional top margin as it follows search bar */
     padding: 15px;
     background-color: #1e1e1e;
     border: 1px solid #2a2a2a;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    min-height: 100px; /* Minimalna visina za vidljivost */
+    min-height: 100px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: #888;
     font-size: 15px;
-    flex-direction: column; /* Za centriranje teksta "Ovdje će se prikazivati..." */
+    flex-direction: column;
+    box-sizing: border-box; /* Ensure padding is included in the width */
 }
 
 /* All these rules were inside @media (max-width: 767px) block, now they are default */
+/* Apply these adjustments directly for a mobile-first "PC like mobile" design */
+
+#praznaTrazilica {
+    padding-top: 70px; /* Keep this for header spacing */
+    /* Ensure no extra padding/margin here that would push content out */
+}
+
+/* Remove or adjust these if they cause conflict, as width: calc(100% - 40px) handles it */
 /*
-@media (max-width: 767px) {
-*/
-    #praznaTrazilica {
-        padding-top: 70px; /* Razmak za header na mobilnom */
-    }
     .search-bar-modern {
-        margin-top: 10px; /* Manji razmak na vrhu na mobilnom */
-        border-radius: 12px; /* Manje zaobljeni rubovi na mobilnom */
-        max-width: none; /* Puna širina na mobilnom */
-        margin-left: 20px; /* Poravnanje s paddingom containera */
-        margin-right: 20px;
-        padding: 10px 15px; /* Manji padding na mobilnom */
+        margin-top: 10px;
+        border-radius: 12px;
+        max-width: none;
+        margin-left: 20px; // THIS WAS THE PROBLEM MAKER WITH width: 100%
+        margin-right: 20px; // THIS WAS THE PROBLEM MAKER WITH width: 100%
+        padding: 10px 15px;
     }
     .search-bar-modern input {
         font-size: 16px;
@@ -1573,9 +1581,23 @@ img.preview-slika { display: none; }
     }
     .search-results {
         max-width: none;
-        margin-left: 20px;
-        margin-right: 20px;
+        margin-left: 20px; // THIS WAS THE PROBLEM MAKER WITH width: 100%
+        margin-right: 20px; // THIS WAS THE PROBLEM MAKER WITH width: 100%
     }
+*/
+
+/* Re-apply adjusted mobile specific values to .search-bar-modern for consistency if needed */
+/* Given you removed the @media query, these specific mobile overrides become redundant if the calc() approach works for all. */
+/* If you want the search bar and results to *always* respect the 20px padding of the .container */
+/* and effectively be 20px narrower on each side than the full viewport, the calc(100% - 40px) is the correct approach. */
+
+/* Small adjustment for the inbox search bar as well, similar logic */
+.inbox-search-bar {
+    /* ... existing styles ... */
+    max-width: calc(100% - 40px); /* Changed from 24px to 40px to align with .container padding of 20px */
+    margin: 0 auto 10px auto; /* Centering it within its parent now that width is controlled */
+    /* ... rest of the styles ... */
+}
 /*
 }
 */
