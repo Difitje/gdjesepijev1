@@ -124,7 +124,7 @@
             <textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea>
             <button onclick="objaviPijanku()">Objavi</button>
         </div>
-        <div id="profilKorisnika" data-user-id=""></div> 
+        <div id="profilKorisnika" data-user-id=""></div>
     </div>
 
     <div class="container" id="privatniChat">
@@ -233,7 +233,8 @@
         <img class="image-modal-content" id="fullImage">
     </div>
 
-    <div id="userListModal" class="image-modal"> <span class="close-image-modal" onclick="closeUserListModal()">&times;</span>
+    <div id="userListModal" class="image-modal">
+        <span class="close-image-modal" onclick="closeUserListModal()">&times;</span>
         <div class="user-list-modal-content-wrapper">
             <h2 id="userListModalTitle"></h2>
             <div id="userListHtml" class="user-list-scroll-area">
@@ -282,7 +283,6 @@
                 else if (currentActiveNavButton.id === 'navSearch') currentTargetScreenId = 'praznaTrazilica';
                 else if (currentActiveNavButton.id === 'navInbox') currentTargetScreenId = 'inboxPrikaz';
                 else if (currentActiveNavButton.id === 'navProfile') {
-                    // Check if current screen is 'glavniDio' AND showing 'profilKorisnika'
                     if (document.getElementById("profilKorisnika") && document.getElementById("profilKorisnika").style.display !== "none" && document.querySelector('.container.active-screen')?.id === 'glavniDio') {
                         currentTargetScreenId = 'glavniDio';
                     } else if (document.querySelector('.container.active-screen')?.id === 'editProfil') {
@@ -291,23 +291,19 @@
                 }
             }
 
-            // Onemogući ponovni klik na aktivni gumb, osim ako si na editProfil pa želiš na moj profil
             if (targetScreenId === currentTargetScreenId) {
                 if (targetScreenId === 'glavniDio' && currentTargetScreenId === 'editProfil') {
-                    // Ovo je specifičan slučaj gdje želimo ići s editProfila na moj profil, pa dozvoli
                 } else {
-                    return; // Inače, spriječi ponovni klik na isti gumb
+                    return;
                 }
             }
 
 
-            // Pozovi odgovarajuću funkciju na temelju targetScreenId
             if (targetScreenId === 'homePrikazPijanki') {
                 navigateTo(targetScreenId);
-                prikaziPijankePregled(); // Osiguraj da se pijanke refreshaju
+                prikaziPijankePregled();
             } else if (targetScreenId === 'praznaTrazilica') {
                 navigateTo(targetScreenId);
-                // Ovdje se ne poziva dohvatiSvePijanke/prikaziPijankePregled
             } else if (targetScreenId === 'inboxPrikaz') {
                 otvoriInbox();
             } else if (targetScreenId === 'glavniDio') {
@@ -315,11 +311,9 @@
             }
         }
 
-        // Modificiramo DOMContentLoaded da se aplikacija odmah pokrene
         window.addEventListener('DOMContentLoaded', async function() {
             const token = localStorage.getItem("token");
 
-            // Sakrij sve kontejnere na početku
             document.querySelectorAll('.container').forEach(el => {
                 el.style.display = 'none';
                 el.classList.remove('active-screen', 'fade-out-screen');
@@ -328,34 +322,28 @@
             let appInitializedSuccessfully = false;
             if (token) {
                 try {
-                    // Pokušaj dohvatiti korisničke podatke pomoću tokena
                     const response = await authenticatedFetch('/api/auth/me'); // Pretpostavljam da imate /api/auth/me endpoint
                     if (response.ok) {
                         const data = await response.json();
                         trenutniKorisnik = data.user;
                         appInitializedSuccessfully = true;
                     } else {
-                        // Ako token nije validan, ukloni ga
                         console.warn("Token not valid, removing it and logging out.");
                         localStorage.removeItem("token");
                     }
                 } catch (error) {
-                    // Greška pri fetchu (npr. mreža nedostupna), ukloni token i odjavi
                     console.error("Error fetching user data with token:", error);
                     localStorage.removeItem("token");
                 }
             }
 
             if (appInitializedSuccessfully) {
-                // Ako je korisnik uspješno provjeren, pokreni aplikaciju
                 pokreniAplikaciju();
             } else {
-                // Inače, prikaži intro ekran i sakrij UI elemente
                 navigateTo('intro');
                 toggleAppUI(false);
             }
 
-            // Inicijalizacija listenera za privatniInput (ovo može ostati isto)
             const privatniInput = document.getElementById('privatniInput');
             const posaljiBtn = document.getElementById('posaljiPrivatnoBtn');
 
@@ -373,7 +361,6 @@
                 });
             }
 
-            // NOVO: Listener za input za slike u chatu
             const imageUploadChatEl = document.getElementById("imageUploadChat");
             if (imageUploadChatEl) {
                 imageUploadChatEl.addEventListener("change", async function() {
@@ -382,58 +369,50 @@
                         const reader = new FileReader();
                         reader.onload = async e => {
                             const base64Image = e.target.result;
-                            const compressedImage = await compressImage(base64Image); // Koristimo postojeću funkciju
-                            await posaljiSlikuPrivatno(compressedImage); // Nova funkcija za slanje slike
-                            imageUploadChatEl.value = ''; // Resetirajte input field da možete ponovno odabrati istu sliku
+                            const compressedImage = await compressImage(base64Image);
+                            await posaljiSlikuPrivatno(compressedImage);
+                            imageUploadChatEl.value = '';
                         };
                         reader.readAsDataURL(file);
                     }
                 });
             }
 
-            // NOVO: Postavite event listenere za modal za slike
             const imageModal = document.getElementById('imageModal');
             const closeImageModal = document.querySelector('.close-image-modal');
             if (closeImageModal) {
                 closeImageModal.onclick = function() {
                     imageModal.style.display = 'none';
-                    // Vratite skrolanje tijelu kad se modal zatvori
-                    document.body.style.overflow = 'auto'; // Promijenjeno na 'auto' za normalno skrolanje
+                    document.body.style.overflow = 'auto';
                 };
             }
             if (imageModal) {
-                // Zatvori modal klikom izvan slike (ali unutar overlay-a)
                 imageModal.addEventListener('click', function(event) {
                     if (event.target === imageModal) {
                         imageModal.style.display = 'none';
-                        document.body.style.overflow = 'auto'; // Promijenjeno na 'auto'
+                        document.body.style.overflow = 'auto';
                     }
                 });
             }
         });
 
-        // Modificiramo pokreniAplikaciju da prikaže UI i postavi aktivni gumb
         const originalPokreniAplikaciju = pokreniAplikaciju;
         pokreniAplikaciju = function() {
             originalPokreniAplikaciju();
             toggleAppUI(true);
             navigateTo('homePrikazPijanki');
-            // Ovdje također osiguraj da se podaci ponovno dohvate pri pokretanju aplikacije nakon prijave
             globalRefreshUI();
         };
 
-        // Modificiramo odjaviSe da sakrije UI
         const originalOdjaviSe = odjaviSe;
         odjaviSe = function() {
             originalOdjaviSe();
             toggleAppUI(false);
         };
 
-        // Funkcija koja se poziva nakon što se swap završi, da ažurira aktivni nav gumb
         function afterSwapUpdateNavButton(targetScreenId) {
             const fabButton = document.getElementById('fabObjaviPijanku');
             if (fabButton) {
-                // FAB je vidljiv samo na Home ekranu
                 fabButton.style.display = (targetScreenId === 'homePrikazPijanki') ? 'flex' : 'none';
             }
 
@@ -444,10 +423,9 @@
             } else if (targetScreenId === 'inboxPrikaz') {
                 updateActiveNavButton('navInbox');
             } else if (targetScreenId === 'glavniDio') {
-                // Provjeri je li trenutno prikazan profil, a ne objava
                 if (document.getElementById("profilKorisnika") && document.getElementById("profilKorisnika").style.display !== "none") {
                     updateActiveNavButton('navProfile');
-                } else { // Ako je objava forma, niti jedan nav gumb nije aktivan
+                } else {
                     document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                         button.classList.remove('active');
                     });
@@ -460,14 +438,13 @@
                     button.classList.remove('active');
                 });
             }
-            else { // Za ostale ekrane (login, register, intro...) nijedan nav gumb nije aktivan
+            else {
                 document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                     button.classList.remove('active');
                 });
             }
         }
 
-        // Modificiramo navigateTo da odmah prikaže novi ekran i ažurira nav gumb
         const originalNavigateTo = navigateTo;
         navigateTo = function(targetScreenId) {
             const currentScreenEl = document.querySelector('.container.active-screen');
@@ -482,7 +459,6 @@
                 }
             }
 
-            // Provjera je li navigacija unutar navbara (preskače push na stack)
             const isNavigatingWithinNavbar = (currentScreenEl && navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId));
             const isNavigatingFromEditToProfile = (currentScreenEl && currentScreenEl.id === 'editProfil' && targetScreenId === 'glavniDio');
             const isNavigatingFromChatToChat = (currentScreenEl && currentScreenEl.id === 'privatniChat' && targetScreenId === 'privatniChat');
@@ -496,38 +472,29 @@
             afterSwapUpdateNavButton(targetScreenId);
         };
 
-        // Modificiramo navigateBack - potrebno je osigurati da se animacija završi
         const originalNavigateBack = navigateBack;
         navigateBack = function() {
-            // Prvo pozovi originalnu funkciju navigateBack
             originalNavigateBack();
 
-            // Daj malo vremena za animaciju, pa onda ažuriraj UI
             setTimeout(() => {
                 const newActiveScreenEl = document.querySelector('.container.active-screen');
                 if (newActiveScreenEl) {
                     afterSwapUpdateNavButton(newActiveScreenEl.id);
                 } else {
-                    // Ako nema aktivnog ekrana (npr. vraćanje na intro), resetiraj nav gumbe
                     document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                         button.classList.remove('active');
                     });
                 }
 
-                // Sakrij confirm-button kad se vraćamo s editProfila
                 const confirmButton = document.getElementById('sacuvajProfilBtn');
                 if (confirmButton) {
                     if (newActiveScreenEl && newActiveScreenEl.id !== 'editProfil') {
                         confirmButton.classList.add('hidden');
                     }
                 }
-            }, 300); // Ovo vrijeme bi trebalo biti jednako trajanju fadeOut animacije
+            }, 300);
         };
 
-        // Kada se otvara profil, ažuriraj nav gumb i sakrij FAB
-        // Originalna funkcija otvoriProfil je premještena i modificirana u gornjem dijelu script.js
-
-        // Kada se pokaže objava, navigacija ostaje, ali niti jedan gumb nije "aktivan" i FAB se skriva
         const originalPokaziObjavu = pokaziObjavu;
         pokaziObjavu = function() {
             originalPokaziObjavu();
@@ -537,7 +504,6 @@
             document.getElementById('fabObjaviPijanku').style.display = 'none';
         };
 
-        // NOVO: Funkcija za filtriranje chat stavki
         function filterChatItems() {
             const searchTerm = document.getElementById('inboxSearchBarInput').value.toLowerCase();
             const chatItems = document.querySelectorAll('#listaChatova .chat-item');

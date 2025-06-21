@@ -6,20 +6,16 @@ const JWT_SECRET = process.env.JWT_SECRET;
 module.exports = (handler) => async (req, res) => {
     // --- Rute koje NE ZAHTIJEVAJU AUTENTIFIKACIJU (public rute) ---
     // Provjeravamo i URL i METODU
-    const isPublicGetUsers = req.url === '/api/users' && req.method === 'GET';
-    const isPublicGetSingleUser = req.url.match(/^\/api\/users\/[^/]+$/) && req.method === 'GET'; // Npr. /api/users/nekioid
     const isRegisterOrLogin = req.url === '/api/register' || req.url === '/api/login';
     const isPublicGetPosts = req.url === '/api/posts' && req.method === 'GET';
 
-    // === NOVO: Dodane rute za pratitelje/praćenja kao javne (GET) ===
-    const isPublicGetFollowers = req.url.match(/^\/api\/users\/[^/]+\/followers$/) && req.method === 'GET';
-    const isPublicGetFollowing = req.url.match(/^\/api\/users\/[^/]+\/following$/) && req.method === 'GET';
-    // Rute za praćenje/otpraćivanje (`/api/users/[id]/follow`) moraju OSTATI ZAŠTIĆENE,
-    // jer one mijenjaju podatke, a ne samo dohvaćaju.
-    // ===============================================================
+    // Rute unutar /api/users.js koje trebaju biti javne (samo GET metode)
+    const isPublicUsersRoute = req.url.startsWith('/api/users') && req.method === 'GET';
 
-    if (isRegisterOrLogin || isPublicGetUsers || isPublicGetSingleUser || isPublicGetPosts || isPublicGetFollowers || isPublicGetFollowing) {
+    if (isRegisterOrLogin || isPublicGetPosts || isPublicUsersRoute) {
         // Ove rute zaobilaze autentifikaciju i idu direktno na handler
+        // Važno: Za /api/users/[id]/follow i ostale PUT/DELETE/POST unutar /api/users/[id],
+        // withAuth middleware će ih uhvatiti i zahtijevati token.
         return handler(req, res);
     }
 

@@ -28,7 +28,7 @@ let odabranaEditSlika = null;
 // Nova navigacijska logika
 let navigationStack = [];
 
-// === NOVO: GLOBALNE VARIJABLE ZA SUSTAV PRATITELJA ===
+// === GLOBALNE VARIJABLE ZA SUSTAV PRATITELJA ===
 let myFollowings = []; // Niz ID-jeva korisnika koje ja pratim
 let profileFollowers = []; // Niz ID-jeva pratitelja za prikazani profil
 let profileFollowing = []; // Niz ID-jeva onih koje prikazani profil prati
@@ -89,7 +89,7 @@ function navigateBack() {
             toggleAppUI(true); // Prikazi nav bar kada se vratis iz chata
         }
         // === NOVO: Resetiraj podatke o pratiteljima/praćenju kada se vraćaš iz profila ===
-        if (currentScreenEl && currentScreenEl.id === 'glavniDio' || currentScreenEl.id === 'editProfil') {
+        if (currentScreenEl && (currentScreenEl.id === 'glavniDio' || currentScreenEl.id === 'editProfil')) {
             profileFollowers = [];
             profileFollowing = [];
         }
@@ -433,7 +433,6 @@ function pokaziObjavu() {
     document.getElementById("opisPijanke").value = "";
     document.querySelector('#glavniDio .back-button').style.display = 'none';
 
-    // IZMJENA: "X" tipka sada direktno prebacuje na homePrikazPijanki
     const closeBtn = document.querySelector('#glavniDio .close-btn');
     closeBtn.style.display = 'flex';
     closeBtn.onclick = () => {
@@ -620,7 +619,7 @@ async function otvoriProfil(korisnikId, fromRefresh = false) {
 function prikaziMreze(p) {
     let s = "";
     if (p.instagram) s += `<a href="https://instagram.com/${p.instagram}" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" class="mreza-ikonica" alt="instagram"></a>`;
-    if (p.tiktok) s += `<a href="https://www.tiktok.com/@${p.tiktok}" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" class="mreza-ikonica" alt="tiktok"></a>`; // Ispravljen TikTok URL
+    if (p.tiktok) s += `<a href="https://www.tiktok.com/@${p.tiktok}" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" class="mreza-ikonica" alt="tiktok"></a>`;
     return s || '<span style="font-size:13px; color:#888;">Nema društvenih mreža.</span>';
 }
 
@@ -871,6 +870,7 @@ async function posaljiSlikuPrivatno(imageData) {
 
 /**
  * Dohvaća listu ID-jeva korisnika koje trenutni korisnik prati.
+ * POZIVA: /api/users/me/following (GET)
  */
 async function dohvatiMojaPracenja() {
     if (!trenutniKorisnik || !trenutniKorisnik.id) {
@@ -894,6 +894,7 @@ async function dohvatiMojaPracenja() {
 /**
  * Dohvaća listu ID-jeva korisnika koji prate određenog korisnika.
  * Ažurira globalnu varijablu `profileFollowers`.
+ * POZIVA: /api/users/[id]/followers (GET)
  * @param {string} userId - ID korisnika za kojeg se dohvaćaju pratitelji.
  */
 async function dohvatiPratiteljeKorisnika(userId) {
@@ -914,6 +915,7 @@ async function dohvatiPratiteljeKorisnika(userId) {
 /**
  * Dohvaća listu ID-jeva korisnika koje određeni korisnik prati.
  * Ažurira globalnu varijablu `profileFollowing`.
+ * POZIVA: /api/users/[id]/following (GET)
  * @param {string} userId - ID korisnika za kojeg se dohvaća koga on prati.
  */
 async function dohvatiKogaKorisnikPrati(userId) {
@@ -934,6 +936,7 @@ async function dohvatiKogaKorisnikPrati(userId) {
 
 /**
  * Prebacuje stanje praćenja/otpraćivanja za određenog korisnika.
+ * POZIVA: /api/users/[id]/follow (PUT za follow, DELETE za unfollow)
  * @param {string} targetUserId - ID korisnika kojeg se prati/otprati.
  * @param {boolean} isCurrentlyFollowing - Trenutno stanje: true ako se prati, false inače.
  */
@@ -949,10 +952,6 @@ async function toggleFollow(targetUserId, isCurrentlyFollowing) {
 
     const method = isCurrentlyFollowing ? 'DELETE' : 'PUT';
     const actionText = isCurrentlyFollowing ? 'Otprati' : 'Prati';
-    const confirmMessage = isCurrentlyFollowing ? `Želite li prestati pratiti ovog korisnika?` : `Želite li pratiti ovog korisnika?`;
-
-    // Nema potrebe za confirm dijalogom za follow/unfollow, to je direktna akcija.
-    // if (!confirm(confirmMessage)) return;
 
     try {
         const response = await authenticatedFetch(`/api/users/${targetUserId}/follow`, { method: method });
@@ -980,7 +979,7 @@ async function toggleFollow(targetUserId, isCurrentlyFollowing) {
 function showUserListModal(userId, userName, listType) {
     const list = listType === 'followers' ? profileFollowers : profileFollowing;
     const title = listType === 'followers' ? `Pratitelji ${userName}` : `Pratim ${userName}`;
-    const modalContent = document.getElementById('userListModalContent');
+    const modalContent = document.getElementById('userListModalContent'); // This is not used, can remove.
     const userListHtml = document.getElementById('userListHtml');
     const userListModalTitle = document.getElementById('userListModalTitle');
 
@@ -1036,20 +1035,16 @@ function closeUserListModal() {
  * @param {HTMLElement} clickedButton - Gumb koji je kliknut.
  */
 function showProfileTab(tabId, clickedButton) {
-    // Ukloni 'active' klasu sa svih tab gumba
     document.querySelectorAll('.profile-content-tabs .tab-button').forEach(btn => {
         btn.classList.remove('active');
     });
 
-    // Dodaj 'active' klasu na kliknuti gumb
     clickedButton.classList.add('active');
 
-    // Sakrij sve tab sadržaje
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.remove('active');
     });
 
-    // Prikazi odabrani tab sadržaj
     document.getElementById(tabId).classList.add('active');
 }
 
@@ -1059,7 +1054,6 @@ function showProfileTab(tabId, clickedButton) {
  * @returns {string} - HTML string objava.
  */
 async function generateUserPostsHtml(userId) {
-    // Filtriraj svePijanke da dobiješ samo objave ovog korisnika
     const userPosts = svePijanke.filter(pijanka => pijanka.korisnikId === userId);
 
     if (userPosts.length === 0) {
@@ -1078,4 +1072,3 @@ async function generateUserPostsHtml(userId) {
     html += '</div>';
     return html;
 }
-// ===========================================
