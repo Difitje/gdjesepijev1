@@ -143,7 +143,9 @@ function proveriPrihvatanje() {
 async function globalRefreshUI() {
     if (!trenutniKorisnik) return;
     // === NOVO: Dohvati podatke o praćenjima za trenutnog korisnika ===
-    await Promise.all([ dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke(), dohvatiMojaPracenja() ]);
+    // Svi pozivi su već unutar Promise.all u pokreniAplikaciju za inicijalni load.
+    // Ovdje se samo osvježavaju podaci koji su bitni za UI prikaz
+    await Promise.all([ dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke(), dohvatiMojaPracenja() ]); // Dodano dohvatiMojaPracenja() ovdje
     // ===============================================================
 
     if (document.getElementById("homePrikazPijanki")?.classList.contains('active-screen')) { prikaziPijankePregled(); }
@@ -225,6 +227,7 @@ async function registruj() {
         const data = await response.json();
         if (response.ok) {
             alert(data.message);
+            // Nakon uspješne registracije, automatski se prijavite
             await ulogujSe(ime, sifra);
         } else {
             alert("Greška pri registraciji: " + data.message);
@@ -255,14 +258,15 @@ async function ulogujSe(usernameFromRegister = null, passwordFromRegister = null
         if (response.ok) {
             localStorage.setItem("token", data.token);
             trenutniKorisnik = data.user;
-            // === NOVO: Dohvati inicijalne podatke o praćenjima nakon prijave ===
-            await Promise.all([dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke(), dohvatiMojaPracenja()]);
-            // =================================================================
+            // OVDJE JE PROMJENA: Uklanjamo dohvaćanje podataka o praćenjima odavde.
+            // Ono će se dogoditi kada se pozove pokreniAplikaciju.
+            await Promise.all([dohvatiSveKorisnike(), dohvatiSvePijanke(), dohvatiSvePoruke()]); // Uklonjen dohvatiMojaPracenja()
             pokreniAplikaciju();
         } else {
             alert("Greška pri prijavi: " + data.message);
         }
     } catch (error) {
+        console.error("Greška pri prijavi:", error); // Dodano za lakše debuggiranje
         alert("Došlo je do greške pri prijavi.");
     } finally {
         loginBtn.disabled = false; loginBtn.textContent = 'Prijavi se';
@@ -292,10 +296,12 @@ function pokreniAplikaciju() {
 
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
-    globalDataRefreshInterval = setInterval(globalDataRefreshUI, 30e3); // Ispravak: pozivamo globalRefreshUI, ne globalDataRefreshInterval
+    globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3); // Poziv globalRefreshUI svakih 30 sekundi
 
     azurirajMojuAktivnost();
-    dohvatiLokaciju(() => {
+    dohvatiLokaciju(async () => { // Korištenje async callbacka ovdje
+        // Dohvati sva inicijalna praćenja OVDE, nakon što se korisnik prijavio
+        await dohvatiMojaPracenja(); // OVDJE JE DRUGA PROMJENA
         prikaziPijankePregled();
         azurirajNotifikacije();
     });
@@ -544,8 +550,6 @@ async function otvoriProfil(korisnikId, fromRefresh = false) {
     if (!korisnik) return;
 
     // Dohvati podatke o pratiteljima i praćenjima za prikazani profil
-    // Ove linije su ovdje bitne jer se profil može otvoriti direktno
-    // ili osvježiti putem globalRefreshUI. Uvijek želimo svježe podatke.
     await Promise.all([
         dohvatiPratiteljeKorisnika(korisnikId),
         dohvatiKogaKorisnikPrati(korisnikId)
@@ -563,7 +567,6 @@ async function otvoriProfil(korisnikId, fromRefresh = false) {
     backButton.style.display = 'none';
 
     let actionButtons = '';
-    // PROMJENA: myFollowings je već globalno ažuriran putem globalRefreshUI
     let isFollowing = myFollowings.includes(korisnikId);
     let followButtonHtml = '';
 
@@ -885,12 +888,21 @@ async function dohvatiMojaPracenja() {
         return;
     }
     try {
+        console.log("Dohvaćam moja praćenja za korisnika:", trenutniKorisnik.id);
         const response = await authenticatedFetch(`/api/users/me/following`);
         if (response.ok) {
             myFollowings = await response.json();
+            console.log("Dohvaćena moja praćenja:", myFollowings);
         } else {
             myFollowings = []; // Ako dođe do greške, resetiraj listu
-            console.error("Greška pri dohvaćanju mojih praćenja:", response.statusText);
+            console.error("Greška pri dohvaćanju mojih praćenja:", response.statusText, response.status);
+            if (response.status === 401) {
+                // Ako je 401 ovdje, znači da token više nije validan.
+                // Možda je istekao ili je poslužitelj restartan/sesija obrisana.
+                // U tom slučaju, korisnika treba odjaviti.
+                console.warn("Token nevažeći tijekom dohvaćanja praćenja. Odjavljujem korisnika.");
+                odjaviSe();
+            }
         }
     } catch (error) {
         myFollowings = [];
