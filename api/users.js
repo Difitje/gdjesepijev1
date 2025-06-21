@@ -19,20 +19,20 @@ module.exports = withAuth(async (req, res) => {
     const usersCollection = db.collection('users');
     const currentUserId = req.user ? req.user.userId : null; // ID trenutno prijavljenog korisnika (ako postoji)
 
-    // Parse path to handle different user-related routes
-    const pathParts = req.url.split('/').filter(part => part !== '');
-    // Expected paths:
-    // /api/users
-    // /api/users/[id]
-    // /api/users/me/following
-    // /api/users/[id]/activity
-    // /api/users/[id]/follow
-    // /api/users/[id]/followers
-    // /api/users/[id]/following
+    // NOVO: Parseirajte URL robustnije
+    const url = new URL(req.url, `http://${req.headers.host}`); // Kreira puni URL objekt
+    const pathSegments = url.pathname.split('/').filter(Boolean); // Podijeli pathname i ukloni prazne segmente
 
-    const baseRoute = pathParts[1]; // Should be 'users'
-    const userIdInPath = pathParts[2]; // Can be 'me' or an actual ID (e.g., '667500d4a984441549d10e6a')
-    const subRoute = pathParts[3]; // Can be 'following', 'activity', 'follow', 'followers'
+    // Expected structure for pathSegments: ['api', 'users', ':id', 'subroute']
+    // Example: ['api', 'users'], ['api', 'users', 'me', 'following'], ['api', 'users', 'someId', 'follow']
+
+    // Provjeri da li putanja počinje s 'api/users'
+    if (pathSegments[0] !== 'api' || pathSegments[1] !== 'users') {
+        return res.status(400).json({ message: 'Nevažeća API ruta.' });
+    }
+
+    const userIdInPath = pathSegments[2]; // Može biti 'me' ili stvarni ID
+    const subRoute = pathSegments[3]; // Može biti 'following', 'activity', 'follow', 'followers'
 
     // ================================================================
     // HANDLER ZA DOHVAĆANJE MOJIH PRAĆENJA: /api/users/me/following (GET)
@@ -57,7 +57,8 @@ module.exports = withAuth(async (req, res) => {
     // ================================================================
     // HANDLER ZA DOHVAĆANJE SVIH KORISNIKA: /api/users (GET)
     // ================================================================
-    if (req.method === 'GET' && !userIdInPath) { // Only /api/users
+    // Provjeravamo da nema userIdInPath niti subRoute, tj. samo /api/users
+    if (req.method === 'GET' && !userIdInPath && !subRoute) {
       try {
         const users = await usersCollection.find({}, { projection: { password: 0 } }).toArray();
         const usersToSend = users.map(user => ({
@@ -77,10 +78,10 @@ module.exports = withAuth(async (req, res) => {
     }
 
     // ================================================================
-    // HANDLER ZA SPECIFIČNOG KORISNIKA (GET, PUT, DELETE) I PODRUTE
-    // Ovisno o userIdInPath i subRoute
+    // HANDLER ZA SPECIFIČNOG KORISNIKA I PODRUTE
+    // Ovo će se pokrenuti ako userIdInPath postoji i nije 'me'
     // ================================================================
-    if (userIdInPath && userIdInPath !== 'me') { // If there's an ID in the path (e.g., /api/users/123...)
+    if (userIdInPath && userIdInPath !== 'me') {
         let targetUserId;
         try {
             targetUserId = new ObjectId(userIdInPath);
@@ -224,7 +225,8 @@ module.exports = withAuth(async (req, res) => {
         // ================================================================
         // DOHVAĆANJE JEDNOG KORISNIKA: /api/users/[id] (GET)
         // ================================================================
-        if (req.method === 'GET' && !subRoute) { // Only /api/users/[id]
+        // Ovo će se pokrenuti ako userIdInPath postoji i nema subRoute
+        if (req.method === 'GET' && !subRoute) {
             try {
                 const user = await usersCollection.findOne({ _id: targetUserId }, { projection: { password: 0 } });
                 if (!user) {
@@ -249,7 +251,8 @@ module.exports = withAuth(async (req, res) => {
         // ================================================================
         // AŽURIRANJE PROFILA: /api/users/[id] (PUT)
         // ================================================================
-        if (req.method === 'PUT' && !subRoute) { // Only /api/users/[id]
+        // Ovo će se pokrenuti ako userIdInPath postoji i nema subRoute
+        if (req.method === 'PUT' && !subRoute) {
             // Provjera autorizacije za ažuriranje profila
             if (!currentUserId || currentUserId !== userIdInPath) {
                 return res.status(403).json({ message: 'Nemate dozvolu za uređivanje ovog profila.' });
@@ -262,7 +265,6 @@ module.exports = withAuth(async (req, res) => {
                     tiktok: tiktok || ''
                 };
 
-                // Ažuriraj korisničko ime samo ako je poslano i nije već zauzeto
                 if (username && username.toLowerCase() !== req.user.username.toLowerCase()) {
                     const existingUser = await usersCollection.findOne({ username: username.toLowerCase() });
                     if (existingUser) {
