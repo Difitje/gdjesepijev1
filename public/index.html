@@ -7,17 +7,60 @@
     <link rel="stylesheet" href="/style.css">
     <style>
         /* Novi CSS za centriranje teksta "Trenutno nitko ne pije" */
+        /* Ova pravila su prebačena u .search-results klasu u style.css */
+        /*
         #pijankePregled.empty-message {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100%; /* Pobrinite se da div zauzima punu visinu */
+            height: 100%;
             text-align: center;
-            flex-direction: column; /* Ako zelis vise redova, da budu jedan ispod drugog */
+            flex-direction: column;
         }
         #pijankePregled.empty-message p {
-            margin: 0; /* Ukloni defaultnu marginu od paragrafa */
+            margin: 0;
         }
+        */
+
+        /*
+           Dodatni stil za div "noPijankeMessage" kako bi se rastegnuo
+           i centrirao sadržaj unutar #homePrikazPijanki
+        */
+        #noPijankeMessage {
+            flex-grow: 1; /* Omogućuje divu da zauzme sav dostupan vertikalni prostor */
+            display: flex; /* Ponovno ga učinimo flex kontejnerom za njegov sadržaj (tekst) */
+            justify-content: center; /* Centriranje teksta horizontalno unutar #noPijankeMessage */
+            align-items: center; /* Centriranje teksta vertikalno unutar #noPijankeMessage */
+            text-align: center; /* Dodatno osiguranje za centriranje teksta unutar #noPijankeMessage */
+            color: #888; /* Boja teksta iz .search-results */
+            font-size: 15px; /* Veličina fonta iz .search-results */
+            padding: 20px; /* Dodajte malo paddinga ako želite */
+            box-sizing: border-box; /* Važno za ispravan padding i širinu */
+        }
+
+        /* Postavite .search-results na 100% širine unutar svog roditelja */
+        .search-results {
+            width: 100%; /* Ovo će osigurati da .search-results zauzima punu širinu unutar #homePrikazPijanki */
+            /* Ostali .search-results stilovi su u style.css */
+        }
+
+        /* Privremeni stil za sakrivanje glavnog loga ako vam smeta na praznom ekranu */
+        #homePrikazPijanki .main-header {
+             display: flex; /* Vratite na flex */
+             justify-content: center;
+             align-items: center;
+             position: absolute; /* Ili relative, ovisno o željenom layoutu */
+             top: 0;
+             width: 100%;
+             height: 60px; /* Visina headera */
+             z-index: 100;
+             background-color: rgba(0, 0, 0, 0.95); /* Dodajte pozadinu ako header stoji */
+        }
+        #homePrikazPijanki .main-header h1.main-logo {
+            display: block; /* Ili flex, ako je logo slika/svg */
+        }
+
+
     </style>
 </head>
 <body>
@@ -84,7 +127,13 @@
             <h1 class="main-logo">
                 </h1>
         </div>
-        <div id="pijankePregled"></div>
+        
+        <div id="pijankePregled">
+            </div>
+
+        <div id="noPijankeMessage" class="search-results" style="display: none;">
+            trenutno nitko ne pije., budi prvi!
+        </div>
     </div>
 
     <div class="container" id="praznaTrazilica">
@@ -203,7 +252,7 @@
     <nav class="bottom-nav hidden-initially">
         <button class="nav-button active" id="navHome" onclick="handleNavClick('homePrikazPijanki');">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504 1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v4.875h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21.75h7.5" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504 1.125 1.125 1.125h2.25c.621 0 1.125.504 1.125 1.125v4.875h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21.75h7.5" />
             </svg>
             <span>Home</span>
         </button>
@@ -301,7 +350,7 @@
 
             if (targetScreenId === 'homePrikazPijanki') {
                 navigateTo(targetScreenId);
-                prikaziPijankePregled();
+                prikaziPijankePregled(); // Ova funkcija će sada upravljati prikazom poruke
             } else if (targetScreenId === 'praznaTrazilica') {
                 navigateTo(targetScreenId);
             } else if (targetScreenId === 'inboxPrikaz') {
@@ -567,6 +616,57 @@
             }
         };
         // ===========================================================
+        
+        // Funkcija za prikazivanje/skrivanje poruke "nema pijanki"
+        // Morate implementirati `prikaziPijankePregled` u vašem `script.js`
+        // tako da provjerava ima li pijanki. Ako nema, prikaže `#noPijankeMessage` i sakrije `#pijankePregled`.
+        // Ako ima, sakrije `#noPijankeMessage` i prikaže `#pijankePregled` (i napuni ga).
+
+        // Primjer kako bi vaša funkcija `prikaziPijankePregled` u `script.js` trebala biti prilagođena:
+        /*
+        async function prikaziPijankePregled() {
+            const pijankeContainer = document.getElementById('pijankePregled');
+            const noPijankeMessage = document.getElementById('noPijankeMessage');
+            
+            // Pretpostavimo da dohvaćate pijanke ovdje
+            const pijanke = await fetchPijankeFromServer(); // Vaša funkcija za dohvat pijanki
+
+            if (pijanke && pijanke.length > 0) {
+                // Ima pijanki, prikaži ih
+                noPijankeMessage.style.display = 'none';
+                pijankeContainer.style.display = 'block'; // Ili 'flex', ovisno o layoutu pijanki
+                pijankeContainer.innerHTML = ''; // Očistite stari sadržaj
+                pijanke.forEach(pijanka => {
+                    // Ovdje kreirajte HTML za svaku pijanku i dodajte u pijankeContainer
+                    const pijankaDiv = document.createElement('div');
+                    pijankaDiv.className = 'pijanka';
+                    pijankaDiv.innerHTML = `
+                        <div class="pijanka-header" data-user-id="${pijanka.userId}">
+                            <img src="${pijanka.profilnaSlika}" alt="Profilna slika" class="pijanka-profilna-slika">
+                            <div class="pijanka-info-text">
+                                <strong>${pijanka.ime}</strong>
+                                <span class="status-text">${pijanka.status}</span>
+                            </div>
+                            <button class="delete-btn" onclick="obrisiPijanku('${pijanka.id}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 16px; height: 16px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="pijanka-opis">
+                            <p>${pijanka.opis}</p>
+                        </div>
+                    `;
+                    pijankeContainer.appendChild(pijankaDiv);
+                });
+            } else {
+                // Nema pijanki, prikaži poruku
+                pijankeContainer.innerHTML = ''; // Ukloni sve pijanke ako ih je bilo
+                pijankeContainer.style.display = 'none';
+                noPijankeMessage.style.display = 'flex'; // Prikazi poruku
+            }
+        }
+        */
     </script>
 </body>
 </html>
