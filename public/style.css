@@ -1,5 +1,5 @@
 /* === POCETAK CSS-a (Konačna verzija) === */
-/* public/style.css - VERZIJA 11 - Finalno centriranje - Izmjene za Inbox Search */
+/* public/style.css - VERZIJA 12 - Nova tražilica */
 
 * {
     box-sizing: border-box;
@@ -729,9 +729,9 @@ body::before {
 .chat-info-text-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center; /* Vraćeno na center za horizontalno centriranje teksta */
     justify-content: center;
-    gap: 2px; /* NOVO: Dodaje mali vertikalni razmak između elemenata */
+    gap: 0px; /* Vraćeno na 0px ili mala vrijednost, jer margin-top na status-text to sada kontrolira */
 }
 /* ========================================= */
 
@@ -761,7 +761,7 @@ button:disabled { background: #555; cursor: not-allowed; transform: none; box-sh
 img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
 /* .profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; } */ /* PREGAŽENO ISPOD */
 img.preview-slika { display: none; }
-#previewEditSlike { display: block; margin: 8px auto; } /* Keep this */
+#previewEditSlikes { display: block; margin: 8px auto; } /* Keep this */
 .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 .status-dot.online { background-color: #2ecc71; }
 .status-dot.offline { background-color: #7f8c8d; }
@@ -1305,17 +1305,6 @@ img.preview-slika { display: none; }
     margin-bottom: 20px; /* Razmak do opisa/bio */
 }
 
-/* === Opis/Bio Korisnika === */
-.profil-opis {
-    font-size: 16px;
-    color: #ccc;
-    text-align: center;
-    max-width: 500px; /* Ograničenje širine za bolju čitljivost */
-    line-height: 1.6;
-    margin-bottom: 30px;
-    padding: 0 15px; /* Mali horizontalni padding za mobilni */
-}
-
 /* === Brojači (Pratitelji, Pratite, Objave) === */
 .profile-stats {
     display: flex;
@@ -1540,4 +1529,98 @@ img.preview-slika { display: none; }
 .tab-content::-webkit-scrollbar-thumb:hover {
     background: #e03f4d;
 }
+
+/* === NOVO: Stilovi za modernu tražilicu (#praznaTrazilica) === */
+.search-bar-modern {
+    width: 100%;
+    max-width: 600px; /* Ograničenje širine za desktop */
+    margin: 20px auto; /* Centriranje i razmak */
+    padding: 12px 20px; /* Veći padding za desktop */
+    background-color: #1e1e1e; /* Tamnija pozadina */
+    border: 1px solid #2a2a2a; /* Suptilni rub */
+    border-radius: 28px; /* Jako zaobljeni rubovi */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4); /* Luksuznija sjena */
+    display: flex;
+    align-items: center;
+    position: relative; /* Za pozicioniranje ikone */
+}
+
+.search-bar-modern input {
+    flex-grow: 1;
+    border: none;
+    background-color: transparent; /* Prozirna pozadina inputa */
+    color: #f0f0f0;
+    padding: 0; /* Ukloni padding, jer je već na roditeljskom divu */
+    font-size: 17px; /* Malo veći font */
+    outline: none !important;
+    box-shadow: none !important;
+    margin-bottom: 0; /* Ukloni defaultnu marginu */
+}
+
+.search-bar-modern input::placeholder {
+    color: #888; /* Boja placeholder teksta */
+}
+
+.search-bar-modern input:focus {
+    background-color: transparent; /* Ostaje prozirno na fokusu */
+    border-color: transparent;
+    box-shadow: none; /* Ukloni sjenu na fokusu, ako se pojavi */
+}
+
+.search-bar-modern .search-icon {
+    margin-left: 15px; /* Razmak ikone od inputa */
+    width: 24px; /* Veličina ikone */
+    height: 24px;
+    fill: #b0b0b0; /* Boja ikone */
+    flex-shrink: 0; /* Spriječi da se ikona smanji */
+}
+
+/* Stilovi za rezultate pretrage */
+.search-results {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 15px;
+    background-color: #1e1e1e;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    min-height: 100px; /* Minimalna visina za vidljivost */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #888;
+    font-size: 15px;
+    flex-direction: column; /* Za centriranje teksta "Ovdje će se prikazivati..." */
+}
+
+/* Prilagodbe za mobilne uređaje */
+@media (max-width: 767px) {
+    #praznaTrazilica {
+        padding-top: 70px; /* Razmak za header na mobilnom */
+    }
+    .search-bar-modern {
+        margin-top: 10px; /* Manji razmak na vrhu na mobilnom */
+        border-radius: 12px; /* Manje zaobljeni rubovi na mobilnom */
+        max-width: none; /* Puna širina na mobilnom */
+        margin-left: 20px; /* Poravnanje s paddingom containera */
+        margin-right: 20px;
+        padding: 10px 15px; /* Manji padding na mobilnom */
+    }
+    .search-bar-modern input {
+        font-size: 16px;
+    }
+    .search-bar-modern .search-icon {
+        width: 22px;
+        height: 22px;
+        margin-left: 10px;
+    }
+    .search-results {
+        max-width: none;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+}
+/* === KRAJ NOVIH STILOVA ZA modernu tražilicu === */
+
 /* === KRAJ CSS-a === */
