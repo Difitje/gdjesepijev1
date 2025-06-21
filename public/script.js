@@ -333,7 +333,7 @@ async function sacuvajProfil() {
 
     try {
         const response = await authenticatedFetch(`/api/users/${trenutniKorisnik.id}`, {
-            method: 'PUT',
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updateData)
         });
