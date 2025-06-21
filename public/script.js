@@ -324,8 +324,7 @@ async function sacuvajProfil() {
     if (odabranaEditSlika) {
         finalSlika = await compressImage(odabranaEditSlika);
     } else {
-        // ISPRAVLJENO: Dohvaća se element s ispravnim ID-om "previewEditSlikes"
-        finalSlika = document.getElementById("previewEditSlikes").src;
+        finalSlika = document.getElementById("previewEditSlike").src;
     }
 
     const updateData = { username: novoIme, opis: noviOpis, instagram: noviInstagram, tiktok: noviTiktok };
@@ -333,7 +332,7 @@ async function sacuvajProfil() {
 
     try {
         const response = await authenticatedFetch(`/api/users/${trenutniKorisnik.id}`, {
-            method: 'POST',
+            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updateData)
         });
@@ -341,7 +340,8 @@ async function sacuvajProfil() {
         if (response.ok) {
             alert(data.message);
             await globalRefreshUI();
-            prikaziMojProfil(); 
+            // Promjena je OVDJE:
+            prikaziMojProfil(); // Poziva funkciju koja prikazuje tvoj profil s ažuriranim podacima.
         } else {
             alert("Greška pri spremanju profila: " + data.message);
         }
