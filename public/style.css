@@ -16,7 +16,7 @@ html, body {
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
     /* ISPRAVAK: DODANA KOSA CRTA (/) NA POČETAK PUTANJE */
     background-image: url('/pozadina.png');
@@ -124,8 +124,7 @@ body::before {
 
     /* === PRILAGODBA ZA privatniChat CONTAINER - ZAUZIMA CIJELI EKRAN I POMAKNUT JE ZBOG CHAT HEADERA I INPUTA === */
     #privatniChat {
-        padding-top: 50px; /* Visina chat headera */
-        /* uklonjen padding-bottom; upravljat ćemo ga visinom chata i paddingom na logu */
+        padding-top: 60px; /* Povećano da se osigura dovoljno mjesta za visinu chat headera */
         height: 100vh;
         display: flex;
         flex-direction: column; /* Ključno za raspored unutar chata */
@@ -440,20 +439,17 @@ body::before {
     display: none;
 }
 
-/* === KONAČNA ISPRAVKA: Pravila za gornje tipke === */
-
-/* Općenito pravilo za sve ekrane OSIM chata */
+/* === KONAČNA ISPRAVKA: Pravila za gornje tipke (OPĆENITO) === */
 .top-nav-buttons {
     position: absolute;
     top: 15px;
     left: 15px;
     z-index: 51;
     pointer-events: none;
-    /* Omogući flexbox za pravilno pozicioniranje back i confirm buttona */
     display: flex;
-    width: calc(100% - 30px); /* Puna širina unutar containera */
-    justify-content: space-between; /* Razmak između elemenata */
-    align-items: center; /* Centriraj po vertikali */
+    width: calc(100% - 30px);
+    justify-content: space-between;
+    align-items: center;
 }
 @media (min-width: 768px) {
     .top-nav-buttons {
@@ -463,31 +459,10 @@ body::before {
     }
 }
 
-/* Posebno pravilo SAMO za chat ekran */
+/* POSEBNA PRAVILA SAMO ZA CHAT EKRAN - ovdje će se top-nav-buttons skrivati,
+   a back-button će biti unutar chat-header-info */
 #privatniChat .top-nav-buttons {
-    position: absolute; /* Keep it absolute to overlay on top */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 50px; /* Ensure this matches the height of chat-header-info for consistency */
-    display: flex;
-    align-items: center; /* Crucial for vertical alignment */
-    justify-content: flex-start; /* Keep back button to the left */
-    padding-left: 5px; /* Minimal padding for the back button */
-    padding-right: 15px;
-    background-color: rgba(0, 0, 0, 0.95); /* Match chat-header-info background */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Match chat-header-info shadow */
-    z-index: 52; /* Higher than chat-header-info so back button is clickable */
-}
-#privatniChat .top-nav-buttons .back-button {
-    position: static; /* Vrati na normalno pozicioniranje unutar flexboxa */
-    transform: none; /* Ukloni translateY */
-    flex-shrink: 0; /* Prevent it from shrinking */
-    padding: 0 10px; /* Add some horizontal padding for click area, but no vertical padding */
-    height: 100%; /* Make it take full height of the parent flex container */
-    display: flex; /* Use flex to center its content (the arrow) */
-    align-items: center; /* Center arrow vertically */
-    justify-content: center; /* Center arrow horizontally */
+    display: none; /* Sakrij top-nav-buttons u chatu, gumb za nazad je u chat-header-info */
 }
 
 
@@ -546,20 +521,8 @@ body::before {
     transform: scale(1.1);
 }
 
-/* Maknuti fiksne pozicije jer su sada unutar flexboxa .top-nav-buttons */
-/*
-@media (min-width: 768px) {
-    .confirm-button {
-        top: 25px;
-        right: 25px;
-    }
-}
-*/
 /* KRAJ NOVIH STILOVA ZA GUMB ZA POTVRDU */
 
-
-/* Uklonjeno jer je #inboxPrikaz h2 sada pozicioniran apsolutno */
-/* .container > h2 { padding-top: 30px; } */
 
 #intro, #pravilaEkran, #odabir, #login, #registracija, #homePrikazPijanki, #praznaTrazilica { justify-content: center; align-items: center; }
 #objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
@@ -680,31 +643,46 @@ body::before {
 /* ========================================= */
 
 
-/* === IZMJENA: Dodatno smanjeno zaglavlje chata === */
+/* === AŽURIRANO: Zaglavlje chata - integriran gumb za nazad === */
 .chat-header-info {
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: center; /* Centriraj sve vertikalno */
     justify-content: flex-start;
-    padding-top: 0;
+    padding: 0 15px; /* Dodan horizontalni padding */
     width: 100%;
-    padding-left: 50px; /* Adjusted to make space for the back button */
     position: absolute;
     top: 0;
     left: 0;
     background-color: rgba(0, 0, 0, 0.95);
-    height: 50px;
+    height: 60px; /* Povećana visina zaglavlja za bolji izgled i prostor */
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    z-index: 50; /* Set a lower z-index than .top-nav-buttons */
+    z-index: 50;
+    gap: 10px; /* Razmak između elemenata unutar headera */
 }
 
+.chat-header-info .back-button {
+    /* Stilovi za gumb za nazad unutar chat-header-info */
+    position: static; /* Bitno! Uklanja apsolutno pozicioniranje */
+    transform: none; /* Uklanja transformacije */
+    margin-right: 0; /* Ukloni potencijalnu desnu marginu */
+    width: 44px; /* Fiksna širina za klikabilno područje */
+    height: 44px; /* Fiksna visina za klikabilno područje */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px; /* Malo manji font za strelicu ako je prevelika */
+    flex-shrink: 0; /* Spriječi skupljanje gumba */
+}
+
+
 .chat-partner-profilna {
-    width: 32px;
-    height: 32px;
+    width: 40px; /* Malo veća profilna slika */
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
     border: 1.5px solid #ff4757;
-    margin-right: 10px;
+    margin-right: 0; /* Uklonjena desna margina jer koristimo gap */
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
 }
@@ -719,7 +697,7 @@ body::before {
     color: #f0f0f0;
     cursor: pointer;
     padding-top: 0;
-    margin-right: 10px;
+    margin-right: 0; /* Uklonjena desna margina jer koristimo gap */
     text-align: left;
     width: auto;
 }
@@ -736,6 +714,7 @@ body::before {
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
+    flex-grow: 1; /* Omogući da zauzme preostali prostor */
 }
 /* ========================================= */
 
