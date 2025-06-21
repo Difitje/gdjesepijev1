@@ -555,7 +555,7 @@ body::before {
 /* .container > h2 { padding-top: 30px; } */
 
 #intro, #pravilaEkran, #odabir, #login, #registracija, #homePrikazPijanki, #praznaTrazilica { justify-content: center; align-items: center; }
-#objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; }
+/* #objavaForma, #profilKorisnika { display: flex; flex-direction: column; align-items: center; } */ /* PREGAŽENO ISPOD */
 #privatniChat { justify-content: flex-start; align-items: stretch; }
 
 /* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
@@ -737,11 +737,11 @@ h1, h2 { text-align: center; color: #ff4757; margin-bottom: 20px; font-size: 22p
 h2 { font-size: 20px; }
 p { margin-bottom: 12px; color: #b0b0b0; text-align: left; width: 100%; }
 #intro p, #odabir p { text-align: center; }
-.profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; }
-.drustvene-mreze { text-align: center; margin-bottom: 15px; }
+/* .profil-opis { text-align: center; color: #ccc; margin-bottom: 15px; } */ /* PREGAŽENO ISPOD */
+/* .drustvene-mreze { text-align: center; margin-bottom: 15px; } */ /* PREGAŽENO ISPOD */
 
-.profil-actions { display: flex; flex-direction: column; width: 100%; max-width: 400px; margin-top: 10px; gap: 10px; }
-.profil-actions button { margin-bottom: 0; }
+/* .profil-actions { display: flex; flex-direction: column; width: 100%; max-width: 400px; margin-top: 10px; gap: 10px; } */ /* PREGAŽENO ISPOD */
+/* .profil-actions button { margin-bottom: 0; } */ /* PREGAŽENO ISPOD */
 .btn-danger { background: #444; }
 .btn-danger:hover { background: #c0392b; box-shadow: 0 3px 12px rgba(192, 57, 43, 0.3); }
 
@@ -756,15 +756,15 @@ button { background: linear-gradient(45deg, #ff4757, #e03f4d); cursor: pointer; 
 button:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(255, 71, 87, 0.25); }
 button:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
 img.preview-slika, img.profilna-slika { margin-top: 8px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; object-fit: cover; display: block; margin-left: auto; margin-right: auto; }
-.profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; }
+/* .profilna-slika-velika { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #ff4757; margin-bottom: 10px; } */ /* PREGAŽENO ISPOD */
 img.preview-slika { display: none; }
 #previewEditSlike { display: block; margin: 8px auto; } /* Keep this */
 .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 .status-dot.online { background-color: #2ecc71; }
 .status-dot.offline { background-color: #7f8c8d; }
-.status-text { font-size: 13px; color: #999; margin: 0; }
-.mreza-ikonica { width: 28px; height: 28px; margin: 0 10px; vertical-align: middle; transition: transform 0.2s ease; }
-.mreza-ikonica:hover { transform: scale(1.1); }
+/* .status-text { font-size: 13px; color: #999; margin: 0; } */ /* PREGAŽENO ISPOD */
+/* .mreza-ikonica { width: 28px; height: 28px; margin: 0 10px; vertical-align: middle; transition: transform 0.2s ease; } */ /* PREGAŽENO ISPOD */
+/* .mreza-ikonica:hover { transform: scale(1.1); } */ /* PREGAŽENO ISPOD */
 .pravila-checkbox-wrapper { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; justify-content: center; }
 .pravila-checkbox-wrapper input[type="checkbox"] { width: auto; margin-bottom: 0; flex-shrink: 0; }
 .pravila-checkbox-wrapper label { margin-bottom: 0; font-size: 14px; color: #f0f0f0; text-align: left; }
@@ -1225,5 +1225,316 @@ img.preview-slika { display: none; }
     transform: none;
     box-shadow: none !important;
     outline: none !important;
+}
+
+
+/* === NOVI DIZAJN PROFILA (Moderno i luksuzno) === */
+
+/* Globalni stilovi za tijelo i pozadinu su već dobro postavljeni. */
+/* Fokusirat ćemo se na .container i #profilKorisnika */
+
+#profilKorisnika {
+    /* Nadjačaj postojeće flex pravilo ako je potrebno, ali zadrži centriranje za kontejnere */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Početak sadržaja na vrhu */
+    padding-top: 20px; /* Dodajte malo gornjeg paddinga */
+    background: transparent; /* Pozadina kontejnera je prozirna, da se vidi zatamnjenje bodyja */
+    border-radius: 0; /* Ukloni border-radius na mobilnom */
+    box-shadow: none; /* Ukloni sjenu na mobilnom */
+    width: 100%;
+    height: 100%; /* Da zauzme cijeli ekran na mobilnom */
+    position: relative; /* Za pozicioniranje elemenata unutar */
+    overflow-y: auto; /* Omogući skrolanje samo unutar profila */
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 80px; /* Dodatni padding za bottom nav */
+}
+
+@media (min-width: 768px) {
+    #profilKorisnika {
+        background: #1a1a1a; /* Tamnija, elegantna pozadina za desktop */
+        border: 1px solid #2a2a2a; /* Suptilan rub */
+        border-radius: 16px; /* Blago zaobljeni rubovi */
+        box-shadow: 0 8px 30px rgba(0,0,0,0.6); /* Luksuznija sjena */
+        max-width: 800px; /* Optimalna širina za desktop profil */
+        height: auto; /* Visina se prilagođava sadržaju */
+        min-height: 80vh;
+        padding: 40px; /* Veći padding za desktop */
+        margin-top: 40px; /* Odmak od vrha na desktopu */
+    }
+}
+
+/* === Profilna Slika i Korisničko Ime === */
+.profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px; /* Povećan razmak ispod headera */
+    width: 100%;
+}
+
+.profilna-slika-velika {
+    width: 120px; /* Veća profilna slika */
+    height: 120px;
+    border: 4px solid #ff4757; /* Naglašeniji crveni okvir */
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.profilna-slika-velika:hover {
+    transform: scale(1.05); /* Suptilna animacija na hover */
+}
+
+#profilKorisnika h2 { /* Korisničko ime */
+    font-size: 28px; /* Veći font za ime */
+    color: #f0f0f0;
+    margin-bottom: 8px; /* Manji razmak do opisa */
+    font-weight: 700; /* Podebljan font */
+    letter-spacing: 0.5px;
+}
+
+.status-text { /* Online/Offline status */
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 20px; /* Razmak do opisa/bio */
+}
+
+/* === Opis/Bio Korisnika === */
+.profil-opis {
+    font-size: 16px;
+    color: #ccc;
+    text-align: center;
+    max-width: 500px; /* Ograničenje širine za bolju čitljivost */
+    line-height: 1.6;
+    margin-bottom: 30px;
+    padding: 0 15px; /* Mali horizontalni padding za mobilni */
+}
+
+/* === Brojači (Pratitelji, Pratite, Objave) === */
+.profile-stats {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 400px; /* Ograniči širinu na desktopu */
+    margin-bottom: 30px;
+    padding: 10px 0;
+    border-top: 1px solid #222;
+    border-bottom: 1px solid #222;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 16px;
+    color: #f0f0f0;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.stat-item:hover {
+    color: #ff4757;
+}
+
+.stat-item strong {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #ff4757; /* Broj u crvenoj boji */
+}
+
+.stat-item span {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #aaa;
+}
+
+/* === Akcije (Uredi Profil, Pratite, Poruka) === */
+.profil-actions {
+    display: flex;
+    flex-direction: row; /* Akcije u jednom redu */
+    justify-content: center;
+    gap: 15px; /* Razmak između gumba */
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 40px; /* Razmak do sadržaja ispod */
+    padding: 0 15px;
+}
+
+.profil-actions button {
+    flex: 1; /* Jednaka širina gumba */
+    padding: 12px 20px;
+    border-radius: 25px; /* Zaobljeniji gumbi */
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary { /* Glavni gumb (npr. Uredi profil / Pratite) */
+    background: linear-gradient(45deg, #ff4757, #e03f4d);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.6);
+}
+
+.btn-secondary { /* Sekundarni gumb (npr. Poruka) */
+    background: #2a2a2a;
+    color: #f0f0f0;
+    border: 1px solid #3a3a3a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.btn-secondary:hover {
+    background: #3a3a3a;
+    border-color: #ff4757;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* === Društvene Mreže / Linkovi === */
+.drustvene-mreze {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Razmak između ikona */
+    margin-bottom: 40px;
+    width: 100%;
+}
+
+.mreza-ikonica {
+    width: 32px; /* Malo veće ikone */
+    height: 32px;
+    filter: grayscale(100%); /* Sive ikone po defaultu */
+    opacity: 0.7;
+    transition: all 0.3s ease-in-out;
+}
+
+.mreza-ikonica:hover {
+    filter: grayscale(0%); /* Obojane na hover */
+    opacity: 1;
+    transform: translateY(-3px) scale(1.1); /* Blagi skok i skala */
+}
+
+/* === Sadržaj Profia (Objave, Fotografije, itd.) === */
+.profile-content-tabs {
+    width: 100%;
+    max-width: 800px; /* Ista širina kao kontejner */
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid #222;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 15px 20px;
+    color: #888;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    cursor: pointer;
+    transition: color 0.2s ease, border-bottom-color 0.2s ease;
+    border-bottom: 3px solid transparent;
+    flex-grow: 1; /* Jednaka širina tabova */
+    text-align: center;
+}
+
+.tab-button.active {
+    color: #ff4757;
+    border-bottom-color: #ff4757;
+}
+
+.tab-button:hover:not(.active) {
+    color: #f0f0f0;
+}
+
+.tab-content {
+    width: 100%;
+    /* Visina i overflow za skrolanje unutar taba ako ima puno sadržaja */
+    max-height: 60vh; /* Primjer: ograničena visina za skrolanje */
+    overflow-y: auto;
+    padding: 10px; /* Unutarnji padding za sadržaj taba */
+    display: none; /* Sakrij sve tabove po defaultu */
+}
+
+.tab-content.active {
+    display: block; /* Prikazi aktivni tab */
+}
+
+/* Primjer stila za objavu/sliku unutar taba */
+.profile-post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responzivni grid */
+    gap: 15px; /* Razmak između objava */
+    padding: 10px;
+}
+
+.profile-post-item {
+    background-color: #222;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-post-item:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+}
+
+.profile-post-item img {
+    width: 100%;
+    height: 150px; /* Fiksna visina za sličice */
+    object-fit: cover;
+    display: block;
+}
+
+.profile-post-item .post-title {
+    padding: 10px;
+    font-size: 14px;
+    color: #f0f0f0;
+    font-weight: 500;
+}
+
+/* Animacije (koristite postojeće, ili definirajte nove ako treba) */
+/* Animacije su već definirane u vašem CSS-u (.container.fade-out-screen, @keyframes fadeIn/fadeOut/bounceIn) */
+/* Za tranzicije elemenata profila, koristite 'transition' svojstvo na pojedinim elementima. */
+
+/* Dodatne prilagodbe za već postojeće elemente da se uklope u novi dizajn */
+/* Ako želite zadržati ikonicu kamere za edit profila, osigurajte da je stilizirana slično */
+/* Camera icon overlay je već definiran i stiliziran na odgovarajući način. */
+
+
+/* Opcionalno: Skrolbar stil za profile-content-tabs */
+.tab-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 10px;
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+    background: #ff4757;
+    border-radius: 10px;
+    border: 2px solid #1a1a1a;
+}
+
+.tab-content::-webkit-scrollbar-thumb:hover {
+    background: #e03f4d;
 }
 /* === KRAJ CSS-a === */
