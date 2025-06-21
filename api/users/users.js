@@ -1,22 +1,22 @@
 // api/users.js
 const connectToDatabase = require('./config');
-const withAuth = require('./auth'); // Npr. da samo prijavljeni vide sve korisnike
-const { ObjectId } = require('mongodb'); // Uvezi ObjectId
+const withAuth = require('./auth');
+const { ObjectId } = require('mongodb'); // Možda i ne treba ako samo dohvaćate
 const cors = require('cors');
 
-const allowCors = cors({ methods: ['GET', 'POST', 'PUT', 'DELETE'], origin: '*' });
+const allowCors = cors({ methods: ['GET'], origin: '*' }); // Samo GET metoda dozvoljena
 
-module.exports = withAuth(async (req, res) => { // Primijeni withAuth
+module.exports = withAuth(async (req, res) => {
   if (req.method === 'OPTIONS') {
     return allowCors(req, res, () => res.status(200).end());
   }
 
   return allowCors(req, res, async () => {
-    if (req.method === 'GET') { // Ova metoda je javna prema api/auth.js
-      try {
-        const { db } = await connectToDatabase();
-        const usersCollection = db.collection('users');
+    const { db } = await connectToDatabase();
+    const usersCollection = db.collection('users');
 
+    if (req.method === 'GET') {
+      try {
         // Dohvati sve korisnike, ali ne vraćaj lozinke!
         const users = await usersCollection.find({}, { projection: { password: 0 } }).toArray();
 
@@ -38,7 +38,7 @@ module.exports = withAuth(async (req, res) => { // Primijeni withAuth
         if (!res.status) { console.error("res.status missing in users GET error!"); return res.end(JSON.stringify({ message: 'res.status missing: Greška servera pri dohvaćanju korisnika.', error: error.message })); }
         res.status(500).json({ message: 'Greška servera pri dohvaćanju korisnika.', error: error.message });
       }
-    } else { // Za POST/PUT/DELETE (koje bi bile zaštićene s withAuth)
+    } else { // Za sve ostale metode (POST/PUT/DELETE)
       if (!res.status) { console.error("res.status missing in users POST/PUT/DELETE!"); return res.end(JSON.stringify({ message: 'Metoda nije dozvoljena.' })); }
       res.status(405).json({ message: 'Metoda nije dozvoljena.' });
     }

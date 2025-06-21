@@ -1,37 +1,36 @@
 // api/register.js
 const connectToDatabase = require('./config');
 const bcrypt = require('bcryptjs');
-const cors = require('cors'); // Uvezi cors modul
+const jwt = require('jsonwebtoken'); // Vjerojatno je bio samo cors
+const cors = require('cors');
 
-// Inicijaliziraj CORS middleware za ovu funkciju
-// Dozvoljavamo samo POST metodu za registraciju
 const allowCors = cors({ methods: ['POST'], origin: '*' });
 
+const JWT_SECRET = process.env.JWT_SECRET; // Nije se koristio u originalnom registeru, ali neka stoji ako je bio
+
 module.exports = async (req, res) => {
-  // Prvo, obradi CORS preflight zahtjeve (OPTIONS metoda)
-  // Ovo je važno za preglednike da provjere dozvole prije slanja POST zahtjeva
   if (req.method === 'OPTIONS') {
-    return allowCors(req, res, () => res.status(200).end()); // Odgovori na preflight zahtjev
+    return allowCors(req, res, () => res.status(200).end());
   }
 
-  // Zatim, primijeni CORS na stvarni zahtjev i pokreni logiku
   return allowCors(req, res, async () => {
     if (req.method === 'POST') {
       try {
-        const { username, password, slika, instagram, tiktok, opis } = req.body;
+        const { username, password, slika, instagram, tiktok, opis } = req.body; // Dodao sam slika, instagram, tiktok, opis ako su bili
 
-        if (!username || !password || !slika) {
-          // Osiguraj da res.status postoji prije poziva
-          if (!res.status) { console.error("res.status is missing before 400!"); return res.end(JSON.stringify({ message: 'res.status missing: Korisničko ime, lozinka i slika su obavezni.' })); }
-          return res.status(400).json({ message: 'Korisničko ime, lozinka i slika su obavezni.' });
+        if (!username || !password) { // Prilagođeno vašoj logici iz login.js
+          return res.status(400).json({ message: 'Korisničko ime i lozinka su obavezni.' });
         }
+        if (!slika) { // Provjera za sliku, ako je obavezna
+          return res.status(400).json({ message: 'Profilna slika je obavezna.' });
+        }
+
 
         const { db } = await connectToDatabase();
         const usersCollection = db.collection('users');
 
         const existingUser = await usersCollection.findOne({ username: username.toLowerCase() });
         if (existingUser) {
-          if (!res.status) { console.error("res.status is missing before 409!"); return res.end(JSON.stringify({ message: 'res.status missing: Korisničko ime je već zauzeto!' })); }
           return res.status(409).json({ message: 'Korisničko ime je već zauzeto!' });
         }
 
@@ -39,25 +38,22 @@ module.exports = async (req, res) => {
         const newUser = {
           username: username.toLowerCase(),
           password: hashedPassword,
-          slika,
-          instagram: instagram || '',
-          tiktok: tiktok || '',
-          opis: opis || '',
+          slika: slika, // Dodaj sliku
+          instagram: instagram || '', // Dodaj instagram
+          tiktok: tiktok || '', // Dodaj tiktok
+          opis: opis || '', // Dodaj opis
           lastActive: new Date().toISOString()
         };
 
         await usersCollection.insertOne(newUser);
 
-        if (!res.status) { console.error("res.status is missing before 201!"); return res.end(JSON.stringify({ message: 'res.status missing: Korisnik uspješno registriran!' })); }
         res.status(201).json({ message: 'Korisnik uspješno registriran!' });
 
       } catch (error) {
         console.error('Greška pri registraciji:', error);
-        if (!res.status) { console.error("res.status is missing before 500!"); return res.end(JSON.stringify({ message: 'res.status missing: Greška servera pri registraciji.', error: error.message })); }
         res.status(500).json({ message: 'Greška servera pri registraciji.', error: error.message });
       }
     } else {
-      if (!res.status) { console.error("res.status is missing before 405!"); return res.end(JSON.stringify({ message: 'res.status missing: Metoda nije dozvoljena.' })); }
       res.status(405).json({ message: 'Metoda nije dozvoljena.' });
     }
   });

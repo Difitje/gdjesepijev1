@@ -46,7 +46,7 @@ module.exports = withAuth(async (req, res) => {
           // Ako korisnik nije pronađen
           return res.status(404).json({ message: 'Korisnik nije pronađen.' });
         }
-        
+
         // Pripremi podatke korisnika za slanje frontendu
         const userToSend = {
             id: user._id.toString(), // Pretvaranje ObjectId u string za frontend
