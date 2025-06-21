@@ -678,10 +678,10 @@ body::before {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start; /* VRAĆENO: Poravnanje lijevo za početak elemenata */
+    justify-content: center; /* PROMIJENJENO: Centriranje sadržaja unutar headera */
     padding-top: 0;
     width: 100%;
-    padding-left: 50px; /* VRAĆENO: Pomaknuto lijevo zbog back-buttona */
+    padding-left: 0; /* PROMIJENJENO: Uklonjen lijevi padding za bolje centriranje */
     position: absolute;
     top: 0;
     left: 0;
@@ -689,7 +689,6 @@ body::before {
     height: 50px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     z-index: 50;
-    gap: 10px; /* DODANO: Razmak između profilne i tekstualnog omotača */
 }
 
 .chat-partner-profilna {
@@ -698,11 +697,10 @@ body::before {
     border-radius: 50%;
     object-fit: cover;
     border: 1.5px solid #ff4757;
-    margin-right: 0; /* Ukloniti margin-right jer gap sada to rješava */
+    margin-right: 10px;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
 }
-
 
 .chat-partner-profilna:hover {
     transform: scale(1.05);
@@ -714,7 +712,7 @@ body::before {
     color: #f0f0f0;
     cursor: pointer;
     padding-top: 0;
-    margin-right: 0; /* Ukloniti margin-right */
+    margin-right: 10px;
     text-align: left;
     width: auto;
 }
@@ -729,9 +727,8 @@ body::before {
 .chat-info-text-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* VRAĆENO: Poravnanje lijevo unutar omotača */
+    align-items: center; /* PROMIJENJENO: Centriranje teksta vertikalno */
     justify-content: center;
-    /* Nema potrebe za margin-left ili padding-left ovdje ako koristimo gap na roditelju */
 }
 /* ========================================= */
 
