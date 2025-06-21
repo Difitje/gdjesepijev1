@@ -117,7 +117,7 @@
     <div class="container" id="glavniDio">
         <div class="top-nav-buttons">
             <button class="back-button" onclick="navigateBack()" style="display:none;">←</button>
-            <button class="close-btn" onclick="navigateBack()" style="display:none;">✖</button>
+            <button class="close-btn" id="profileCloseBtn" onclick="navigateTo('homePrikazPijanki')" style="display:none;">✖</button>
         </div>
         <h2 id="glavniNaslov"></h2>
         <div id="objavaForma">
@@ -273,7 +273,7 @@
             }
         }
 
-        // NOVO: Glavna funkcija za rukovanje klikovima na navigacijske gumbe
+        // Glavna funkcija za rukovanje klikovima na navigacijske gumbe
         function handleNavClick(targetScreenId) {
             const currentActiveNavButton = document.querySelector('.bottom-nav .nav-button.active');
             let currentTargetScreenId = '';
@@ -322,7 +322,7 @@
             let appInitializedSuccessfully = false;
             if (token) {
                 try {
-                    const response = await authenticatedFetch('/api/auth/me'); // Pretpostavljam da imate /api/auth/me endpoint
+                    const response = await authenticatedFetch('/api/auth/me');
                     if (response.ok) {
                         const data = await response.json();
                         trenutniKorisnik = data.user;

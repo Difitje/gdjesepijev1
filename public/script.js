@@ -477,7 +477,7 @@ async function objaviPijanku() {
         alert("Došlo je do greške pri objavi pijanke.");
     } finally {
         objaviBtn.disabled = false;
-        objaviBtn.textContent = 'Objavi';
+        objabiBtn.textContent = 'Objavi';
     }
 }
 
@@ -542,31 +542,37 @@ async function otvoriProfil(korisnikId, fromRefresh = false) {
     const korisnik = sviKorisnici.find(u => u.id === korisnikId);
     if (!korisnik) return;
 
-    // === NOVO: Dohvati podatke o pratiteljima i praćenjima za prikazani profil ===
+    // Dohvati podatke o pratiteljima i praćenjima za prikazani profil
     await Promise.all([
         dohvatiPratiteljeKorisnika(korisnikId),
         dohvatiKogaKorisnikPrati(korisnikId)
     ]);
-    // =========================================================================
 
     const profilKorisnikaDiv = document.getElementById("profilKorisnika");
-    profilKorisnikaDiv.dataset.userId = korisnikId; // NOVO: Spremi ID korisnika u dataset
+    profilKorisnikaDiv.dataset.userId = korisnikId;
     document.getElementById("objavaForma").style.display = "none";
     profilKorisnikaDiv.style.display = "flex";
 
+    const backButton = document.querySelector('#glavniDio .back-button');
+    const closeButton = document.querySelector('#profileCloseBtn');
+    const headerTitle = document.querySelector('#glavniDio h2');
+
+    backButton.style.display = 'none'; // Uvijek sakrij back button na profilu
+
     let actionButtons = '';
-    let isFollowing = myFollowings.includes(korisnikId); // Provjeri prati li trenutni korisnik ovog korisnika
+    let isFollowing = myFollowings.includes(korisnikId);
     let followButtonHtml = '';
 
     if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
-        document.querySelector('#glavniDio h2').innerText = "Moj profil";
+        closeButton.style.display = 'none'; // Sakrij X gumb na vlastitom profilu
+        headerTitle.innerText = "Moj profil";
         actionButtons = `
             <button class="btn-primary" onclick="prikaziEditProfila()">Uredi profil</button>
             <button class="btn-danger btn-secondary" onclick="odjaviSe()">Odjavi se</button>
         `;
     } else {
-        document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
-        // NOVO: Gumb za praćenje/otpraćivanje
+        closeButton.style.display = 'flex'; // Prikazi X gumb na tuđem profilu
+        headerTitle.innerText = "Profil korisnika";
         followButtonHtml = `
             <button class="btn-${isFollowing ? 'secondary' : 'primary'}" onclick="toggleFollow('${korisnik.id}', ${isFollowing})">
                 ${isFollowing ? 'Otprati' : 'Prati'}
@@ -593,23 +599,20 @@ async function otvoriProfil(korisnikId, fromRefresh = false) {
                 <strong>${profileFollowing.length}</strong>
                 <span>Pratim</span>
             </div>
-            </div>
+        </div>
         <div class="profil-actions">${actionButtons}</div>
         <p class="profil-opis">${korisnik.opis || "Nema opisa."}</p>
         <div class="drustvene-mreze">${prikaziMreze(korisnik)}</div>
 
         <div class="profile-content-tabs">
             <button class="tab-button active" onclick="showProfileTab('tabPosts', this)">Objave</button>
-            </div>
+        </div>
         <div id="tabPosts" class="tab-content active">
             ${await generateUserPostsHtml(korisnikId)}
         </div>
-        `;
+    `;
 
-    document.querySelector('#glavniDio .back-button').style.display = 'none';
-    document.querySelector('#glavniDio .close-btn').style.display = 'none';
-
-    if (!fromRefresh) { // Samo navigiraj ako nije osvježavanje (da ne dodaje duple unose u stack)
+    if (!fromRefresh) {
         navigateTo('glavniDio');
     }
 }
@@ -959,8 +962,8 @@ async function toggleFollow(targetUserId, isCurrentlyFollowing) {
 
         if (response.ok) {
             alert(data.message);
-            await globalRefreshUI(); // Osvježi sve podatke uključujući moja praćenja
-            otvoriProfil(targetUserId, true); // Ponovno otvori profil kako bi se ažuriralo dugme i brojači
+            await globalRefreshUI();
+            otvoriProfil(targetUserId, true);
         } else {
             alert(`Greška pri ${actionText.toLowerCase()}anju: ${data.message}`);
         }
@@ -979,12 +982,11 @@ async function toggleFollow(targetUserId, isCurrentlyFollowing) {
 function showUserListModal(userId, userName, listType) {
     const list = listType === 'followers' ? profileFollowers : profileFollowing;
     const title = listType === 'followers' ? `Pratitelji ${userName}` : `Pratim ${userName}`;
-    const modalContent = document.getElementById('userListModalContent'); // This is not used, can remove.
     const userListHtml = document.getElementById('userListHtml');
     const userListModalTitle = document.getElementById('userListModalTitle');
 
     userListModalTitle.innerText = title;
-    userListHtml.innerHTML = ''; // Očisti prethodni sadržaj
+    userListHtml.innerHTML = '';
 
     if (list.length === 0) {
         userListHtml.innerHTML = `<p style="text-align:center; color:#888; padding: 20px;">Nema ${listType === 'followers' ? 'pratitelja' : 'praćenja'}.</p>`;
@@ -1012,7 +1014,7 @@ function showUserListModal(userId, userName, listType) {
     }
 
     document.getElementById('userListModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden'; // Onemogući skrolanje pozadine
+    document.body.style.overflow = 'hidden';
 }
 
 function showFollowers(userId, userName) {
@@ -1025,7 +1027,7 @@ function showFollowing(userId, userName) {
 
 function closeUserListModal() {
     document.getElementById('userListModal').style.display = 'none';
-    document.body.style.overflow = 'auto'; // Omogući skrolanje pozadine
+    document.body.style.overflow = 'auto';
 }
 
 
@@ -1062,9 +1064,11 @@ async function generateUserPostsHtml(userId) {
 
     let html = '<div class="profile-post-grid">';
     userPosts.forEach(post => {
+        const postImageUrl = sviKorisnici.find(u => u.id === userId)?.slika || 'default_profile.png';
+
         html += `
             <div class="profile-post-item" onclick="alert('Prikaz detalja objave: ${post.opis}')">
-                <img src="${sviKorisnici.find(u => u.id === userId)?.slika || 'default_profile.png'}" alt="Objava">
+                <img src="${postImageUrl}" alt="Objava">
                 <p class="post-title">${post.opis}</p>
             </div>
         `;

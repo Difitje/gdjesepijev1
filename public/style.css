@@ -726,7 +726,7 @@ img.preview-slika { display: none; }
 #listaChatova {
     padding: 0;
     margin: 0;
-    /* NOVO: Dodatni padding-top da lista počne ispod search bara */
+    /* Dodatni padding-top da lista počne ispod search bara */
     padding-top: calc(50px + 60px); /* Visina h2 (50px) + visina search bara (oko 40px input + 2*10 padding = 60px) */
     position: relative; /* Potrebno za z-index i da se lista skroluje ispod stickynih elemenata */
     z-index: 2; /* Mora biti ispod search bara i h2 */
