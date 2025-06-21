@@ -10,9 +10,13 @@
 html, body {
     height: 100%;
     width: 100%;
-    overflow: hidden;        /* NOVO - Primijeni i na PC-u */
-    position: fixed;         /* NOVO - Primijeni i na PC-u */
-    touch-action: none;      /* NOVO I AGRESIVNIJE - Primijeni i na PC-u */
+    /* Uklonjeno: overflow: hidden; */
+    /* Uklonjeno: position: fixed; */
+    /* Uklonjeno: touch-action: none; */
+    overflow-x: hidden; /* Sakrij horizontalni scroll */
+    overflow-y: auto; /* Omogući vertikalni scroll po potrebi */
+    position: relative; /* Bitno za body::before pseudo-element */
+    touch-action: manipulation; /* Omogućuje scroll i tap, sprječava default pinch-zoom */
 }
 
 body {
@@ -30,8 +34,8 @@ body {
     color: #f0f0f0;
     line-height: 1.5;
     font-size: 16px;
-    position: relative; /* OVO JE KLJUČNO ZA PSEUDO-ELEMENT */
-    touch-action: manipulation;
+    /* Uklonjeno: position: relative; */ /* OVO JE KLJUČNO ZA PSEUDO-ELEMENT, prebačeno na html, body */
+    /* Uklonjeno: touch-action: manipulation; */ /* Prebačeno na html, body */
     z-index: 0; /* Dodano za osiguranje z-indeksa ispod overlay-a */
 }
 
@@ -539,7 +543,7 @@ body::before {
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
     z-index: 100;
     box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
-    touch-action: none;
+    touch-action: manipulation; /* Promijenjeno iz none u manipulation */
 }
 
 #privatniInput {
@@ -557,7 +561,7 @@ body::before {
     transition: all 0.2s ease;
     margin: 0;
     padding: 10px 45px 10px 45px;
-    touch-action: none;
+    touch-action: manipulation; /* Promijenjeno iz none u manipulation */
 }
 
 #privatniInput:focus {

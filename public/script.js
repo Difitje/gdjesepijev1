@@ -198,7 +198,7 @@ async function globalRefreshUI() {
     // Samo osvježi ako je ekran aktivan
     const currentActiveScreenId = document.querySelector('.container.active-screen')?.id;
     if (currentActiveScreenId === "homePrikazPijanki") { prikaziPijankePregled(); }
-    if (currentActiveScreenId === "inboxPrikaz") { otvoriInbox(); } // OtvoriInbox već dohvaća poruke
+    if (currentActiveScreenId === "inboxPrikaz") { originalOtvoriInbox(); } // OtvoriInbox već dohvaća poruke
     if (currentActiveScreenId === "privatniChat" && trenutniChatPartnerId) { prikaziPrivatniLog(); }
     azurirajNotifikacije();
 }
@@ -329,18 +329,19 @@ function pokreniAplikaciju() {
     navigationStack = []; // Resetiraj stog navigacije
     // Postavi početni ekran i zamijeni povijest umjesto pushanja novog stanja
     swap(document.querySelector('.container.active-screen')?.id || null, 'homePrikazPijanki');
-    history.replaceState({ screenId: 'homePrikazPijanki' }, '', '#homePrikazPijanki');
+    // history.replaceState({ screenId: 'homePrikazPijanki' }, '', '#homePrikazPijanki'); // Premjesteno u DOMContentLoaded
     ocistiPijankePregled();
 
-    [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
-    activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
-    globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
+    // Intervali se sada pokreću u DOMContentLoaded nakon što je aplikacija inicijalizirana
+    // [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
+    // activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
+    // globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
 
-    azurirajMojuAktivnost();
-    dohvatiLokaciju(() => {
-        prikaziPijankePregled();
-        azurirajNotifikacije();
-    });
+    // azurirajMojuAktivnost(); // Premjesteno u DOMContentLoaded
+    // dohvatiLokaciju(() => { // Premjesteno u DOMContentLoaded
+    //     prikaziPijankePregled();
+    //     azurirajNotifikacije();
+    // });
 }
 
 
@@ -418,7 +419,7 @@ async function sacuvajProfil() {
             originalOtvoriProfil(trenutniKorisnik.id); // Poziva funkciju koja prikazuje tvoj profil s ažuriranim podacima.
             // Nema navigateTo ovdje jer smo već na 'glavniDio' ekranu, samo osvježavamo profil.
         } else {
-            alert("Greška pri spremanju profila: " + data.message);
+            alert("Greška pri spremanja profila: " + data.message);
         }
     } catch (error) {
         alert("Došlo je do greške pri spremanja profila.");
@@ -567,7 +568,7 @@ function prikaziPijankePregled() {
         if (!autor) return;
         const status = formatirajStatus(autor.lastActive);
         div.innerHTML += `
-            <div class="pijanka" onclick="originalOtvoriProfil('${autor.id}')">
+            <div class="pijanka" onclick="otvoriProfil('${autor.id}')">
                 <div class="pijanka-header">
                     <img src="${autor.slika || 'default_profile.png'}" alt="Profilna slika" class="pijanka-profilna-slika">
                     <div class="pijanka-info">
@@ -586,7 +587,8 @@ function prikaziPijankePregled() {
     });
 }
 
-async function otvoriProfil(korisnikId) {
+// Preimenovana originalna funkcija za otvaranje profila
+function originalOtvoriProfil(korisnikId) {
     if (!korisnikId) return;
     const korisnik = sviKorisnici.find(u => u.id === korisnikId);
     if (!korisnik) return;
@@ -731,7 +733,7 @@ async function pokreniPrivatniChat(partnerId) {
             body: JSON.stringify({ chatKey })
         });
         await dohvatiSvePoruke();
-        azurirajNotifikacije();
+        prikaziPrivatniLog();
     } catch (error) {
         console.error("Greška kod označavanja poruka kao pročitanih:", error);
     }

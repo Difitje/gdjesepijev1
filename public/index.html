@@ -359,48 +359,61 @@
             }
 
             // NOVO: Logika za deep linking na DOMContentLoaded
+            let initialScreenId = 'intro'; // Defaultni početni ekran
             if (appInitializedSuccessfully) {
-                // Pokreni aplikaciju (postavit će homePrikazPijanki kao početni ekran i u povijest)
-                pokreniAplikaciju();
-
-                if (window.location.hash) {
-                    const fullHash = window.location.hash.substring(1); // Ukloni '#'
-                    const validScreens = ['homePrikazPijanki', 'praznaTrazilica', 'inboxPrikaz', 'glavniDio', 'editProfil', 'pravilaEkran', 'odabir', 'login', 'registracija', 'privatniChat'];
-
-                    // Provjera za privatniChat sa ID-jem
-                    if (fullHash.startsWith('privatniChat-')) {
-                        const partnerId = fullHash.split('-')[1];
-                        // Prvo dohvati sve korisnike ako već nisu, da se može pronaći partner
-                        await dohvatiSveKorisnike();
-                        if (sviKorisnici.find(u => u.id == partnerId)) {
-                            navigateTo('privatniChat', false); // Navigiraj na chat ekran bez pusha
-                            await pokreniPrivatniChat(partnerId); // Pokreni specifični chat
-                            // history.replaceState({ screenId: fullHash }, '', `#${fullHash}`); // Ažuriraj history
-                        } else {
-                            // Ako partner ne postoji, idi na home
-                            navigateTo('homePrikazPijanki', false);
-                            history.replaceState({ screenId: 'homePrikazPijanki' }, '', '#homePrikazPijanki');
-                        }
-                    } else if (validScreens.includes(fullHash)) {
-                        // Za ostale validne statične ekrane
-                        navigateTo(fullHash, false); // Navigiraj na taj ekran bez pusha
-                        // history.replaceState({ screenId: fullHash }, '', `#${fullHash}`); // Ažuriraj history
-                    } else {
-                        // Ako hash nije validan, vratite se na home
-                        navigateTo('homePrikazPijanki', false);
-                        history.replaceState({ screenId: 'homePrikazPijanki' }, '', '#homePrikazPijanki');
-                    }
-                } else {
-                    // Ako nema hash-a, pokreni aplikaciju na homePrikazPijanki (što je već urađeno s pokreniAplikaciju)
-                    // history.replaceState({ screenId: 'homePrikazPijanki' }, '', '#homePrikazPijanki');
-                }
-            } else {
-                // Inače, prikaži intro ekran i sakrij UI elemente
-                navigateTo('intro', false); // Postavi 'intro' kao početno stanje povijesti
-                toggleAppUI(false);
-                // Osigurajte da je intro u history ako nema tokena
-                history.replaceState({ screenId: 'intro' }, '', '#intro');
+                initialScreenId = 'homePrikazPijanki';
             }
+
+            if (window.location.hash) {
+                const fullHash = window.location.hash.substring(1); // Ukloni '#'
+                const validScreens = ['homePrikazPijanki', 'praznaTrazilica', 'inboxPrikaz', 'glavniDio', 'editProfil', 'pravilaEkran', 'odabir', 'login', 'registracija', 'privatniChat'];
+
+                // Provjera za privatniChat sa ID-jem
+                if (fullHash.startsWith('privatniChat-')) {
+                    const partnerId = fullHash.split('-')[1];
+                    // Prvo dohvati sve korisnike ako već nisu, da se može pronaći partner
+                    await dohvatiSveKorisnike();
+                    if (sviKorisnici.find(u => u.id == partnerId)) {
+                        initialScreenId = 'privatniChat'; // Postavi chat kao početni ekran
+                    } else {
+                        // Partner ne postoji, vrati se na defaultni (home ili intro)
+                        initialScreenId = appInitializedSuccessfully ? 'homePrikazPijanki' : 'intro';
+                    }
+                } else if (validScreens.includes(fullHash)) {
+                    initialScreenId = fullHash; // Ako je validan statični hash, to je početni ekran
+                } else {
+                    // Ako hash nije validan, vrati se na defaultni
+                    initialScreenId = appInitializedSuccessfully ? 'homePrikazPijanki' : 'intro';
+                }
+            }
+
+            // Navigiraj na konačni početni ekran
+            navigateTo(initialScreenId, false); // Koristi false da ne doda u history na početku
+            history.replaceState({ screenId: initialScreenId }, '', `#${initialScreenId}`); // Postavi u history
+
+            // Specifična inicijalizacija za neke ekrane ako je potrebno
+            if (initialScreenId === 'privatniChat' && window.location.hash.startsWith('privatniChat-')) {
+                const partnerId = window.location.hash.split('-')[1];
+                await pokreniPrivatniChat(partnerId); // Pokreni chat specifično
+            } else if (initialScreenId === 'homePrikazPijanki') {
+                // Samo za home screen, pokreni punu aplikaciju koja će refreshati pijanke
+                originalPokreniAplikaciju(); // Ovo će pozvati prikaziPijankePregled i ostalo
+            } else if (initialScreenId === 'glavniDio' && trenutniKorisnik) {
+                originalOtvoriProfil(trenutniKorisnik.id);
+            } else if (initialScreenId === 'inboxPrikaz' && trenutniKorisnik) {
+                originalOtvoriInbox();
+            }
+
+
+            // Ovdje se pokreću intervali tek nakon što je aplikacija inicijalizirana
+            if (appInitializedSuccessfully) {
+                [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
+                activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
+                globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
+                azurirajMojuAktivnost(); // Prvo ažuriranje odmah
+                dohvatiLokaciju(); // Pokušaj dohvatiti lokaciju
+            }
+
 
             // Inicijalizacija listenera za privatniInput (ovo može ostati isto)
             const privatniInput = document.getElementById('privatniInput');
@@ -460,12 +473,19 @@
         });
 
         // Modificiramo pokreniAplikaciju da prikaže UI i postavi aktivni gumb
-        // Ne diramo pokreniAplikaciju ovdje, originalna je sada u script.js
-        // Ona već radi sve što treba: postavlja homePrikazPijanki kao početni ekran i history.replaceState.
+        // Originalna funkcija je sada u script.js i imenovana je kao originalPokreniAplikaciju
+        const originalPokreniAplikaciju = pokreniAplikaciju;
+        pokreniAplikaciju = function() {
+            originalPokreniAplikaciju();
+            toggleAppUI(true);
+        };
 
         // Modificiramo odjaviSe da sakrije UI
-        // Ne diramo odjaviSe ovdje, originalna je sada u script.js
-        // Ona već radi sve što treba: vraća na intro i history.replaceState.
+        // Originalna funkcija je sada u script.js
+        const originalOdjaviSe = odjaviSe;
+        odjaviSe = function() {
+            originalOdjaviSe();
+        };
 
         // Funkcija koja se poziva nakon što se swap završi, da ažurira aktivni nav gumb
         function afterSwapUpdateNavButton(targetScreenId) {
@@ -557,38 +577,7 @@
             });
         }
 
-        // --- NOVO: Funkcija za slanje slike privatno ---
-        async function posaljiSlikuPrivatno(imageData) { // imageData je Base64 string kompresirane slike
-            if (!imageData || !trenutniChatPartnerId) {
-                alert("Nema slike za poslati ili nije odabran primatelj.");
-                return;
-            }
-
-            const posaljiBtn = document.getElementById('posaljiPrivatnoBtn');
-            // Ne onemogućavamo ovdje posaljiBtn jer se koristi za tekstualne poruke.
-            // Ako želite vizualnu povratnu informaciju, možete prikazati loading spinner negdje drugdje.
-
-            try {
-                const response = await authenticatedFetch('/api/messages', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ receiverId: trenutniChatPartnerId, imageUrl: imageData }) // Šaljemo imageUrl
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    console.log("Slika uspješno poslana:", data);
-                    await dohvatiSvePoruke(); // Osvježi poruke nakon slanja
-                    prikaziPrivatniLog(); // Prikaz nove poruke
-                } else {
-                    alert("Greška pri slanju slike: " + data.message);
-                }
-            } catch (error) {
-                console.error("Došlo je do greške pri slanju slike:", error);
-                alert("Došlo je do greške pri slanju slike.");
-            } finally {
-                // Ovdje ne radimo ništa s posaljiBtn, jer se slanje slike ne pokreće preko njega
-            }
-        }
+        // Funkcija za slanje slike privatno - već je definirana u script.js, nema potrebe ovdje
     </script>
 </body>
 </html>
