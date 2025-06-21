@@ -947,6 +947,37 @@ img.preview-slika { display: none; }
     font-size: 15px;
     margin: 0;
     line-height: 1.4;
+    /* Postavljeno na default za tekstualne poruke */
+    background: #3a3a3a; /* Default sivi balon za tuđe poruke */
+    color: #f0f0f0;
+}
+/* Balon za moje poruke - neka bude crveni */
+.moja-poruka .poruka-balon {
+    background: #ff4757;
+    color: white;
+}
+
+/* Stil za balon kada sadrži sliku */
+.poruka-balon.image-message-bubble {
+    padding: 5px; /* Manji padding za slike */
+    background: transparent !important; /* UKLONJENO: Crveni background za sliku */
+    border: none !important; /* UKLONJENO: Borderi ako ih je bilo */
+    box-shadow: none !important; /* UKLONJENO: Sjena */
+}
+
+/* Stil za sliku thumbnail u chatu */
+.chat-image-thumbnail {
+    max-width: 150px; /* Smanjite thumbnail veličinu */
+    height: auto;
+    border-radius: 8px;
+    cursor: pointer;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.2s ease-in-out;
+}
+
+.chat-image-thumbnail:hover {
+    transform: scale(1.02);
 }
 
 .poruka-vrijeme {
@@ -960,8 +991,7 @@ img.preview-slika { display: none; }
 }
 
 .moja-poruka .poruka-balon {
-    background: #ff4757;
-    color: white;
+    /* Background i boja definirani iznad, ali ovdje je specifičan radius */
     border-bottom-right-radius: 4px;
 }
 .moja-poruka .poruka-vrijeme {
@@ -973,14 +1003,55 @@ img.preview-slika { display: none; }
     align-items: flex-start;
 }
 .tudja-poruka .poruka-balon {
-    background: #3a3a3a;
-    color: #f0f0f0;
+    /* Background i boja definirani iznad, ali ovdje je specifičan radius */
     border-bottom-left-radius: 4px;
 }
 .tudja-poruka .poruka-vrijeme {
     margin-left: 8px;
 }
 /* ======================================================== */
+
+/* NOVO: Stilovi za modal za prikaz slike u punoj veličini */
+.image-modal {
+    display: none; /* Skriveno po defaultu */
+    position: fixed; /* Ostaje na mjestu čak i kad se skrola */
+    z-index: 200; /* Mora biti iznad svega ostalog */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Omogućava skrolanje ako je slika veća od ekrana */
+    background-color: rgba(0, 0, 0, 0.9); /* Tamna, poluprozirna pozadina */
+    justify-content: center; /* Centriranje sadržaja horizontalno */
+    align-items: center; /* Centriranje sadržaja vertikalno */
+}
+
+.image-modal-content {
+    margin: auto;
+    display: block;
+    max-width: 95%; /* Ograniči veličinu slike unutar modala */
+    max-height: 95vh; /* Ograniči visinu slike unutar modala */
+    object-fit: contain; /* Smanji sliku da stane, a da ne odreže dijelove */
+}
+
+.close-image-modal {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+    z-index: 201; /* Iznad same slike */
+}
+
+.close-image-modal:hover,
+.close-image-modal:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
 
 
 #splashScreen {
@@ -1138,11 +1209,3 @@ img.preview-slika { display: none; }
     outline: none !important;
 }
 /* === KRAJ CSS-a === */
-
-.chat-image-message {
-    max-width: 100%; /* Slike ne prelaze širinu balona */
-    height: auto;
-    border-radius: 8px;
-    margin-top: 5px; /* Mali razmak od teksta ako ga ima */
-    display: block; /* Osigurava da se ponaša kao blok element */
-}

@@ -702,6 +702,7 @@ function prikaziPrivatniLog() {
     const chatKey = [trenutniKorisnik.id, trenutniChatPartnerId].sort().join("-");
     const log = privatnePoruke[chatKey] || [];
     const div = document.getElementById("privatniChatLog");
+    const fullImageModal = document.getElementById('fullImage'); // Dohvati element modala
 
     const sortiraniLog = log.slice().sort((a, b) => new Date(b.time) - new Date(a.time));
 
@@ -711,15 +712,15 @@ function prikaziPrivatniLog() {
 
         let messageContent;
         if (msg.imageUrl) {
-            messageContent = `<img src="${msg.imageUrl}" alt="Poslana slika" class="chat-image-message">`;
+            // Smanjite prikazanu sliku i dodajte onclick za otvaranje modala
+            messageContent = `<img src="${msg.imageUrl}" alt="Poslana slika" class="chat-image-thumbnail" onclick="openImageModal('${msg.imageUrl}')">`;
         } else {
             messageContent = `<span>${msg.tekst}</span>`;
         }
 
         return `
             <div class="poruka-wrapper ${klasaWrappera}">
-                <div class="poruka-balon">
-                    ${messageContent}
+                <div class="poruka-balon ${msg.imageUrl ? 'image-message-bubble' : ''}"> ${messageContent}
                 </div>
                 <span class="poruka-vrijeme">${vrijeme}</span>
             </div>
@@ -732,6 +733,15 @@ function prikaziPrivatniLog() {
     setTimeout(() => {
         div.scrollTop = 0; // Skrolaj na vrh sadržaja (što je vizualno dno zbog column-reverse)
     }, 100); // Povećan delay na 100ms
+}
+
+// NOVO: Funkcija za otvaranje modala za slike
+function openImageModal(imageUrl) {
+    const imageModal = document.getElementById('imageModal');
+    const fullImage = document.getElementById('fullImage');
+    fullImage.src = imageUrl;
+    imageModal.style.display = 'flex'; // Promijenjeno na flex za centriranje
+    document.body.style.overflow = 'hidden'; // Onemogući skrolanje pozadine
 }
 
 async function dohvatiSveKorisnike() {

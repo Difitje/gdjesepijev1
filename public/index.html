@@ -220,6 +220,11 @@
         </button>
     </nav>
 
+    <div id="imageModal" class="image-modal">
+        <span class="close-image-modal">&times;</span>
+        <img class="image-modal-content" id="fullImage">
+    </div>
+
     <script src="/script.js"></script>
     <script>
         // Pomoćna funkcija za ažuriranje aktivnog gumba u navigaciji
@@ -364,6 +369,26 @@
                             imageUploadChatEl.value = ''; // Resetirajte input field da možete ponovno odabrati istu sliku
                         };
                         reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // NOVO: Postavite event listenere za modal za slike
+            const imageModal = document.getElementById('imageModal');
+            const closeImageModal = document.querySelector('.close-image-modal');
+            if (closeImageModal) {
+                closeImageModal.onclick = function() {
+                    imageModal.style.display = 'none';
+                    // Vratite skrolanje tijelu kad se modal zatvori
+                    document.body.style.overflow = 'hidden';
+                };
+            }
+            if (imageModal) {
+                // Zatvori modal klikom izvan slike (ali unutar overlay-a)
+                imageModal.addEventListener('click', function(event) {
+                    if (event.target === imageModal) {
+                        imageModal.style.display = 'none';
+                        document.body.style.overflow = 'hidden';
                     }
                 });
             }
@@ -618,16 +643,20 @@
 
         // --- NOVO: Funkcija za slanje slike privatno ---
         async function posaljiSlikuPrivatno(imageData) { // imageData je Base64 string kompresirane slike
-            if (!imageData || !trenutniChatPartnerId) return;
+            if (!imageData || !trenutniChatPartnerId) {
+                alert("Nema slike za poslati ili nije odabran primatelj.");
+                return;
+            }
 
             const posaljiBtn = document.getElementById('posaljiPrivatnoBtn');
-            posaljiBtn.disabled = true; // Onemogući gumb dok se slika šalje
+            // Ne onemogućavamo ovdje posaljiBtn jer se koristi za tekstualne poruke.
+            // Ako želite vizualnu povratnu informaciju, možete prikazati loading spinner negdje drugdje.
 
             try {
                 const response = await authenticatedFetch('/api/messages', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ receiverId: trenutniChatPartnerId, imageUrl: imageData }) // Šaljemo imageUrl umjesto content
+                    body: JSON.stringify({ receiverId: trenutniChatPartnerId, imageUrl: imageData }) // Šaljemo imageUrl
                 });
                 const data = await response.json();
                 if (response.ok) {
@@ -641,7 +670,7 @@
                 console.error("Došlo je do greške pri slanju slike:", error);
                 alert("Došlo je do greške pri slanju slike.");
             } finally {
-                posaljiBtn.disabled = false; // Ponovno omogući gumb
+                // Ovdje ne radimo ništa s posaljiBtn, jer se slanje slike ne pokreće preko njega
             }
         }
     </script>
