@@ -1,5 +1,5 @@
 /* === POCETAK CSS-a (Konačna verzija) === */
-/* public/style.css - VERZIJA 18 - Izgled profila i gumb Prati/Otprati */
+/* public/style.css - VERZIJA 19 - Centriranje intro/login/register ekrana */
 
 * {
     box-sizing: border-box;
@@ -93,10 +93,15 @@ body::before {
 }
 
 /* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
+/* === NOVO: Centriranje ovih ekrana === */
 #intro, #odabir, #login, #registracija, #pravilaEkran {
     padding-top: 20px;
     overflow-y: auto; /* Dopuštamo scroll na ovim ekranima ako je sadržaj velik */
+    justify-content: center; /* Vertikalno centriranje */
+    align-items: center; /* Horizontalno centriranje */
+    text-align: center; /* Centriranje teksta unutar njih */
 }
+/* ==================================== */
 
 
 /* === PRILAGODBA ZA privatniChat CONTAINER - ZAUZIMA CIJELI EKRAN I POMAKNUT JE ZBOG CHAT HEADERA I INPUTA === */
@@ -856,7 +861,6 @@ img.preview-slika { display: none; }
     border-bottom-left-radius: 18px;
 }
 
-
 .poruka-vrijeme {
     font-size: 11px;
     color: #888;
@@ -957,7 +961,7 @@ img.preview-slika { display: none; }
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    overflow-y: auto; /* Omogućuje scroll samo unutar edit profila */
+    overflow-y: auto;
 }
 
 #editProfil h2 {
@@ -1066,7 +1070,7 @@ img.preview-slika { display: none; }
     border-radius: 0;
     box-shadow: none;
     width: 100%;
-    height: 100%; /* Zauzima punu visinu roditelja (#glavniDio) */
+    height: 100%;
     position: relative;
     overflow-y: auto; /* Omogućuje scroll SAMO unutar ovog div-a */
     -webkit-overflow-scrolling: touch;
@@ -1275,8 +1279,8 @@ img.preview-slika { display: none; }
 
 .tab-content {
     width: 100%;
-    max-height: 60vh; /* Ograničena visina za scroll unutar taba */
-    overflow-y: auto; /* Scroll bar samo za sadržaj taba */
+    max-height: 60vh;
+    overflow-y: auto;
     padding: 10px;
     display: none;
 }
@@ -1285,7 +1289,6 @@ img.preview-slika { display: none; }
     display: block;
 }
 
-/* Stil za skrolbar unutar tab-contenta */
 .tab-content::-webkit-scrollbar {
     width: 8px;
 }
@@ -1500,16 +1503,15 @@ img.preview-slika { display: none; }
     font-weight: 500;
 }
 
-/* NOVO: Manji gumb 'Prati' / 'Otprati' u listama korisnika */
 .user-list-follow-btn {
-    padding: 6px 12px; /* Manji padding */
-    border-radius: 16px; /* Manji border-radius */
-    font-size: 12px; /* Manji font size */
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px; /* Smanjen letter-spacing */
+    letter-spacing: 0.5px;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
     flex-shrink: 0;
-    line-height: 1.2; /* Prilagođavanje line-heighta */
+    line-height: 1.2;
 }
