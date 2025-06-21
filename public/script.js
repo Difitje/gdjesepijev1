@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const reader = new FileReader();
                 reader.onload = e => {
                     odabranaEditSlika = e.target.result;
-                    const previewElement = document.getElementById("previewEditSlike");
+                    const previewElement = document.getElementById("previewEditSlikes");
                     if (previewElement) {
                         previewElement.src = odabranaEditSlika;
                         if (previewElement.style.display === "none") {
@@ -292,7 +292,7 @@ function pokreniAplikaciju() {
 
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
-    globalDataRefreshInterval = setInterval(globalDataRefreshInterval, 30e3);
+    globalDataRefreshInterval = setInterval(globalDataRefreshUI, 30e3); // Ispravak: pozivamo globalRefreshUI, ne globalDataRefreshInterval
 
     azurirajMojuAktivnost();
     dohvatiLokaciju(() => {
@@ -544,6 +544,8 @@ async function otvoriProfil(korisnikId, fromRefresh = false) {
     if (!korisnik) return;
 
     // Dohvati podatke o pratiteljima i praćenjima za prikazani profil
+    // Ove linije su ovdje bitne jer se profil može otvoriti direktno
+    // ili osvježiti putem globalRefreshUI. Uvijek želimo svježe podatke.
     await Promise.all([
         dohvatiPratiteljeKorisnika(korisnikId),
         dohvatiKogaKorisnikPrati(korisnikId)
@@ -561,6 +563,7 @@ async function otvoriProfil(korisnikId, fromRefresh = false) {
     backButton.style.display = 'none';
 
     let actionButtons = '';
+    // PROMJENA: myFollowings je već globalno ažuriran putem globalRefreshUI
     let isFollowing = myFollowings.includes(korisnikId);
     let followButtonHtml = '';
 
@@ -963,8 +966,13 @@ async function toggleFollow(targetUserId, isCurrentlyFollowing) {
 
         if (response.ok) {
             alert(data.message);
-            await globalRefreshUI();
-            otvoriProfil(targetUserId, true);
+            // Nakon uspješne akcije, OBAVEZNO Osvježi myFollowings
+            await dohvatiMojaPracenja(); // Osvježi listu praćenja
+            // Zatim ponovno prikaži profil kako bi se UI ažurirao
+            // Dodajemo mali delay kako bi dohvatiMojaPracenja sigurno završila
+            setTimeout(() => {
+                otvoriProfil(targetUserId, true); // Osvježi prikazani profil
+            }, 50); // Kratak delay
         } else {
             alert(`Greška pri ${actionText.toLowerCase()}anju: ${data.message}`);
         }
@@ -996,6 +1004,7 @@ function showUserListModal(userId, userName, listType) {
             const user = sviKorisnici.find(u => u.id === id);
             if (user) {
                 const isOnline = formatirajStatus(user.lastActive).online;
+                // U HTML-u, onclick na gumbu toggleFollow je izmijenjen
                 userListHtml.innerHTML += `
                     <div class="user-list-item" onclick="closeUserListModal(); otvoriProfil('${user.id}')">
                         <div class="user-list-avatar-wrapper">
@@ -1005,7 +1014,18 @@ function showUserListModal(userId, userName, listType) {
                         <span class="user-list-name">${user.ime}</span>
                         ${trenutniKorisnik && trenutniKorisnik.id !== user.id ? `
                             <button class="user-list-follow-btn btn-${myFollowings.includes(user.id) ? 'secondary' : 'primary'}"
-                                onclick="event.stopPropagation(); toggleFollow('${user.id}', ${myFollowings.includes(user.id)}).then(() => { closeUserListModal(); otvoriProfil('${userId}', true); showUserListModal('${userId}', '${userName}', '${listType}'); });">
+                                onclick="event.stopPropagation();
+                                toggleFollow('${user.id}', ${myFollowings.includes(user.id)})
+                                    .then(() => {
+                                        closeUserListModal();
+                                        // Ažuriramo originalni profil i ponovno otvaramo modal s listom
+                                        // kako bi se prikazao ažurirani status prati/otprati u listi.
+                                        // Delay je bitan da se dohvatiMojaPracenja završi.
+                                        setTimeout(() => {
+                                            otvoriProfil('${userId}', true); // Originalni profil
+                                            showUserListModal('${userId}', '${userName}', '${listType}'); // Ponovno otvori listu
+                                        }, 100);
+                                    });">
                                 ${myFollowings.includes(user.id) ? 'Otprati' : 'Prati'}
                             </button>` : ''}
                     </div>
