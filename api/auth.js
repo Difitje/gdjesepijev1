@@ -11,8 +11,14 @@ module.exports = (handler) => async (req, res) => {
     const isRegisterOrLogin = req.url === '/api/register' || req.url === '/api/login';
     const isPublicGetPosts = req.url === '/api/posts' && req.method === 'GET';
 
+    // === NOVO: Dodane rute za pratitelje/praćenja kao javne (GET) ===
+    const isPublicGetFollowers = req.url.match(/^\/api\/users\/[^/]+\/followers$/) && req.method === 'GET';
+    const isPublicGetFollowing = req.url.match(/^\/api\/users\/[^/]+\/following$/) && req.method === 'GET';
+    // Rute za praćenje/otpraćivanje (`/api/users/[id]/follow`) moraju OSTATI ZAŠTIĆENE,
+    // jer one mijenjaju podatke, a ne samo dohvaćaju.
+    // ===============================================================
 
-    if (isRegisterOrLogin || isPublicGetUsers || isPublicGetSingleUser || isPublicGetPosts) {
+    if (isRegisterOrLogin || isPublicGetUsers || isPublicGetSingleUser || isPublicGetPosts || isPublicGetFollowers || isPublicGetFollowing) {
         // Ove rute zaobilaze autentifikaciju i idu direktno na handler
         return handler(req, res);
     }

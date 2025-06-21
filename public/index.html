@@ -124,7 +124,7 @@
             <textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea>
             <button onclick="objaviPijanku()">Objavi</button>
         </div>
-        <div id="profilKorisnika"></div>
+        <div id="profilKorisnika" data-user-id=""></div> 
     </div>
 
     <div class="container" id="privatniChat">
@@ -233,6 +233,13 @@
         <img class="image-modal-content" id="fullImage">
     </div>
 
+    <div id="userListModal" class="image-modal"> <span class="close-image-modal" onclick="closeUserListModal()">&times;</span>
+        <div class="user-list-modal-content-wrapper">
+            <h2 id="userListModalTitle"></h2>
+            <div id="userListHtml" class="user-list-scroll-area">
+                </div>
+        </div>
+    </div>
     <script src="/script.js"></script>
     <script>
         // Pomoćna funkcija za ažuriranje aktivnog gumba u navigaciji
@@ -275,6 +282,7 @@
                 else if (currentActiveNavButton.id === 'navSearch') currentTargetScreenId = 'praznaTrazilica';
                 else if (currentActiveNavButton.id === 'navInbox') currentTargetScreenId = 'inboxPrikaz';
                 else if (currentActiveNavButton.id === 'navProfile') {
+                    // Check if current screen is 'glavniDio' AND showing 'profilKorisnika'
                     if (document.getElementById("profilKorisnika") && document.getElementById("profilKorisnika").style.display !== "none" && document.querySelector('.container.active-screen')?.id === 'glavniDio') {
                         currentTargetScreenId = 'glavniDio';
                     } else if (document.querySelector('.container.active-screen')?.id === 'editProfil') {
@@ -283,11 +291,12 @@
                 }
             }
 
-            // Onemogući ponovni klik na aktivni gumb
+            // Onemogući ponovni klik na aktivni gumb, osim ako si na editProfil pa želiš na moj profil
             if (targetScreenId === currentTargetScreenId) {
                 if (targetScreenId === 'glavniDio' && currentTargetScreenId === 'editProfil') {
+                    // Ovo je specifičan slučaj gdje želimo ići s editProfila na moj profil, pa dozvoli
                 } else {
-                    return;
+                    return; // Inače, spriječi ponovni klik na isti gumb
                 }
             }
 
@@ -295,6 +304,7 @@
             // Pozovi odgovarajuću funkciju na temelju targetScreenId
             if (targetScreenId === 'homePrikazPijanki') {
                 navigateTo(targetScreenId);
+                prikaziPijankePregled(); // Osiguraj da se pijanke refreshaju
             } else if (targetScreenId === 'praznaTrazilica') {
                 navigateTo(targetScreenId);
                 // Ovdje se ne poziva dohvatiSvePijanke/prikaziPijankePregled
@@ -319,7 +329,7 @@
             if (token) {
                 try {
                     // Pokušaj dohvatiti korisničke podatke pomoću tokena
-                    const response = await authenticatedFetch('/api/auth/me');
+                    const response = await authenticatedFetch('/api/auth/me'); // Pretpostavljam da imate /api/auth/me endpoint
                     if (response.ok) {
                         const data = await response.json();
                         trenutniKorisnik = data.user;
@@ -388,7 +398,7 @@
                 closeImageModal.onclick = function() {
                     imageModal.style.display = 'none';
                     // Vratite skrolanje tijelu kad se modal zatvori
-                    document.body.style.overflow = 'hidden';
+                    document.body.style.overflow = 'auto'; // Promijenjeno na 'auto' za normalno skrolanje
                 };
             }
             if (imageModal) {
@@ -396,7 +406,7 @@
                 imageModal.addEventListener('click', function(event) {
                     if (event.target === imageModal) {
                         imageModal.style.display = 'none';
-                        document.body.style.overflow = 'hidden';
+                        document.body.style.overflow = 'auto'; // Promijenjeno na 'auto'
                     }
                 });
             }
@@ -434,9 +444,10 @@
             } else if (targetScreenId === 'inboxPrikaz') {
                 updateActiveNavButton('navInbox');
             } else if (targetScreenId === 'glavniDio') {
+                // Provjeri je li trenutno prikazan profil, a ne objava
                 if (document.getElementById("profilKorisnika") && document.getElementById("profilKorisnika").style.display !== "none") {
                     updateActiveNavButton('navProfile');
-                } else {
+                } else { // Ako je objava forma, niti jedan nav gumb nije aktivan
                     document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                         button.classList.remove('active');
                     });
@@ -449,7 +460,7 @@
                     button.classList.remove('active');
                 });
             }
-            else {
+            else { // Za ostale ekrane (login, register, intro...) nijedan nav gumb nije aktivan
                 document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                     button.classList.remove('active');
                 });
@@ -460,10 +471,8 @@
         const originalNavigateTo = navigateTo;
         navigateTo = function(targetScreenId) {
             const currentScreenEl = document.querySelector('.container.active-screen');
-            // Dodan praznaTrazilica u navBarTargetScreens
             const navBarTargetScreens = ['homePrikazPijanki', 'praznaTrazilica', 'inboxPrikaz', 'glavniDio', 'editProfil'];
 
-            // Prikazi/sakrij confirm-button na editProfilu
             const confirmButton = document.getElementById('sacuvajProfilBtn');
             if (confirmButton) {
                 if (targetScreenId === 'editProfil') {
@@ -473,20 +482,14 @@
                 }
             }
 
-            if (currentScreenEl && !navBarTargetScreens.includes(targetScreenId)) {
-                if (!(navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId))) {
-                    navigationStack.push(currentScreenEl.id);
-                }
-            } else if (currentScreenEl && targetScreenId === 'glavniDio' && document.getElementById("profilKorisnika").style.display !== "none") {
-            } else if (currentScreenEl && targetScreenId === 'glavniDio' && currentScreenEl.id === 'editProfil') {
-            }
-            else if (currentScreenEl && targetScreenId === 'privatniChat' && currentScreenEl.id.includes('Chat')) {
-            }
-            else if (currentScreenEl && !navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId)) {
-            }
-            else if (currentScreenEl && targetScreenId === 'glavniDio' && document.getElementById("objavaForma").style.display !== "none") {
-            }
-            else {
+            // Provjera je li navigacija unutar navbara (preskače push na stack)
+            const isNavigatingWithinNavbar = (currentScreenEl && navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId));
+            const isNavigatingFromEditToProfile = (currentScreenEl && currentScreenEl.id === 'editProfil' && targetScreenId === 'glavniDio');
+            const isNavigatingFromChatToChat = (currentScreenEl && currentScreenEl.id === 'privatniChat' && targetScreenId === 'privatniChat');
+
+
+            if (!isNavigatingWithinNavbar && !isNavigatingFromEditToProfile && !isNavigatingFromChatToChat && currentScreenEl) {
+                navigationStack.push(currentScreenEl.id);
             }
 
             swap(currentScreenEl ? currentScreenEl.id : null, targetScreenId);
@@ -496,15 +499,16 @@
         // Modificiramo navigateBack - potrebno je osigurati da se animacija završi
         const originalNavigateBack = navigateBack;
         navigateBack = function() {
-            const targetScreenIdAfterBack = navigationStack[navigationStack.length - 1];
-
+            // Prvo pozovi originalnu funkciju navigateBack
             originalNavigateBack();
 
+            // Daj malo vremena za animaciju, pa onda ažuriraj UI
             setTimeout(() => {
                 const newActiveScreenEl = document.querySelector('.container.active-screen');
                 if (newActiveScreenEl) {
                     afterSwapUpdateNavButton(newActiveScreenEl.id);
                 } else {
+                    // Ako nema aktivnog ekrana (npr. vraćanje na intro), resetiraj nav gumbe
                     document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
                         button.classList.remove('active');
                     });
@@ -517,113 +521,11 @@
                         confirmButton.classList.add('hidden');
                     }
                 }
-
-            }, 300);
+            }, 300); // Ovo vrijeme bi trebalo biti jednako trajanju fadeOut animacije
         };
 
         // Kada se otvara profil, ažuriraj nav gumb i sakrij FAB
-        const originalOtvoriProfil = otvoriProfil;
-        otvoriProfil = function(korisnikId) {
-            navigateTo('glavniDio');
-
-            const korisnik = sviKorisnici.find(u => u.id === korisnikId);
-            if (!korisnik) return;
-
-            const profilKorisnikaDiv = document.getElementById("profilKorisnika");
-            document.getElementById("objavaForma").style.display = "none";
-            profilKorisnikaDiv.style.display = "flex";
-
-            let actionButtons = '';
-            if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
-                document.querySelector('#glavniDio h2').innerText = "Moj profil";
-                actionButtons = `<button onclick="prikaziEditProfila()">Uredi profil</button><button class="btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
-            } else {
-                document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
-                actionButtons = `<button onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
-            }
-
-            profilKorisnikaDiv.innerHTML = `
-                <img src="${korisnik.slika || 'default_profile.png'}" class="profilna-slika-velika">
-                <h2 style="padding-top:0; margin-bottom: 5px;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
-                <p class="profil-opis">${korisnik.opis || "Nema opisa."}</p>
-                <div class="drustvene-mreze">${prikaziMreze(korisnik)}</div>
-                <div class="profil-actions">${actionButtons}</div>
-            `;
-
-            // Sakrij back i close gumbe kada se prikazuje profil
-            document.querySelector('#glavniDio .back-button').style.display = 'none';
-            document.querySelector('#glavniDio .close-btn').style.display = 'none';
-        };
-
-        // Kada se otvara inbox, ažuriraj nav gumb i sakrij FAB
-        const originalOtvoriInbox = otvoriInbox;
-        otvoriInbox = function() {
-            navigateTo('inboxPrikaz');
-
-            const div = document.getElementById("listaChatova");
-            div.innerHTML = "";
-
-            dohvatiSvePoruke().then(() => {
-                const chatKeys = (trenutniKorisnik && trenutniKorisnik.id) ? Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id)) : [];
-                if (chatKeys.length === 0) {
-                    div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
-                } else {
-                    // Sortiraj po vremenu zadnje poruke, najnovije prvo
-                    chatKeys.sort((a, b) => {
-                        const timeA = privatnePoruke[a]?.slice(-1)[0]?.time;
-                        const timeB = privatnePoruke[b]?.slice(-1)[0]?.time;
-                        if (!timeA) return 1; // Ako nema poruka, premjesti ga na kraj
-                        if (!timeB) return -1; // Ako nema poruka, premjesti ga na kraj
-                        return new Date(timeB) - new Date(timeA);
-                    })
-                    .forEach(chatKey => {
-                        const partnerId = chatKey.split("-").find(id => id !== trenutniKorisnik.id);
-                        const partner = sviKorisnici.find(u => u.id == partnerId);
-                        if (!partner) return;
-
-                        // --- START: Nova logika za dohvaćanje detalja zadnje poruke ---
-                        const svePorukeChata = privatnePoruke[chatKey] || [];
-                        const zadnjaPorukaObj = svePorukeChata.length > 0 ? svePorukeChata[svePorukeChata.length - 1] : null;
-
-                        let zadnjaPorukaPreview = "Započnite razgovor";
-                        if (zadnjaPorukaObj) {
-                            if (zadnjaPorukaObj.imageUrl) {
-                                zadnjaPorukaPreview = "📷 Slika";
-                            } else if (zadnjaPorukaObj.tekst) {
-                                zadnjaPorukaPreview = zadnjaPorukaObj.tekst;
-                            }
-                        }
-
-                        const vrijemePoruke = zadnjaPorukaObj ? new Date(zadnjaPorukaObj.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' }) : '';
-                        const neprocitaneCount = svePorukeChata.filter(m => !m.isRead && m.autorId == partner.id).length;
-                        const status = formatirajStatus(partner.lastActive);
-                        // --- END: Nova logika ---
-
-                        // --- START: Novi, redizajnirani HTML za chat-item ---
-                        div.innerHTML += `
-                            <div class="chat-item" data-partner-name="${partner.ime.toLowerCase()}" onclick="pokreniPrivatniChat('${partner.id}')">
-                                <div class="chat-profilna-wrapper">
-                                    <img src="${partner.slika || 'default_profile.png'}" class="chat-item-profilna" alt="profilna">
-                                    <span class="status-dot ${status.online ? 'online' : 'offline'}"></span>
-                                </div>
-                                <div class="chat-item-info">
-                                    <div class="chat-item-info-text">
-                                        <strong>${partner.ime}</strong>
-                                        <p class="status-text">${zadnjaPorukaPreview}</p>
-                                    </div>
-                                    <div class="chat-meta-info">
-                                        <span class="chat-vrijeme">${vrijemePoruke}</span>
-                                        ${neprocitaneCount > 0 ? `<span class="notification-badge-chat">${neprocitaneCount}</span>` : ""}
-                                    </div>
-                                </div>
-                            </div>`;
-                        // --- END: Novi HTML ---
-                    });
-                }
-                azurirajNotifikacije();
-            });
-        };
-
+        // Originalna funkcija otvoriProfil je premještena i modificirana u gornjem dijelu script.js
 
         // Kada se pokaže objava, navigacija ostaje, ali niti jedan gumb nije "aktivan" i FAB se skriva
         const originalPokaziObjavu = pokaziObjavu;
@@ -647,39 +549,6 @@
                     item.style.display = 'none';
                 }
             });
-        }
-
-        // --- NOVO: Funkcija za slanje slike privatno ---
-        async function posaljiSlikuPrivatno(imageData) { // imageData je Base64 string kompresirane slike
-            if (!imageData || !trenutniChatPartnerId) {
-                alert("Nema slike za poslati ili nije odabran primatelj.");
-                return;
-            }
-
-            const posaljiBtn = document.getElementById('posaljiPrivatnoBtn');
-            // Ne onemogućavamo ovdje posaljiBtn jer se koristi za tekstualne poruke.
-            // Ako želite vizualnu povratnu informaciju, možete prikazati loading spinner negdje drugdje.
-
-            try {
-                const response = await authenticatedFetch('/api/messages', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ receiverId: trenutniChatPartnerId, imageUrl: imageData }) // Šaljemo imageUrl
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    console.log("Slika uspješno poslana:", data);
-                    await dohvatiSvePoruke(); // Osvježi poruke nakon slanja
-                    prikaziPrivatniLog(); // Prikaz nove poruke
-                } else {
-                    alert("Greška pri slanju slike: " + data.message);
-                }
-            } catch (error) {
-                console.error("Došlo je do greške pri slanju slike:", error);
-                alert("Došlo je do greške pri slanju slike.");
-            } finally {
-                // Ovdje ne radimo ništa s posaljiBtn, jer se slanje slike ne pokreće preko njega
-            }
         }
     </script>
 </body>
