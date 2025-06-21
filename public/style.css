@@ -1,5 +1,5 @@
 /* === POCETAK CSS-a (Konačna verzija) === */
-/* public/style.css - VERZIJA 19 - Centriranje intro/login/register ekrana */
+/* public/style.css - VERZIJA 20 - Profil bez scrolla */
 
 * {
     box-sizing: border-box;
@@ -81,27 +81,25 @@ body::before {
 .container {
     padding-bottom: 70px;
 }
-#homePrikazPijanki, #praznaTrazilica, #inboxPrikaz { /* NE #glavniDio ili #editProfil */
+#homePrikazPijanki, #praznaTrazilica, #inboxPrikaz {
     padding-top: 70px;
     overflow-y: auto; /* Dopuštamo scroll samo na ovim ekranima */
 }
 
 /* Prilagodba za profile i edit profile ekrane */
 #glavniDio, #editProfil {
-    padding-top: 70px; /* Standardni padding od headera */
-    /* NEMA overflow-y: auto ovdje, već će ga imati unutrašnji div-ovi */
+    padding-top: 70px;
+    /* NEMA overflow-y: auto ovdje, niti na profilKorisnika, da se spriječi scroll */
 }
 
 /* Za ekrane koji nemaju header (npr. intro, odabir, login, registracija, pravilaEkran) */
-/* === NOVO: Centriranje ovih ekrana === */
 #intro, #odabir, #login, #registracija, #pravilaEkran {
     padding-top: 20px;
-    overflow-y: auto; /* Dopuštamo scroll na ovim ekranima ako je sadržaj velik */
-    justify-content: center; /* Vertikalno centriranje */
-    align-items: center; /* Horizontalno centriranje */
-    text-align: center; /* Centriranje teksta unutar njih */
+    /* NEĆEMO STAVITI overflow-y: auto; ovdje jer je cilj da stane na ekran */
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
-/* ==================================== */
 
 
 /* === PRILAGODBA ZA privatniChat CONTAINER - ZAUZIMA CIJELI EKRAN I POMAKNUT JE ZBOG CHAT HEADERA I INPUTA === */
@@ -127,14 +125,14 @@ body::before {
     padding-right: 12px;
     text-align: center;
     position: absolute;
-    top: 0; /* Smanjeno na 0 */
+    top: 0;
     left: 0;
     right: 0;
     z-index: 5;
     background-color: rgba(0, 0, 0, 0.95);
     padding-top: 0;
     margin-bottom: 0;
-    height: 60px; /* Povećana visina za mobilni header */
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -152,7 +150,7 @@ body::before {
     display: flex;
     align-items: center;
     position: sticky;
-    top: 60px; /* Prilagođeno novoj visini h2 */
+    top: 60px;
     z-index: 4;
     box-sizing: border-box;
     border-radius: 20px;
@@ -1072,30 +1070,12 @@ img.preview-slika { display: none; }
     width: 100%;
     height: 100%;
     position: relative;
-    overflow-y: auto; /* Omogućuje scroll SAMO unutar ovog div-a */
+    /* UKLONJEN overflow-y: auto; da se spriječi skrolanje na profilu */
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 80px; /* Dodatni padding za bottom nav */
+    padding-bottom: 80px;
 }
 
-/* Stil za skrolbar unutar #profilKorisnika */
-#profilKorisnika::-webkit-scrollbar {
-    width: 8px;
-}
-
-#profilKorisnika::-webkit-scrollbar-track {
-    background: #1a1a1a;
-    border-radius: 10px;
-}
-
-#profilKorisnika::-webkit-scrollbar-thumb {
-    background: #ff4757;
-    border-radius: 10px;
-    border: 2px solid #1a1a1a;
-}
-
-#profilKorisnika::-webkit-scrollbar-thumb:hover {
-    background: #e03f4d;
-}
+/* UKLONJENI stilovi za skrolbar unutar #profilKorisnika */
 
 
 .profile-header {
@@ -1279,8 +1259,7 @@ img.preview-slika { display: none; }
 
 .tab-content {
     width: 100%;
-    max-height: 60vh;
-    overflow-y: auto;
+    /* UKLONJEN max-height i overflow-y da se spriječi scroll unutar taba */
     padding: 10px;
     display: none;
 }
@@ -1289,24 +1268,7 @@ img.preview-slika { display: none; }
     display: block;
 }
 
-.tab-content::-webkit-scrollbar {
-    width: 8px;
-}
-
-.tab-content::-webkit-scrollbar-track {
-    background: #1a1a1a;
-    border-radius: 10px;
-}
-
-.tab-content::-webkit-scrollbar-thumb {
-    background: #ff4757;
-    border-radius: 10px;
-    border: 2px solid #1a1a1a;
-}
-
-.tab-content::-webkit-scrollbar-thumb:hover {
-    background: #e03f4d;
-}
+/* UKLONJENI stilovi za skrolbar unutar tab-contenta */
 
 
 .profile-post-grid {
