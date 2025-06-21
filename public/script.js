@@ -324,7 +324,7 @@ async function sacuvajProfil() {
     if (odabranaEditSlika) {
         finalSlika = await compressImage(odabranaEditSlika);
     } else {
-        finalSlika = document.getElementById("previewEditSlike").src;
+        finalSlika = document.getElementById("previewEditSlikes").src;
     }
 
     const updateData = { username: novoIme, opis: noviOpis, instagram: noviInstagram, tiktok: noviTiktok };
