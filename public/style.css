@@ -724,7 +724,7 @@ body::before {
     text-align: center;
     width: auto;
     white-space: nowrap;
-    margin-top: -2px; /* NOVO: Eksperimentiraj s ovom vrijednošću, npr. -1px, -3px */
+    margin-top: -4px; /* NOVO: Eksperimentiraj s ovom vrijednošću, npr. -1px, -3px */
 }
 .chat-info-text-wrapper {
     display: flex;
