@@ -1,5 +1,5 @@
 /* === POCETAK CSS-a (Konačna verzija) === */
-/* public/style.css - VERZIJA 13 - Ažurirane ikone tražilice i inbox tražilica */
+/* public/style.css - VERZIJA 15 - Stare nav ikone + nove tražilice */
 
 * {
     box-sizing: border-box;
@@ -226,8 +226,11 @@ body::before {
     margin-left: 10px;
     width: 20px;
     height: 20px;
-    fill: #b0b0b0;
+    fill: #b0b0b0; /* SADA JE OVO FILL IKONA */
     flex-shrink: 0;
+    /* Ukloni stroke za fill ikone */
+    stroke: none;
+    stroke-width: 0;
 }
 /* === KRAJ: Stilovi za Search Bar u Inboxu === */
 
@@ -335,95 +338,109 @@ body::before {
 }
 
 
-/* NOVI STILOVI ZA BOTTOM NAVIGACIJU */
+/* NOVI STILOVI ZA BOTTOM NAVIGACIJU (SADA KOMBINIRANI) */
 .bottom-nav {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 60px; /* Visina navigacijskog bara */
-    background-color: rgba(0, 0, 0, 0.95); /* Tamna, blago prozirna pozadina */
+    height: 60px;
+    background-color: rgba(0, 0, 0, 0.95);
     border-top: 1px solid rgba(0, 0, 0, 0.5);
     display: flex;
-    justify-content: space-around; /* Ravnomjerno rasporedi gumbe */
+    justify-content: space-around;
     align-items: center;
-    z-index: 100; /* Iznad svih ostalih elemenata, ali ispod splash screena */
-    padding-bottom: env(safe-area-inset-bottom, 0px); /* Za iPhone X notch */
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
 }
 
 .bottom-nav .nav-button {
-    background: none !important; /* Uklanja pozadinsku boju i nadjačava */
+    background: none !important;
     border: none !important;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 5px 0;
-    width: 25%; /* Svaki gumb zauzima 25% širine */
+    width: 25%;
     height: 100%;
-    color: #b0b0b0; /* Siva boja za neaktivne ikone/tekst */
-    font-size: 10px; /* Manji font za tekst ispod ikone */
+    color: #b0b0b0;
+    font-size: 10px;
     font-weight: 500;
-    transition: none !important; /* UKLONJENO: Omogućuje instant promjenu boje */
+    transition: none !important;
     cursor: pointer;
-    position: relative; /* Za badge notifikacije */
-    outline: none !important; /* UKLONJENO: Crveni okvir na klik/fokus, s !important */
-    box-shadow: none !important; /* Uklanja sjenu s !important */
+    position: relative;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
+/* Stilovi za SVG unutar nav gumba */
 .bottom-nav .nav-button svg {
-    width: 24px; /* Veličina ikona */
+    width: 24px;
     height: 24px;
-    /* NOVO: Za ikone pretrage, koristimo fill umjesto stroke za novu ikonu */
-    stroke: #b0b0b0; /* Siva boja za ikone */
-    stroke-width: 1.8; /* Samo za ikone koje koriste stroke */
-    fill: #b0b0b0; /* Default fill boja za ikone koje koriste fill */
     margin-bottom: 2px;
-    transition: none !important; /* UKLONJuje instant promjenu boje */
+    transition: none !important;
 }
 
-.bottom-nav .nav-button.active {
-    color: #ff4757; /* Crvena boja za aktivnu stavku */
-    outline: none !important; /* Osigurava da nema okvira ni na aktivnu tipku */
-    background: none !important; /* Osigurava da nema pozadinske boje ni na aktivnu tipku */
-    box-shadow: none !important; /* Uklanja sjenu s aktivne tipke */
+/* Defaultno stanje za SVE SVG ikone u navigaciji: stroke */
+.bottom-nav .nav-button svg {
+    stroke: #b0b0b0; /* Siva boja obrisa za neaktivne */
+    stroke-width: 1.5; /* Debljina obrisa */
+    fill: none; /* Bez ispune */
 }
 
+/* Posebno za ikonu tražilice u navigaciji (koja je FILL tipa) */
+.bottom-nav #navSearch svg {
+    stroke: none; /* Nema obrisa za ovu ikonu */
+    fill: #b0b0b0; /* Ispunjena siva boja za neaktivnu tražilicu */
+}
+
+/* Aktivno stanje za SVE SVG ikone u navigaciji */
 .bottom-nav .nav-button.active svg {
-    stroke: #ff4757; /* Crvena boja za aktivnu ikonu */
-    fill: #ff4757; /* Crvena boja za aktivnu ikonu pretrage */
+    stroke: #ff4757; /* Crvena boja obrisa za aktivne (za stroke ikone) */
+    fill: #ff4757; /* Crvena boja ispune za aktivne (za fill ikone) */
 }
+
+/* Aktivno stanje SPECIFIČNO za ikonu tražilice u navigaciji */
+.bottom-nav #navSearch.active svg {
+    fill: #ff4757; /* Crvena ispunjena za aktivnu tražilicu */
+    stroke: none; /* Osiguraj da nema stroke */
+}
+
 
 .bottom-nav .nav-button:hover:not(.active) {
-    color: #e0e0e0; /* Svjetlija siva na hoveru */
-    background: none !important; /* Osigurava da nema pozadinske boje ni na hoveru */
-    box-shadow: none !important; /* Uklanja sjenu s hovera */
+    color: #e0e0e0;
+    background: none !important;
+    box-shadow: none !important;
 }
 
 .bottom-nav .nav-button:hover:not(.active) svg {
-    stroke: #e0e0e0; /* Svjetlija siva ikona na hoveru */
-    fill: #e0e0e0; /* Svjetlija siva ikona pretrage na hoveru */
+    stroke: #e0e0e0; /* Svjetlija siva obrisa na hoveru */
+    fill: none; /* Bez ispune na hoveru (za stroke ikone) */
 }
 
-.bottom-nav .nav-button:focus { /* UKLONJENO: Crveni okvir na fokus */
+/* Posebno za ikonu tražilice na hoveru */
+.bottom-nav #navSearch:hover:not(.active) svg {
+    fill: #e0e0e0; /* Svjetlija siva ispuna na hoveru (za fill ikonu) */
+    stroke: none; /* Nema obrisa */
+}
+
+.bottom-nav .nav-button:focus {
     outline: none !important;
-    background: none !important; /* Osigurava da nema pozadinske boje ni na fokusu */
-    box-shadow: none !important; /* Uklanja sjenu s fokusa */
+    background: none !important;
+    box-shadow: none !important;
 }
 
 /* Prilagodba notifikacijske točkice za donji nav bar */
 .bottom-nav .notification-badge-main {
-    /* PROMIJENJENO: Nova pozicija, prilagođena za blizinu ikoni */
-    top: 5px; /* Manja vrijednost da bude bliže vrhu ikone */
-    right: calc(50% - 12px); /* Centrirano horizontalno unutar SVG-a (+/- malo pomaka) */
-    transform: translateX(100%); /* Pomakni bedž za 100% svoje širine udesno */
-    /* Eksperimentiranje s transformom za bolju preciznost */
-
-    border: 2px solid rgba(26, 26, 26, 0.95); /* Boja ruba da odgovara pozadini nav bara */
+    top: 5px;
+    right: calc(50% - 12px);
+    transform: translateX(100%);
+    border: 2px solid rgba(26, 26, 26, 0.95);
 }
 
-@media (min-width: 768px) { /* Na desktopu skrivamo donji nav bar */
+@media (min-width: 768px) {
     .bottom-nav {
         display: none;
     }
@@ -435,14 +452,14 @@ body::before {
 
 /* === PROMJENE ZA CHAT LOG SKROLLANJE I ZAGLAVLJE === */
 #privatniChatLog {
-    flex-grow: 1; /* Omogući chat logu da zauzme sav dostupan prostor */
+    flex-grow: 1;
     overflow-y: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
     padding: 10px;
     display: flex;
-    flex-direction: column-reverse; /* Zadnje poruke na dnu (vizualno) */
-    padding-bottom: 80px; /* PRILAGOĐENO: Dodan fiksni padding na dnu za input box */
+    flex-direction: column-reverse;
+    padding-bottom: 80px;
 }
 
 
@@ -460,11 +477,10 @@ body::before {
     left: 15px;
     z-index: 51;
     pointer-events: none;
-    /* Omogući flexbox za pravilno pozicioniranje back i confirm buttona */
     display: flex;
-    width: calc(100% - 30px); /* Puna širina unutar containera */
-    justify-content: space-between; /* Razmak između elemenata */
-    align-items: center; /* Centriraj po vertikali */
+    width: calc(100% - 30px);
+    justify-content: space-between;
+    align-items: center;
 }
 @media (min-width: 768px) {
     .top-nav-buttons {
@@ -476,22 +492,21 @@ body::before {
 
 /* Posebno pravilo SAMO za chat ekran */
 #privatniChat .top-nav-buttons {
-    height: 50px; /* Mora odgovarati visini .chat-header-info */
+    height: 50px;
     top: 0;
     left: 0;
-    width: 100%; /* Puna širina */
-    justify-content: flex-start; /* back-button na lijevo */
-    padding-left: 5px; /* Mali padding za back-button */
-    padding-right: 15px; /* Padding da confirm-button ne bude skroz desno */
+    width: 100%;
+    justify-content: flex-start;
+    padding-left: 5px;
+    padding-right: 15px;
 }
 #privatniChat .top-nav-buttons .back-button {
-    /* VRAĆENO NA ORIGINAL */
-    position: absolute; /* Vraćeno na absolute */
-    left: 5px; /* Vraćeno na lijevi rub */
-    top: 50%; /* Centrirano vertikalno */
-    transform: translateY(-50%); /* Pravi vertikalni centar */
-    pointer-events: auto; /* Omogućuje klik */
-    z-index: 52; /* Iznad chat-header-info */
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: auto;
+    z-index: 52;
 }
 
 
@@ -506,11 +521,11 @@ body::before {
 
 /* NOVO: Stil za gumb za potvrdu na vrhu */
 .confirm-button {
-    pointer-events: auto; /* Omogući klik */
+    pointer-events: auto;
     background: none;
     border: none;
-    color: #2ecc71; /* Zelena boja za potvrdu */
-    font-size: 28px; /* Veličina ikone */
+    color: #2ecc71;
+    font-size: 28px;
     cursor: pointer;
     padding: 5px;
     width: auto;
@@ -518,20 +533,20 @@ body::before {
     line-height: 1;
     transition: color 0.2s ease, transform 0.2s ease;
     outline: none !important;
-    display: flex; /* Centriranje SVG-a */
+    display: flex;
     justify-content: center;
     align-items: center;
-    flex-shrink: 0; /* Spriječi smanjivanje */
+    flex-shrink: 0;
 }
 
 .confirm-button.hidden {
-    display: none !important; /* Skriveno po defaultu */
+    display: none !important;
 }
 
 .confirm-button.loading {
-    animation: spin 1s linear infinite; /* Animacija rotacije za loading */
-    color: #f39c12; /* Neka druga boja za loading */
-    pointer-events: none; /* Onemogući klik tijekom loadinga */
+    animation: spin 1s linear infinite;
+    color: #f39c12;
+    pointer-events: none;
 }
 
 @keyframes spin {
@@ -540,13 +555,13 @@ body::before {
 }
 
 .confirm-button svg {
-    width: 28px; /* Veličina SVG ikone */
+    width: 28px;
     height: 28px;
-    fill: currentColor; /* Koristi boju definiranu u .confirm-button */
+    fill: currentColor;
 }
 
 .confirm-button:hover {
-    color: #27ae60; /* Tamnija zelena na hover */
+    color: #27ae60;
     transform: scale(1.1);
 }
 
@@ -571,7 +586,7 @@ body::before {
 
 /* === STILOVI ZA REDIZAJNIRANI CHAT INPUT === */
 .chat-input-area {
-    position: fixed; /* Vraćeno na fixed */
+    position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
@@ -584,7 +599,7 @@ body::before {
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
     z-index: 100;
     box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
-    touch-action: none; /* DODANO: Pokušaj spriječiti skrolanje i pomicanje cijelog boxa */
+    touch-action: none;
 }
 
 #privatniInput {
@@ -597,12 +612,12 @@ body::before {
     line-height: 1.4;
     min-height: 40px;
     max-height: 100px;
-    overflow-y: hidden; /* Ostavljeno kao hidden kako bi se spriječilo interno skrolanje */
+    overflow-y: hidden;
     resize: none;
     transition: all 0.2s ease;
     margin: 0;
     padding: 10px 45px 10px 45px;
-    touch-action: none; /* DODANO: Pokušaj spriječiti skrolanje unutar input polja */
+    touch-action: none;
 }
 
 #privatniInput:focus {
@@ -685,15 +700,14 @@ body::before {
 
 
 /* === IZMJENA: Dodatno smanjeno zaglavlje chata === */
-/* === IZMJENA: Dodatno smanjeno zaglavlje chata === */
 .chat-header-info {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center; /* PROMIJENJENO: Centriranje sadržaja unutar headera */
+    justify-content: center;
     padding-top: 0;
     width: 100%;
-    padding-left: 0; /* PROMIJENJENO: Uklonjen lijevi padding za bolje centriranje */
+    padding-left: 0;
     position: absolute;
     top: 0;
     left: 0;
@@ -719,8 +733,8 @@ body::before {
 }
 
 .chat-header-info h2 {
-    margin: 0; /* KRITIČNO: Ukloni sve defaultne margine */
-    padding: 0; /* Dodaj i padding na 0 za svaki slučaj */
+    margin: 0;
+    padding: 0;
     font-size: 16px;
     color: #f0f0f0;
     cursor: pointer;
@@ -735,14 +749,14 @@ body::before {
     text-align: center;
     width: auto;
     white-space: nowrap;
-    margin-top: -4px; /* NOVO: Eksperimentiraj s ovom vrijednošću, npr. -1px, -3px */
+    margin-top: -4px;
 }
 .chat-info-text-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Vraćeno na center za horizontalno centriranje teksta */
+    align-items: center;
     justify-content: center;
-    gap: 0px; /* Vraćeno na 0px ili mala vrijednost, jer margin-top na status-text to sada kontrolira */
+    gap: 0px;
 }
 /* ========================================= */
 
@@ -1582,8 +1596,9 @@ img.preview-slika { display: none; }
     margin-left: 15px; /* Razmak ikone od inputa */
     width: 24px; /* Veličina ikone */
     height: 24px;
-    fill: #b0b0b0; /* Boja ikone (sada koristimo fill umjesto stroke) */
+    fill: #b0b0b0; /* BOJA IKONE (FILLED) */
     flex-shrink: 0; /* Spriječi da se ikona smanji */
+    stroke: none; /* Ukloni stroke jer je ovo fill ikona */
 }
 
 /* Stilovi za rezultate pretrage */
