@@ -84,6 +84,9 @@ body::before {
 #homePrikazPijanki, #praznaTrazilica, #inboxPrikaz {
     padding-top: 70px;
     overflow-y: auto; /* Dopuštamo scroll samo na ovim ekranima */
+    /* Dodamo flexbox na ove kontejnere da bismo kontrolirali dječje elemente */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Prilagodba za profile i edit profile ekrane */
@@ -352,7 +355,11 @@ body::before {
 }
 
 
-#pijankePregled, #listaChatova { flex-grow: 1; overflow-y: auto; min-height: 100px; }
+#pijankePregled, #listaChatova {
+    flex-grow: 1; /* OVO JE KLJUČNO: Omogućuje da pijankePregled zauzme sav preostali prostor */
+    overflow-y: auto;
+    min-height: 100px; /* Minimalna visina da se vidi nešto */
+}
 
 .top-nav-buttons {
     position: absolute;
@@ -1351,9 +1358,10 @@ img.preview-slika { display: none; }
     stroke: none;
 }
 
+/* Prilagodbe za .search-results kako bi se pravilno centrirao tekst unutar skrolabilnog kontejnera */
 .search-results {
-    width: calc(100% - 40px);
-    margin: 0 auto;
+    width: calc(100% - 40px); /* Ovu liniju ostavljamo kako je bila za generalnu širinu */
+    margin: 0 auto; /* Centriranje samog diva horizontalno */
     padding: 15px;
     background-color: #1e1e1e;
     border: 1px solid #2a2a2a;
@@ -1361,13 +1369,17 @@ img.preview-slika { display: none; }
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     min-height: 100px;
     display: flex;
-    justify-content: center;
+    justify-content: center; /* Centriranje sadržaja unutar diva */
     align-items: center;
     color: #888;
     font-size: 15px;
     flex-direction: column;
     box-sizing: border-box;
+    /* KLJUČNO ZA CENTRIRANJE UNUTAR SKROLABILNOG RODITELJA */
+    height: 100%; /* Da zauzme cijelu visinu dostupnu flex-itemu */
+    text-align: center; /* Osigurava da je tekst unutar njega centriran ako nije flex item */
 }
+
 
 .user-list-modal-content-wrapper {
     background-color: #1c1c1c;
