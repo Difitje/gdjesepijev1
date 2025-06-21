@@ -98,7 +98,7 @@ function navigateBack() {
         swap(currentScreenEl.id, lastScreenId);
         azurirajNotifikacije();
     } else {
-        console.error("Navigation stack empty, can't go back.");
+        console.error("Navigation stack empty, can't go back.');"
     }
 }
 
@@ -291,7 +291,7 @@ function pokreniAplikaciju() {
 
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
-    globalDataRefreshInterval = setInterval(globalRefreshUI, 30e3);
+    globalDataRefreshInterval = setInterval(globalDataRefreshInterval, 30e3);
 
     azurirajMojuAktivnost();
     dohvatiLokaciju(() => {
@@ -454,7 +454,7 @@ async function objaviPijanku() {
     }
 
     const objaviBtn = document.querySelector('#objavaForma button');
-    objaviBtn.disabled = true;
+    objabiBtn.disabled = true;
     objabiBtn.textContent = 'Objavljujem...';
 
     try {
