@@ -455,7 +455,7 @@ async function objaviPijanku() {
 
     const objaviBtn = document.querySelector('#objavaForma button');
     objaviBtn.disabled = true;
-    objaviBtn.textContent = 'Objavljujem...';
+    objabiBtn.textContent = 'Objavljujem...';
 
     try {
         const response = await authenticatedFetch('/api/posts', {
@@ -476,7 +476,7 @@ async function objaviPijanku() {
         console.error("Error during objaviPijanku:", error);
         alert("Došlo je do greške pri objavi pijanke.");
     } finally {
-        objaviBtn.disabled = false;
+        objabiBtn.disabled = false;
         objabiBtn.textContent = 'Objavi';
     }
 }
@@ -557,21 +557,21 @@ async function otvoriProfil(korisnikId, fromRefresh = false) {
     const closeButton = document.querySelector('#profileCloseBtn');
     const headerTitle = document.querySelector('#glavniDio h2');
 
-    backButton.style.display = 'none'; // Uvijek sakrij back button na profilu
+    backButton.style.display = 'none';
 
     let actionButtons = '';
     let isFollowing = myFollowings.includes(korisnikId);
     let followButtonHtml = '';
 
     if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
-        closeButton.style.display = 'none'; // Sakrij X gumb na vlastitom profilu
+        closeButton.style.display = 'none';
         headerTitle.innerText = "Moj profil";
         actionButtons = `
             <button class="btn-primary" onclick="prikaziEditProfila()">Uredi profil</button>
             <button class="btn-danger btn-secondary" onclick="odjaviSe()">Odjavi se</button>
         `;
     } else {
-        closeButton.style.display = 'flex'; // Prikazi X gumb na tuđem profilu
+        closeButton.style.display = 'flex';
         headerTitle.innerText = "Profil korisnika";
         followButtonHtml = `
             <button class="btn-${isFollowing ? 'secondary' : 'primary'}" onclick="toggleFollow('${korisnik.id}', ${isFollowing})">
@@ -885,7 +885,7 @@ async function dohvatiMojaPracenja() {
         if (response.ok) {
             myFollowings = await response.json();
         } else {
-            myFollowings = []; // Ako dođe do greške, resetiraj listu
+            myFollowings = [];
             console.error("Greška pri dohvaćanju mojih praćenja:", response.statusText);
         }
     } catch (error) {
