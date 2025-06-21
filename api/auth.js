@@ -6,14 +6,16 @@ const JWT_SECRET = process.env.JWT_SECRET;
 module.exports = (handler) => async (req, res) => {
     // --- Rute koje NE ZAHTIJEVAJU AUTENTIFIKACIJU (public rute) ---
     // Provjeravamo i URL i METODU
-    const isPublicGetUsers = req.url === '/api/users' && req.method === 'GET';
-    const isPublicGetSingleUser = req.url.match(/^\/api\/users\/[^/]+$/) && req.method === 'GET'; // Npr. /api/users/nekioid
     const isRegisterOrLogin = req.url === '/api/register' || req.url === '/api/login';
-    const isPublicGetPosts = req.url === '/api/posts' && req.method === 'GET';
+    const isPublicGetPosts = req.url === '/api/posts' && req.method === 'GET'; // Dohvaćanje svih objava
 
+    // Javne GET rute za korisnike
+    const isPublicGetUsersAll = req.url === '/api/users' && req.method === 'GET'; // GET /api/users
+    // PROMJENA: isPublicGetSingleUser sada uključuje samo GET metodu za /api/users/[id]
+    const isPublicGetSingleUser = req.url.match(/^\/api\/users\/[^/]+$/) && req.method === 'GET'; // GET /api/users/[id]
 
-    if (isRegisterOrLogin || isPublicGetUsers || isPublicGetSingleUser || isPublicGetPosts) {
-        // Ove rute zaobilaze autentifikaciju i idu direktno na handler
+    // SVE ostale rute (uključujući PUT /api/users/[id]) trebaju biti zaštićene!
+    if (isRegisterOrLogin || isPublicGetPosts || isPublicGetUsersAll || isPublicGetSingleUser) {
         return handler(req, res);
     }
 
