@@ -708,20 +708,20 @@ body::before {
 }
 
 .chat-header-info h2 {
-    margin: 0; /* Postavi sve margine na 0 */
+    margin: 0; /* KRITIČNO: Ukloni sve defaultne margine */
+    padding: 0; /* Dodaj i padding na 0 za svaki slučaj */
     font-size: 16px;
     color: #f0f0f0;
     cursor: pointer;
-    padding-top: 0;
-    /* margin-right: 10px; <--- UKLONI OVO */
-    text-align: left;
+    text-align: center;
     width: auto;
 }
 .chat-header-info .status-text {
-    margin: 0; /* Postavi sve margine na 0 */
+    margin: 0; /* KRITIČNO: Ukloni sve defaultne margine */
+    padding: 0; /* Dodaj i padding na 0 za svaki slučaj */
     font-size: 11px;
     color: #aaa;
-    text-align: left;
+    text-align: center;
     width: auto;
     white-space: nowrap;
 }
