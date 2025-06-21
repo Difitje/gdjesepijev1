@@ -465,17 +465,29 @@ body::before {
 
 /* Posebno pravilo SAMO za chat ekran */
 #privatniChat .top-nav-buttons {
-    height: 50px; /* Mora odgovarati visini .chat-header-info */
+    position: absolute; /* Keep it absolute to overlay on top */
     top: 0;
     left: 0;
-    width: 100%; /* Puna širina */
-    justify-content: flex-start; /* back-button na lijevo */
-    padding-left: 5px; /* Mali padding za back-button */
-    padding-right: 15px; /* Padding da confirm-button ne bude skroz desno */
+    width: 100%;
+    height: 50px; /* Ensure this matches the height of chat-header-info for consistency */
+    display: flex;
+    align-items: center; /* Crucial for vertical alignment */
+    justify-content: flex-start; /* Keep back button to the left */
+    padding-left: 5px; /* Minimal padding for the back button */
+    padding-right: 15px;
+    background-color: rgba(0, 0, 0, 0.95); /* Match chat-header-info background */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Match chat-header-info shadow */
+    z-index: 52; /* Higher than chat-header-info so back button is clickable */
 }
 #privatniChat .top-nav-buttons .back-button {
     position: static; /* Vrati na normalno pozicioniranje unutar flexboxa */
     transform: none; /* Ukloni translateY */
+    flex-shrink: 0; /* Prevent it from shrinking */
+    padding: 0 10px; /* Add some horizontal padding for click area, but no vertical padding */
+    height: 100%; /* Make it take full height of the parent flex container */
+    display: flex; /* Use flex to center its content (the arrow) */
+    align-items: center; /* Center arrow vertically */
+    justify-content: center; /* Center arrow horizontally */
 }
 
 
@@ -676,14 +688,14 @@ body::before {
     justify-content: flex-start;
     padding-top: 0;
     width: 100%;
-    padding-left: 50px;
+    padding-left: 50px; /* Adjusted to make space for the back button */
     position: absolute;
     top: 0;
     left: 0;
     background-color: rgba(0, 0, 0, 0.95);
     height: 50px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    z-index: 50;
+    z-index: 50; /* Set a lower z-index than .top-nav-buttons */
 }
 
 .chat-partner-profilna {
