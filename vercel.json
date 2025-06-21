@@ -1,0 +1,32 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/users/me/following",
+      "destination": "/api/users"
+    },
+    {
+      "source": "/api/users/:id/activity",
+      "destination": "/api/users"
+    },
+    {
+      "source": "/api/users/:id/follow",
+      "destination": "/api/users"
+    },
+    {
+      "source": "/api/users/:id/followers",
+      "destination": "/api/users"
+    },
+    {
+      "source": "/api/users/:id/following",
+      "destination": "/api/users"
+    },
+    {
+      "source": "/api/users/:id",
+      "destination": "/api/users"
+    },
+    {
+      "source": "/api/users",
+      "destination": "/api/users"
+    }
+  ]
+}
