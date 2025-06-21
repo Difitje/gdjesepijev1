@@ -98,7 +98,8 @@ function navigateBack() {
         swap(currentScreenEl.id, lastScreenId);
         azurirajNotifikacije();
     } else {
-        console.error("Navigation stack empty, can't go back.');"
+        // ISPRAVLJENO: Pravilno zatvoren string s dvostrukim navodnicima
+        console.error("Navigation stack empty, can't go back.");
     }
 }
 
