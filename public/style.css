@@ -678,11 +678,11 @@ body::before {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start; /* Centriranje unutar flex-start da back-button bude lijevo */
+    justify-content: center; /* PROMIJENJENO: Centriranje sadržaja unutar headera */
     padding-top: 0;
     width: 100%;
-    padding-left: 50px; /* Pomaknuto lijevo zbog back-buttona */
-    position: absolute; /* Ostaje apsolutno pozicionirano unutar chata */
+    padding-left: 0; /* PROMIJENJENO: Uklonjen lijevi padding za bolje centriranje */
+    position: absolute;
     top: 0;
     left: 0;
     background-color: rgba(0, 0, 0, 0.95);
@@ -727,7 +727,7 @@ body::before {
 .chat-info-text-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center; /* PROMIJENJENO: Centriranje teksta vertikalno */
     justify-content: center;
 }
 /* ========================================= */
