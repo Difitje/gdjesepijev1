@@ -42,7 +42,7 @@ function swap(hideId, showId) {
 
     const showNewElement = () => {
         showElement.style.display = 'flex';
-        setTimeout(() => {
+        setTimeout(() => { // Dodan mali delay za animaciju
             showElement.classList.add('active-screen');
         }, 10);
     };
@@ -885,7 +885,7 @@ async function dohvatiMojaPracenja() {
         if (response.ok) {
             myFollowings = await response.json();
         } else {
-            myFollowings = [];
+            myFollowings = []; // Ako dođe do greške, resetiraj listu
             console.error("Greška pri dohvaćanju mojih praćenja:", response.statusText);
         }
     } catch (error) {
@@ -998,7 +998,7 @@ function showUserListModal(userId, userName, listType) {
                 userListHtml.innerHTML += `
                     <div class="user-list-item" onclick="closeUserListModal(); otvoriProfil('${user.id}')">
                         <div class="user-list-avatar-wrapper">
-                            <img src="${user.slika || 'default_profile.png'}" alt="Profilna slika" class="user-list-avatar">
+                            <img src="${user.slika || 'default_profile.png'}" class="user-list-avatar">
                             <span class="status-dot ${isOnline ? 'online' : 'offline'}"></span>
                         </div>
                         <span class="user-list-name">${user.ime}</span>
