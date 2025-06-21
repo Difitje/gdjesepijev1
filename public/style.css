@@ -1,5 +1,5 @@
 /* === POCETAK CSS-a (Konačna verzija) === */
-/* public/style.css - VERZIJA 15 - Stare nav ikone + nove tražilice */
+/* public/style.css - VERZIJA 16 - Ispravak ikona u navigaciji */
 
 * {
     box-sizing: border-box;
@@ -375,18 +375,16 @@ body::before {
     box-shadow: none !important;
 }
 
-/* Stilovi za SVG unutar nav gumba */
+/* Defaultno stanje za SVE SVG ikone u navigaciji */
 .bottom-nav .nav-button svg {
     width: 24px;
     height: 24px;
     margin-bottom: 2px;
-    transition: none !important;
-}
+    transition: none !important; /* UKLANJA ANIMACIJU BOJE */
 
-/* Defaultno stanje za SVE SVG ikone u navigaciji: stroke */
-.bottom-nav .nav-button svg {
+    /* Defaultno za sve ikone: obris */
     stroke: #b0b0b0; /* Siva boja obrisa za neaktivne */
-    stroke-width: 1.5; /* Debljina obrisa */
+    stroke-width: 1.5;
     fill: none; /* Bez ispune */
 }
 
@@ -399,7 +397,7 @@ body::before {
 /* Aktivno stanje za SVE SVG ikone u navigaciji */
 .bottom-nav .nav-button.active svg {
     stroke: #ff4757; /* Crvena boja obrisa za aktivne (za stroke ikone) */
-    fill: #ff4757; /* Crvena boja ispune za aktivne (za fill ikone) */
+    fill: none; /* Ostaje bez ispune (za stroke ikone) */
 }
 
 /* Aktivno stanje SPECIFIČNO za ikonu tražilice u navigaciji */
