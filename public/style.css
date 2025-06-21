@@ -568,6 +568,7 @@ body::before {
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
     z-index: 100;
     box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
+    touch-action: none; /* DODANO: Pokušaj spriječiti skrolanje i pomicanje cijelog boxa */
 }
 
 #privatniInput {
@@ -579,13 +580,13 @@ body::before {
     font-size: 16px;
     line-height: 1.4;
     min-height: 40px;
-    /* OVDJE JE PROMJENA: Postavite fiksnu visinu ili prilagodite max-height */
-    max-height: 100px; /* Možete ostaviti ovo ako želite ograničenje */
-    overflow-y: hidden; /* KLJUČNA PROMJENA: Sakrijte interno skrolanje */
+    max-height: 100px;
+    overflow-y: hidden; /* Ostavljeno kao hidden kako bi se spriječilo interno skrolanje */
     resize: none;
     transition: all 0.2s ease;
     margin: 0;
     padding: 10px 45px 10px 45px;
+    touch-action: none; /* DODANO: Pokušaj spriječiti skrolanje unutar input polja */
 }
 
 #privatniInput:focus {
