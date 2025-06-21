@@ -17,29 +17,22 @@ module.exports = withAuth(async (req, res) => {
 
     if (req.method === 'GET') {
       try {
-        const { userId } = req.query; // Dohvati userId iz query parametra
-        let query = {};
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString(); // Izračunaj vrijeme prije sat vremena
+        // Dohvati samo objave koje su stvorene unutar zadnjih sat vremena
+        const posts = await postsCollection.find({ createdAt: { $gte: oneHourAgo } }).sort({ createdAt: -1 }).toArray();
 
-        if (userId) {
-          // Ako je userId poslan, dohvati samo objave tog korisnika
-          query.korisnikId = userId; // Pretpostavljamo da je korisnikId string u bazi
-        } else {
-          // Ako nema userId query, vraćajte samo objave iz zadnjih sat vremena
-          const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-          query.createdAt = { $gte: oneHourAgo };
-        }
-
-        const posts = await postsCollection.find(query).sort({ createdAt: -1 }).toArray();
-
+        // VAŽNO: Mapiraj _id u id za frontend
         const postsToSend = posts.map(post => ({
             ...post,
-            id: post._id.toString(),
-            korisnikId: post.korisnikId.toString()
+            id: post._id.toString(), // Dodaj 'id' property kao string od _id
+            korisnikId: post.korisnikId.toString() // Osiguraj da je korisnikId string ako je ObjectId
         }));
 
+        if (!res.status) { console.error("res.status is missing before GET posts!"); return res.end(JSON.stringify({ message: 'res.status missing: Greška servera pri dohvaćanju objava.' })); }
         res.status(200).json(postsToSend);
       } catch (error) {
         console.error('Greška pri dohvaćanju objava:', error);
+        if (!res.status) { console.error("res.status is missing before GET posts error!"); return res.end(JSON.stringify({ message: 'res.status missing: Greška servera pri dohvaćanju objava.', error: error.message })); }
         res.status(500).json({ message: 'Greška servera pri dohvaćanju objava.', error: error.message });
       }
     } else if (req.method === 'POST') {
@@ -48,11 +41,11 @@ module.exports = withAuth(async (req, res) => {
         const korisnikId = req.user.userId;
 
         if (!opis || lat === undefined || lon === undefined) {
+          if (!res.status) { console.error("res.status is missing before POST posts 400!"); return res.end(JSON.stringify({ message: 'res.status missing: Opis, latituda i longituda su obavezni.' })); }
           return res.status(400).json({ message: 'Opis, latituda i longituda su obavezni.' });
         }
 
-        // Izbriši samo staru objavu tog korisnika, ako postoji
-        await postsCollection.deleteMany({ korisnikId: korisnikId });
+        await postsCollection.deleteMany({ korisnikId: korisnikId }); // Osigurava samo jednu objavu po korisniku
 
         const newPost = {
           korisnikId: korisnikId,
@@ -63,9 +56,11 @@ module.exports = withAuth(async (req, res) => {
         };
 
         const result = await postsCollection.insertOne(newPost);
+        if (!res.status) { console.error("res.status is missing before POST posts 201!"); return res.end(JSON.stringify({ message: 'res.status missing: Pijanka uspješno objavljena!', postId: result.insertedId })); }
         res.status(201).json({ message: 'Pijanka uspješno objavljena!', postId: result.insertedId });
       } catch (error) {
         console.error('Greška pri objavi pijanke:', error);
+        if (!res.status) { console.error("res.status is missing before POST posts error!"); return res.end(JSON.stringify({ message: 'res.status missing: Greška servera pri objavi pijanke.', error: error.message })); }
         res.status(500).json({ message: 'Greška servera pri objavi pijanke.', error: error.message });
       }
     } else if (req.method === 'DELETE') {
@@ -74,22 +69,27 @@ module.exports = withAuth(async (req, res) => {
         const korisnikId = req.user.userId;
 
         if (!postId) {
+            if (!res.status) { console.error("res.status is missing before DELETE posts 400!"); return res.end(JSON.stringify({ message: 'res.status missing: ID objave je obavezan za brisanje.' })); }
             return res.status(400).json({ message: 'ID objave je obavezan za brisanje.' });
         }
 
         const result = await postsCollection.deleteOne({ _id: new ObjectId(postId), korisnikId: korisnikId });
 
         if (result.deletedCount === 0) {
+            if (!res.status) { console.error("res.status is missing before DELETE posts 404!"); return res.end(JSON.stringify({ message: 'res.status missing: Objava nije pronađena ili niste vlasnik.' })); }
             return res.status(404).json({ message: 'Objava nije pronađena ili niste vlasnik.' });
         }
 
+        if (!res.status) { console.error("res.status is missing before DELETE posts 200!"); return res.end(JSON.stringify({ message: 'Objava uspješno obrisana.' })); }
         res.status(200).json({ message: 'Objava uspješno obrisana.' });
 
       } catch (error) {
         console.error('Greška pri brisanju objave:', error);
+        if (!res.status) { console.error("res.status is missing before DELETE posts error!"); return res.end(JSON.stringify({ message: 'res.status missing: Greška servera pri brisanju objave.', error: error.message })); }
         res.status(500).json({ message: 'Greška servera pri brisanju objave.', error: error.message });
       }
     } else {
+      if (!res.status) { console.error("res.status is missing before posts 405!"); return res.end(JSON.stringify({ message: 'Metoda nije dozvoljena.' })); }
       res.status(405).json({ message: 'Metoda nije dozvoljena.' });
     }
   });
