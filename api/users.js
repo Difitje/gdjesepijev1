@@ -4,13 +4,16 @@ const withAuth = require('./auth');
 const { ObjectId } = require('mongodb');
 const cors = require('cors');
 
-const allowCors = cors({ methods: ['GET', 'PUT', 'DELETE'], origin: '*' });
+// Promijenjeno: methods: '*' da dopusti sve metode za CORS
+const allowCors = cors({ methods: '*', origin: '*' });
 
 module.exports = withAuth(async (req, res) => {
+  // CORS preflight zahtjevi
   if (req.method === 'OPTIONS') {
     return allowCors(req, res, () => res.status(200).end());
   }
 
+  // Glavna logika funkcije
   return allowCors(req, res, async () => {
     const { db } = await connectToDatabase();
     const usersCollection = db.collection('users');
@@ -28,11 +31,11 @@ module.exports = withAuth(async (req, res) => {
     // /api/users/[id]/following
 
     const baseRoute = pathParts[1]; // Should be 'users'
-    const userIdInPath = pathParts[2]; // Can be 'me' or an actual ID
+    const userIdInPath = pathParts[2]; // Can be 'me' or an actual ID (e.g., '667500d4a984441549d10e6a')
     const subRoute = pathParts[3]; // Can be 'following', 'activity', 'follow', 'followers'
 
     // ================================================================
-    // HANDLER ZA DOHVAĆANJE MOJIH PRAĆENJA: /api/users/me/following
+    // HANDLER ZA DOHVAĆANJE MOJIH PRAĆENJA: /api/users/me/following (GET)
     // ================================================================
     if (req.method === 'GET' && userIdInPath === 'me' && subRoute === 'following') {
       if (!currentUserId) {
@@ -75,6 +78,7 @@ module.exports = withAuth(async (req, res) => {
 
     // ================================================================
     // HANDLER ZA SPECIFIČNOG KORISNIKA (GET, PUT, DELETE) I PODRUTE
+    // Ovisno o userIdInPath i subRoute
     // ================================================================
     if (userIdInPath && userIdInPath !== 'me') { // If there's an ID in the path (e.g., /api/users/123...)
         let targetUserId;
@@ -88,12 +92,14 @@ module.exports = withAuth(async (req, res) => {
         // AŽURIRANJE AKTIVNOSTI: /api/users/[id]/activity (PUT)
         // ================================================================
         if (req.method === 'PUT' && subRoute === 'activity') {
-            if (currentUserId !== userIdInPath) {
+            // Provjera autorizacije za ažuriranje aktivnosti
+            if (!currentUserId || currentUserId !== userIdInPath) {
                 return res.status(403).json({ message: 'Nemate dozvolu za ažuriranje statusa drugog korisnika.' });
             }
             try {
                 const { loggingOut } = req.body;
-                const lastActiveTime = loggingOut ? (Date.now() - 31000) : Date.now(); // Postavi offline 31s unatrag
+                // Postavi lastActive 31s unatrag ako se odjavljuje, inače trenutno vrijeme
+                const lastActiveTime = loggingOut ? (Date.now() - 31000) : Date.now();
 
                 const result = await usersCollection.updateOne(
                     { _id: targetUserId },
@@ -113,14 +119,17 @@ module.exports = withAuth(async (req, res) => {
         // PRATI / OTPRATI: /api/users/[id]/follow (PUT / DELETE)
         // ================================================================
         if (subRoute === 'follow') {
+            // Provjera da li je korisnik prijavljen
             if (!currentUserId) {
                 return res.status(401).json({ message: 'Autorizacijski token nedostaje ili je nevažeći.' });
             }
+            // Provjera da li korisnik pokušava pratiti/otpratiti samog sebe
             if (currentUserId === userIdInPath) {
                 return res.status(400).json({ message: 'Ne možete pratiti ili otpratiti samog sebe.' });
             }
 
             try {
+                // Dohvati dokumente ciljanog i trenutnog korisnika
                 const targetUserDoc = await usersCollection.findOne({ _id: targetUserId });
                 const currentUserDoc = await usersCollection.findOne({ _id: new ObjectId(currentUserId) });
 
@@ -128,41 +137,48 @@ module.exports = withAuth(async (req, res) => {
                     return res.status(404).json({ message: 'Korisnik nije pronađen.' });
                 }
 
-                // Ensure followers and following arrays exist
+                // Osigurajte da su polja 'followers' i 'following' uvijek nizovi
                 targetUserDoc.followers = Array.isArray(targetUserDoc.followers) ? targetUserDoc.followers : [];
                 currentUserDoc.following = Array.isArray(currentUserDoc.following) ? currentUserDoc.following : [];
 
 
-                if (req.method === 'PUT') { // FOLLOW logic
+                if (req.method === 'PUT') { // Logika za PRAĆENJE
+                    // Provjera da li već prati
                     if (currentUserDoc.following.includes(userIdInPath)) {
                         return res.status(409).json({ message: 'Već pratite ovog korisnika.' });
                     }
 
+                    // Dodaj ciljanog korisnika u 'following' listu trenutnog korisnika
                     await usersCollection.updateOne(
                         { _id: new ObjectId(currentUserId) },
-                        { $addToSet: { following: userIdInPath } }
+                        { $addToSet: { following: userIdInPath } } // $addToSet sprječava duplikate
                     );
+                    // Dodaj trenutnog korisnika u 'followers' listu ciljanog korisnika
                     await usersCollection.updateOne(
                         { _id: targetUserId },
                         { $addToSet: { followers: currentUserId } }
                     );
                     return res.status(200).json({ message: 'Korisnik je uspješno zapraćen.' });
 
-                } else if (req.method === 'DELETE') { // UNFOLLOW logic
+                } else if (req.method === 'DELETE') { // Logika za OTPRAĆIVANJE
+                    // Provjera da li uopće prati
                     if (!currentUserDoc.following.includes(userIdInPath)) {
                         return res.status(409).json({ message: 'Ne pratite ovog korisnika.' });
                     }
 
+                    // Ukloni ciljanog korisnika iz 'following' liste trenutnog korisnika
                     await usersCollection.updateOne(
                         { _id: new ObjectId(currentUserId) },
-                        { $pull: { following: userIdInPath } }
+                        { $pull: { following: userIdInPath } } // $pull uklanja element iz niza
                     );
+                    // Ukloni trenutnog korisnika iz 'followers' liste ciljanog korisnika
                     await usersCollection.updateOne(
                         { _id: targetUserId },
                         { $pull: { followers: currentUserId } }
                     );
                     return res.status(200).json({ message: 'Korisnik više nije praćen.' });
                 } else {
+                    // Metoda nije PUT ni DELETE
                     return res.status(405).json({ message: 'Metoda nije dozvoljena za /follow rutu.' });
                 }
             } catch (error) {
@@ -234,7 +250,8 @@ module.exports = withAuth(async (req, res) => {
         // AŽURIRANJE PROFILA: /api/users/[id] (PUT)
         // ================================================================
         if (req.method === 'PUT' && !subRoute) { // Only /api/users/[id]
-            if (currentUserId !== userIdInPath) {
+            // Provjera autorizacije za ažuriranje profila
+            if (!currentUserId || currentUserId !== userIdInPath) {
                 return res.status(403).json({ message: 'Nemate dozvolu za uređivanje ovog profila.' });
             }
             try {
@@ -245,6 +262,7 @@ module.exports = withAuth(async (req, res) => {
                     tiktok: tiktok || ''
                 };
 
+                // Ažuriraj korisničko ime samo ako je poslano i nije već zauzeto
                 if (username && username.toLowerCase() !== req.user.username.toLowerCase()) {
                     const existingUser = await usersCollection.findOne({ username: username.toLowerCase() });
                     if (existingUser) {
@@ -253,7 +271,7 @@ module.exports = withAuth(async (req, res) => {
                     updateData.username = username.toLowerCase();
                 }
 
-                if (slika) {
+                if (slika) { // Ako je poslana nova slika
                     updateData.slika = slika;
                 }
 
@@ -272,7 +290,7 @@ module.exports = withAuth(async (req, res) => {
         }
     }
 
-    // Fallback for unsupported methods or paths
+    // Fallback za metode ili rute koje nisu podržane ni jednim od gornjih handler-a
     return res.status(405).json({ message: 'Metoda ili ruta nisu dozvoljene.' });
   });
 });
