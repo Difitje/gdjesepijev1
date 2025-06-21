@@ -674,14 +674,15 @@ body::before {
 
 
 /* === IZMJENA: Dodatno smanjeno zaglavlje chata === */
+/* === IZMJENA: Dodatno smanjeno zaglavlje chata === */
 .chat-header-info {
     display: flex;
     flex-direction: row;
-    align-items: center; /* Keep items vertically centered within the header */
-    justify-content: flex-start; /* Align content to the start (left) */
+    align-items: center;
+    justify-content: center; /* PROMIJENJENO: Centriranje sadržaja unutar headera */
     padding-top: 0;
     width: 100%;
-    padding-left: 15px; /* Add some left padding to move content away from the edge */
+    padding-left: 0; /* PROMIJENJENO: Uklonjen lijevi padding za bolje centriranje */
     position: absolute;
     top: 0;
     left: 0;
@@ -697,7 +698,7 @@ body::before {
     border-radius: 50%;
     object-fit: cover;
     border: 1.5px solid #ff4757;
-    margin-right: 10px; /* Space between image and text */
+    margin-right: 10px;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
 }
@@ -706,30 +707,29 @@ body::before {
     transform: scale(1.05);
 }
 
-
 .chat-header-info h2 {
     margin-bottom: 0;
     font-size: 16px;
     color: #f0f0f0;
     cursor: pointer;
     padding-top: 0;
-    margin-right: 10px; /* Space between name and status (if they were side-by-side) */
-    text-align: left; /* Ensure text aligns left */
+    margin-right: 10px;
+    text-align: left;
     width: auto;
 }
 .chat-header-info .status-text {
     margin-top: 1px;
     font-size: 11px;
     color: #aaa;
-    text-align: left; /* Ensure text aligns left */
+    text-align: left;
     width: auto;
     white-space: nowrap;
 }
 .chat-info-text-wrapper {
     display: flex;
-    flex-direction: column; /* Stack name and status vertically */
-    align-items: flex-start; /* Align text content to the left */
-    justify-content: center; /* Center content vertically within its wrapper */
+    flex-direction: column;
+    align-items: center; /* PROMIJENJENO: Centriranje teksta vertikalno */
+    justify-content: center;
 }
 /* ========================================= */
 
