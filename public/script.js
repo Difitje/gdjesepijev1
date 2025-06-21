@@ -692,6 +692,8 @@ async function posaljiPrivatno() {
         prikaziPrivatniLog();
     } catch (error) {
         alert("Došlo je do greške pri slanju poruke.");
+    } finally {
+        posaljiBtn.disabled = false;
     }
 }
 
@@ -707,10 +709,17 @@ function prikaziPrivatniLog() {
         const vrijeme = new Date(msg.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' });
         const klasaWrappera = msg.autorId === trenutniKorisnik.id ? "moja-poruka" : "tudja-poruka";
 
+        let messageContent;
+        if (msg.imageUrl) {
+            messageContent = `<img src="${msg.imageUrl}" alt="Poslana slika" class="chat-image-message">`;
+        } else {
+            messageContent = `<span>${msg.tekst}</span>`;
+        }
+
         return `
             <div class="poruka-wrapper ${klasaWrappera}">
                 <div class="poruka-balon">
-                    <span>${msg.tekst}</span>
+                    ${messageContent}
                 </div>
                 <span class="poruka-vrijeme">${vrijeme}</span>
             </div>
@@ -744,4 +753,37 @@ async function dohvatiSvePoruke() {
 function ocistiPijankePregled() {
     const div = document.getElementById("pijankePregled");
     if (div) div.innerHTML = "";
+}
+
+// --- NOVO: Funkcija za slanje slike privatno ---
+async function posaljiSlikuPrivatno(imageData) { // imageData je Base64 string kompresirane slike
+    if (!imageData || !trenutniChatPartnerId) {
+        alert("Nema slike za poslati ili nije odabran primatelj.");
+        return;
+    }
+
+    const posaljiBtn = document.getElementById('posaljiPrivatnoBtn');
+    // Ne onemogućavamo ovdje posaljiBtn jer se koristi za tekstualne poruke.
+    // Ako želite vizualnu povratnu informaciju, možete prikazati loading spinner negdje drugdje.
+
+    try {
+        const response = await authenticatedFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ receiverId: trenutniChatPartnerId, imageUrl: imageData }) // Šaljemo imageUrl
+        });
+        const data = await response.json();
+        if (response.ok) {
+            console.log("Slika uspješno poslana:", data);
+            await dohvatiSvePoruke(); // Osvježi poruke nakon slanja
+            prikaziPrivatniLog(); // Prikaz nove poruke
+        } else {
+            alert("Greška pri slanju slike: " + data.message);
+        }
+    } catch (error) {
+        console.error("Došlo je do greške pri slanju slike:", error);
+        alert("Došlo je do greške pri slanju slike.");
+    } finally {
+        // Ovdje ne radimo ništa s posaljiBtn, jer se slanje slike ne pokreće preko njega
+    }
 }

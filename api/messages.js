@@ -23,7 +23,8 @@ module.exports = withAuth(async (req, res) => {
           }
           groupedMessages[chatKey].push({
               autorId: msg.senderId,
-              tekst: msg.content,
+              tekst: msg.content, // Može biti undefined ako je slika
+              imageUrl: msg.imageUrl, // Novo: Može biti undefined ako je tekst
               time: msg.createdAt,
               isRead: msg.isRead || false,
               messageId: msg._id.toString()
@@ -38,20 +39,26 @@ module.exports = withAuth(async (req, res) => {
     }
   } else if (req.method === 'POST') {
     try {
-      const { receiverId, content } = req.body;
+      const { receiverId, content, imageUrl } = req.body; // Dodan imageUrl
+
       const senderId = userId;
 
-      if (!receiverId || !content) {
-        return res.status(400).json({ message: 'Primatelj i sadržaj poruke su obavezni.' });
+      if (!receiverId || (!content && !imageUrl)) { // Poruka mora imati ili tekst ili sliku
+        return res.status(400).json({ message: 'Primatelj i sadržaj (tekst ili slika) poruke su obavezni.' });
       }
 
       const newMessage = {
         senderId: senderId,
         receiverId: receiverId,
-        content: content,
         createdAt: new Date().toISOString(),
         isRead: false
       };
+
+      if (content) {
+        newMessage.content = content; // Ako postoji tekst, dodaj ga
+      } else if (imageUrl) {
+        newMessage.imageUrl = imageUrl; // Ako postoji slika, dodaj je
+      }
 
       const result = await messagesCollection.insertOne(newMessage);
       res.status(201).json({ message: 'Poruka uspješno poslana!', messageId: result.insertedId });

@@ -1138,3 +1138,11 @@ img.preview-slika { display: none; }
     outline: none !important;
 }
 /* === KRAJ CSS-a === */
+
+.chat-image-message {
+    max-width: 100%; /* Slike ne prelaze širinu balona */
+    height: auto;
+    border-radius: 8px;
+    margin-top: 5px; /* Mali razmak od teksta ako ga ima */
+    display: block; /* Osigurava da se ponaša kao blok element */
+}
