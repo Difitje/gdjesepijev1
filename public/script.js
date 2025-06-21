@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const reader = new FileReader();
                 reader.onload = e => {
                     odabranaEditSlika = e.target.result;
-                    const previewElement = document.getElementById("previewEditSlike");
+                    const previewElement = document.getElementById("previewEditSlikes");
                     if (previewElement) {
                         previewElement.src = odabranaEditSlika;
                         if (previewElement.style.display === "none") {
@@ -292,7 +292,7 @@ function pokreniAplikaciju() {
 
     [activityInterval, globalDataRefreshInterval].forEach(i => i && clearInterval(i));
     activityInterval = setInterval(azurirajMojuAktivnost, 15e3);
-    globalDataRefreshInterval = setInterval(globalDataRefreshInterval, 30e3);
+    globalDataRefreshInterval = setInterval(globalDataRefreshUI, 30e3); // Ispravljeno: poziva globalRefreshUI
 
     azurirajMojuAktivnost();
     dohvatiLokaciju(() => {
@@ -549,6 +549,9 @@ async function otvoriProfil(korisnikId, fromRefresh = false) {
         dohvatiKogaKorisnikPrati(korisnikId)
     ]);
 
+    // !!! KLJUČNA PROMJENA: Ažuriraj myFollowings listu za trenutnog korisnika !!!
+    await dohvatiMojaPracenja();
+
     const profilKorisnikaDiv = document.getElementById("profilKorisnika");
     profilKorisnikaDiv.dataset.userId = korisnikId;
     document.getElementById("objavaForma").style.display = "none";
@@ -561,6 +564,7 @@ async function otvoriProfil(korisnikId, fromRefresh = false) {
     backButton.style.display = 'none';
 
     let actionButtons = '';
+    // isFollowing se sada računa na temelju ažurirane myFollowings liste
     let isFollowing = myFollowings.includes(korisnikId);
     let followButtonHtml = '';
 
@@ -963,8 +967,9 @@ async function toggleFollow(targetUserId, isCurrentlyFollowing) {
 
         if (response.ok) {
             alert(data.message);
-            await globalRefreshUI();
-            otvoriProfil(targetUserId, true);
+            // Ponovno dohvati moja praćenja i ažuriraj profil
+            await dohvatiMojaPracenja();
+            otvoriProfil(targetUserId, true); // True da ne dodaje na navigation stack
         } else {
             alert(`Greška pri ${actionText.toLowerCase()}anju: ${data.message}`);
         }
@@ -1005,7 +1010,7 @@ function showUserListModal(userId, userName, listType) {
                         <span class="user-list-name">${user.ime}</span>
                         ${trenutniKorisnik && trenutniKorisnik.id !== user.id ? `
                             <button class="user-list-follow-btn btn-${myFollowings.includes(user.id) ? 'secondary' : 'primary'}"
-                                onclick="event.stopPropagation(); toggleFollow('${user.id}', ${myFollowings.includes(user.id)}).then(() => { closeUserListModal(); otvoriProfil('${userId}', true); showUserListModal('${userId}', '${userName}', '${listType}'); });">
+                                onclick="event.stopPropagation(); toggleFollow('${user.id}', ${myFollowings.includes(user.id)}).then(() => { showUserListModal('${userId}', '${userName}', '${listType}'); });">
                                 ${myFollowings.includes(user.id) ? 'Otprati' : 'Prati'}
                             </button>` : ''}
                     </div>
