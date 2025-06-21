@@ -6,16 +6,14 @@ const JWT_SECRET = process.env.JWT_SECRET;
 module.exports = (handler) => async (req, res) => {
     // --- Rute koje NE ZAHTIJEVAJU AUTENTIFIKACIJU (public rute) ---
     // Provjeravamo i URL i METODU
+    const isPublicGetUsers = req.url === '/api/users' && req.method === 'GET';
+    const isPublicGetSingleUser = req.url.match(/^\/api\/users\/[^/]+$/) && req.method === 'GET'; // Npr. /api/users/nekioid
     const isRegisterOrLogin = req.url === '/api/register' || req.url === '/api/login';
     const isPublicGetPosts = req.url === '/api/posts' && req.method === 'GET';
 
-    // Rute unutar /api/users.js koje trebaju biti javne (samo GET metode)
-    const isPublicUsersRoute = req.url.startsWith('/api/users') && req.method === 'GET';
 
-    if (isRegisterOrLogin || isPublicGetPosts || isPublicUsersRoute) {
+    if (isRegisterOrLogin || isPublicGetUsers || isPublicGetSingleUser || isPublicGetPosts) {
         // Ove rute zaobilaze autentifikaciju i idu direktno na handler
-        // Važno: Za /api/users/[id]/follow i ostale PUT/DELETE/POST unutar /api/users/[id],
-        // withAuth middleware će ih uhvatiti i zahtijevati token.
         return handler(req, res);
     }
 

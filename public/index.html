@@ -7,60 +7,17 @@
     <link rel="stylesheet" href="/style.css">
     <style>
         /* Novi CSS za centriranje teksta "Trenutno nitko ne pije" */
-        /* Ova pravila su prebačena u .search-results klasu u style.css */
-        /*
         #pijankePregled.empty-message {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100%;
+            height: 100%; /* Pobrinite se da div zauzima punu visinu */
             text-align: center;
-            flex-direction: column;
+            flex-direction: column; /* Ako zelis vise redova, da budu jedan ispod drugog */
         }
         #pijankePregled.empty-message p {
-            margin: 0;
+            margin: 0; /* Ukloni defaultnu marginu od paragrafa */
         }
-        */
-
-        /*
-           Dodatni stil za div "noPijankeMessage" kako bi se rastegnuo
-           i centrirao sadržaj unutar #homePrikazPijanki
-        */
-        #noPijankeMessage {
-            flex-grow: 1; /* Omogućuje divu da zauzme sav dostupan vertikalni prostor */
-            display: flex; /* Ponovno ga učinimo flex kontejnerom za njegov sadržaj (tekst) */
-            justify-content: center; /* Centriranje teksta horizontalno unutar #noPijankeMessage */
-            align-items: center; /* Centriranje teksta vertikalno unutar #noPijankeMessage */
-            text-align: center; /* Dodatno osiguranje za centriranje teksta unutar #noPijankeMessage */
-            color: #888; /* Boja teksta iz .search-results */
-            font-size: 15px; /* Veličina fonta iz .search-results */
-            padding: 20px; /* Dodajte malo paddinga ako želite */
-            box-sizing: border-box; /* Važno za ispravan padding i širinu */
-        }
-
-        /* Postavite .search-results na 100% širine unutar svog roditelja */
-        .search-results {
-            width: 100%; /* Ovo će osigurati da .search-results zauzima punu širinu unutar #homePrikazPijanki */
-            /* Ostali .search-results stilovi su u style.css */
-        }
-
-        /* Privremeni stil za sakrivanje glavnog loga ako vam smeta na praznom ekranu */
-        #homePrikazPijanki .main-header {
-             display: flex; /* Vratite na flex */
-             justify-content: center;
-             align-items: center;
-             position: absolute; /* Ili relative, ovisno o željenom layoutu */
-             top: 0;
-             width: 100%;
-             height: 60px; /* Visina headera */
-             z-index: 100;
-             background-color: rgba(0, 0, 0, 0.95); /* Dodajte pozadinu ako header stoji */
-        }
-        #homePrikazPijanki .main-header h1.main-logo {
-            display: block; /* Ili flex, ako je logo slika/svg */
-        }
-
-
     </style>
 </head>
 <body>
@@ -127,13 +84,7 @@
             <h1 class="main-logo">
                 </h1>
         </div>
-        
-        <div id="pijankePregled">
-            </div>
-
-        <div id="noPijankeMessage" class="search-results" style="display: none;">
-            trenutno nitko ne pije., budi prvi!
-        </div>
+        <div id="pijankePregled"></div>
     </div>
 
     <div class="container" id="praznaTrazilica">
@@ -166,14 +117,14 @@
     <div class="container" id="glavniDio">
         <div class="top-nav-buttons">
             <button class="back-button" onclick="navigateBack()" style="display:none;">←</button>
-            <button class="close-btn" id="profileCloseBtn" onclick="navigateTo('homePrikazPijanki')" style="display:none;">✖</button>
+            <button class="close-btn" onclick="navigateBack()" style="display:none;">✖</button>
         </div>
         <h2 id="glavniNaslov"></h2>
         <div id="objavaForma">
             <textarea id="opisPijanke" placeholder="Opis pijanke (npr: nas 5 kod mene 🔥)"></textarea>
             <button onclick="objaviPijanku()">Objavi</button>
         </div>
-        <div id="profilKorisnika" data-user-id=""></div>
+        <div id="profilKorisnika"></div>
     </div>
 
     <div class="container" id="privatniChat">
@@ -252,7 +203,7 @@
     <nav class="bottom-nav hidden-initially">
         <button class="nav-button active" id="navHome" onclick="handleNavClick('homePrikazPijanki');">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504 1.125 1.125 1.125h2.25c.621 0 1.125.504 1.125 1.125v4.875h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21.75h7.5" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v4.875h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21.75h7.5" />
             </svg>
             <span>Home</span>
         </button>
@@ -282,14 +233,6 @@
         <img class="image-modal-content" id="fullImage">
     </div>
 
-    <div id="userListModal" class="image-modal">
-        <span class="close-image-modal" onclick="closeUserListModal()">&times;</span>
-        <div class="user-list-modal-content-wrapper">
-            <h2 id="userListModalTitle"></h2>
-            <div id="userListHtml" class="user-list-scroll-area">
-                </div>
-        </div>
-    </div>
     <script src="/script.js"></script>
     <script>
         // Pomoćna funkcija za ažuriranje aktivnog gumba u navigaciji
@@ -322,7 +265,7 @@
             }
         }
 
-        // Glavna funkcija za rukovanje klikovima na navigacijske gumbe
+        // NOVO: Glavna funkcija za rukovanje klikovima na navigacijske gumbe
         function handleNavClick(targetScreenId) {
             const currentActiveNavButton = document.querySelector('.bottom-nav .nav-button.active');
             let currentTargetScreenId = '';
@@ -340,6 +283,7 @@
                 }
             }
 
+            // Onemogući ponovni klik na aktivni gumb
             if (targetScreenId === currentTargetScreenId) {
                 if (targetScreenId === 'glavniDio' && currentTargetScreenId === 'editProfil') {
                 } else {
@@ -348,11 +292,12 @@
             }
 
 
+            // Pozovi odgovarajuću funkciju na temelju targetScreenId
             if (targetScreenId === 'homePrikazPijanki') {
                 navigateTo(targetScreenId);
-                prikaziPijankePregled(); // Ova funkcija će sada upravljati prikazom poruke
             } else if (targetScreenId === 'praznaTrazilica') {
                 navigateTo(targetScreenId);
+                // Ovdje se ne poziva dohvatiSvePijanke/prikaziPijankePregled
             } else if (targetScreenId === 'inboxPrikaz') {
                 otvoriInbox();
             } else if (targetScreenId === 'glavniDio') {
@@ -360,6 +305,7 @@
             }
         }
 
+        // Modificiramo DOMContentLoaded da se aplikacija odmah pokrene
         window.addEventListener('DOMContentLoaded', async function() {
             const token = localStorage.getItem("token");
 
@@ -372,33 +318,34 @@
             let appInitializedSuccessfully = false;
             if (token) {
                 try {
+                    // Pokušaj dohvatiti korisničke podatke pomoću tokena
                     const response = await authenticatedFetch('/api/auth/me');
                     if (response.ok) {
                         const data = await response.json();
                         trenutniKorisnik = data.user;
                         appInitializedSuccessfully = true;
                     } else {
+                        // Ako token nije validan, ukloni ga
                         console.warn("Token not valid, removing it and logging out.");
                         localStorage.removeItem("token");
                     }
                 } catch (error) {
+                    // Greška pri fetchu (npr. mreža nedostupna), ukloni token i odjavi
                     console.error("Error fetching user data with token:", error);
                     localStorage.removeItem("token");
                 }
             }
 
             if (appInitializedSuccessfully) {
+                // Ako je korisnik uspješno provjeren, pokreni aplikaciju
                 pokreniAplikaciju();
             } else {
-                // Ako korisnik nije prijavljen, prikaži odmah intro ekran
-                const introScreen = document.getElementById('intro');
-                if (introScreen) {
-                    introScreen.style.display = 'flex';
-                    introScreen.classList.add('active-screen');
-                }
-                toggleAppUI(false); // Sakrij navigaciju i FAB dok se ne prijave
+                // Inače, prikaži intro ekran i sakrij UI elemente
+                navigateTo('intro');
+                toggleAppUI(false);
             }
 
+            // Inicijalizacija listenera za privatniInput (ovo može ostati isto)
             const privatniInput = document.getElementById('privatniInput');
             const posaljiBtn = document.getElementById('posaljiPrivatnoBtn');
 
@@ -416,6 +363,7 @@
                 });
             }
 
+            // NOVO: Listener za input za slike u chatu
             const imageUploadChatEl = document.getElementById("imageUploadChat");
             if (imageUploadChatEl) {
                 imageUploadChatEl.addEventListener("change", async function() {
@@ -424,64 +372,61 @@
                         const reader = new FileReader();
                         reader.onload = async e => {
                             const base64Image = e.target.result;
-                            const compressedImage = await compressImage(base64Image);
-                            await posaljiSlikuPrivatno(compressedImage);
-                            imageUploadChatEl.value = '';
+                            const compressedImage = await compressImage(base64Image); // Koristimo postojeću funkciju
+                            await posaljiSlikuPrivatno(compressedImage); // Nova funkcija za slanje slike
+                            imageUploadChatEl.value = ''; // Resetirajte input field da možete ponovno odabrati istu sliku
                         };
                         reader.readAsDataURL(file);
                     }
                 });
             }
 
+            // NOVO: Postavite event listenere za modal za slike
             const imageModal = document.getElementById('imageModal');
             const closeImageModal = document.querySelector('.close-image-modal');
             if (closeImageModal) {
                 closeImageModal.onclick = function() {
                     imageModal.style.display = 'none';
-                    document.body.style.overflow = 'auto';
+                    // Vratite skrolanje tijelu kad se modal zatvori
+                    document.body.style.overflow = 'hidden';
                 };
             }
             if (imageModal) {
+                // Zatvori modal klikom izvan slike (ali unutar overlay-a)
                 imageModal.addEventListener('click', function(event) {
                     if (event.target === imageModal) {
                         imageModal.style.display = 'none';
-                        document.body.style.overflow = 'auto';
+                        document.body.style.overflow = 'hidden';
                     }
                 });
             }
         });
 
+        // Modificiramo pokreniAplikaciju da prikaže UI i postavi aktivni gumb
         const originalPokreniAplikaciju = pokreniAplikaciju;
         pokreniAplikaciju = function() {
             originalPokreniAplikaciju();
-            toggleAppUI(true); // Prikazi UI pri pokretanju aplikacije
+            toggleAppUI(true);
             navigateTo('homePrikazPijanki');
+            // Ovdje također osiguraj da se podaci ponovno dohvate pri pokretanju aplikacije nakon prijave
             globalRefreshUI();
         };
 
+        // Modificiramo odjaviSe da sakrije UI
         const originalOdjaviSe = odjaviSe;
         odjaviSe = function() {
             originalOdjaviSe();
             toggleAppUI(false);
         };
 
+        // Funkcija koja se poziva nakon što se swap završi, da ažurira aktivni nav gumb
         function afterSwapUpdateNavButton(targetScreenId) {
             const fabButton = document.getElementById('fabObjaviPijanku');
-            const navBarTargetScreens = ['homePrikazPijanki', 'praznaTrazilica', 'inboxPrikaz', 'glavniDio', 'editProfil'];
-
-            // === IZMJENA: Uvijek prikazi/sakrij UI na temelju targetScreenId ===
-            if (navBarTargetScreens.includes(targetScreenId)) {
-                toggleAppUI(true); // Prikazi nav bar i FAB
-            } else {
-                toggleAppUI(false); // Sakrij nav bar i FAB
-            }
-            // =================================================================
-
             if (fabButton) {
+                // FAB je vidljiv samo na Home ekranu
                 fabButton.style.display = (targetScreenId === 'homePrikazPijanki') ? 'flex' : 'none';
             }
 
-            // Ažuriraj aktivni nav gumb
             if (targetScreenId === 'homePrikazPijanki') {
                 updateActiveNavButton('navHome');
             } else if (targetScreenId === 'praznaTrazilica') {
@@ -511,11 +456,14 @@
             }
         }
 
+        // Modificiramo navigateTo da odmah prikaže novi ekran i ažurira nav gumb
         const originalNavigateTo = navigateTo;
         navigateTo = function(targetScreenId) {
             const currentScreenEl = document.querySelector('.container.active-screen');
+            // Dodan praznaTrazilica u navBarTargetScreens
             const navBarTargetScreens = ['homePrikazPijanki', 'praznaTrazilica', 'inboxPrikaz', 'glavniDio', 'editProfil'];
 
+            // Prikazi/sakrij confirm-button na editProfilu
             const confirmButton = document.getElementById('sacuvajProfilBtn');
             if (confirmButton) {
                 if (targetScreenId === 'editProfil') {
@@ -525,22 +473,31 @@
                 }
             }
 
-            const isNavigatingWithinNavbar = (currentScreenEl && navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId));
-            const isNavigatingFromEditToProfile = (currentScreenEl && currentScreenEl.id === 'editProfil' && targetScreenId === 'glavniDio');
-            const isNavigatingFromChatToChat = (currentScreenEl && currentScreenEl.id === 'privatniChat' && targetScreenId === 'privatniChat');
-
-
-            if (!isNavigatingWithinNavbar && !isNavigatingFromEditToProfile && !isNavigatingFromChatToChat && currentScreenEl) {
-                navigationStack.push(currentScreenEl.id);
+            if (currentScreenEl && !navBarTargetScreens.includes(targetScreenId)) {
+                if (!(navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId))) {
+                    navigationStack.push(currentScreenEl.id);
+                }
+            } else if (currentScreenEl && targetScreenId === 'glavniDio' && document.getElementById("profilKorisnika").style.display !== "none") {
+            } else if (currentScreenEl && targetScreenId === 'glavniDio' && currentScreenEl.id === 'editProfil') {
+            }
+            else if (currentScreenEl && targetScreenId === 'privatniChat' && currentScreenEl.id.includes('Chat')) {
+            }
+            else if (currentScreenEl && !navBarTargetScreens.includes(currentScreenEl.id) && navBarTargetScreens.includes(targetScreenId)) {
+            }
+            else if (currentScreenEl && targetScreenId === 'glavniDio' && document.getElementById("objavaForma").style.display !== "none") {
+            }
+            else {
             }
 
             swap(currentScreenEl ? currentScreenEl.id : null, targetScreenId);
-            // afterSwapUpdateNavButton se sada poziva unutar swap funkcije's animationend listenera
-            // ili odmah ako nema animacije, što osigurava pravilan redoslijed.
+            afterSwapUpdateNavButton(targetScreenId);
         };
 
+        // Modificiramo navigateBack - potrebno je osigurati da se animacija završi
         const originalNavigateBack = navigateBack;
         navigateBack = function() {
+            const targetScreenIdAfterBack = navigationStack[navigationStack.length - 1];
+
             originalNavigateBack();
 
             setTimeout(() => {
@@ -553,21 +510,132 @@
                     });
                 }
 
+                // Sakrij confirm-button kad se vraćamo s editProfila
                 const confirmButton = document.getElementById('sacuvajProfilBtn');
                 if (confirmButton) {
                     if (newActiveScreenEl && newActiveScreenEl.id !== 'editProfil') {
                         confirmButton.classList.add('hidden');
                     }
                 }
+
             }, 300);
         };
 
+        // Kada se otvara profil, ažuriraj nav gumb i sakrij FAB
+        const originalOtvoriProfil = otvoriProfil;
+        otvoriProfil = function(korisnikId) {
+            navigateTo('glavniDio');
+
+            const korisnik = sviKorisnici.find(u => u.id === korisnikId);
+            if (!korisnik) return;
+
+            const profilKorisnikaDiv = document.getElementById("profilKorisnika");
+            document.getElementById("objavaForma").style.display = "none";
+            profilKorisnikaDiv.style.display = "flex";
+
+            let actionButtons = '';
+            if (trenutniKorisnik && korisnik.id === trenutniKorisnik.id) {
+                document.querySelector('#glavniDio h2').innerText = "Moj profil";
+                actionButtons = `<button onclick="prikaziEditProfila()">Uredi profil</button><button class="btn-danger" onclick="odjaviSe()">Odjavi se</button>`;
+            } else {
+                document.querySelector('#glavniDio h2').innerText = "Profil korisnika";
+                actionButtons = `<button onclick="pokreniPrivatniChat('${korisnik.id}')">💬 Pošalji poruku</button>`;
+            }
+
+            profilKorisnikaDiv.innerHTML = `
+                <img src="${korisnik.slika || 'default_profile.png'}" class="profilna-slika-velika">
+                <h2 style="padding-top:0; margin-bottom: 5px;">${korisnik.ime || 'Nepoznat korisnik'}</h2>
+                <p class="profil-opis">${korisnik.opis || "Nema opisa."}</p>
+                <div class="drustvene-mreze">${prikaziMreze(korisnik)}</div>
+                <div class="profil-actions">${actionButtons}</div>
+            `;
+
+            // Sakrij back i close gumbe kada se prikazuje profil
+            document.querySelector('#glavniDio .back-button').style.display = 'none';
+            document.querySelector('#glavniDio .close-btn').style.display = 'none';
+        };
+
+        // Kada se otvara inbox, ažuriraj nav gumb i sakrij FAB
+        const originalOtvoriInbox = otvoriInbox;
+        otvoriInbox = function() {
+            navigateTo('inboxPrikaz');
+
+            const div = document.getElementById("listaChatova");
+            div.innerHTML = "";
+
+            dohvatiSvePoruke().then(() => {
+                const chatKeys = (trenutniKorisnik && trenutniKorisnik.id) ? Object.keys(privatnePoruke).filter(key => key.includes(trenutniKorisnik.id)) : [];
+                if (chatKeys.length === 0) {
+                    div.innerHTML = '<p style="text-align:center;color:#888;">Nemaš još nijednu poruku.</p>';
+                } else {
+                    // Sortiraj po vremenu zadnje poruke, najnovije prvo
+                    chatKeys.sort((a, b) => {
+                        const timeA = privatnePoruke[a]?.slice(-1)[0]?.time;
+                        const timeB = privatnePoruke[b]?.slice(-1)[0]?.time;
+                        if (!timeA) return 1; // Ako nema poruka, premjesti ga na kraj
+                        if (!timeB) return -1; // Ako nema poruka, premjesti ga na kraj
+                        return new Date(timeB) - new Date(timeA);
+                    })
+                    .forEach(chatKey => {
+                        const partnerId = chatKey.split("-").find(id => id !== trenutniKorisnik.id);
+                        const partner = sviKorisnici.find(u => u.id == partnerId);
+                        if (!partner) return;
+
+                        // --- START: Nova logika za dohvaćanje detalja zadnje poruke ---
+                        const svePorukeChata = privatnePoruke[chatKey] || [];
+                        const zadnjaPorukaObj = svePorukeChata.length > 0 ? svePorukeChata[svePorukeChata.length - 1] : null;
+
+                        let zadnjaPorukaPreview = "Započnite razgovor";
+                        if (zadnjaPorukaObj) {
+                            if (zadnjaPorukaObj.imageUrl) {
+                                zadnjaPorukaPreview = "📷 Slika";
+                            } else if (zadnjaPorukaObj.tekst) {
+                                zadnjaPorukaPreview = zadnjaPorukaObj.tekst;
+                            }
+                        }
+
+                        const vrijemePoruke = zadnjaPorukaObj ? new Date(zadnjaPorukaObj.time).toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' }) : '';
+                        const neprocitaneCount = svePorukeChata.filter(m => !m.isRead && m.autorId == partner.id).length;
+                        const status = formatirajStatus(partner.lastActive);
+                        // --- END: Nova logika ---
+
+                        // --- START: Novi, redizajnirani HTML za chat-item ---
+                        div.innerHTML += `
+                            <div class="chat-item" data-partner-name="${partner.ime.toLowerCase()}" onclick="pokreniPrivatniChat('${partner.id}')">
+                                <div class="chat-profilna-wrapper">
+                                    <img src="${partner.slika || 'default_profile.png'}" class="chat-item-profilna" alt="profilna">
+                                    <span class="status-dot ${status.online ? 'online' : 'offline'}"></span>
+                                </div>
+                                <div class="chat-item-info">
+                                    <div class="chat-item-info-text">
+                                        <strong>${partner.ime}</strong>
+                                        <p class="status-text">${zadnjaPorukaPreview}</p>
+                                    </div>
+                                    <div class="chat-meta-info">
+                                        <span class="chat-vrijeme">${vrijemePoruke}</span>
+                                        ${neprocitaneCount > 0 ? `<span class="notification-badge-chat">${neprocitaneCount}</span>` : ""}
+                                    </div>
+                                </div>
+                            </div>`;
+                        // --- END: Novi HTML ---
+                    });
+                }
+                azurirajNotifikacije();
+            });
+        };
+
+
+        // Kada se pokaže objava, navigacija ostaje, ali niti jedan gumb nije "aktivan" i FAB se skriva
         const originalPokaziObjavu = pokaziObjavu;
         pokaziObjavu = function() {
             originalPokaziObjavu();
-            // Nema potrebe sakrivati nav bar ovdje, jer afterSwapUpdateNavButton to rješava
+            document.querySelectorAll('.bottom-nav .nav-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.getElementById('fabObjaviPijanku').style.display = 'none';
         };
 
+        // NOVO: Funkcija za filtriranje chat stavki
         function filterChatItems() {
             const searchTerm = document.getElementById('inboxSearchBarInput').value.toLowerCase();
             const chatItems = document.querySelectorAll('#listaChatova .chat-item');
@@ -581,92 +649,38 @@
             });
         }
 
-        // === KLJUČNA IZMJENA: Dodan listener unutar swap funkcije ===
-        // Premještamo afterSwapUpdateNavButton poziv ovdje
-        const originalSwap = swap;
-        swap = function(hideId, showId) {
-            const hideElement = document.getElementById(hideId);
-            const showElement = document.getElementById(showId);
-            if (!showElement) return;
-
-            const showNewElementAndCallAfterSwap = () => {
-                showElement.style.display = 'flex';
-                setTimeout(() => {
-                    showElement.classList.add('active-screen');
-                    afterSwapUpdateNavButton(showId); // Pozovi nakon što je novi ekran aktivan
-                }, 10);
-            };
-
-            if (hideElement && hideElement.classList.contains('active-screen')) {
-                hideElement.classList.remove('active-screen');
-                hideElement.classList.add('fade-out-screen');
-                hideElement.addEventListener('animationend', function handler() {
-                    hideElement.style.display = 'none';
-                    hideElement.classList.remove('fade-out-screen');
-                    hideElement.removeEventListener('animationend', handler);
-                    showNewElementAndCallAfterSwap();
-                }, { once: true });
-            } else {
-                // Ako nema hide animacije, samo prikaži novi element i pozovi afterSwap
-                if (hideElement) { // Provjeri da hideElement postoji prije sakrivanja
-                    hideElement.style.display = 'none';
-                    hideElement.classList.remove('active-screen', 'fade-out-screen');
-                }
-                showNewElementAndCallAfterSwap();
+        // --- NOVO: Funkcija za slanje slike privatno ---
+        async function posaljiSlikuPrivatno(imageData) { // imageData je Base64 string kompresirane slike
+            if (!imageData || !trenutniChatPartnerId) {
+                alert("Nema slike za poslati ili nije odabran primatelj.");
+                return;
             }
-        };
-        // ===========================================================
-        
-        // Funkcija za prikazivanje/skrivanje poruke "nema pijanki"
-        // Morate implementirati `prikaziPijankePregled` u vašem `script.js`
-        // tako da provjerava ima li pijanki. Ako nema, prikaže `#noPijankeMessage` i sakrije `#pijankePregled`.
-        // Ako ima, sakrije `#noPijankeMessage` i prikaže `#pijankePregled` (i napuni ga).
 
-        // Primjer kako bi vaša funkcija `prikaziPijankePregled` u `script.js` trebala biti prilagođena:
-        /*
-        async function prikaziPijankePregled() {
-            const pijankeContainer = document.getElementById('pijankePregled');
-            const noPijankeMessage = document.getElementById('noPijankeMessage');
-            
-            // Pretpostavimo da dohvaćate pijanke ovdje
-            const pijanke = await fetchPijankeFromServer(); // Vaša funkcija za dohvat pijanki
+            const posaljiBtn = document.getElementById('posaljiPrivatnoBtn');
+            // Ne onemogućavamo ovdje posaljiBtn jer se koristi za tekstualne poruke.
+            // Ako želite vizualnu povratnu informaciju, možete prikazati loading spinner negdje drugdje.
 
-            if (pijanke && pijanke.length > 0) {
-                // Ima pijanki, prikaži ih
-                noPijankeMessage.style.display = 'none';
-                pijankeContainer.style.display = 'block'; // Ili 'flex', ovisno o layoutu pijanki
-                pijankeContainer.innerHTML = ''; // Očistite stari sadržaj
-                pijanke.forEach(pijanka => {
-                    // Ovdje kreirajte HTML za svaku pijanku i dodajte u pijankeContainer
-                    const pijankaDiv = document.createElement('div');
-                    pijankaDiv.className = 'pijanka';
-                    pijankaDiv.innerHTML = `
-                        <div class="pijanka-header" data-user-id="${pijanka.userId}">
-                            <img src="${pijanka.profilnaSlika}" alt="Profilna slika" class="pijanka-profilna-slika">
-                            <div class="pijanka-info-text">
-                                <strong>${pijanka.ime}</strong>
-                                <span class="status-text">${pijanka.status}</span>
-                            </div>
-                            <button class="delete-btn" onclick="obrisiPijanku('${pijanka.id}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 16px; height: 16px;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="pijanka-opis">
-                            <p>${pijanka.opis}</p>
-                        </div>
-                    `;
-                    pijankeContainer.appendChild(pijankaDiv);
+            try {
+                const response = await authenticatedFetch('/api/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ receiverId: trenutniChatPartnerId, imageUrl: imageData }) // Šaljemo imageUrl
                 });
-            } else {
-                // Nema pijanki, prikaži poruku
-                pijankeContainer.innerHTML = ''; // Ukloni sve pijanke ako ih je bilo
-                pijankeContainer.style.display = 'none';
-                noPijankeMessage.style.display = 'flex'; // Prikazi poruku
+                const data = await response.json();
+                if (response.ok) {
+                    console.log("Slika uspješno poslana:", data);
+                    await dohvatiSvePoruke(); // Osvježi poruke nakon slanja
+                    prikaziPrivatniLog(); // Prikaz nove poruke
+                } else {
+                    alert("Greška pri slanju slike: " + data.message);
+                }
+            } catch (error) {
+                console.error("Došlo je do greške pri slanju slike:", error);
+                alert("Došlo je do greške pri slanju slike.");
+            } finally {
+                // Ovdje ne radimo ništa s posaljiBtn, jer se slanje slike ne pokreće preko njega
             }
         }
-        */
     </script>
 </body>
 </html>
